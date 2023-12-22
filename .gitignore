@@ -1,0 +1,7 @@
+###########################
+# Auto Generated OS Files #
+###########################
+
+.DS_Store
+*.swp
+*__pycache__
