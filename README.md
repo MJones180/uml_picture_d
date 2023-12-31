@@ -9,19 +9,20 @@ Once these packages have been installed, `fits2hdf` must be cloned and installed
 
 ## Structure
 
-.
-├── README.md
-├── data
-│   ├── processed/
-│   └── raw/
-├── external_packages/
-├── output
-│   ├── analysis/
-│   └── trained_models/
-└── src
-    ├── main.py
-    ├── scripts/
-    └── utils/
+    .
+    ├── README.md
+    ├── data
+    │   ├── processed/
+    │   └── raw/
+    ├── external_packages/
+    ├── output
+    │   ├── analysis/
+    │   └── trained_models/
+    └── src
+        ├── main.py
+        ├── networks/
+        ├── scripts/
+        └── utils/
 
 ## Data
 

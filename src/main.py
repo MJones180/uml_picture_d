@@ -1,8 +1,6 @@
 import argparse
-from scripts.test import test_parser
+from script_cli import subparser_creators
 from sys import argv
-
-subparser_creators = [test_parser]
 
 
 def main(raw_args=None):
