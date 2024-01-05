@@ -1,5 +1,4 @@
-from networks.basic import Basic
-import torch
+from utils.load_network import load_network
 
 
 def network_info_parser(subparsers):
@@ -8,20 +7,26 @@ def network_info_parser(subparsers):
         help='display info on a network',
     )
     subparser.set_defaults(main=network_info)
+    subparser.add_argument(
+        'network_name',
+        help=('name of the python script containing the network (without the '
+              '`.py`), must be located in the `src/networks` folder'),
+    )
 
 
 def network_info(cli_args):
-    random_data = torch.rand((1, 1, 31, 31))
-
-    model = Basic()
-    print(model)
-
+    network_name = cli_args['network_name']
+    network = load_network(network_name)
+    input_data = network.example_input()
+    network_inst = network()
+    print(f'Network: {network_name}')
+    print('Layers:')
     total = 0
-    for name, parameter in model.named_parameters():
+    for name, parameter in network_inst.named_parameters():
         if parameter.requires_grad:
             params = parameter.numel()
-            print(name, params)
+            print('    ', name, params)
             total += params
     print(f'Total Trainable Params: {total}')
-
-    print(model(random_data))
+    print('Sample call...')
+    print(network_inst(input_data))

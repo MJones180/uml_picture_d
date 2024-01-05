@@ -45,3 +45,9 @@ Along with each epoch, models store the following files:
 
 - `norm.json`: normalization values used in the training dataset
 - `hyperparameters.json`: the hyperparameters used to train the model
+
+## Networks
+
+All networks (the structure of a given model) must be stored in the `src/networks` folder.
+Each network must have the class name of `Network`.
+Additionally, each class must have a static function named `example_input` which returns an example array which could be fed in to the network.

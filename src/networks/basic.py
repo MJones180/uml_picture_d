@@ -3,7 +3,10 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-class Basic(nn.Module):
+class Network(nn.Module):
+
+    def example_input():
+        return torch.rand((1, 1, 31, 31))
 
     def __init__(self):
         super().__init__()

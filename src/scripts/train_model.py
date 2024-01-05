@@ -221,4 +221,3 @@ if __name__ == '__main__':
     #     help='path to the dataset to use for validation',
     # )
     ModelTrain(**vars(parser.parse_args()))
-
