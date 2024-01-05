@@ -14,6 +14,8 @@ If the dependencies change at any point, the `environment.yml` can be updated vi
 
     conda env export --no-builds | grep -v "^prefix: " > environment.yml
 
+A helpful cheatsheet with useful Conda commands: https://docs.conda.io/projects/conda/en/4.6.0/_downloads/52a95608c49671267e40c689e0bc00ca/conda-cheatsheet.pdf
+
 ## Structure
 
     .
@@ -51,3 +53,7 @@ Along with each epoch, models store the following files:
 All networks (the structure of a given model) must be stored in the `src/networks` folder.
 Each network must have the class name of `Network`.
 Additionally, each class must have a static function named `example_input` which returns an example array which could be fed in to the network.
+
+## Docstrings
+
+Docstrings throughout the code are mostly formatted using `numpydoc` (https://numpydoc.readthedocs.io/en/latest/format.html).
