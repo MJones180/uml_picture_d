@@ -1,5 +1,5 @@
 import argparse
-from script_cli import subparser_creators
+from script_parsers import script_parsers
 from sys import argv
 
 
@@ -20,7 +20,7 @@ def main(raw_args=None):
     # Allow for subparsers to be created
     subparsers = cli_parser.add_subparsers()
     # Add the subparser from each script
-    for subparser_creator in subparser_creators:
+    for subparser_creator in script_parsers:
         subparser_creator(subparsers)
     # Parse the `raw_args`, will automatically call the correct subparser
     matched_args, unmatched_args = cli_parser.parse_known_args(raw_args)
