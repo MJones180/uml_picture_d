@@ -2,6 +2,10 @@ from utils.load_network import load_network
 
 
 def network_info_parser(subparsers):
+    """
+    Example command:
+    python3 main.py network_info basic
+    """
     subparser = subparsers.add_parser(
         'network_info',
         help='display info on a network',
