@@ -2,7 +2,7 @@ from h5py import File
 import torch
 
 
-class H5Dataset(torch.utils.data.Dataset):
+class HDFLoader(torch.utils.data.Dataset):
 
     def __init__(self, path):
         self.path = path
