@@ -38,6 +38,8 @@ A helpful cheatsheet with useful Conda commands: https://docs.conda.io/projects/
 Data is zipped and located in Google Drive at:
 https://drive.google.com/drive/u/0/folders/1TA4R11xS-Lsn-TKVBSecxFMyboVPCshU
 
+Once unzipped, the only thing the dataset should consist of are FITS files and the input CSV (`*input*.csv`).
+
 ## Model
 
 All trained models will automatically be outputted in the `output/trained_models/` folder.
