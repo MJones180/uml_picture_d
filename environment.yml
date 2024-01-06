@@ -90,6 +90,3 @@ dependencies:
   - yaml=0.2.5
   - zipp=3.17.0
   - zstd=1.5.5
-  - pip:
-      - colorama==0.4.6
-      - fits2hdf==1.1.1

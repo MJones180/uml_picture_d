@@ -22,7 +22,7 @@ A helpful cheatsheet with useful Conda commands: https://docs.conda.io/projects/
     ├── README.md
     ├── data
     │   ├── processed/
-    │   └── raw/
+    │   └── raw_fits/
     ├── output
     │   ├── analysis/
     │   └── trained_models/
