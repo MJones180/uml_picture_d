@@ -1,11 +1,51 @@
-import argparse
 from datetime import datetime
-from h5py import File
 from networks.basic import Basic
 import torch
 from torch.utils.tensorboard import SummaryWriter
 from torchvision.transforms import v2
 from utils.arg_types import dir_path
+from utils.hdf_loader import HDFLoader
+
+
+def model_train_parser(subparsers):
+    subparser = subparsers.add_parser(
+        'model_train',
+        help='train a new model',
+    )
+    subparser.set_defaults(main=model_train)
+    subparser.add_argument(
+        'tag',
+        help=('unique tag given to this model, all epochs will be saved under'
+              'this tag in the `/output/trained_models` directory'),
+    )
+    subparser.add_argument(
+        'training_dataset_name',
+        help='name of the training dataset, will look in `/data/processed/`',
+    )
+    subparser.add_argument(
+        'validation_dataset_name',
+        help='name of the validation dataset, will look in `/data/processed/`',
+    )
+    subparser.add_argument(
+        'network_name',
+        help=('name of the python script containing the network (without the '
+              '`.py`), must be located in the `/src/networks` folder'),
+    )
+    # Batch size
+    # Loss function – Simple string, no parameters needed
+    # Learning rate
+    # Optimizer
+    # Transforms
+    # Epochs
+    # Epoch save steps
+    #     Or, only best epochs?
+    # shuffle
+    # Output
+
+
+def model_train(cli_args):
+    pass
+
 
 transforms = v2.Compose([
     v2.RandomHorizontalFlip(p=0.5),
@@ -13,31 +53,9 @@ transforms = v2.Compose([
 ])
 
 
-class H5Dataset(torch.utils.data.Dataset):
-
-    def __init__(self, path):
-        self.path = path
-        self.dataset = None
-
-    def __load_dataset_if_None__(self):
-        if self.dataset is None:
-            self.dataset = File(self.path, 'r')
-
-    def __getitem__(self, index):
-        self.__load_dataset_if_None__()
-        # print(self.dataset['outputs'][index])
-        inputs = self.dataset['inputs'][index]
-        outputs = self.dataset['outputs'][index]
-        return inputs, outputs
-
-    def __len__(self):
-        self.__load_dataset_if_None__()
-        return len(self.dataset['inputs'])
-
-
 def ModelTrain(dataset, output, batch_size=128, shuffle=False):
 
-    train_dataset = H5Dataset(dataset)
+    train_dataset = HDFLoader(dataset)
     # This can probably be optimized
     train_loader = torch.utils.data.DataLoader(
         train_dataset,
@@ -131,93 +149,3 @@ def ModelTrain(dataset, output, batch_size=128, shuffle=False):
             torch.save(model.state_dict(), model_path)
 
         epoch_number += 1
-
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Train a model.')
-    parser.add_argument(
-        'dataset',
-        help='path to the dataset to use for training',
-    )
-    parser.add_argument(
-        'output',
-        type=dir_path,
-        help='path to the output dir',
-    )
-    # parser.add_argument(
-    #     '-n',
-    #     '--networkName',
-    #     metavar='',
-    #     help='name of the network to use for training',
-    # )
-    # parser.add_argument(
-    #     '-o',
-    #     '--optimizer',
-    #     metavar='',
-    #     default='adam',
-    #     help="Keras optimizer, default is 'adam'",
-    # )
-    # parser.add_argument(
-    #     '-r',
-    #     '--lr',
-    #     metavar='',
-    #     nargs='+',
-    #     help=(
-    #         'learning rate of the optimizer as an exponent of base 10 (int), '
-    #         'by passing None the optimizer\'s default value will be used '
-    #         '(default); lr annealing is also supported if a constant lr is not '
-    #         'desired, this can be accomplished by passing three parameters in '
-    #         'the format `<starting lr> <epoch steps> <change amount>` where '
-    #         '`starting lr` is an exponent of base 10 (int), `epoch steps` is '
-    #         'the number of epochs between updating the lr (int), and `change '
-    #         'amount` is the value to update the lr by in scientific notation '
-    #         '(float; write as ints – no decimal points); an example annealing '
-    #         'lr is `-2 5 99e-2` – it starts with a lr of 10**-2 (0.01) and '
-    #         'gets updated every 5 epochs by being multiplied by 99e-2 (0.99)'),
-    # )
-    # parser.add_argument(
-    #     '-l',
-    #     '--loss',
-    #     metavar='',
-    #     default='mean_squared_error',
-    #     help="Keras loss, default is 'mean_squared_error'",
-    # )
-    parser.add_argument(
-        '-b',
-        '--batch_size',
-        type=int,
-        metavar='',
-        default=128,
-        help='number of samples to train each batch, default 32',
-    )
-    parser.add_argument(
-        '--shuffle',
-        action='store_true',
-        help='shuffle at the start of each epoch',
-    )
-    # parser.add_argument(
-    #     '-e',
-    #     '--epochs',
-    #     type=int,
-    #     metavar='',
-    #     default=100,
-    #     help=('goal epoch to train until (starts at 0), default 100; '
-    #           'based on total epochs trained – not the starting epoch'),
-    # )
-    # parser.add_argument(
-    #     '-s',
-    #     '--epochSaveSteps',
-    #     type=int,
-    #     metavar='',
-    #     default=1,
-    #     help=('number of steps between saving epochs, default 1; '
-    #           'first and last epoch are always saved, even if program '
-    #           'ends early; saving occurs with respect to the total'),
-    # )
-    # parser.add_argument(
-    #     '-d',
-    #     '--validationDataset',
-    #     metavar='',
-    #     help='path to the dataset to use for validation',
-    # )
-    ModelTrain(**vars(parser.parse_args()))
