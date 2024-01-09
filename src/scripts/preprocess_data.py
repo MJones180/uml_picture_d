@@ -17,9 +17,9 @@ from astropy.io import fits
 from glob import glob
 from h5py import File
 import numpy as np
-from pathlib import Path
 from utils.json_write import json_write
 from utils.norm import find_min_max_norm, min_max_norm
+from utils.path import make_dir
 
 
 def preprocess_data_parser(subparsers):
@@ -214,7 +214,7 @@ def preprocess_data(cli_args):
     def _create_dataset(cli_arg, inputs, outputs):
         out_path = f'../data/processed/{cli_args[cli_arg]}'
         print(f'Making {out_path}')
-        Path(out_path).mkdir(parents=True, exist_ok=True)
+        make_dir(out_path)
         # Add the file with the normalization input and output values
         json_write(f'{out_path}/norm.json', norm_values)
         # Write out the processed HDF file
