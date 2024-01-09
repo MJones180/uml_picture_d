@@ -1,5 +1,7 @@
 from h5py import File
 import torch
+from utils.path import path_exists
+from utils.terminate_with_message import terminate_with_message
 
 
 class HDFLoader(torch.utils.data.Dataset):
@@ -8,11 +10,17 @@ class HDFLoader(torch.utils.data.Dataset):
         self.path = path
         self.inputs = None
         self.outputs = None
+        if not path_exists(path):
+            terminate_with_message(f'Dataset not found at {path}')
+
+    def get_path(self):
+        return self.path
 
     def _load_dataset(self):
         if self.inputs is None:
             dataset = File(self.path, 'r')
-            self.inputs = dataset['inputs']
+            # Inputs must be float32
+            self.inputs = dataset['inputs'][...].astype('float32')
             self.outputs = dataset['outputs']
 
     def __getitem__(self, index):
