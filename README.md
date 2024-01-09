@@ -44,11 +44,10 @@ Once unzipped, the only thing the dataset should consist of are FITS files and t
 
 All trained models will automatically be outputted in the `output/trained_models/` folder.
 Each model is stored under the unique tag given to it during training.
-The JSON file located at `output/trained_models/tag_lookup.json` will be created/updated with the hyperparameters associated with the model's tag after training has started.
 Along with each epoch, models store the following files:
 
+- `args.json`: the CLI args used to the model training script
 - `norm.json`: normalization values used in the training dataset
-- `hyperparameters.json`: the hyperparameters used to train the model
 
 ## Networks
 
