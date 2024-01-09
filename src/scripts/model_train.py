@@ -1,13 +1,48 @@
-from datetime import datetime
-from networks.basic import Basic
+"""
+This script is very limited right now but should be expanded in the future to
+allow for more freedom. Such changes include allowing for:
+    - All loss functions (including custom ones)
+    - All optimizers and the ability to pass all available arguments to them
+    - More in depth image transformations
+    - Early stopping
+
+Portions of the code from this file are adapted from:
+    https://pytorch.org/tutorials/beginner/introyt/trainingyt.html
+"""
+
 import torch
-from torch.utils.tensorboard import SummaryWriter
 from torchvision.transforms import v2
-from utils.arg_types import dir_path
 from utils.hdf_loader import HDFLoader
+from utils.json_write import json_write
+from utils.load_network import load_network
+from utils.path import (copy_files, delete_dir, delete_file, make_dir,
+                        path_parent)
+
+# Constants for the different available loss and optimizers functions.
+# Each value should correspond to the function's name in PyTorch.
+# nn.<loss_function>
+LOSS_FUNCTIONS = {
+    'mae': 'L1Loss',
+    'mse': 'MSELoss',
+}
+# Optimizers are currently restricted to the learning rate (`lr`) parameter.
+# torch.optim.<optimizer_function>
+OPTIMIZERS = {
+    'adagrad': 'Adagrad',
+    'adam': 'Adam',
+    'rmsprop': 'RMSprop',
+    'sgd': 'SGD',
+}
 
 
 def model_train_parser(subparsers):
+    """
+    Example command:
+    python3 main.py model_train \
+        v1a training_03_05_global validation_03_05_global \
+        test mae adam 1e-3 100 \
+        --batch-size 64 --overwrite-existing --only-best-epoch
+    """
     subparser = subparsers.add_parser(
         'model_train',
         help='train a new model',
@@ -31,121 +66,229 @@ def model_train_parser(subparsers):
         help=('name of the python script containing the network (without the '
               '`.py`), must be located in the `/src/networks` folder'),
     )
-    # Batch size
-    # Loss function – Simple string, no parameters needed
-    # Learning rate
-    # Optimizer
-    # Transforms
-    # Epochs
-    # Epoch save steps
-    #     Or, only best epochs?
-    # shuffle
-    # Output
+    subparser.add_argument(
+        'loss',
+        type=str.lower,
+        choices=LOSS_FUNCTIONS.keys(),
+        help='loss function to use',
+    )
+    subparser.add_argument(
+        'optimizer',
+        type=str.lower,
+        choices=OPTIMIZERS.keys(),
+        help='optimizer function to use',
+    )
+    subparser.add_argument(
+        'learning_rate',
+        type=float,
+        help='learning rate of the optimizer',
+    )
+    subparser.add_argument(
+        'epochs',
+        type=int,
+        help='total number of epochs to train for',
+    )
+    subparser.add_argument(
+        '--batch-size',
+        type=int,
+        default=128,
+        help='number of samples per batch',
+    )
+    subparser.add_argument(
+        '--disable-shuffle',
+        action='store_true',
+        help='do not shuffle data at the start of each epoch',
+    )
+    subparser.add_argument(
+        '--drop-last',
+        action='store_true',
+        help='drop the last incomplete batch for each epoch if there is one',
+    )
+    subparser.add_argument(
+        '--overwrite-existing',
+        action='store_true',
+        help='if existing model with tag, delete before training',
+    )
+    subparser.add_argument(
+        '--randomly-flip-images',
+        action='store_true',
+        help=('50%% chance of flipping images horizontally and '
+              '50%% chance of flipping images vertically'),
+    )
+    epoch_save_group = subparser.add_mutually_exclusive_group()
+    epoch_save_group.add_argument(
+        '--epoch-save-steps',
+        type=int,
+        metavar='n',
+        help='every n epochs and the most recent epoch will be saved',
+    )
+    epoch_save_group.add_argument(
+        '--only-best-epoch',
+        action='store_true',
+        help=('only the best epoch as based on the validation '
+              'dataset will be saved'),
+    )
 
 
 def model_train(cli_args):
-    pass
 
+    def _print1(msg):
+        print()
+        print(f'{msg}...')
 
-transforms = v2.Compose([
-    v2.RandomHorizontalFlip(p=0.5),
-    v2.RandomVerticalFlip(p=0.5),
-])
+    def _print2(msg):
+        print(f'    {msg}')
 
+    _print1('Creating the new model directory')
+    tag = cli_args['tag']
+    output_model_path = f'../output/trained_models/{tag}'
+    if cli_args['overwrite_existing']:
+        _print2('Deleting old model if one exists')
+        delete_dir(output_model_path)
+    make_dir(output_model_path)
 
-def ModelTrain(dataset, output, batch_size=128, shuffle=False):
+    _print1('Loading in the training and validation datasets')
 
-    train_dataset = HDFLoader(dataset)
-    # This can probably be optimized
+    def _fetch_loader(arg):
+        return HDFLoader(f'../data/processed/{cli_args[arg]}/data.h5')
+
+    train_dataset = _fetch_loader('training_dataset_name')
+    validation_dataset = _fetch_loader('validation_dataset_name')
+
+    _print1('Copying over the normalization values from the training dataset')
+    copy_files(f'{path_parent(train_dataset.get_path())}/norm.json',
+               f'{output_model_path}/norm.json')
+
+    _print1('Saving all CLI args')
+    json_write(f'{output_model_path}/args.json', cli_args)
+
+    _print1('Creating the torch `DataLoader` for training and validation')
+    batch_size = cli_args['batch_size']
+    drop_last = cli_args['drop_last']
+    shuffle = not cli_args['disable_shuffle']
+    _print2(f'Batch size: {batch_size}')
+    _print2(f'Drop last: {drop_last}')
+    _print2(f'Shuffle: {shuffle}')
     train_loader = torch.utils.data.DataLoader(
         train_dataset,
         batch_size=batch_size,
+        drop_last=drop_last,
         shuffle=shuffle,
     )
+    _print2('Validation dataset will not shuffle')
+    validation_loader = torch.utils.data.DataLoader(
+        validation_dataset,
+        batch_size=batch_size,
+        drop_last=drop_last,
+        shuffle=False,
+    )
 
-    # Add torchvision support
+    _print1('Loading the network')
+    network_name = cli_args['network_name']
+    model = load_network(network_name)()
+    print(model)
 
-    model = Basic()
-    optimizer = torch.optim.Adam(model.parameters())
-    loss_fn = torch.nn.MSELoss()
+    _print1('Setting the loss function')
+    loss_name = cli_args['loss']
+    loss_function = getattr(torch.nn, LOSS_FUNCTIONS[loss_name])()
+    print(f'{loss_name} [{loss_function}]')
 
-    def train_one_epoch(epoch_index, tb_writer):
-        running_loss = 0.
-        last_loss = 0.
+    _print1('Setting the optimizer')
+    optimizer = getattr(torch.optim, OPTIMIZERS[cli_args['optimizer']])
+    # Currently, the only configurable parameter for each optimizer is the lr
+    optimizer = optimizer(model.parameters(), lr=cli_args['learning_rate'])
+    print(optimizer)
 
+    _print1('Setting the image transforms')
+    image_transforms = None
+    if cli_args['randomly_flip_images']:
+        image_transforms = v2.Compose([
+            v2.RandomHorizontalFlip(p=0.5),
+            v2.RandomVerticalFlip(p=0.5),
+        ])
+    _print2(image_transforms)
+
+    _print1('Creating CSV to track loss')
+    loss_file = f'{output_model_path}/epoch_loss.csv'
+    with open(loss_file, 'w') as loss_writer:
+        loss_writer.write('epoch, training_loss, validation_loss')
+
+    _print1('Preparing to train')
+    epoch_count = cli_args['epochs']
+    _print2(f'Epochs: {epoch_count}')
+    training_batches = len(train_loader)
+    _print2(f'Training batches per epoch: {training_batches}')
+    validation_batches = len(validation_loader)
+    _print2(f'Validation batches per epoch: {validation_batches}')
+    epoch_save_steps = cli_args['epoch_save_steps']
+    only_best_epoch = cli_args['only_best_epoch']
+    if epoch_save_steps:
+        _print2(f'Will save every {epoch_save_steps} epochs')
+    if only_best_epoch:
+        best_epoch_path = None
+        best_val_loss = 1e10
+        _print2('Will only save best epoch')
+    print()
+
+    for epoch_idx in range(1, epoch_count + 1):
+        print(f'EPOCH {epoch_idx}/{epoch_count}')
+
+        # Turn gradient tracking on
+        model.train(True)
+        total_train_loss = 0
         for i, data in enumerate(train_loader):
-            # Every data instance is an input + label pair
             inputs, labels = data
-            inputs = transforms(inputs)
-
-            # Zero your gradients for every batch!
+            if image_transforms is not None:
+                inputs = image_transforms(inputs)
+            # Zero gradients for every batch
             optimizer.zero_grad()
-
             # Make predictions for this batch
             outputs = model(inputs)
-
             # Compute the loss and its gradients
-            loss = loss_fn(outputs, labels)
+            loss = loss_function(outputs, labels)
             loss.backward()
-
             # Adjust learning weights
             optimizer.step()
+            total_train_loss += loss.item()
+        avg_train_loss = total_train_loss / training_batches
 
-            # Gather data and report
-            running_loss += loss.item()
-            if i % 1000 == 999:
-                last_loss = running_loss / 1000  # loss per batch
-                print('  batch {} loss: {}'.format(i + 1, last_loss))
-                tb_x = epoch_index * len(train_loader) + i + 1
-                tb_writer.add_scalar('Loss/train', last_loss, tb_x)
-                running_loss = 0.
-
-        return last_loss
-
-    # Initializing in a separate cell so we can easily add more epochs to the same run
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    writer = SummaryWriter('runs/fashion_trainer_{}'.format(timestamp))
-    epoch_number = 0
-
-    EPOCHS = 5
-
-    best_vloss = 1_000_000.
-
-    for epoch in range(EPOCHS):
-        print('EPOCH {}:'.format(epoch_number + 1))
-
-        # Make sure gradient tracking is on, and do a pass over the data
-        model.train(True)
-        avg_loss = train_one_epoch(epoch_number, writer)
-
-        running_vloss = 0.0
-        # Set the model to evaluation mode, disabling dropout and using population
-        # statistics for batch normalization.
+        # Set the model to evaluation mode (disables dropout)
         model.eval()
 
-        # # Disable gradient computation and reduce memory consumption.
-        # with torch.no_grad():
-        #     for i, vdata in enumerate(validation_loader):
-        #         vinputs, vlabels = vdata
-        #         voutputs = model(vinputs)
-        #         vloss = loss_fn(voutputs, vlabels)
-        #         running_vloss += vloss
+        total_val_loss = 0
+        # Disable gradient computation and reduce memory consumption
+        with torch.no_grad():
+            for i, data in enumerate(validation_loader):
+                inputs, labels = data
+                outputs = model(inputs)
+                loss = loss_function(outputs, labels)
+                total_val_loss += loss
+        avg_val_loss = total_val_loss / validation_batches
 
-        avg_vloss = running_vloss / (i + 1)
-        print('LOSS train {} valid {}'.format(avg_loss, avg_vloss))
+        with open(loss_file, 'a+') as loss_writer:
+            out_line = f'\n{epoch_idx}, {avg_train_loss}, {avg_val_loss}'
+            loss_writer.write(out_line)
 
-        # Log the running loss averaged per batch
-        # for both training and validation
-        writer.add_scalars('Training vs. Validation Loss', {
-            'Training': avg_loss,
-            'Validation': avg_vloss
-        }, epoch_number + 1)
-        writer.flush()
+        current_epoch_path = f'{output_model_path}/epoch_{epoch_idx}'
 
-        # Track best performance, and save the model's state
-        if avg_vloss < best_vloss:
-            best_vloss = avg_vloss
-            model_path = 'model_{}_{}'.format(timestamp, epoch_number)
-            torch.save(model.state_dict(), model_path)
+        def _save_epoch():
+            torch.save(model.state_dict(), current_epoch_path)
 
-        epoch_number += 1
+        if epoch_save_steps is not None:
+            # Always save the current epoch for progress
+            _save_epoch()
+            # If the last epoch isn't a checkpoint, then delete it
+            last_epoch = epoch_idx - 1
+            if last_epoch % epoch_save_steps:
+                delete_file(f'{output_model_path}/epoch_{last_epoch}', True)
+        elif only_best_epoch is True:
+            if avg_val_loss < best_val_loss:
+                # Save the new epoch
+                _save_epoch()
+                # Delete the last saved epoch sense it is no longer the best
+                if best_epoch_path is not None:
+                    delete_file(best_epoch_path, True)
+                best_epoch_path = current_epoch_path
+                best_val_loss = avg_val_loss
+        else:
+            _save_epoch()

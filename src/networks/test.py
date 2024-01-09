@@ -12,10 +12,10 @@ class Network(nn.Module):
         super().__init__()
         self.conv1 = nn.Conv2d(1, 16, 3)
         self.conv2 = nn.Conv2d(16, 32, 3)
-        self.dropout1 = nn.Dropout2d(0.25)
-        self.dropout2 = nn.Dropout2d(0.5)
+        self.dropout1 = nn.Dropout(0.25)
+        self.dropout2 = nn.Dropout(0.5)
         self.flattened1 = nn.Linear(5408, 128)
-        self.flattened2 = nn.Linear(128, 10)
+        self.flattened2 = nn.Linear(128, 23)
 
     # x represents our data
     def forward(self, x):
@@ -33,7 +33,6 @@ class Network(nn.Module):
         x = self.dropout1(x)
         # Flatten x with start_dim=1
         x = torch.flatten(x, 1)
-        print(x.shape)
         x = self.flattened1(x)
         x = F.relu(x)
         x = self.dropout2(x)
