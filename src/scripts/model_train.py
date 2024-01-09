@@ -8,6 +8,10 @@ allow for more freedom. Such changes include allowing for:
 
 Portions of the code from this file are adapted from:
     https://pytorch.org/tutorials/beginner/introyt/trainingyt.html
+
+It could be helpful to create a new JSON or CSV file at the root of the
+trained_models directory that contains a tag lookup to quickly find different
+trained models based on their hyperparameters.
 """
 
 import torch
