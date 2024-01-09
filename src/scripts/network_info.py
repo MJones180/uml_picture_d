@@ -4,7 +4,7 @@ from utils.load_network import load_network
 def network_info_parser(subparsers):
     """
     Example command:
-    python3 main.py network_info basic
+    python3 main.py network_info test
     """
     subparser = subparsers.add_parser(
         'network_info',
@@ -33,4 +33,6 @@ def network_info(cli_args):
             total += params
     print(f'Total Trainable Params: {total}')
     print('Sample call...')
-    print(network_inst(input_data))
+    output_data = network_inst(input_data)
+    print('Output data: ', output_data)
+    print('Output shape: ', output_data.shape)
