@@ -81,3 +81,5 @@ In addition, the following updates should also be made:
 - Create a general format for writing to CLI between the different scripts.
 - Modularize where possible (create new utils, etc.).
 - Add dedicated plotting tools.
+- Add grid search support to find the best hyperparameters for a given dataset. Parameters could include learning rate, optimizer, loss function, batch size, network, etc.
+- Add a script that compares different model analyses to quickly find the best one.

@@ -6,6 +6,9 @@ The plotting within this script should be put in its own module.
 
 A check should be added in the future to ensure that the `n_rows` and
 `n_cols` have enough cells for the outputs.
+
+The `epoch` argument should accept the 'last' value to automatically select
+the most trained epoch for a model.
 """
 
 from h5py import File
