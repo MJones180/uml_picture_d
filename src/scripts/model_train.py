@@ -42,10 +42,14 @@ OPTIMIZERS = {
 
 def model_train_parser(subparsers):
     """
-    Example command:
+    Example commands:
     python3 main.py model_train \
         v1a training_03_05_global validation_03_05_global \
-        test mae adam 1e-3 100 \
+        test mae adam 1e-3 250 \
+        --batch-size 64 --overwrite-existing --only-best-epoch
+    python3 main.py model_train \
+        v1a training_03_05_ind validation_03_05_ind \
+        test mae adam 1e-3 250 \
         --batch-size 64 --overwrite-existing --only-best-epoch
     """
     subparser = subparsers.add_parser(

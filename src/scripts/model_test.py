@@ -18,8 +18,9 @@ from utils.path import delete_dir, make_dir
 
 def model_test_parser(subparsers):
     """
-    Example command:
+    Example commands:
     python3 main.py model_test v1a 2 testing_03_05_global 5 5
+    python3 main.py model_test v1a 2 testing_03_05_ind 5 5
     """
     subparser = subparsers.add_parser(
         'model_test',
