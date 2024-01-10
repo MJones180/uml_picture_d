@@ -29,7 +29,7 @@ class HDFLoader(torch.utils.data.Dataset):
             dataset = File(self.path, 'r')
             # Inputs must be float32
             self.inputs = dataset['inputs'][...].astype('float32')
-            self.outputs = dataset['outputs']
+            self.outputs = dataset['outputs'][...]
 
     def __getitem__(self, index):
         self._load_dataset()
