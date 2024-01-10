@@ -1,5 +1,7 @@
 # uml_picture_d
 
+Michael Jones (Michael_Jones6@student.uml.edu)
+
 ## Installation
 
 The following Conda command will create the environment and install the necessary dependencies:
@@ -38,7 +40,15 @@ A helpful cheatsheet with useful Conda commands: https://docs.conda.io/projects/
 Data is zipped and located in Google Drive at:
 https://drive.google.com/drive/u/0/folders/1TA4R11xS-Lsn-TKVBSecxFMyboVPCshU
 
-Once unzipped, the only thing the dataset should consist of are FITS files and the input CSV (`*input*.csv`).
+The unzipped data should be placed in a folder in the `/data/raw_fits/` directory.
+The only thing the dataset should consist of are FITS files and the input CSV (`*input*.csv`).
+
+Raw data is then processed by the `/src/scripts/preprocess_data.py` script and saved in the `/data/processed/` directory.
+There are three separate datasets saved: training, validation, and testing.
+Each processed dataset ends up consisting of two files:
+
+- `data.h5`: all data is in the `inputs` and `outputs` tables
+- `norm.json`: normalization values of the training dataset
 
 ## Model
 
@@ -58,3 +68,14 @@ Additionally, each class must have a static function named `example_input` which
 ## Docstrings
 
 Docstrings throughout the code are mostly formatted using `numpydoc` (https://numpydoc.readthedocs.io/en/latest/format.html).
+
+## Future Updates
+
+At the top of each script, the comments talk about different updates that should be made.
+When I continue work on this repo over the summer, I will work on that new code.
+In addition, the following updates should also be made:
+
+- Note that individual scripts contain updates that should be made to them.
+- Add consistent docstrings to all code.
+- Add constants file (`src/utils/constants.py`). This should include paths to each of the directory locations (`networks`, `trained_models`, etc.).
+- Create a general format for writing to CLI between the different scripts.
