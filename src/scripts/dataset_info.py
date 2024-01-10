@@ -8,7 +8,8 @@ from utils.load_network import load_network
 def dataset_info_parser(subparsers):
     """
     Example command:
-    python3 main.py dataset_info training_03_05_global \
+    python3 main.py dataset_info \
+        training_03_05_global \
         --verify-network-compatability test \
         --display-example-images
     """
