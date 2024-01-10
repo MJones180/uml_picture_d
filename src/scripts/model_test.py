@@ -117,6 +117,8 @@ def model_test(cli_args):
 
     mae = _compute_loss(torch.nn.L1Loss)
     mse = _compute_loss(torch.nn.MSELoss)
+    _print2(f'MAE: {np.mean(mae)}')
+    _print2(f'MSE: {np.mean(mse)}')
 
     _print1('Writing results to HDF')
     out_file_path = f'{analysis_path}/results.h5'
