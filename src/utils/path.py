@@ -16,12 +16,14 @@ def delete_file(path, quiet=False):
             print('Nothing to delete.')
 
 
-def delete_dir(path):
+def delete_dir(path, quiet=False):
     try:
         shutil.rmtree(path)
-        print('Delete successful.')
+        if not quiet:
+            print('Delete successful.')
     except FileNotFoundError:
-        print('Nothing to delete.')
+        if not quiet:
+            print('Nothing to delete.')
 
 
 def make_dir(path):
