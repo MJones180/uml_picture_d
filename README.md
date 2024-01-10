@@ -76,7 +76,8 @@ When I continue work on this repo over the summer, I will work on that new code.
 In addition, the following updates should also be made:
 
 - Note that individual scripts contain updates that should be made to them.
-- Add consistent docstrings to all code.
+- Document all code (tutorials, commenting, docstrings, etc.).
 - Add constants file (`src/utils/constants.py`). This should include paths to each of the directory locations (`networks`, `trained_models`, etc.).
 - Create a general format for writing to CLI between the different scripts.
 - Modularize where possible (create new utils, etc.).
+- Add dedicated plotting tools.
