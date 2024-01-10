@@ -79,3 +79,4 @@ In addition, the following updates should also be made:
 - Add consistent docstrings to all code.
 - Add constants file (`src/utils/constants.py`). This should include paths to each of the directory locations (`networks`, `trained_models`, etc.).
 - Create a general format for writing to CLI between the different scripts.
+- Modularize where possible (create new utils, etc.).
