@@ -16,6 +16,14 @@ class HDFLoader(torch.utils.data.Dataset):
     def get_path(self):
         return self.path
 
+    def get_all_inputs(self):
+        self._load_dataset()
+        return self.inputs
+
+    def get_all_outputs(self):
+        self._load_dataset()
+        return self.outputs
+
     def _load_dataset(self):
         if self.inputs is None:
             dataset = File(self.path, 'r')
