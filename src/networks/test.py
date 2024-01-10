@@ -10,34 +10,21 @@ class Network(nn.Module):
 
     def __init__(self):
         super().__init__()
-        self.conv1 = nn.Conv2d(1, 16, 3)
-        self.conv2 = nn.Conv2d(16, 32, 3)
-        self.dropout1 = nn.Dropout(0.25)
-        self.dropout2 = nn.Dropout(0.5)
-        self.flattened1 = nn.Linear(5408, 128)
+        self.conv1 = nn.Conv2d(1, 8, 3)
+        self.conv2 = nn.Conv2d(8, 16, 3)
+        self.dropout1 = nn.Dropout(0.10)
+        self.flattened1 = nn.Linear(2704, 128)
         self.flattened2 = nn.Linear(128, 23)
 
-    # x represents our data
     def forward(self, x):
-        # Pass data through conv1
         x = self.conv1(x)
-        # Use the rectified-linear activation function over x
         x = F.relu(x)
-
         x = self.conv2(x)
         x = F.relu(x)
-
-        # Run max pooling over x
         x = F.max_pool2d(x, 2)
-        # Pass data through dropout1
-        x = self.dropout1(x)
-        # Flatten x with start_dim=1
-        x = torch.flatten(x, 1)
+        x = torch.flatten(x, start_dim=1)
         x = self.flattened1(x)
         x = F.relu(x)
-        x = self.dropout2(x)
+        x = self.dropout1(x)
         x = self.flattened2(x)
-
-        # Apply softmax to x
-        output = F.log_softmax(x, dim=1)
-        return output
+        return x
