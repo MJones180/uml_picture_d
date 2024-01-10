@@ -5,6 +5,7 @@ allow for more freedom. Such changes include allowing for:
     - All optimizers and the ability to pass all available arguments to them
     - More in depth image transformations
     - Early stopping
+    - Extend training of previously trained models
 
 Portions of the code from this file are adapted from:
     https://pytorch.org/tutorials/beginner/introyt/trainingyt.html
