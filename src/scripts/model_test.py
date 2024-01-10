@@ -3,6 +3,9 @@ Will output results to `/output/analysis/<tag>_epoch_<number>`.
 Any prior results under this directory will be deleted.
 
 The plotting within this script should be put in its own module.
+
+A check should be added in the future to ensure that the `n_rows` and
+`n_cols` have enough cells for the outputs.
 """
 
 from h5py import File
