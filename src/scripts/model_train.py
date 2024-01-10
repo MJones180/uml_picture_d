@@ -150,6 +150,7 @@ def model_train(cli_args):
 
     _print1('Creating the new model directory')
     tag = cli_args['tag']
+    _print2(f'Tag: {tag}')
     output_model_path = f'../output/trained_models/{tag}'
     if cli_args['overwrite_existing']:
         _print2('Deleting old model if one exists')
