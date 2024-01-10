@@ -1,6 +1,8 @@
 """
 Will output results to `/output/analysis/<tag>_epoch_<number>`.
 Any prior results under this directory will be deleted.
+
+The plotting within this script should be put in its own module.
 """
 
 from h5py import File
@@ -11,8 +13,7 @@ from utils.hdf_loader import HDFLoader
 from utils.json import json_load
 from utils.load_network import load_network
 from utils.norm import min_max_denorm
-from utils.path import (copy_files, delete_dir, delete_file, make_dir,
-                        path_parent)
+from utils.path import delete_dir, make_dir
 
 
 def model_test_parser(subparsers):
