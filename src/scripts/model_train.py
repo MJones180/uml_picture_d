@@ -241,7 +241,7 @@ def model_train(cli_args):
         model.train(True)
         total_train_loss = 0
         for i, data in enumerate(train_loader):
-            inputs, labels = data
+            inputs, outputs_truth = data
             if image_transforms is not None:
                 inputs = image_transforms(inputs)
             # Zero gradients for every batch
@@ -249,7 +249,7 @@ def model_train(cli_args):
             # Make predictions for this batch
             outputs = model(inputs)
             # Compute the loss and its gradients
-            loss = loss_function(outputs, labels)
+            loss = loss_function(outputs, outputs_truth)
             loss.backward()
             # Adjust learning weights
             optimizer.step()
@@ -263,9 +263,9 @@ def model_train(cli_args):
         # Disable gradient computation and reduce memory consumption
         with torch.no_grad():
             for i, data in enumerate(validation_loader):
-                inputs, labels = data
+                inputs, outputs_truth = data
                 outputs = model(inputs)
-                loss = loss_function(outputs, labels)
+                loss = loss_function(outputs, outputs_truth)
                 total_val_loss += loss
         avg_val_loss = total_val_loss / validation_batches
 
