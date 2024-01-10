@@ -17,7 +17,7 @@ trained models based on their hyperparameters.
 import torch
 from torchvision.transforms import v2
 from utils.hdf_loader import HDFLoader
-from utils.json_write import json_write
+from utils.json import json_write
 from utils.load_network import load_network
 from utils.path import (copy_files, delete_dir, delete_file, make_dir,
                         path_parent)

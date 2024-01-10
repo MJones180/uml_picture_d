@@ -12,6 +12,20 @@ class NumpyEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 
+def json_load(path):
+    """Read in data from JSON.
+
+    Parameters
+    ----------
+    path : str
+        The path to open.
+    """
+
+    with open(path, 'r') as f:
+        data = json.load(f)
+    return data
+
+
 def json_write(output_path, data, mode='w'):
     """Write out data to JSON.
 

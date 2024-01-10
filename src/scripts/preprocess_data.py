@@ -17,7 +17,7 @@ from astropy.io import fits
 from glob import glob
 from h5py import File
 import numpy as np
-from utils.json_write import json_write
+from utils.json import json_write
 from utils.norm import find_min_max_norm, min_max_norm
 from utils.path import make_dir
 
