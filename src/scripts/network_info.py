@@ -1,4 +1,6 @@
 from utils.load_network import load_network
+from utils.printing_and_logging import (dec_print_indent, inc_print_indent,
+                                        step_ri, title)
 
 
 def network_info_parser(subparsers):
@@ -19,20 +21,26 @@ def network_info_parser(subparsers):
 
 
 def network_info(cli_args):
+    title('Network info script')
+
+    step_ri('Loading in the network')
     network_name = cli_args['network_name']
+    print(f'Network: {network_name}')
     network = load_network(network_name)
     input_data = network.example_input()
     network_inst = network()
-    print(f'Network: {network_name}')
     print('Layers:')
+    inc_print_indent()
     total = 0
     for name, parameter in network_inst.named_parameters():
         if parameter.requires_grad:
             params = parameter.numel()
-            print('    ', name, params)
+            print(name, params)
             total += params
+    dec_print_indent()
     print(f'Total Trainable Params: {total}')
-    print('Sample call...')
+
+    step_ri('Sample call')
     output_data = network_inst(input_data)
     print('Output data: ', output_data)
     print('Output shape: ', output_data.shape)

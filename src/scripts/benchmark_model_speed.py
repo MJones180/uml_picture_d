@@ -6,6 +6,7 @@ import time
 import torch
 from utils.load_model import LoadModel
 from utils.norm import min_max_denorm
+from utils.printing_and_logging import step_ri, title
 
 
 def benchmark_model_speed_parser(subparsers):
@@ -34,14 +35,16 @@ def benchmark_model_speed_parser(subparsers):
 
 
 def benchmark_model_speed(cli_args):
+    title('Benchmark model speed script')
+
     tag = cli_args['tag']
     epoch = cli_args['epoch']
     iterations = cli_args['iterations']
 
-    model_loader = LoadModel(tag, epoch, eval_mode=True)
-    model = model_loader.get_model()
-    network = model_loader.get_network()
-    norm_values = model_loader.get_norm_values()
+    loaded_model = LoadModel(tag, epoch, eval_mode=True)
+    model = loaded_model.get_model()
+    network = loaded_model.get_network()
+    norm_values = loaded_model.get_norm_values()
 
     output_max_min_diff = norm_values['output_max_min_diff']
     output_min_x = norm_values['output_min_x']
@@ -68,9 +71,10 @@ def benchmark_model_speed(cli_args):
             func()
             finish = time.time()
             total_time += finish - start
-        print(total_time / iterations)
+        return total_time / iterations
 
-    print('Average time for the nn to process one row:')
-    _benchmark(_run_model)
-    print('Average time for nn to process one row + denorm:')
-    _benchmark(_run_model_and_denorm)
+    step_ri(f'Running benchmark ({iterations} iterations)')
+    print('Average time for the nn to process one row: ',
+          _benchmark(_run_model))
+    print('Average time for nn to process one row and denormalize the data: ',
+          _benchmark(_run_model_and_denorm))

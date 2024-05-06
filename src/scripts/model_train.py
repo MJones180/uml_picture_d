@@ -22,6 +22,7 @@ from utils.json import json_write
 from utils.load_network import load_network
 from utils.path import (copy_files, delete_dir, delete_file, make_dir,
                         path_parent)
+from utils.printing_and_logging import step_ri, title
 
 # Constants for the different available loss and optimizers functions.
 # Each value should correspond to the function's name in PyTorch.
@@ -140,24 +141,18 @@ def model_train_parser(subparsers):
 
 
 def model_train(cli_args):
+    title('Model train script')
 
-    def _print1(msg):
-        print()
-        print(f'{msg}...')
-
-    def _print2(msg):
-        print(f'    {msg}')
-
-    _print1('Creating the new model directory')
+    step_ri('Creating the new model directory')
     tag = cli_args['tag']
-    _print2(f'Tag: {tag}')
+    print(f'Tag: {tag}')
     output_model_path = f'../output/trained_models/{tag}'
     if cli_args['overwrite_existing']:
-        _print2('Deleting old model if one exists')
+        print('Deleting old model if one exists')
         delete_dir(output_model_path)
     make_dir(output_model_path)
 
-    _print1('Loading in the training and validation datasets')
+    step_ri('Loading in the training and validation datasets')
 
     def _fetch_loader(arg):
         return HDFLoader(f'../data/processed/{cli_args[arg]}/data.h5')
@@ -165,27 +160,27 @@ def model_train(cli_args):
     train_dataset = _fetch_loader('training_dataset_name')
     validation_dataset = _fetch_loader('validation_dataset_name')
 
-    _print1('Copying over the normalization values from the training dataset')
+    step_ri('Copying over the normalization values from the training dataset')
     copy_files(f'{path_parent(train_dataset.get_path())}/norm.json',
                f'{output_model_path}/norm.json')
 
-    _print1('Saving all CLI args')
+    step_ri('Saving all CLI args')
     json_write(f'{output_model_path}/args.json', cli_args)
 
-    _print1('Creating the torch `DataLoader` for training and validation')
+    step_ri('Creating the torch `DataLoader` for training and validation')
     batch_size = cli_args['batch_size']
     drop_last = cli_args['drop_last']
     shuffle = not cli_args['disable_shuffle']
-    _print2(f'Batch size: {batch_size}')
-    _print2(f'Drop last: {drop_last}')
-    _print2(f'Shuffle: {shuffle}')
+    print(f'Batch size: {batch_size}')
+    print(f'Drop last: {drop_last}')
+    print(f'Shuffle: {shuffle}')
     train_loader = torch.utils.data.DataLoader(
         train_dataset,
         batch_size=batch_size,
         drop_last=drop_last,
         shuffle=shuffle,
     )
-    _print2('Validation dataset will not shuffle')
+    print('Validation dataset will not shuffle')
     validation_loader = torch.utils.data.DataLoader(
         validation_dataset,
         batch_size=batch_size,
@@ -193,51 +188,51 @@ def model_train(cli_args):
         shuffle=False,
     )
 
-    _print1('Loading the network')
+    step_ri('Loading the network')
     network_name = cli_args['network_name']
     model = load_network(network_name)()
     print(model)
 
-    _print1('Setting the loss function')
+    step_ri('Setting the loss function')
     loss_name = cli_args['loss']
     loss_function = getattr(torch.nn, LOSS_FUNCTIONS[loss_name])()
     print(f'{loss_name} [{loss_function}]')
 
-    _print1('Setting the optimizer')
+    step_ri('Setting the optimizer')
     optimizer = getattr(torch.optim, OPTIMIZERS[cli_args['optimizer']])
     # Currently, the only configurable parameter for each optimizer is the lr
     optimizer = optimizer(model.parameters(), lr=cli_args['learning_rate'])
     print(optimizer)
 
-    _print1('Setting the image transforms')
+    step_ri('Setting the image transforms')
     image_transforms = None
     if cli_args['randomly_flip_images']:
         image_transforms = v2.Compose([
             v2.RandomHorizontalFlip(p=0.5),
             v2.RandomVerticalFlip(p=0.5),
         ])
-    _print2(image_transforms)
+    print(image_transforms)
 
-    _print1('Creating CSV to track loss')
+    step_ri('Creating CSV to track loss')
     loss_file = f'{output_model_path}/epoch_loss.csv'
     with open(loss_file, 'w') as loss_writer:
         loss_writer.write('epoch, training_loss, validation_loss')
 
-    _print1('Preparing to train')
+    step_ri('Preparing to train')
     epoch_count = cli_args['epochs']
-    _print2(f'Epochs: {epoch_count}')
+    print(f'Epochs: {epoch_count}')
     training_batches = len(train_loader)
-    _print2(f'Training batches per epoch: {training_batches}')
+    print(f'Training batches per epoch: {training_batches}')
     validation_batches = len(validation_loader)
-    _print2(f'Validation batches per epoch: {validation_batches}')
+    print(f'Validation batches per epoch: {validation_batches}')
     epoch_save_steps = cli_args['epoch_save_steps']
     only_best_epoch = cli_args['only_best_epoch']
     if epoch_save_steps:
-        _print2(f'Will save every {epoch_save_steps} epochs')
+        print(f'Will save every {epoch_save_steps} epochs')
     if only_best_epoch:
         best_epoch_path = None
         best_val_loss = 1e10
-        _print2('Will only save best epoch')
+        print('Will only save best epoch')
     print()
 
     for epoch_idx in range(1, epoch_count + 1):

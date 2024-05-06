@@ -65,12 +65,9 @@ def model_test(cli_args):
     tag = cli_args['tag']
     epoch = cli_args['epoch']
 
-    model_loader = LoadModel(tag, epoch, eval_mode=True)
-    norm_values = model_loader.get_norm_values()
-    model = model_loader.get_model()
-
-    output_max_min_diff = norm_values['output_max_min_diff']
-    output_min_x = norm_values['output_min_x']
+    loaded_model = LoadModel(tag, epoch, eval_mode=True)
+    norm_values = loaded_model.get_norm_values()
+    model = loaded_model.get_model()
 
     step_ri('Creating the analysis directory')
     analysis_path = f'../output/analysis/{tag}_epoch_{epoch}'
@@ -90,8 +87,8 @@ def model_test(cli_args):
     # Denormalize the outputs
     outputs_model_denormed = min_max_denorm(
         outputs_model,
-        output_max_min_diff,
-        output_min_x,
+        norm_values['output_max_min_diff'],
+        norm_values['output_min_x'],
     )
     # Testing output data should already be unnormalized
     outputs_truth = testing_dataset.get_all_outputs()

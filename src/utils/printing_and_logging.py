@@ -47,12 +47,12 @@ def reset_print_indent():
     _current_indent_level = 0
 
 
-def divider():
+def divider(length=50):
     """
     Divider made with the `-` character surrounded by new lines.
     """
     print('')
-    print('-' * 50)
+    print('-' * length)
     print('')
 
 
@@ -62,7 +62,6 @@ def title(text):
     """
     print(text.upper())
     print('=' * len(text))
-    print('')
 
 
 def step(text):

@@ -2,6 +2,8 @@
 Depending on how this is configured
 """
 
+from utils.printing_and_logging import title
+
 
 def grid_search_parser(subparsers):
     """
@@ -24,4 +26,4 @@ def grid_search_parser(subparsers):
 
 
 def grid_search_train_and_test(cli_args):
-    pass
+    title('Grid search train and test script')

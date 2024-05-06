@@ -20,6 +20,7 @@ import numpy as np
 from utils.json import json_write
 from utils.norm import find_min_max_norm, min_max_norm
 from utils.path import make_dir
+from utils.printing_and_logging import step_ri, title
 
 
 def preprocess_data_parser(subparsers):
@@ -99,7 +100,9 @@ def preprocess_data_parser(subparsers):
 
 
 def preprocess_data(cli_args):
-    print('== Loading in Data ==')
+    title('Preprocess data script')
+
+    step_ri('Loading in data')
     raw_fits_data_dirs = cli_args['raw_fits_data_dirs']
     input_data = []
     output_data = []
@@ -127,25 +130,22 @@ def preprocess_data(cli_args):
     print(f'Input shape: {input_data.shape}')
     print(f'Output shape: {output_data.shape}')
 
-    print()
-    print('== Reshaping Inputs ==')
-    print('Removing empty values (hardcoded)...')
+    step_ri('Reshaping inputs')
+    print('Removing empty values (hardcoded)')
     # Remove the first column and row since all they contain is zero
     input_data = input_data[:, 1:, 1:]
     print(f'Input shape: {input_data.shape}')
-    print('Adding in dimension for the channels...')
+    print('Adding in dimension for the channels')
     # Since this is a grayscale image, there is only one channel
     input_data = input_data[:, None, :, :]
     print(f'Input shape: {input_data.shape}')
 
-    print()
-    print('== Shuffling ==')
+    step_ri('Shuffling')
     random_shuffle_idxs = np.random.permutation(len(input_data))
     input_data = input_data[random_shuffle_idxs]
     output_data = output_data[random_shuffle_idxs]
 
-    print()
-    print('== Splitting ==')
+    step_ri('Splitting')
     training_frac = cli_args['training_percentage']
     print(f'Training Frac: {training_frac}')
     validation_frac = cli_args['validation_percentage']
@@ -170,10 +170,9 @@ def preprocess_data(cli_args):
     print(f'Testing inputs shape: {testing_inputs.shape}')
     print(f'Testing outputs shape: {testing_outputs.shape}')
 
-    print()
-    print('== Normalizing ==')
+    step_ri('Normalizing')
     norm_values = {}
-    print('Globally normalizing inputs of training data...')
+    print('Globally normalizing inputs of training data')
     training_inputs, max_min_diff, min_x = find_min_max_norm(
         training_inputs, True)
     # These will both be singular floats. If individual input normalization
@@ -181,16 +180,16 @@ def preprocess_data(cli_args):
     norm_values['input_min_x'] = min_x
     norm_values['input_max_min_diff'] = max_min_diff
     print('Normalizing inputs of validation/testing data based on training '
-          'normalization values...')
+          'normalization values')
     validation_inputs = min_max_norm(validation_inputs, max_min_diff, min_x)
     testing_inputs = min_max_norm(testing_inputs, max_min_diff, min_x)
     output_normalization = True
     if cli_args['norm_outputs_individually'] is True:
-        print('Individually normalizing outputs of training data...')
+        print('Individually normalizing outputs of training data')
         training_outputs, max_min_diff, min_x = find_min_max_norm(
             training_outputs)
     elif cli_args['norm_outputs_globally'] is True:
-        print('Globally normalizing outputs of training data...')
+        print('Globally normalizing outputs of training data')
         training_outputs, max_min_diff, min_x = find_min_max_norm(
             training_outputs, True)
         # For the output normalization, it is easier if there is a norm value
@@ -208,8 +207,7 @@ def preprocess_data(cli_args):
         validation_outputs = min_max_norm(validation_outputs, max_min_diff,
                                           min_x)
 
-    print()
-    print('== Creating New Datasets ==')
+    step_ri('Creating new datasets')
 
     def _create_dataset(cli_arg, inputs, outputs):
         out_path = f'../data/processed/{cli_args[cli_arg]}'
