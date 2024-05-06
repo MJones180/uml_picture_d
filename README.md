@@ -71,15 +71,4 @@ Docstrings throughout the code are mostly formatted using `numpydoc` (https://nu
 
 ## Future Updates
 
-At the top of each script, the comments talk about different updates that should be made.
-When I continue work on this repo over the summer, I will work on that new code.
-In addition, the following updates should also be made:
-
-- Note that individual scripts contain updates that should be made to them.
-- Document all code (tutorials, commenting, docstrings, etc.).
-- Add constants file (`src/utils/constants.py`). This should include paths to each of the directory locations (`networks`, `trained_models`, etc.).
-- Create a general format for writing to CLI between the different scripts.
-- Modularize where possible (create new utils, etc.).
-- Add dedicated plotting tools.
-- Add grid search support to find the best hyperparameters for a given dataset. Parameters could include learning rate, optimizer, loss function, batch size, network, etc.
-- Add a script that compares different model analyses to quickly find the best one.
+Please refer to the document located at https://docs.google.com/document/d/1EMN_9PPYlUP_mUWAjVyWF4GXGowUV1RvHwAa1ZzonKw/edit.
