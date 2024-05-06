@@ -87,7 +87,7 @@ def model_test(cli_args):
     testing_dataset = HDFLoader(f'../data/processed/{testing_name}/data.h5')
 
     _print1('Calling the model and obtaining its outputs')
-    inputs = torch.from_numpy(testing_dataset.get_all_inputs())
+    inputs = testing_dataset.get_all_inputs_as_torch()
     with torch.no_grad():
         outputs_model = model(inputs).numpy()
 
