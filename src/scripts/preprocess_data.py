@@ -59,15 +59,15 @@ def preprocess_data_parser(subparsers):
     )
     subparser.add_argument(
         '--training-dir',
-        help='name of the training dataset, will go in `/data/processed/`',
+        help='name of the training dataset',
     )
     subparser.add_argument(
         '--validation-dir',
-        help='name of the validation dataset, will go in `/data/processed/`',
+        help='name of the validation dataset',
     )
     subparser.add_argument(
         '--testing-dir',
-        help='name of the testing dataset, will go in `/data/processed/`',
+        help='name of the testing dataset',
     )
     subparser.add_argument(
         '--training-percentage',

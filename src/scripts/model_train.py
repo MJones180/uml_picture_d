@@ -15,6 +15,7 @@ from utils.load_network import load_network
 from utils.path import (copy_files, delete_dir, delete_file, make_dir,
                         path_parent)
 from utils.printing_and_logging import step_ri, title
+from utils.shared_argparser_args import shared_argparser_args
 from utils.torch_hdf_ds_loader import DSLoaderHDF
 
 # Constants for the different available loss and optimizers functions.
@@ -53,8 +54,7 @@ def model_train_parser(subparsers):
     subparser.set_defaults(main=model_train)
     subparser.add_argument(
         'tag',
-        help=('unique tag given to this model, all epochs will be saved under'
-              'this tag in the `/output/trained_models` directory'),
+        help='unique tag given to this model under which epochs will be saved',
     )
     subparser.add_argument(
         'training_ds',
@@ -64,11 +64,7 @@ def model_train_parser(subparsers):
         'validation_ds',
         help='name of the validation dataset',
     )
-    subparser.add_argument(
-        'network_name',
-        help=('name of the python script containing the network (without the '
-              '`.py`)'),
-    )
+    shared_argparser_args(subparser, ['network_name'])
     subparser.add_argument(
         'loss',
         type=str.lower,

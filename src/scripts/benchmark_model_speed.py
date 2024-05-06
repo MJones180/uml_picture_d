@@ -9,6 +9,7 @@ from utils.constants import OUTPUT_MIN_X, OUTPUT_MAX_MIN_DIFF
 from utils.load_model import LoadModel
 from utils.norm import min_max_denorm
 from utils.printing_and_logging import step_ri, title
+from utils.shared_argparser_args import shared_argparser_args
 
 
 def benchmark_model_speed_parser(subparsers):
@@ -21,14 +22,7 @@ def benchmark_model_speed_parser(subparsers):
         help='test a trained model',
     )
     subparser.set_defaults(main=benchmark_model_speed)
-    subparser.add_argument(
-        'tag',
-        help='tag of the model',
-    )
-    subparser.add_argument(
-        'epoch',
-        help='epoch of the trained model to test (just the number part)',
-    )
+    shared_argparser_args(subparser, ['tag', 'epoch'])
     subparser.add_argument(
         '--iterations',
         default=1000,

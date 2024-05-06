@@ -15,6 +15,7 @@ from utils.load_model import LoadModel
 from utils.norm import min_max_denorm
 from utils.path import delete_dir, make_dir
 from utils.printing_and_logging import step_ri, title
+from utils.shared_argparser_args import shared_argparser_args
 from utils.torch_hdf_ds_loader import DSLoaderHDF
 
 
@@ -29,14 +30,7 @@ def model_test_parser(subparsers):
         help='test a trained model',
     )
     subparser.set_defaults(main=model_test)
-    subparser.add_argument(
-        'tag',
-        help='tag of the model',
-    )
-    subparser.add_argument(
-        'epoch',
-        help='epoch of the trained model to test (just the number part)',
-    )
+    shared_argparser_args(subparser, ['tag', 'epoch'])
     subparser.add_argument(
         'testing_ds',
         help=('name of the testing dataset, will use the norm values from the '

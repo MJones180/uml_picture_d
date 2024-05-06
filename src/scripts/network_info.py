@@ -5,6 +5,7 @@ This script outputs information on a given network (untrained model structure).
 from utils.load_network import load_network
 from utils.printing_and_logging import (dec_print_indent, inc_print_indent,
                                         step_ri, title)
+from utils.shared_argparser_args import shared_argparser_args
 
 
 def network_info_parser(subparsers):
@@ -17,11 +18,7 @@ def network_info_parser(subparsers):
         help='display info on a network',
     )
     subparser.set_defaults(main=network_info)
-    subparser.add_argument(
-        'network_name',
-        help=('name of the python script containing the network (without the '
-              '`.py`)'),
-    )
+    shared_argparser_args(subparser, ['network_name'])
 
 
 def network_info(cli_args):
