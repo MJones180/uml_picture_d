@@ -5,30 +5,36 @@ from utils.terminate_with_message import terminate_with_message
 
 
 class HDFLoader(torch.utils.data.Dataset):
+    """
+    HDF dataset loader using H5py for Torch.
+    Dataset H5 files must have 'inputs' and 'outputs' tables.
+    """
 
-    def __init__(self, path):
-        self.path = path
+    def __init__(self, dataset_name=None, path=None):
         self.inputs = None
         self.outputs = None
+        if dataset_name is not None:
+            path = f'../data/processed/{dataset_name}/data.h5'
+        self.path = path
         if not path_exists(path):
             terminate_with_message(f'Dataset not found at {path}')
 
     def get_path(self):
         return self.path
 
-    def get_all_inputs(self):
+    def get_inputs(self):
         self._load_dataset()
         return self.inputs
 
-    def get_all_outputs(self):
+    def get_outputs(self):
         self._load_dataset()
         return self.outputs
 
-    def get_all_inputs_as_torch(self):
-        return torch.from_numpy(self.get_all_inputs())
+    def get_inputs_torch(self):
+        return torch.from_numpy(self.get_inputs())
 
-    def get_all_outputs_as_torch(self):
-        return torch.from_numpy(self.get_all_outputs())
+    def get_outputs_torch(self):
+        return torch.from_numpy(self.get_outputs())
 
     def _load_dataset(self):
         if self.inputs is None:

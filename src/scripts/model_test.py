@@ -9,11 +9,11 @@ from h5py import File
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
-from utils.hdf_loader import HDFLoader
 from utils.load_model import LoadModel
 from utils.norm import min_max_denorm
 from utils.path import delete_dir, make_dir
 from utils.printing_and_logging import step_ri, title
+from utils.torch_hdf_ds_loader import HDFLoader
 
 
 def model_test_parser(subparsers):
@@ -70,12 +70,11 @@ def model_test(cli_args):
 
     step_ri('Loading in the testing dataset')
     testing_name = cli_args['testing_dataset_name']
-    testing_dataset = HDFLoader(f'../data/processed/{testing_name}/data.h5')
+    testing_dataset = HDFLoader(testing_name)
 
     step_ri('Calling the model and obtaining its outputs')
-    inputs = testing_dataset.get_all_inputs_as_torch()
     with torch.no_grad():
-        outputs_model = model(inputs).numpy()
+        outputs_model = model(testing_dataset.get_inputs_torch()).numpy()
 
     print('Denormalizing the outputs')
     # Denormalize the outputs
@@ -85,7 +84,7 @@ def model_test(cli_args):
         norm_values['output_min_x'],
     )
     # Testing output data should already be unnormalized
-    outputs_truth = testing_dataset.get_all_outputs()
+    outputs_truth = testing_dataset.get_outputs()
 
     print('Computing the MAE and MSE')
 

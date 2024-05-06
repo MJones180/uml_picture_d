@@ -7,12 +7,12 @@ Portions of the code from this file are adapted from:
 
 import torch
 from torchvision.transforms import v2
-from utils.hdf_loader import HDFLoader
 from utils.json import json_write
 from utils.load_network import load_network
 from utils.path import (copy_files, delete_dir, delete_file, make_dir,
                         path_parent)
 from utils.printing_and_logging import step_ri, title
+from utils.torch_hdf_ds_loader import HDFLoader
 
 # Constants for the different available loss and optimizers functions.
 # Each value should correspond to the function's name in PyTorch.

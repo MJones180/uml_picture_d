@@ -3,11 +3,10 @@ This script outputs information on a preprocessed dataset.
 """
 
 import matplotlib.pyplot as plt
-import torch
 import torchvision
-from utils.hdf_loader import HDFLoader
 from utils.load_network import load_network
 from utils.printing_and_logging import step_ri, title
+from utils.torch_hdf_ds_loader import HDFLoader
 
 
 def dataset_info_parser(subparsers):
@@ -43,9 +42,9 @@ def dataset_info(cli_args):
     title('Dataset info script')
 
     dataset_name = cli_args['dataset_name']
-    data = HDFLoader(f'../data/processed/{dataset_name}/data.h5')
-    inputs = data.get_all_inputs()
-    outputs = data.get_all_outputs()
+    data = HDFLoader(dataset_name)
+    inputs = data.get_inputs_torch()
+    outputs = data.get_outputs()
     step_ri(dataset_name)
     print('Number of rows: ', len(data))
     print('Input shape: ', inputs.shape[1:])
@@ -56,7 +55,7 @@ def dataset_info(cli_args):
     if verify_network:
         step_ri(f'Verifying that `{verify_network}` works with this dataset')
         # We are feeding in one row, so we need to add back in the batch dim
-        input_test = torch.from_numpy(inputs[0][None, :])
+        input_test = inputs[0][None, :]
         print(f'Feeding in an input of shape: {input_test.shape}')
         output_network_shape = load_network(verify_network)()(input_test).shape
         print('Network outputs the shape: ', output_network_shape)
@@ -70,7 +69,7 @@ def dataset_info(cli_args):
     example_images = cli_args['display_example_images']
     if example_images:
         step_ri('Displaying 5 example images from this dataset')
-        images = torch.from_numpy(inputs[:5])
+        images = inputs[:5]
         img_grid = torchvision.utils.make_grid(images, nrow=5).mean(dim=0)
         plt.imshow(img_grid.numpy(), cmap='Greys_r')
         plt.show()
