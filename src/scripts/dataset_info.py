@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import torchvision
 from utils.load_network import load_network
 from utils.printing_and_logging import step_ri, title
-from utils.torch_hdf_ds_loader import HDFLoader
+from utils.torch_hdf_ds_loader import DSLoaderHDF
 
 
 def dataset_info_parser(subparsers):
@@ -42,7 +42,7 @@ def dataset_info(cli_args):
     title('Dataset info script')
 
     dataset_name = cli_args['dataset_name']
-    data = HDFLoader(dataset_name)
+    data = DSLoaderHDF(dataset_name)
     inputs = data.get_inputs_torch()
     outputs = data.get_outputs()
     step_ri(dataset_name)

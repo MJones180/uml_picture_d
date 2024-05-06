@@ -5,15 +5,15 @@ Will output results to `/output/analysis/<tag>_epoch_<number>`.
 Any prior results under this directory will be deleted.
 """
 
-from h5py import File
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
+from utils.hdf_read_and_write import HDFWriteModule
 from utils.load_model import LoadModel
 from utils.norm import min_max_denorm
 from utils.path import delete_dir, make_dir
 from utils.printing_and_logging import step_ri, title
-from utils.torch_hdf_ds_loader import HDFLoader
+from utils.torch_hdf_ds_loader import DSLoaderHDF
 
 
 def model_test_parser(subparsers):
@@ -70,7 +70,7 @@ def model_test(cli_args):
 
     step_ri('Loading in the testing dataset')
     testing_name = cli_args['testing_dataset_name']
-    testing_dataset = HDFLoader(testing_name)
+    testing_dataset = DSLoaderHDF(testing_name)
 
     step_ri('Calling the model and obtaining its outputs')
     with torch.no_grad():
@@ -101,11 +101,12 @@ def model_test(cli_args):
     step_ri('Writing results to HDF')
     out_file_path = f'{analysis_path}/results.h5'
     print(f'File location: {out_file_path}')
-    with File(out_file_path, 'w') as out_file:
-        out_file['outputs_truth'] = outputs_truth
-        out_file['outputs_model_denormed'] = outputs_model_denormed
-        out_file['mae'] = mae
-        out_file['mse'] = mse
+    HDFWriteModule(out_file_path).create_and_write_hdf_simple({
+        'outputs_truth': outputs_truth,
+        'outputs_model_denormed': outputs_model_denormed,
+        'mae': mae,
+        'mse': mse,
+    })
 
     step_ri('Generating plots')
     n_rows = cli_args['n_rows']

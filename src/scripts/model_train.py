@@ -12,7 +12,7 @@ from utils.load_network import load_network
 from utils.path import (copy_files, delete_dir, delete_file, make_dir,
                         path_parent)
 from utils.printing_and_logging import step_ri, title
-from utils.torch_hdf_ds_loader import HDFLoader
+from utils.torch_hdf_ds_loader import DSLoaderHDF
 
 # Constants for the different available loss and optimizers functions.
 # Each value should correspond to the function's name in PyTorch.
@@ -145,7 +145,7 @@ def model_train(cli_args):
     step_ri('Loading in the training and validation datasets')
 
     def _fetch_loader(arg):
-        return HDFLoader(f'../data/processed/{cli_args[arg]}/data.h5')
+        return DSLoaderHDF(f'../data/processed/{cli_args[arg]}/data.h5')
 
     train_dataset = _fetch_loader('training_dataset_name')
     validation_dataset = _fetch_loader('validation_dataset_name')

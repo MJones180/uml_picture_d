@@ -12,8 +12,8 @@ performed, it will be based on the training normalization values.
 
 from astropy.io import fits
 from glob import glob
-from h5py import File
 import numpy as np
+from utils.hdf_read_and_write import HDFWriteModule
 from utils.json import json_write
 from utils.norm import find_min_max_norm, min_max_norm
 from utils.path import make_dir
@@ -212,10 +212,12 @@ def preprocess_data(cli_args):
         make_dir(out_path)
         # Add the file with the normalization input and output values
         json_write(f'{out_path}/norm.json', norm_values)
+
         # Write out the processed HDF file
-        with File(f'{out_path}/data.h5', 'w') as out_hdf_file:
-            out_hdf_file['inputs'] = inputs
-            out_hdf_file['outputs'] = outputs
+        HDFWriteModule(f'{out_path}/data.h5').create_and_write_hdf_simple({
+            'inputs': inputs,
+            'outputs': outputs,
+        })
 
     _create_dataset('training_dir', training_inputs, training_outputs)
     _create_dataset('validation_dir', validation_inputs, validation_outputs)

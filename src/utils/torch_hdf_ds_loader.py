@@ -1,10 +1,10 @@
-from h5py import File
 import torch
+from utils.hdf_read_and_write import read_hdf
 from utils.path import path_exists
 from utils.terminate_with_message import terminate_with_message
 
 
-class HDFLoader(torch.utils.data.Dataset):
+class DSLoaderHDF(torch.utils.data.Dataset):
     """
     HDF dataset loader using H5py for Torch.
     Dataset H5 files must have 'inputs' and 'outputs' tables.
@@ -38,7 +38,7 @@ class HDFLoader(torch.utils.data.Dataset):
 
     def _load_dataset(self):
         if self.inputs is None:
-            dataset = File(self.path, 'r')
+            dataset = read_hdf(self.path)
             # Inputs must be float32
             self.inputs = dataset['inputs'][...].astype('float32')
             self.outputs = dataset['outputs'][...]
