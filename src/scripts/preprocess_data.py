@@ -1,8 +1,5 @@
 """
-This is a very opinionated script and should be modularized in the future.
-The different pipeline steps could include: FITS to HDF, merge HDF, split HDF,
-add/remove empty dimensions, trim data, normalization, and shuffling.
-Additionally, this could all be handled from a preprocessing config.
+This script preprocesses datasets that can be used for training and testing.
 
 Three different datasets will be outputted: training, validation, and testing.
 Old datasets will be overwritten if they already exist.

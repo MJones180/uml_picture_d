@@ -1,5 +1,6 @@
 """
-Depending on how this is configured
+This script finds the best hyperparameters for a given dataset by training all
+the different model combinations.
 """
 
 from utils.printing_and_logging import title

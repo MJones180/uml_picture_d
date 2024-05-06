@@ -1,5 +1,6 @@
 """
-As of right now, this script will test the speed of just one row.
+This script times how long it takes a trained neural network to process one row
+of data.
 """
 
 import time

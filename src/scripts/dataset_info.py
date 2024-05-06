@@ -1,3 +1,7 @@
+"""
+This script outputs information on a preprocessed dataset.
+"""
+
 import matplotlib.pyplot as plt
 import torch
 import torchvision

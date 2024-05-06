@@ -1,3 +1,7 @@
+"""
+This script outputs information on a given network (untrained model structure).
+"""
+
 from utils.load_network import load_network
 from utils.printing_and_logging import (dec_print_indent, inc_print_indent,
                                         step_ri, title)
