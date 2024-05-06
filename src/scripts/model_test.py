@@ -36,7 +36,7 @@ def model_test_parser(subparsers):
         help='epoch of the trained model to test (just the number part)',
     )
     subparser.add_argument(
-        'testing_dataset_name',
+        'testing_ds',
         help=('name of the testing dataset, will look in `/data/processed/`, '
               'will use the norm values from the trained model - NOT from the '
               'testing dataset directly'),
@@ -69,8 +69,7 @@ def model_test(cli_args):
     make_dir(analysis_path)
 
     step_ri('Loading in the testing dataset')
-    testing_name = cli_args['testing_dataset_name']
-    testing_dataset = DSLoaderHDF(testing_name)
+    testing_dataset = DSLoaderHDF(cli_args['testing_ds'])
 
     step_ri('Calling the model and obtaining its outputs')
     with torch.no_grad():

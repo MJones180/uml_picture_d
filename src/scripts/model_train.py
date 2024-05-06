@@ -54,11 +54,11 @@ def model_train_parser(subparsers):
               'this tag in the `/output/trained_models` directory'),
     )
     subparser.add_argument(
-        'training_dataset_name',
+        'training_ds',
         help='name of the training dataset, will look in `/data/processed/`',
     )
     subparser.add_argument(
-        'validation_dataset_name',
+        'validation_ds',
         help='name of the validation dataset, will look in `/data/processed/`',
     )
     subparser.add_argument(
@@ -145,10 +145,10 @@ def model_train(cli_args):
     step_ri('Loading in the training and validation datasets')
 
     def _fetch_loader(arg):
-        return DSLoaderHDF(f'../data/processed/{cli_args[arg]}/data.h5')
+        return DSLoaderHDF(cli_args[arg])
 
-    train_dataset = _fetch_loader('training_dataset_name')
-    validation_dataset = _fetch_loader('validation_dataset_name')
+    train_dataset = _fetch_loader('training_ds')
+    validation_dataset = _fetch_loader('validation_ds')
 
     step_ri('Copying over the normalization values from the training dataset')
     copy_files(f'{path_parent(train_dataset.get_path())}/norm.json',
