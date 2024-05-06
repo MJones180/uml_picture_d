@@ -5,6 +5,7 @@ of data.
 
 import time
 import torch
+from utils.constants import OUTPUT_MIN_X, OUTPUT_MAX_MIN_DIFF
 from utils.load_model import LoadModel
 from utils.norm import min_max_denorm
 from utils.printing_and_logging import step_ri, title
@@ -22,7 +23,7 @@ def benchmark_model_speed_parser(subparsers):
     subparser.set_defaults(main=benchmark_model_speed)
     subparser.add_argument(
         'tag',
-        help='tag of the model, will look in `/output/trained_models`',
+        help='tag of the model',
     )
     subparser.add_argument(
         'epoch',
@@ -47,8 +48,8 @@ def benchmark_model_speed(cli_args):
     network = loaded_model.get_network()
     norm_values = loaded_model.get_norm_values()
 
-    output_max_min_diff = norm_values['output_max_min_diff']
-    output_min_x = norm_values['output_min_x']
+    output_max_min_diff = norm_values[OUTPUT_MAX_MIN_DIFF]
+    output_min_x = norm_values[OUTPUT_MIN_X]
 
     example_input = network.example_input()
 

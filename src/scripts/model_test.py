@@ -8,6 +8,8 @@ Any prior results under this directory will be deleted.
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
+from utils.constants import (ANALYSIS_P, MAE, MSE, OUTPUT_MIN_X,
+                             OUTPUT_MAX_MIN_DIFF, RESULTS_F)
 from utils.hdf_read_and_write import HDFWriteModule
 from utils.load_model import LoadModel
 from utils.norm import min_max_denorm
@@ -29,7 +31,7 @@ def model_test_parser(subparsers):
     subparser.set_defaults(main=model_test)
     subparser.add_argument(
         'tag',
-        help='tag of the model, will look in `/output/trained_models`',
+        help='tag of the model',
     )
     subparser.add_argument(
         'epoch',
@@ -37,9 +39,8 @@ def model_test_parser(subparsers):
     )
     subparser.add_argument(
         'testing_ds',
-        help=('name of the testing dataset, will look in `/data/processed/`, '
-              'will use the norm values from the trained model - NOT from the '
-              'testing dataset directly'),
+        help=('name of the testing dataset, will use the norm values from the '
+              'trained model - NOT from the testing dataset directly'),
     )
     subparser.add_argument(
         'n_rows',
@@ -64,7 +65,7 @@ def model_test(cli_args):
     model = loaded_model.get_model()
 
     step_ri('Creating the analysis directory')
-    analysis_path = f'../output/analysis/{tag}_epoch_{epoch}'
+    analysis_path = f'{ANALYSIS_P}/{tag}_epoch_{epoch}'
     delete_dir(analysis_path, quiet=True)
     make_dir(analysis_path)
 
@@ -79,8 +80,8 @@ def model_test(cli_args):
     # Denormalize the outputs
     outputs_model_denormed = min_max_denorm(
         outputs_model,
-        norm_values['output_max_min_diff'],
-        norm_values['output_min_x'],
+        norm_values[OUTPUT_MAX_MIN_DIFF],
+        norm_values[OUTPUT_MIN_X],
     )
     # Testing output data should already be unnormalized
     outputs_truth = testing_dataset.get_outputs()
@@ -98,13 +99,13 @@ def model_test(cli_args):
     print(f'MSE: {np.mean(mse)}')
 
     step_ri('Writing results to HDF')
-    out_file_path = f'{analysis_path}/results.h5'
+    out_file_path = f'{analysis_path}/{RESULTS_F}'
     print(f'File location: {out_file_path}')
     HDFWriteModule(out_file_path).create_and_write_hdf_simple({
         'outputs_truth': outputs_truth,
         'outputs_model_denormed': outputs_model_denormed,
-        'mae': mae,
-        'mse': mse,
+        MAE: mae,
+        MSE: mse,
     })
 
     step_ri('Generating plots')

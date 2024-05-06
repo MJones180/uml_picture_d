@@ -3,10 +3,13 @@ This script trains a neural network model.
 
 Portions of the code from this file are adapted from:
     https://pytorch.org/tutorials/beginner/introyt/trainingyt.html
+
+The training and validation dataset must have their inputs pre-normalized.
 """
 
 import torch
 from torchvision.transforms import v2
+from utils.constants import ARGS_F, NORM_F, TRAINED_MODELS_P
 from utils.json import json_write
 from utils.load_network import load_network
 from utils.path import (copy_files, delete_dir, delete_file, make_dir,
@@ -55,16 +58,16 @@ def model_train_parser(subparsers):
     )
     subparser.add_argument(
         'training_ds',
-        help='name of the training dataset, will look in `/data/processed/`',
+        help='name of the training dataset',
     )
     subparser.add_argument(
         'validation_ds',
-        help='name of the validation dataset, will look in `/data/processed/`',
+        help='name of the validation dataset',
     )
     subparser.add_argument(
         'network_name',
         help=('name of the python script containing the network (without the '
-              '`.py`), must be located in the `/src/networks` folder'),
+              '`.py`)'),
     )
     subparser.add_argument(
         'loss',
@@ -136,7 +139,7 @@ def model_train(cli_args):
     step_ri('Creating the new model directory')
     tag = cli_args['tag']
     print(f'Tag: {tag}')
-    output_model_path = f'../output/trained_models/{tag}'
+    output_model_path = f'{TRAINED_MODELS_P}/{tag}'
     if cli_args['overwrite_existing']:
         print('Deleting old model if one exists')
         delete_dir(output_model_path)
@@ -151,11 +154,11 @@ def model_train(cli_args):
     validation_dataset = _fetch_loader('validation_ds')
 
     step_ri('Copying over the normalization values from the training dataset')
-    copy_files(f'{path_parent(train_dataset.get_path())}/norm.json',
-               f'{output_model_path}/norm.json')
+    copy_files(f'{path_parent(train_dataset.get_path())}/{NORM_F}',
+               f'{output_model_path}/{NORM_F}')
 
     step_ri('Saving all CLI args')
-    json_write(f'{output_model_path}/args.json', cli_args)
+    json_write(f'{output_model_path}/{ARGS_F}', cli_args)
 
     step_ri('Creating the torch `DataLoader` for training and validation')
     batch_size = cli_args['batch_size']

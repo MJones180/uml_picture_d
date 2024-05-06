@@ -24,12 +24,12 @@ def dataset_info_parser(subparsers):
     subparser.set_defaults(main=dataset_info)
     subparser.add_argument(
         'dataset_name',
-        help='name of the dataset, will look in `/data/processed/`',
+        help='name of the dataset',
     )
     subparser.add_argument(
         '--verify-network-compatability',
         help=('name of the python script containing the network (without the '
-              '`.py`), must be located in the `/src/networks` folder'),
+              '`.py`)'),
     )
     subparser.add_argument(
         '--display-example-images',
@@ -64,7 +64,7 @@ def dataset_info(cli_args):
         if output_network_shape == expected_output_shape:
             print('The network outputs the correct shape!')
         else:
-            print('The network DOES NOT output the correct shape :(')
+            print('The network DOES NOT output the correct shape')
 
     example_images = cli_args['display_example_images']
     if example_images:

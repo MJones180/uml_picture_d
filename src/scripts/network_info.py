@@ -20,7 +20,7 @@ def network_info_parser(subparsers):
     subparser.add_argument(
         'network_name',
         help=('name of the python script containing the network (without the '
-              '`.py`), must be located in the `/src/networks` folder'),
+              '`.py`)'),
     )
 
 

@@ -13,6 +13,9 @@ performed, it will be based on the training normalization values.
 from astropy.io import fits
 from glob import glob
 import numpy as np
+from utils.constants import (DATA_F, INPUTS, INPUT_MIN_X, INPUT_MAX_MIN_DIFF,
+                             NORM_F, OUTPUTS, OUTPUT_MIN_X,
+                             OUTPUT_MAX_MIN_DIFF, PROC_DATA_P, RAW_FITS_DATA_P)
 from utils.hdf_read_and_write import HDFWriteModule
 from utils.json import json_write
 from utils.norm import find_min_max_norm, min_max_norm
@@ -105,7 +108,7 @@ def preprocess_data(cli_args):
     output_data = []
     # Loop through each of the raw datasets
     for raw_fits_data_dir in raw_fits_data_dirs:
-        raw_fits_data_path = f'../data/raw_fits/{raw_fits_data_dir}'
+        raw_fits_data_path = f'{RAW_FITS_DATA_P}/{raw_fits_data_dir}'
         print(f'Loading data from {raw_fits_data_path}')
         fits_paths = sorted(glob(f'{raw_fits_data_path}/*.fits'))
         for input_image_path in fits_paths:
@@ -174,8 +177,8 @@ def preprocess_data(cli_args):
         training_inputs, True)
     # These will both be singular floats. If individual input normalization
     # could be handy, then these should always be arrays
-    norm_values['input_min_x'] = min_x
-    norm_values['input_max_min_diff'] = max_min_diff
+    norm_values[INPUT_MIN_X] = min_x
+    norm_values[INPUT_MAX_MIN_DIFF] = max_min_diff
     print('Normalizing inputs of validation/testing data based on training '
           'normalization values')
     validation_inputs = min_max_norm(validation_inputs, max_min_diff, min_x)
@@ -199,24 +202,24 @@ def preprocess_data(cli_args):
     if output_normalization is True:
         print('Normalizing outputs of validation data based on training '
               'normalization values...')
-        norm_values['output_min_x'] = min_x
-        norm_values['output_max_min_diff'] = max_min_diff
+        norm_values[OUTPUT_MIN_X] = min_x
+        norm_values[OUTPUT_MAX_MIN_DIFF] = max_min_diff
         validation_outputs = min_max_norm(validation_outputs, max_min_diff,
                                           min_x)
 
     step_ri('Creating new datasets')
 
     def _create_dataset(cli_arg, inputs, outputs):
-        out_path = f'../data/processed/{cli_args[cli_arg]}'
+        out_path = f'{PROC_DATA_P}/{cli_args[cli_arg]}'
         print(f'Making {out_path}')
         make_dir(out_path)
         # Add the file with the normalization input and output values
-        json_write(f'{out_path}/norm.json', norm_values)
+        json_write(f'{out_path}/{NORM_F}', norm_values)
 
         # Write out the processed HDF file
-        HDFWriteModule(f'{out_path}/data.h5').create_and_write_hdf_simple({
-            'inputs': inputs,
-            'outputs': outputs,
+        HDFWriteModule(f'{out_path}/{DATA_F}').create_and_write_hdf_simple({
+            INPUTS: inputs,
+            OUTPUTS: outputs,
         })
 
     _create_dataset('training_dir', training_inputs, training_outputs)

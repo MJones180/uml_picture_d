@@ -1,4 +1,5 @@
 import torch
+from utils.constants import ARGS_F, NORM_F, TRAINED_MODELS_P
 from utils.json import json_load
 from utils.load_network import load_network
 from utils.path import path_exists
@@ -15,7 +16,7 @@ class LoadModel():
 
         step('Loading in the trained model')
 
-        self.dir_path = f'../output/trained_models/{self.tag}'
+        self.dir_path = f'{TRAINED_MODELS_P}/{self.tag}'
         print(f'Model directory path: {self.dir_path}')
 
         self.model_path = f'{self.dir_path}/epoch_{self.epoch}'
@@ -23,10 +24,10 @@ class LoadModel():
             terminate_with_message(f'Model not found at {self.model_path}')
 
         print('Loading in the norm values')
-        self.norm_values = json_load(f'{self.dir_path}/norm.json')
+        self.norm_values = json_load(f'{self.dir_path}/{NORM_F}')
 
         print('Loading in the training args')
-        self.training_args = json_load(f'{self.dir_path}/args.json')
+        self.training_args = json_load(f'{self.dir_path}/{ARGS_F}')
 
         self.network_name = self.training_args['network_name']
         print(f'Network used: {self.network_name}')

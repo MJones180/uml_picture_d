@@ -1,4 +1,5 @@
 import torch
+from utils.constants import DATA_F, INPUTS, OUTPUTS, PROC_DATA_P
 from utils.hdf_read_and_write import read_hdf
 from utils.path import path_exists
 from utils.terminate_with_message import terminate_with_message
@@ -14,7 +15,7 @@ class DSLoaderHDF(torch.utils.data.Dataset):
         self.inputs = None
         self.outputs = None
         if dataset_name is not None:
-            path = f'../data/processed/{dataset_name}/data.h5'
+            path = f'{PROC_DATA_P}/{dataset_name}/{DATA_F}'
         self.path = path
         if not path_exists(path):
             terminate_with_message(f'Dataset not found at {path}')
@@ -40,8 +41,8 @@ class DSLoaderHDF(torch.utils.data.Dataset):
         if self.inputs is None:
             dataset = read_hdf(self.path)
             # Inputs must be float32
-            self.inputs = dataset['inputs'][...].astype('float32')
-            self.outputs = dataset['outputs'][...]
+            self.inputs = dataset[INPUTS][...].astype('float32')
+            self.outputs = dataset[OUTPUTS][...]
 
     def __getitem__(self, index):
         self._load_dataset()
