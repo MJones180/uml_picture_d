@@ -54,8 +54,7 @@ def preprocess_data_parser(subparsers):
         '--raw-fits-data-dirs',
         nargs='+',
         help=('name of the directories containing the raw FITS data, all '
-              'data will all be merged together; will look in '
-              '`/data/raw_fits/` for the directories'),
+              'data will all be merged together'),
     )
     subparser.add_argument(
         '--training-dir',

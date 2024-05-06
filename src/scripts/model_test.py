@@ -1,8 +1,7 @@
 """
 This script tests a model's performance against a testing dataset.
 
-Will output results to `/output/analysis/<tag>_epoch_<number>`.
-Any prior results under this directory will be deleted.
+Any prior results for a given epoch will be deleted.
 """
 
 import matplotlib.pyplot as plt
