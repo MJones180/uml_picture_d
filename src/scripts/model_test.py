@@ -16,8 +16,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 from utils.hdf_loader import HDFLoader
-from utils.json import json_load
-from utils.load_network import load_network
+from utils.load_model import LoadModel
 from utils.norm import min_max_denorm
 from utils.path import delete_dir, make_dir
 
@@ -25,8 +24,8 @@ from utils.path import delete_dir, make_dir
 def model_test_parser(subparsers):
     """
     Example commands:
-    python3 main.py model_test v1a 2 testing_03_05_global 5 5
-    python3 main.py model_test v1a 2 testing_03_05_ind 5 5
+    python3 main.py model_test v1a 110 testing_03_05_global 5 5
+    python3 main.py model_test v1a 110 testing_03_05_ind 5 5
     """
     subparser = subparsers.add_parser(
         'model_test',
@@ -69,32 +68,19 @@ def model_test(cli_args):
         print(f'    {msg}')
 
     tag = cli_args['tag']
-    model_path = f'../output/trained_models/{tag}'
-    print(f'Model path: {model_path}')
+    epoch = cli_args['epoch']
+
+    model_loader = LoadModel(tag, epoch, eval_mode=True)
+    norm_values = model_loader.get_norm_values()
+    model = model_loader.get_model()
+
+    output_max_min_diff = norm_values['output_max_min_diff']
+    output_min_x = norm_values['output_min_x']
 
     _print1('Creating the analysis directory')
-    epoch = cli_args['epoch']
     analysis_path = f'../output/analysis/{tag}_epoch_{epoch}'
     delete_dir(analysis_path, quiet=True)
     make_dir(analysis_path)
-
-    _print1('Loading norm values from model')
-    norm_values = json_load(f'{model_path}/norm.json')
-    outputs_min_x = norm_values['output_min_x']
-    outputs_max_min_diff = norm_values['output_max_min_diff']
-
-    _print1('Loading the arguments used during training')
-    training_args = json_load(f'{model_path}/args.json')
-    network_name = training_args['network_name']
-    _print2(f'Network used: {network_name}')
-
-    _print1('Loading the trained model')
-    # Need to first load in the network
-    model = load_network(network_name)()
-    # Now, the weights can be set
-    model.load_state_dict(torch.load(f'{model_path}/epoch_{epoch}'))
-    # Set to evaluation mode
-    model.eval()
 
     _print1('Loading in the testing dataset')
     testing_name = cli_args['testing_dataset_name']
@@ -109,8 +95,8 @@ def model_test(cli_args):
     # Denormalize the outputs
     outputs_model_denormed = min_max_denorm(
         outputs_model,
-        outputs_max_min_diff,
-        outputs_min_x,
+        output_max_min_diff,
+        output_min_x,
     )
     # Testing output data should already be unnormalized
     outputs_truth = testing_dataset.get_all_outputs()
