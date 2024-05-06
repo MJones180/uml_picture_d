@@ -1,6 +1,7 @@
 import torch
 from utils.json import json_load
 from utils.load_network import load_network
+from utils.printing_and_logging import dec_print_indent, step
 
 
 class LoadModel():
@@ -10,12 +11,15 @@ class LoadModel():
         self.epoch = epoch
         self.eval_mode = eval_mode
 
+        step('Loading in the trained model')
+
         self.dir_path = f'../output/trained_models/{self.tag}'
         print(f'Model directory path: {self.dir_path}')
 
         self._load_norm()
         self._load_args()
         self._load_model()
+        dec_print_indent()
 
     def _load_norm(self):
         self.norm_values = json_load(f'{self.dir_path}/norm.json')

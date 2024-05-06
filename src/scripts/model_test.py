@@ -19,6 +19,7 @@ from utils.hdf_loader import HDFLoader
 from utils.load_model import LoadModel
 from utils.norm import min_max_denorm
 from utils.path import delete_dir, make_dir
+from utils.printing_and_logging import step_ri, title
 
 
 def model_test_parser(subparsers):
@@ -59,13 +60,7 @@ def model_test_parser(subparsers):
 
 
 def model_test(cli_args):
-
-    def _print1(msg):
-        print()
-        print(f'{msg}...')
-
-    def _print2(msg):
-        print(f'    {msg}')
+    title('Model test script')
 
     tag = cli_args['tag']
     epoch = cli_args['epoch']
@@ -77,21 +72,21 @@ def model_test(cli_args):
     output_max_min_diff = norm_values['output_max_min_diff']
     output_min_x = norm_values['output_min_x']
 
-    _print1('Creating the analysis directory')
+    step_ri('Creating the analysis directory')
     analysis_path = f'../output/analysis/{tag}_epoch_{epoch}'
     delete_dir(analysis_path, quiet=True)
     make_dir(analysis_path)
 
-    _print1('Loading in the testing dataset')
+    step_ri('Loading in the testing dataset')
     testing_name = cli_args['testing_dataset_name']
     testing_dataset = HDFLoader(f'../data/processed/{testing_name}/data.h5')
 
-    _print1('Calling the model and obtaining its outputs')
+    step_ri('Calling the model and obtaining its outputs')
     inputs = testing_dataset.get_all_inputs_as_torch()
     with torch.no_grad():
         outputs_model = model(inputs).numpy()
 
-    _print2('Denormalizing the outputs')
+    print('Denormalizing the outputs')
     # Denormalize the outputs
     outputs_model_denormed = min_max_denorm(
         outputs_model,
@@ -101,7 +96,7 @@ def model_test(cli_args):
     # Testing output data should already be unnormalized
     outputs_truth = testing_dataset.get_all_outputs()
 
-    _print2('Computing the MAE and MSE')
+    print('Computing the MAE and MSE')
 
     def _compute_loss(loss_func):
         return loss_func(reduction='none')(
@@ -110,19 +105,19 @@ def model_test(cli_args):
 
     mae = _compute_loss(torch.nn.L1Loss)
     mse = _compute_loss(torch.nn.MSELoss)
-    _print2(f'MAE: {np.mean(mae)}')
-    _print2(f'MSE: {np.mean(mse)}')
+    print(f'MAE: {np.mean(mae)}')
+    print(f'MSE: {np.mean(mse)}')
 
-    _print1('Writing results to HDF')
+    step_ri('Writing results to HDF')
     out_file_path = f'{analysis_path}/results.h5'
-    _print2(f'File location: {out_file_path}')
+    print(f'File location: {out_file_path}')
     with File(out_file_path, 'w') as out_file:
         out_file['outputs_truth'] = outputs_truth
         out_file['outputs_model_denormed'] = outputs_model_denormed
         out_file['mae'] = mae
         out_file['mse'] = mse
 
-    _print1('Generating plots')
+    step_ri('Generating plots')
     n_rows = cli_args['n_rows']
     n_cols = cli_args['n_cols']
     fig, axs = plt.subplots(n_rows, n_cols, figsize=(n_cols * 3, n_rows * 3))
