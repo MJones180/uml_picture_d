@@ -25,10 +25,10 @@ class HDFLoader(torch.utils.data.Dataset):
         return self.outputs
 
     def get_all_inputs_as_torch(self):
-        return torch.from_numpy(self.get_all_inputs)
+        return torch.from_numpy(self.get_all_inputs())
 
     def get_all_outputs_as_torch(self):
-        return torch.from_numpy(self.get_all_outputs)
+        return torch.from_numpy(self.get_all_outputs())
 
     def _load_dataset(self):
         if self.inputs is None:
