@@ -9,6 +9,8 @@ convenient script for training lots of model configurations. Therefore, some
 pre-existing features may not be present in this script.
 
 The training and validation datasets must be the same for every combination.
+
+Models will be saved like normal.
 """
 
 from scripts.model_train import model_train
@@ -144,7 +146,7 @@ def batch_model_train(cli_args):
     total_combos = len(combinations)
     print(f'There are a total of {total_combos} combinations')
 
-    print('Will begin iteratively calling `model_train` for each combination.')
+    print('Will begin iteratively calling `model_train` for each combination')
     for idx, combination in enumerate(combinations):
         step_ri(f'Combination {idx}/{total_combos}')
         for key, val in combination.items():
