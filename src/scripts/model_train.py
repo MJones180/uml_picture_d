@@ -110,7 +110,6 @@ def model_train_parser(subparsers):
     subparser.add_argument(
         '--loss-improvement-threshold',
         type=float,
-        default=1e-5,
         help='threshold to determine if loss has improved',
     )
     epoch_save_group = subparser.add_mutually_exclusive_group()
@@ -274,7 +273,9 @@ def model_train(cli_args):
         def _save_epoch():
             torch.save(model.state_dict(), current_epoch_path)
 
-        threshold = cli_args.get('loss_improvement_threshold', 1e-5)
+        threshold = cli_args.get('loss_improvement_threshold')
+        if threshold is None:
+            threshold = 7.5e-6
         # More stable version of = avg_val_loss < best_val_loss
         loss_improved = best_val_loss - avg_val_loss > threshold
 
@@ -308,7 +309,7 @@ def model_train(cli_args):
         else:
             print(f'{difference_from_best} off best')
             print('Performance has not increased in '
-                  f'{epochs_since_improvement} epochs')
+                  f'{epochs_since_improvement} epoch(s)')
 
         # Handle the early stopping
         if early_stopping and epochs_since_improvement >= early_stopping:
