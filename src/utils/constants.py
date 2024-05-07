@@ -30,3 +30,20 @@ OUTPUT_MAX_MIN_DIFF = 'output_max_min_diff'
 MAE = 'MAE'
 MSE = 'RMSE'
 RMSE = 'RMSE'
+
+# Constants for the different available loss and optimizers functions.
+# Each value should correspond to the function's name in PyTorch.
+
+# nn.<loss_function>
+LOSS_FUNCTIONS = {
+    'mae': 'L1Loss',
+    'mse': 'MSELoss',
+}
+# Optimizers are currently restricted to the learning rate (`lr`) parameter.
+# torch.optim.<optimizer_function>
+OPTIMIZERS = {
+    'adagrad': 'Adagrad',
+    'adam': 'Adam',
+    'rmsprop': 'RMSprop',
+    'sgd': 'SGD',
+}

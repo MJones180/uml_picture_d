@@ -9,7 +9,8 @@ The training and validation dataset must have their inputs pre-normalized.
 
 import torch
 from torchvision.transforms import v2
-from utils.constants import ARGS_F, NORM_F, TRAINED_MODELS_P
+from utils.constants import (ARGS_F, LOSS_FUNCTIONS, NORM_F, OPTIMIZERS,
+                             TRAINED_MODELS_P)
 from utils.json import json_write
 from utils.load_network import load_network
 from utils.path import (copy_files, delete_dir, delete_file, make_dir,
@@ -17,22 +18,6 @@ from utils.path import (copy_files, delete_dir, delete_file, make_dir,
 from utils.printing_and_logging import step_ri, title
 from utils.shared_argparser_args import shared_argparser_args
 from utils.torch_hdf_ds_loader import DSLoaderHDF
-
-# Constants for the different available loss and optimizers functions.
-# Each value should correspond to the function's name in PyTorch.
-# nn.<loss_function>
-LOSS_FUNCTIONS = {
-    'mae': 'L1Loss',
-    'mse': 'MSELoss',
-}
-# Optimizers are currently restricted to the learning rate (`lr`) parameter.
-# torch.optim.<optimizer_function>
-OPTIMIZERS = {
-    'adagrad': 'Adagrad',
-    'adam': 'Adam',
-    'rmsprop': 'RMSprop',
-    'sgd': 'SGD',
-}
 
 
 def model_train_parser(subparsers):
@@ -158,8 +143,8 @@ def model_train(cli_args):
 
     step_ri('Creating the torch `DataLoader` for training and validation')
     batch_size = cli_args['batch_size']
-    drop_last = cli_args['drop_last']
-    shuffle = not cli_args['disable_shuffle']
+    drop_last = cli_args.get('drop_last', False)
+    shuffle = not cli_args.get('disable_shuffle', False)
     print(f'Batch size: {batch_size}')
     print(f'Drop last: {drop_last}')
     print(f'Shuffle: {shuffle}')
@@ -195,7 +180,7 @@ def model_train(cli_args):
 
     step_ri('Setting the image transforms')
     image_transforms = None
-    if cli_args['randomly_flip_images']:
+    if cli_args.get('randomly_flip_images'):
         image_transforms = v2.Compose([
             v2.RandomHorizontalFlip(p=0.5),
             v2.RandomVerticalFlip(p=0.5),
@@ -214,13 +199,13 @@ def model_train(cli_args):
     print(f'Training batches per epoch: {training_batches}')
     validation_batches = len(validation_loader)
     print(f'Validation batches per epoch: {validation_batches}')
-    epoch_save_steps = cli_args['epoch_save_steps']
+    best_val_loss = 1e10
+    epoch_save_steps = cli_args.get('epoch_save_steps')
     only_best_epoch = cli_args['only_best_epoch']
     if epoch_save_steps:
         print(f'Will save every {epoch_save_steps} epochs')
     if only_best_epoch:
         best_epoch_path = None
-        best_val_loss = 1e10
         print('Will only save best epoch')
     print()
 
