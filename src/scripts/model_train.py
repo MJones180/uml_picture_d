@@ -26,7 +26,8 @@ def model_train_parser(subparsers):
     python3 main.py model_train \
         v1a training_03_05_global validation_03_05_global \
         test mae adam 1e-3 250 \
-        --batch-size 64 --overwrite-existing --only-best-epoch
+        --batch-size 64 --overwrite-existing \
+        --only-best-epoch --early-stopping 10
     python3 main.py model_train \
         v1a training_03_05_ind validation_03_05_ind \
         test mae adam 1e-3 250 \
@@ -98,6 +99,12 @@ def model_train_parser(subparsers):
         action='store_true',
         help=('50%% chance of flipping images horizontally and '
               '50%% chance of flipping images vertically'),
+    )
+    subparser.add_argument(
+        '--early-stopping',
+        type=int,
+        metavar='n',
+        help='stop training if performance does not improve after n epochs',
     )
     epoch_save_group = subparser.add_mutually_exclusive_group()
     epoch_save_group.add_argument(
@@ -187,28 +194,35 @@ def model_train(cli_args):
         ])
     print(image_transforms)
 
-    step_ri('Creating CSV to track loss')
+    step_ri('Creating a CSV file to track loss')
     loss_file = f'{output_model_path}/epoch_loss.csv'
     with open(loss_file, 'w') as loss_writer:
         loss_writer.write('epoch, training_loss, validation_loss')
 
-    step_ri('Preparing to train')
+    step_ri('Epoch counts')
     epoch_count = cli_args['epochs']
     print(f'Epochs: {epoch_count}')
     training_batches = len(train_loader)
     print(f'Training batches per epoch: {training_batches}')
     validation_batches = len(validation_loader)
     print(f'Validation batches per epoch: {validation_batches}')
+
+    step_ri('Saving preferences')
+    best_val_loss_epoch = 0
     best_val_loss = 1e10
     epoch_save_steps = cli_args.get('epoch_save_steps')
     only_best_epoch = cli_args['only_best_epoch']
+    early_stopping = cli_args['early_stopping']
     if epoch_save_steps:
         print(f'Will save every {epoch_save_steps} epochs')
     if only_best_epoch:
         best_epoch_path = None
-        print('Will only save best epoch')
-    print()
+        print('Will save only best epoch based on the loss function')
+    if early_stopping:
+        print('Early stopping enabled - will stop if loss does not improve '
+              f'after {early_stopping} epochs')
 
+    step_ri('Beginning training')
     for epoch_idx in range(1, epoch_count + 1):
         print(f'EPOCH {epoch_idx}/{epoch_count}')
 
@@ -253,6 +267,7 @@ def model_train(cli_args):
         def _save_epoch():
             torch.save(model.state_dict(), current_epoch_path)
 
+        loss_improved = avg_val_loss < best_val_loss
         if epoch_save_steps is not None:
             # Always save the current epoch for progress
             _save_epoch()
@@ -261,13 +276,21 @@ def model_train(cli_args):
             if last_epoch % epoch_save_steps:
                 delete_file(f'{output_model_path}/epoch_{last_epoch}', True)
         elif only_best_epoch is True:
-            if avg_val_loss < best_val_loss:
+            if loss_improved:
                 # Save the new epoch
                 _save_epoch()
                 # Delete the last saved epoch sense it is no longer the best
                 if best_epoch_path is not None:
                     delete_file(best_epoch_path, True)
                 best_epoch_path = current_epoch_path
-                best_val_loss = avg_val_loss
         else:
             _save_epoch()
+
+        # Handle the early stopping
+        if loss_improved:
+            best_val_loss_epoch = epoch_idx
+            best_val_loss = avg_val_loss
+        if epoch_idx - best_val_loss_epoch > early_stopping:
+            print('Stopping training due to early stopping')
+            print(f'Loss has not improved for {early_stopping} epochs')
+            break
