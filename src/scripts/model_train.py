@@ -107,6 +107,12 @@ def model_train_parser(subparsers):
         help=('stop training if performance does not improve after n epochs, '
               'this is based on the validation loss'),
     )
+    subparser.add_argument(
+        '--loss-improvement-threshold',
+        type=float,
+        default=1e-5,
+        help='threshold to determine if loss has improved',
+    )
     epoch_save_group = subparser.add_mutually_exclusive_group()
     epoch_save_group.add_argument(
         '--epoch-save-steps',
@@ -268,7 +274,10 @@ def model_train(cli_args):
         def _save_epoch():
             torch.save(model.state_dict(), current_epoch_path)
 
-        loss_improved = avg_val_loss < best_val_loss
+        threshold = cli_args.get('loss_improvement_threshold', 1e-5)
+        # More stable version of = avg_val_loss < best_val_loss
+        loss_improved = best_val_loss - avg_val_loss > threshold
+
         if epoch_save_steps is not None:
             # Always save the current epoch for progress
             _save_epoch()
@@ -303,7 +312,7 @@ def model_train(cli_args):
 
         # Handle the early stopping
         if early_stopping and epochs_since_improvement > early_stopping:
-            print('Stopping training due to early stopping')
+            print('Ending training due to early stopping')
             print(f'Loss has not improved for {early_stopping} epochs')
             break
 
