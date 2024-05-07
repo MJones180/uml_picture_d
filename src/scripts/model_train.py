@@ -15,7 +15,7 @@ from utils.json import json_write
 from utils.load_network import load_network
 from utils.path import (copy_files, delete_dir, delete_file, make_dir,
                         path_parent)
-from utils.printing_and_logging import step_ri, title
+from utils.printing_and_logging import dec_print_indent, step, step_ri, title
 from utils.shared_argparser_args import shared_argparser_args
 from utils.torch_hdf_ds_loader import DSLoaderHDF
 
@@ -224,7 +224,7 @@ def model_train(cli_args):
 
     step_ri('Beginning training')
     for epoch_idx in range(1, epoch_count + 1):
-        print(f'EPOCH {epoch_idx}/{epoch_count}')
+        step(f'EPOCH {epoch_idx}/{epoch_count}')
 
         # Turn gradient tracking on
         model.train(True)
@@ -286,11 +286,22 @@ def model_train(cli_args):
         else:
             _save_epoch()
 
+        print('Loss: ', float(avg_val_loss))
+        epochs_since_improvement = epoch_idx - best_val_loss_epoch
+        difference_from_best = abs(float(best_val_loss - avg_val_loss))
+
         # Handle the early stopping
         if loss_improved:
+            print(f'{difference_from_best} from best')
             best_val_loss_epoch = epoch_idx
             best_val_loss = avg_val_loss
-        if epoch_idx - best_val_loss_epoch > early_stopping:
+        else:
+            print(f'{difference_from_best} off best')
+            print('Performance has not increased in '
+                  f'{epochs_since_improvement} epochs')
+        if epochs_since_improvement > early_stopping:
             print('Stopping training due to early stopping')
             print(f'Loss has not improved for {early_stopping} epochs')
             break
+
+        dec_print_indent()
