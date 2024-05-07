@@ -12,7 +12,10 @@ def shared_argparser_args(sp, args_to_add):
     shared_args = {
         'epoch': lambda: sp.add_argument(
             'epoch',
-            help='epoch of the trained model to test (just the number part)',
+            help=('epoch of the trained model (just the number part), '
+                  'alternatively the value of `last` can be passed which '
+                  'will use the highest epoch available (note, this does '
+                  'not necessarily mean it is the "best" epoch)'),
         ),
         'network_name': lambda: sp.add_argument(
             'network_name',
