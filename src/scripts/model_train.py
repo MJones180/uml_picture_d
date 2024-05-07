@@ -311,9 +311,8 @@ def model_train(cli_args):
                   f'{epochs_since_improvement} epochs')
 
         # Handle the early stopping
-        if early_stopping and epochs_since_improvement > early_stopping:
+        if early_stopping and epochs_since_improvement >= early_stopping:
             print('Ending training due to early stopping')
-            print(f'Loss has not improved for {early_stopping} epochs')
             break
 
         dec_print_indent()
