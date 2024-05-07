@@ -59,6 +59,8 @@ Along with each epoch, models store the following files:
 - `args.json`: the CLI args used to the model training script
 - `norm.json`: normalization values used in the training dataset
 
+To easily lookup a model by its tag, there exists a JSON file at `output/tag_lookup.json` that can be referenced.
+
 ## Networks
 
 All networks (the structure of a given model) must be stored in the `src/networks` folder.
