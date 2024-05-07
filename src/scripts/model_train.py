@@ -290,7 +290,7 @@ def model_train(cli_args):
         epochs_since_improvement = epoch_idx - best_val_loss_epoch
         difference_from_best = abs(float(best_val_loss - avg_val_loss))
 
-        # Handle the early stopping
+        # Pretty logs for loss
         if loss_improved:
             print(f'{difference_from_best} from best')
             best_val_loss_epoch = epoch_idx
@@ -299,7 +299,9 @@ def model_train(cli_args):
             print(f'{difference_from_best} off best')
             print('Performance has not increased in '
                   f'{epochs_since_improvement} epochs')
-        if epochs_since_improvement > early_stopping:
+
+        # Handle the early stopping
+        if early_stopping and epochs_since_improvement > early_stopping:
             print('Stopping training due to early stopping')
             print(f'Loss has not improved for {early_stopping} epochs')
             break
