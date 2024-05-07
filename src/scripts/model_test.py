@@ -15,6 +15,7 @@ from utils.norm import min_max_denorm
 from utils.path import delete_dir, make_dir
 from utils.printing_and_logging import step_ri, title
 from utils.shared_argparser_args import shared_argparser_args
+from utils.terminate_with_message import terminate_with_message
 from utils.torch_hdf_ds_loader import DSLoaderHDF
 
 
@@ -102,6 +103,8 @@ def model_test(cli_args):
     step_ri('Generating plots')
     n_rows = cli_args['n_rows']
     n_cols = cli_args['n_cols']
+    if n_rows * n_cols < outputs_truth.shape[1]:
+        terminate_with_message('Not enough rows and columns for the data.')
     fig, axs = plt.subplots(n_rows, n_cols, figsize=(n_cols * 3, n_rows * 3))
     current_col = 0
     for plot_row in range(n_rows):
