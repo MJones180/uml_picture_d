@@ -8,9 +8,9 @@ from utils.printing_and_logging import dec_print_indent, step
 from utils.terminate_with_message import terminate_with_message
 
 
-class LoadModel():
+class Model():
 
-    def __init__(self, tag, epoch, eval_mode=False):
+    def __init__(self, tag, epoch):
         step('Loading in the trained model')
 
         dir_path = f'{TRAINED_MODELS_P}/{tag}'
@@ -34,6 +34,10 @@ class LoadModel():
             dec_print_indent()
             print()
 
+        # Set the instance variables
+        self.tag = tag
+        self.epoch = epoch
+
         model_path = f'{dir_path}/epoch_{epoch}'
         print(f'Model directory path with epoch: {model_path}')
         if not path_exists(model_path):
@@ -53,10 +57,8 @@ class LoadModel():
         self.model = self.network()
         # Now, the weights can be set
         self.model.load_state_dict(torch.load(model_path))
-        if eval_mode:
-            # Set to evaluation mode
-            self.model.eval()
-
+        # Set to evaluation mode
+        self.model.eval()
         dec_print_indent()
 
     def get_args(self):
@@ -70,3 +72,17 @@ class LoadModel():
 
     def get_norm_values(self):
         return self.norm_values
+
+    def get_epoch(self):
+        return self.epoch
+
+    def get_tag(self):
+        return self.tag
+
+    def call_model(self, data):
+        with torch.no_grad():
+            model_outputs = self.model(data).numpy()
+        return model_outputs
+
+    def __call__(self, *args, **kwargs):
+        return self.call_model(*args, **kwargs)

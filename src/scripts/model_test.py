@@ -10,7 +10,7 @@ import torch
 from utils.constants import (ANALYSIS_P, MAE, MSE, OUTPUT_MIN_X,
                              OUTPUT_MAX_MIN_DIFF, RESULTS_F)
 from utils.hdf_read_and_write import HDFWriteModule
-from utils.load_model import LoadModel
+from utils.model import Model
 from utils.norm import min_max_denorm
 from utils.path import delete_dir, make_dir
 from utils.printing_and_logging import step_ri, title
@@ -21,8 +21,8 @@ from utils.torch_hdf_ds_loader import DSLoaderHDF
 def model_test_parser(subparsers):
     """
     Example commands:
-    python3 main.py model_test v1a 110 testing_03_05_global 5 5
-    python3 main.py model_test v1a 110 testing_03_05_ind 5 5
+    python3 main.py model_test v1a last testing_03_05_global 5 5
+    python3 main.py model_test v1a last testing_03_05_ind 5 5
     """
     subparser = subparsers.add_parser(
         'model_test',
@@ -53,9 +53,8 @@ def model_test(cli_args):
     tag = cli_args['tag']
     epoch = cli_args['epoch']
 
-    loaded_model = LoadModel(tag, epoch, eval_mode=True)
-    norm_values = loaded_model.get_norm_values()
-    model = loaded_model.get_model()
+    model = Model(tag, epoch)
+    norm_values = model.get_norm_values()
 
     step_ri('Creating the analysis directory')
     analysis_path = f'{ANALYSIS_P}/{tag}_epoch_{epoch}'
@@ -66,8 +65,7 @@ def model_test(cli_args):
     testing_dataset = DSLoaderHDF(cli_args['testing_ds'])
 
     step_ri('Calling the model and obtaining its outputs')
-    with torch.no_grad():
-        outputs_model = model(testing_dataset.get_inputs_torch()).numpy()
+    outputs_model = model(testing_dataset.get_inputs_torch())
 
     print('Denormalizing the outputs')
     # Denormalize the outputs

@@ -4,9 +4,8 @@ of data.
 """
 
 import time
-import torch
 from utils.constants import OUTPUT_MIN_X, OUTPUT_MAX_MIN_DIFF
-from utils.load_model import LoadModel
+from utils.model import Model
 from utils.norm import min_max_denorm
 from utils.printing_and_logging import step_ri, title
 from utils.shared_argparser_args import shared_argparser_args
@@ -15,7 +14,7 @@ from utils.shared_argparser_args import shared_argparser_args
 def benchmark_model_speed_parser(subparsers):
     """
     Example commands:
-    python3 main.py benchmark_model_speed v1a 110
+    python3 main.py benchmark_model_speed v1a last
     """
     subparser = subparsers.add_parser(
         'benchmark_model_speed',
@@ -37,10 +36,9 @@ def benchmark_model_speed(cli_args):
     epoch = cli_args['epoch']
     iterations = cli_args['iterations']
 
-    loaded_model = LoadModel(tag, epoch, eval_mode=True)
-    model = loaded_model.get_model()
-    network = loaded_model.get_network()
-    norm_values = loaded_model.get_norm_values()
+    model = Model(tag, epoch)
+    network = model.get_network()
+    norm_values = model.get_norm_values()
 
     output_max_min_diff = norm_values[OUTPUT_MAX_MIN_DIFF]
     output_min_x = norm_values[OUTPUT_MIN_X]
@@ -48,9 +46,7 @@ def benchmark_model_speed(cli_args):
     example_input = network.example_input()
 
     def _run_model():
-        with torch.no_grad():
-            model_output = model(example_input).numpy()
-        return model_output
+        return model(example_input)
 
     def _run_model_and_denorm():
         model_output = _run_model()
