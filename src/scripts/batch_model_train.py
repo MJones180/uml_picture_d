@@ -98,7 +98,8 @@ def batch_model_train_parser(subparsers):
         '--early-stopping',
         type=int,
         metavar='n',
-        help='stop training if performance does not improve after n epochs',
+        help=('stop training if performance does not improve after n epochs, '
+              'this is based on the validation loss'),
     )
 
 

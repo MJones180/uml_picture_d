@@ -104,7 +104,8 @@ def model_train_parser(subparsers):
         '--early-stopping',
         type=int,
         metavar='n',
-        help='stop training if performance does not improve after n epochs',
+        help=('stop training if performance does not improve after n epochs, '
+              'this is based on the validation loss'),
     )
     epoch_save_group = subparser.add_mutually_exclusive_group()
     epoch_save_group.add_argument(
@@ -286,7 +287,7 @@ def model_train(cli_args):
         else:
             _save_epoch()
 
-        print('Loss: ', float(avg_val_loss))
+        print('Validation Loss: ', float(avg_val_loss))
         epochs_since_improvement = epoch_idx - best_val_loss_epoch
         difference_from_best = abs(float(best_val_loss - avg_val_loss))
 
