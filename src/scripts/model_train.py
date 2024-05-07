@@ -10,11 +10,11 @@ The training and validation dataset must have their inputs pre-normalized.
 import torch
 from torchvision.transforms import v2
 from utils.constants import (ARGS_F, LOSS_FUNCTIONS, NORM_F, OPTIMIZERS,
-                             TRAINED_MODELS_P)
-from utils.json import json_write
+                             OUTPUT_P, TAG_LOOKUP_F, TRAINED_MODELS_P)
+from utils.json import json_load, json_write
 from utils.load_network import load_network
 from utils.path import (copy_files, delete_dir, delete_file, make_dir,
-                        path_parent)
+                        path_exists, path_parent)
 from utils.printing_and_logging import dec_print_indent, step, step_ri, title
 from utils.shared_argparser_args import shared_argparser_args
 from utils.torch_hdf_ds_loader import DSLoaderHDF
@@ -204,6 +204,17 @@ def model_train(cli_args):
     loss_file = f'{output_model_path}/epoch_loss.csv'
     with open(loss_file, 'w') as loss_writer:
         loss_writer.write('epoch, training_loss, validation_loss')
+
+    step_ri('Writing to the tag lookup')
+    tag_lookup_path = f'{OUTPUT_P}/{TAG_LOOKUP_F}'
+    # Load in the current lookup if one already exists
+    if path_exists(tag_lookup_path):
+        tag_lookup = json_load(tag_lookup_path)
+    else:
+        tag_lookup = {}
+    # Add all the cli arguments associated with this tag for easy reference
+    tag_lookup[tag] = cli_args
+    json_write(tag_lookup_path, tag_lookup)
 
     step_ri('Epoch counts')
     epoch_count = cli_args['epochs']

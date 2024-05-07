@@ -10,6 +10,7 @@ ANALYSIS_P = f'{OUTPUT_P}/analysis'
 
 ARGS_F = 'args.json'
 NORM_F = 'norm.json'
+TAG_LOOKUP_F = 'tag_lookup.json'
 DATA_F = 'data.h5'
 RESULTS_F = 'results.h5'
 
