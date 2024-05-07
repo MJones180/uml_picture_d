@@ -28,7 +28,7 @@ def batch_model_train_parser(subparsers):
         --loss mae --optimizer adam \
         --lr 1e-3 1e-4 1e-5 \
         --batch-size 32 64 128 \
-        --overwrite-existing --only-best-epoch
+        --overwrite-existing --only-best-epoch --early-stopping 10
     """
     subparser = subparsers.add_parser(
         'batch_model_train',
@@ -94,6 +94,12 @@ def batch_model_train_parser(subparsers):
         help=('only the best epoch as based on the validation '
               'dataset will be saved'),
     )
+    subparser.add_argument(
+        '--early-stopping',
+        type=int,
+        metavar='n',
+        help='stop training if performance does not improve after n epochs',
+    )
 
 
 def batch_model_train(cli_args):
@@ -105,6 +111,7 @@ def batch_model_train(cli_args):
     epochs = cli_args['epochs']
     overwrite_existing = cli_args['overwrite_existing']
     only_best_epoch = cli_args['only_best_epoch']
+    early_stopping = cli_args['early_stopping']
 
     # This arg will be appeneded with each index
     base_tag = cli_args['base_tag']
@@ -141,6 +148,7 @@ def batch_model_train(cli_args):
                             'epochs': epochs,
                             'overwrite_existing': overwrite_existing,
                             'only_best_epoch': only_best_epoch,
+                            'early_stopping': early_stopping,
                         })
                         current_idx += 1
     total_combos = len(combinations)
