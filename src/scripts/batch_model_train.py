@@ -24,10 +24,10 @@ def batch_model_train_parser(subparsers):
     python3 main.py batch_model_train \
         training_03_05_global validation_03_05_global \
         global_v1_ 20 \
-        --network test \
-        --loss mae --optimizer adam \
-        --lr 1e-3 1e-4 1e-5 \
-        --batch-size 32 64 128 \
+        --networks test \
+        --losses mae --optimizers adam \
+        --lrs 1e-3 1e-4 1e-5 \
+        --batch-sizes 32 64 128 \
         --overwrite-existing --only-best-epoch --early-stopping 10
     """
     subparser = subparsers.add_parser(
@@ -53,32 +53,32 @@ def batch_model_train_parser(subparsers):
         help='total number of epochs to train for',
     )
     subparser.add_argument(
-        '--network',
+        '--networks',
         help='networks to use',
         nargs='+',
     )
     subparser.add_argument(
-        '--loss',
+        '--losses',
         type=str.lower,
         choices=LOSS_FUNCTIONS.keys(),
         help='loss functions to use',
         nargs='+',
     )
     subparser.add_argument(
-        '--optimizer',
+        '--optimizers',
         type=str.lower,
         choices=OPTIMIZERS.keys(),
         help='optimizer functions to use',
         nargs='+',
     )
     subparser.add_argument(
-        '--lr',
+        '--lrs',
         type=float,
         help='learning rates of the optimizers',
         nargs='+',
     )
     subparser.add_argument(
-        '--batch-size',
+        '--batch-sizes',
         type=int,
         help='number of samples per batch',
         nargs='+',
@@ -117,11 +117,11 @@ def batch_model_train(cli_args):
     base_tag = cli_args['base_tag']
 
     # The args that can be lists of multiple values
-    networks = cli_args['network']
-    losses = cli_args['loss']
-    optimizers = cli_args['optimizer']
-    lrs = cli_args['lr']
-    batch_sizes = cli_args['batch_size']
+    networks = cli_args['networks']
+    losses = cli_args['losses']
+    optimizers = cli_args['optimizers']
+    lrs = cli_args['lrs']
+    batch_sizes = cli_args['batch_sizes']
 
     step_ri('Computing all possible combinations of the provided args.')
     combinations = []
