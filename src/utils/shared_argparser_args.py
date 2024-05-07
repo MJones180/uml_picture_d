@@ -6,6 +6,9 @@ def shared_argparser_args(sp, args_to_add):
     Many scripts will share the same arguments, so they are added here.
     The order that the arguments are passed in the list do matter as that is
     the order they will appear on the CLI.
+
+    This might not be the most pythonic file and may go against proper
+    `argparse` etiquette, but it works and is easy.
     """
     # All shared arguments are functions so that they are not instantly
     # evaluated, this prevents them all from getting added
