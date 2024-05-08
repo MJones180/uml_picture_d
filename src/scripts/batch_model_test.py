@@ -19,13 +19,13 @@ def batch_model_test_parser(subparsers):
     """
     Example commands:
     python3 main.py batch_model_test \
-        training_03_05_global 5 5 \
+        testing_03_05_global 5 5 \
         --epoch-and-tag-range last global_v1_ 1 9
     python3 main.py batch_model_test \
-        training_03_05_global 5 5 \
+        testing_03_05_global 5 5 \
         --tag-and-epoch-range global_v1_1 3 10
     python3 main.py batch_model_test \
-        training_03_05_global 5 5 \
+        testing_03_05_global 5 5 \
         --tags-and-epochs global_v1_1.last global_v1_5.last global_v1_8.last
     """
     subparser = subparsers.add_parser(
