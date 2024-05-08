@@ -3,19 +3,10 @@ Rank all the model tests in the analysis directory.
 """
 
 from glob import glob
-import matplotlib.pyplot as plt
 import numpy as np
-import torch
-from utils.constants import (ANALYSIS_P, MAE, MSE, OUTPUT_MIN_X,
-                             OUTPUT_MAX_MIN_DIFF, RESULTS_F)
+from utils.constants import ANALYSIS_P, MAE, MSE, RESULTS_F
 from utils.hdf_read_and_write import read_hdf
-from utils.model import Model
-from utils.norm import min_max_denorm
-from utils.path import delete_dir, make_dir
 from utils.printing_and_logging import step_ri, title
-from utils.shared_argparser_args import shared_argparser_args
-from utils.terminate_with_message import terminate_with_message
-from utils.torch_hdf_ds_loader import DSLoaderHDF
 
 
 def rank_analysis_dir_parser(subparsers):
