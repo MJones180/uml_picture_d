@@ -24,6 +24,7 @@ def benchmark_model_speed_parser(subparsers):
     shared_argparser_args(subparser, ['tag', 'epoch'])
     subparser.add_argument(
         '--iterations',
+        type=int,
         default=1000,
         help='number of iterations to perform',
     )
