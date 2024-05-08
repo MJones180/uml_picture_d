@@ -57,6 +57,8 @@ def model_test(cli_args):
 
     model = Model(tag, epoch)
     norm_values = model.get_norm_values()
+    # Grab the epoch number so that the output directory has what epoch it is
+    epoch = model.get_epoch()
 
     step_ri('Creating the analysis directory')
     analysis_path = f'{ANALYSIS_P}/{tag}_epoch_{epoch}'
