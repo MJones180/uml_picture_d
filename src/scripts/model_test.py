@@ -68,7 +68,7 @@ def model_test(cli_args):
     step_ri('Calling the model and obtaining its outputs')
     outputs_model = model(testing_dataset.get_inputs_torch())
 
-    print('Denormalizing the outputs')
+    step_ri('Denormalizing the outputs')
     # Denormalize the outputs
     outputs_model_denormed = min_max_denorm(
         outputs_model,
@@ -78,7 +78,7 @@ def model_test(cli_args):
     # Testing output data should already be unnormalized
     outputs_truth = testing_dataset.get_outputs()
 
-    print('Computing the MAE and MSE')
+    step_ri('Computing the MAE and MSE')
 
     def _compute_loss(loss_func):
         return loss_func(reduction='none')(
