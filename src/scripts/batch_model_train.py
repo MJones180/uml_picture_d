@@ -157,7 +157,7 @@ def batch_model_train(cli_args):
 
     print('Will begin iteratively calling `model_train` for each combination')
     for idx, combination in enumerate(combinations):
-        step_ri(f'Combination {idx}/{total_combos}')
+        step_ri(f'Combination {idx + 1}/{total_combos}')
         for key, val in combination.items():
             print(f'{key}: {val}')
         dec_print_indent()
