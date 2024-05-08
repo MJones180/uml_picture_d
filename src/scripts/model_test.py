@@ -34,7 +34,8 @@ def model_test_parser(subparsers):
     subparser.add_argument(
         'testing_ds',
         help=('name of the testing dataset, will use the norm values from the '
-              'trained model - NOT from the testing dataset directly'),
+              'trained model - NOT from the testing dataset directly, outputs '
+              'should already be denormalized'),
     )
     subparser.add_argument(
         'n_rows',
@@ -75,7 +76,7 @@ def model_test(cli_args):
         norm_values[OUTPUT_MAX_MIN_DIFF],
         norm_values[OUTPUT_MIN_X],
     )
-    # Testing output data should already be unnormalized
+    # Testing output data should already be denormalized
     outputs_truth = testing_dataset.get_outputs()
 
     step_ri('Computing the MAE and MSE')
