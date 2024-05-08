@@ -30,8 +30,8 @@ def network_info(cli_args):
     network = load_network(network_name)
     input_data = network.example_input()
     network_inst = network()
-    print('Layers:')
-    inc_print_indent()
+
+    step_ri('Trainable parameters')
     total = 0
     for name, parameter in network_inst.named_parameters():
         if parameter.requires_grad:
@@ -39,9 +39,27 @@ def network_info(cli_args):
             print(name, params)
             total += params
     dec_print_indent()
-    print(f'Total Trainable Params: {total}')
+    print(f'Total: {total}')
+
+    step_ri('Layers')
+    print(network_inst)
 
     step_ri('Sample call')
     output_data = network_inst(input_data)
     print('Output data: ', output_data)
     print('Output shape: ', output_data.shape)
+
+    step_ri('Input and output shapes from each layer')
+
+    # https://discuss.pytorch.org/t/how-to-get-the-input-and-output-feature-maps
+    # -of-a-cnn-model/152259/2
+    def hook(module, input_data, output_data):
+        print(module)
+        inc_print_indent()
+        print('Input: ', input_data[0].shape)
+        print('Output: ', output_data.shape)
+        dec_print_indent()
+
+    for module in network_inst.children():
+        module.register_forward_hook(hook)
+    network_inst(input_data)
