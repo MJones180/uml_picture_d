@@ -14,7 +14,3 @@ def proper_use_fftw():
             dec_print_indent()
         else:
             terminate_with_message('pyFFTW is still not being used?')
-
-
-# print('Adding wisdom')
-# proper.prop_fftw_wisdom(2048)
