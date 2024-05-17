@@ -24,30 +24,6 @@ Proper in Python 3 must also be installed.
 For this, install PROPER from https://proper-library.sourceforge.net/ and store the unzipped `proper` direcotry under `packages`.
 This will result in `packages/proper/` containing the necessary Python files.
 
-## Structure
-
-    .
-    ├── environment.yml
-    ├── README.md
-    ├── PROPER_manual_v3.2.7.pdf
-    ├── data
-    │   ├── processed/
-    │   ├── proper_sim/
-    │   └── raw_fits/
-    ├── diagram_reference/
-    ├── output
-    │   ├── analysis/
-    │   └── trained_models/
-    ├── packages
-    │   ├── cbm_vvc_mft.py
-    │   └── proper/
-    └── src
-        ├── main.py
-        ├── script_parsers.py
-        ├── networks/
-        ├── scripts/
-        └── utils/
-
 ## Data
 
 ### Pre-existing Data
