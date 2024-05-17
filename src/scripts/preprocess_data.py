@@ -8,6 +8,9 @@ In this script, all inputs are normalized based on the training normalization
 values. The output normalization for the training and validation data is
 optional and can either be global or individual. If output normalization is
 performed, it will be based on the training normalization values.
+
+NOTE: This script expects the IDL generated FITS files. It has not yet been
+updated to handle the Python simulated data.
 """
 
 from astropy.io import fits
