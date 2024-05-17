@@ -2,16 +2,19 @@ from cbm_vvc_mft import cbm_vvc_mft
 import proper
 from utils.constants import VVC_CHARGE
 
-# Diameter of 9 mm
+# Diameter of the initial beam
 INIT_BEAM_D = 9e-3
 
 # Lyot stop
 lyot_stop_outer_d = 50.8e-3
-BEAM_RATIO = INIT_BEAM_D / lyot_stop_outer_d * 0.95
-
-outer_r = lyot_stop_outer_d / 2
+lyot_stop_outer_r = lyot_stop_outer_d / 2
 lyot_stop_hole_r = INIT_BEAM_D * 0.9 / 2
 
+# Ratio of the beam to the grid
+BEAM_RATIO = INIT_BEAM_D / lyot_stop_outer_d * 0.95
+
+# All distances are in meters. Assume the beam starts at HODM 1. Treat the
+# DMs as if they are not there.
 OPTICAL_TRAIN = [
     lambda wf: proper.prop_circular_aperture(wf, INIT_BEAM_D / 2),
     [
@@ -22,7 +25,8 @@ OPTICAL_TRAIN = [
         'Prop to OAP3 [From HODM 1]',
         lambda wf: proper.prop_propagate(wf, 0.7251065),
     ],
-    lambda wf: proper.prop_lens(wf, 0.511, 'OAP3'),
+    # OAP3
+    lambda wf: proper.prop_lens(wf, 0.511),
     [
         'Prop to VVC [From OAP3]',
         lambda wf: proper.prop_propagate(wf, 0.511),
@@ -45,21 +49,30 @@ OPTICAL_TRAIN = [
         'Prop to OAP4 [From VVC]',
         lambda wf: proper.prop_propagate(wf, 0.511),
     ],
+    # OAP4
     lambda wf: proper.prop_lens(wf, 0.511),
     [
         'Prop to Lyot Stop [From OAP4]',
         lambda wf: proper.prop_propagate(wf, 0.2966085),
     ],
-    lambda wf: proper.prop_elliptical_aperture(wf, outer_r, outer_r),
+    lambda wf: proper.prop_elliptical_aperture(
+        wf,
+        lyot_stop_outer_r,
+        lyot_stop_outer_r,
+    ),
     [
         'Lyot Stop',
-        lambda wf: proper.prop_elliptical_obscuration(wf, lyot_stop_hole_r,
-                                                      lyot_stop_hole_r),
+        lambda wf: proper.prop_elliptical_obscuration(
+            wf,
+            lyot_stop_hole_r,
+            lyot_stop_hole_r,
+        ),
     ],
     [
         'Final Lens [From Lyot Stop]',
         lambda wf: proper.prop_propagate(wf, 0.1016),
     ],
+    # Final lens
     lambda wf: proper.prop_lens(wf, 0.25165),
     [
         'CCD [From final lens]',

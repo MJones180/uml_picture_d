@@ -34,6 +34,7 @@ This will result in `packages/proper/` containing the necessary Python files.
     │   ├── processed/
     │   ├── proper_sim/
     │   └── raw_fits/
+    ├── diagram_reference/
     ├── output
     │   ├── analysis/
     │   └── trained_models/
@@ -94,6 +95,18 @@ Each optical train must have the following variables:
 - `INIT_BEAM_D`: Diameter of the initial beam in meters.
 - `BEAM_RATIO`: Ratio of space that the beam takes up on the grid.
 - `OPTICAL_TRAIN`: A list specifying the steps of the train. Each `proper` call must be wrapped in a lambda that takes the `wf` oject. Additionally, a nested list can be passed if that step should have the option to be plotted. An example list would be `[ lambda wf: proper.prop_circular_aperture(wf, 1), [ 'Entrance', lambda wf: proper.prop_define_entrance(wf) ] ]`.
+
+## Optical Setup
+
+The `diagram_reference` directory contains diagrams that can be referenced about the optical setup.
+
+The following terminology is used:
+- OAP: Off-axis parabola
+- OAE: Off-axis ellipse
+- OAH: Off-axis hyperbola
+- M1: Primary mirror (parabola for PICTURE-D)
+- M2: Secondary mirror (ellipse for PICTURE-D)
+- M3: OAP
 
 ## Docstrings
 
