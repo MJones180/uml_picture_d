@@ -28,6 +28,8 @@ SHOW_LOG_PLOT = False
 # Save the plots instead of displaying them
 SAVE_PLOTS = False
 
+PLOTTING = False
+
 
 def plot_wf_intensity(wf, title, plot_idx):
     amp = proper.prop_get_amplitude(wf)
@@ -40,7 +42,6 @@ def plot_wf_intensity(wf, title, plot_idx):
     plt.clf()
     plt.title(title)
     plt.imshow(intensity, cmap='Greys_r')
-    # plt.imshow(intensity)
     plt.colorbar(label=colorbar_label)
     if SAVE_PLOTS:
         plt.savefig(f'plot_output/{plot_idx}.png', dpi=300)
@@ -48,63 +49,79 @@ def plot_wf_intensity(wf, title, plot_idx):
         plt.show()
 
 
+outer_r = LYOT_STOP_OUTER_D / 2
+inner_r = LYOT_STOP_HOLE_D / 2
+train = [
+    lambda wf: proper.prop_circular_aperture(wf, INIT_BEAM_D / 2),
+    [
+        'Entrance',
+        lambda wf: proper.prop_define_entrance(wf),
+    ],
+    [
+        'Prop to OAP3 [From HODM 1]',
+        lambda wf: proper.prop_propagate(wf, 0.7251065),
+    ],
+    lambda wf: proper.prop_lens(wf, 0.511, 'OAP3'),
+    [
+        'Prop to VVC [From OAP3]',
+        lambda wf: proper.prop_propagate(wf, 0.511),
+    ],
+    [
+        'VVC',
+        lambda wf: cbm_vvc_mft(
+            wavefront=wf,
+            charge=VCC_CHARGE,
+            spot_rad=10e-6,
+            offset=0,
+            ramp_sign=1,
+            beam_ratio=BEAM_RATIO,
+            d_occulter_lyotcoll=0.511,
+            fl_lyotcoll=0.511,
+            d_lyotcoll_lyotstop=0.2966085,
+        ),
+    ],
+    [
+        'Prop to OAP4 [From VVC]',
+        lambda wf: proper.prop_propagate(wf, 0.511),
+    ],
+    lambda wf: proper.prop_lens(wf, 0.511),
+    [
+        'Prop to Lyot Stop [From OAP4]',
+        lambda wf: proper.prop_propagate(wf, 0.2966085),
+    ],
+    lambda wf: proper.prop_elliptical_aperture(wf, outer_r, outer_r),
+    [
+        'Lyot Stop',
+        lambda wf: proper.prop_elliptical_obscuration(wf, inner_r, inner_r),
+    ],
+    [
+        'Final Lens [From Lyot Stop]',
+        lambda wf: proper.prop_propagate(wf, 0.1016),
+    ],
+    lambda wf: proper.prop_lens(wf, 0.25165),
+    [
+        'CCD [From final lens]',
+        lambda wf: proper.prop_propagate(wf, 0.247396),
+    ],
+]
+
+
 def simple_test():
-    wf = proper.prop_begin(INIT_BEAM_D, REF_WL, GRID_POINTS, BEAM_RATIO)
+    wavefront = proper.prop_begin(INIT_BEAM_D, REF_WL, GRID_POINTS, BEAM_RATIO)
 
-    proper.prop_circular_aperture(wf, INIT_BEAM_D / 2)
+    plot_idx = 0
+    for step in train:
+        if type(step) is list:
+            step[1](wavefront)
+            if PLOTTING:
+                plot_wf_intensity(wavefront, step[0], plot_idx)
+                plot_idx += 1
+        else:
+            step(wavefront)
 
-    # Define entrance
-    proper.prop_define_entrance(wf)
-    plot_wf_intensity(wf, 'Entrance', 0)
-
-    proper.prop_propagate(wf, 0.7251065, 'OAP3 [From HODM 1]')
-    plot_wf_intensity(wf, 'Prop to OAP3 [From HODM 1]', 1)
-
-    proper.prop_lens(wf, 0.511, 'OAP3')
-
-    proper.prop_propagate(wf, 0.511, 'VVC [From OAP3]')
-    plot_wf_intensity(wf, 'Prop to VVC [From OAP3]', 2)
-
-    cbm_vvc_mft(
-        wavefront=wf,
-        charge=VCC_CHARGE,
-        spot_rad=10e-6,
-        offset=0,
-        ramp_sign=1,
-        beam_ratio=BEAM_RATIO,
-        d_occulter_lyotcoll=0.511,
-        fl_lyotcoll=0.511,
-        d_lyotcoll_lyotstop=0.2966085,
-    )
-    plot_wf_intensity(wf, 'VVC', 3)
-
-    proper.prop_propagate(wf, 0.511, 'OAP4 [From VVC]')
-    plot_wf_intensity(wf, 'Prop to OAP4 [From VVC]', 4)
-
-    proper.prop_lens(wf, 0.511, 'OAP4')
-
-    proper.prop_propagate(wf, 0.2966085, 'Lyot Stop [From OAP4]')
-    plot_wf_intensity(wf, 'Prop to Lyot Stop [From OAP4]', 5)
-
-    outer_r = LYOT_STOP_OUTER_D / 2
-    inner_r = LYOT_STOP_HOLE_D / 2
-    proper.prop_elliptical_aperture(wf, outer_r, outer_r)
-    proper.prop_elliptical_obscuration(wf, inner_r, inner_r)
-    plot_wf_intensity(wf, 'Lyot Stop', 6)
-
-    proper.prop_propagate(wf, 0.1016, 'Final Lens [From Lyot Stop]')
-    plot_wf_intensity(wf, 'Final Lens [From Lyot Stop]', 7)
-
-    proper.prop_lens(wf, 0.25165, 'Final Lens')
-
-    proper.prop_propagate(wf, 0.247396, 'CCD [From final lens]')
-    plot_wf_intensity(wf, 'CCD [From final lens]', 8)
-
-    # Pixel size for the CCD: 4.5 microns
-    # Final image should be 32 x 32 pixels, greys
-    # Take sampling which is x microns, and rebin to match
-
-    return proper.prop_end(wf)
+    return proper.prop_end(wavefront)
 
 
 (wf, sampling) = simple_test()
+print(sampling)
+quit()
