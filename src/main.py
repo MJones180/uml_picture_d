@@ -1,3 +1,5 @@
+import add_packages_dir_to_path  # noqa: F401
+
 import argparse
 from script_parsers import script_parsers
 from sys import argv

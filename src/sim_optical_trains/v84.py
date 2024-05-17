@@ -4,13 +4,13 @@ from utils.constants import VVC_CHARGE
 
 # Diameter of 9 mm
 INIT_BEAM_D = 9e-3
-# Lyot stop
-LYOT_STOP_HOLE_D = INIT_BEAM_D * 0.9
-LYOT_STOP_OUTER_D = 50.8e-3
-BEAM_RATIO = INIT_BEAM_D / LYOT_STOP_OUTER_D * 0.95
 
-outer_r = LYOT_STOP_OUTER_D / 2
-inner_r = LYOT_STOP_HOLE_D / 2
+# Lyot stop
+lyot_stop_outer_d = 50.8e-3
+BEAM_RATIO = INIT_BEAM_D / lyot_stop_outer_d * 0.95
+
+outer_r = lyot_stop_outer_d / 2
+lyot_stop_hole_r = INIT_BEAM_D * 0.9 / 2
 
 OPTICAL_TRAIN = [
     lambda wf: proper.prop_circular_aperture(wf, INIT_BEAM_D / 2),
@@ -53,7 +53,8 @@ OPTICAL_TRAIN = [
     lambda wf: proper.prop_elliptical_aperture(wf, outer_r, outer_r),
     [
         'Lyot Stop',
-        lambda wf: proper.prop_elliptical_obscuration(wf, inner_r, inner_r),
+        lambda wf: proper.prop_elliptical_obscuration(wf, lyot_stop_hole_r,
+                                                      lyot_stop_hole_r),
     ],
     [
         'Final Lens [From Lyot Stop]',

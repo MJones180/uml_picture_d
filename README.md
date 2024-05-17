@@ -68,6 +68,8 @@ Each processed dataset ends up consisting of two files:
 
 Data can now be simulated in this repo using PROPER in Python 3.
 
+For information on the optical train files, look at the Optical Trains section.
+
 ## Model
 
 All trained models will automatically be outputted in the `output/trained_models/` folder.
@@ -84,6 +86,14 @@ To easily lookup a model by its tag, there exists a JSON file at `output/tag_loo
 All networks (the structure of a given model) must be stored in the `src/networks` folder.
 Each network must have the class name of `Network`.
 Additionally, each class must have a static function named `example_input` which returns an example array which could be fed in to the network.
+
+## Optical Trains
+
+All optical trains (the setup for a simulation) must be stored in the `src/sim_optical_trains` folder.
+Each optical train must have the following variables:
+- `INIT_BEAM_D`: Diameter of the initial beam in meters.
+- `BEAM_RATIO`: Ratio of space that the beam takes up on the grid.
+- `OPTICAL_TRAIN`: A list specifying the steps of the train. Each `proper` call must be wrapped in a lambda that takes the `wf` oject. Additionally, a nested list can be passed if that step should have the option to be plotted. An example list would be `[ lambda wf: proper.prop_circular_aperture(wf, 1), [ 'Entrance', lambda wf: proper.prop_define_entrance(wf) ] ]`.
 
 ## Docstrings
 
