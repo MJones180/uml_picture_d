@@ -40,3 +40,7 @@ def path_file(path):
 
 def path_parent(path):
     return Path(path).parent
+
+
+def get_abs_path(path):
+    return Path(path).resolve()

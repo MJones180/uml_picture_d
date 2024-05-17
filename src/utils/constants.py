@@ -1,4 +1,4 @@
-# Path locations are all relative to the folders one below `src` (`utils`, etc.)
+# Path locations are all relative to the folders one below `src`
 
 DATA_P = '../data'
 PROC_DATA_P = f'{DATA_P}/processed'
@@ -8,11 +8,18 @@ OUTPUT_P = '../output'
 TRAINED_MODELS_P = f'{OUTPUT_P}/trained_models'
 ANALYSIS_P = f'{OUTPUT_P}/analysis'
 
+PACKAGES_P = '../packages'
+
 ARGS_F = 'args.json'
 NORM_F = 'norm.json'
 TAG_LOOKUP_F = 'tag_lookup.json'
 DATA_F = 'data.h5'
 RESULTS_F = 'results.h5'
+
+# `src` folder names
+
+NETWORKS = 'networks'
+SIM_OPTICAL_TRAINS = 'sim_optical_trains'
 
 # Dataset HDF tables (belongs to the `DATA_F` file)
 
@@ -48,3 +55,8 @@ OPTIMIZERS = {
     'rmsprop': 'RMSprop',
     'sgd': 'SGD',
 }
+
+# PROPER simulation code constants
+
+# Vector Vortex Coronagraph charge
+VVC_CHARGE = 6
