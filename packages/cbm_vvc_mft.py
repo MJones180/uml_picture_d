@@ -147,8 +147,10 @@ def cbm_vvc_mft(
 
     # Need to add in correct dimensions, (nvvc,1) x (1, nvvc) -> (nvvc, nvvc)
     y = np.outer(np.arange(nvvc) - nvvc / 2, np.ones(nvvc))
-    # x = y.T
-    theta = np.arctan(y / y.T)
+    # A divide by zero occurs from the `x` array, so ignore the warning
+    with np.errstate(all='ignore'):
+        # x = y.T
+        theta = np.arctan(y / y.T)
     vvc = np.exp((offset + ramp_sign * charge * theta) * 1j)
     # Middle pixel will be NaN, so set to 0
     vvc[nvvc // 2, nvvc // 2] = 0

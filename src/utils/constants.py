@@ -2,6 +2,7 @@
 
 DATA_P = '../data'
 PROC_DATA_P = f'{DATA_P}/processed'
+PROPER_SIM_DATA_P = f'{DATA_P}/proper_sim'
 RAW_FITS_DATA_P = f'{DATA_P}/raw_fits'
 
 OUTPUT_P = '../output'
