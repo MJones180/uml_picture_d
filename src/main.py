@@ -1,3 +1,5 @@
+# This line must be called first before any script parsers are loaded in. Any
+# packages defined in the `packages` root folder can now be loaded in and used.
 import add_packages_dir_to_path  # noqa: F401
 
 import argparse
