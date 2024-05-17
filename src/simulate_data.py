@@ -1,10 +1,12 @@
 import add_packages_dir_to_path  # noqa: F401
-import prepare_fftw  # noqa: F401
 
 from cbm_vvc_mft import cbm_vvc_mft
 import proper
 import matplotlib.pyplot as plt
 import numpy as np
+from utils.proper_use_fftw import proper_use_fftw
+
+proper_use_fftw()
 
 # Number of grid points in each direction
 GRID_POINTS = 1024
