@@ -27,7 +27,9 @@ This will result in `packages/proper/` containing the necessary Python files.
 ## Structure
 
     .
+    ├── environment.yml
     ├── README.md
+    ├── PROPER_manual_v3.2.7.pdf
     ├── data
     │   ├── processed/
     │   ├── proper_sim/
