@@ -18,16 +18,26 @@ If the dependencies change at any point, the `environment.yml` can be updated vi
 
 A helpful cheatsheet with useful Conda commands: https://docs.conda.io/projects/conda/en/4.6.0/_downloads/52a95608c49671267e40c689e0bc00ca/conda-cheatsheet.pdf
 
+### PROPER
+
+Proper in Python 3 must also be installed.
+For this, install PROPER from https://proper-library.sourceforge.net/ and store the unzipped `proper` direcotry under `packages`.
+This will result in `packages/proper/` containing the necessary Python files.
+
 ## Structure
 
     .
     ├── README.md
     ├── data
     │   ├── processed/
+    │   ├── proper_sim/
     │   └── raw_fits/
     ├── output
     │   ├── analysis/
     │   └── trained_models/
+    ├── packages
+    │   ├── cbm_vvc_mft.py
+    │   └── proper/
     └── src
         ├── main.py
         ├── script_parsers.py
@@ -36,6 +46,8 @@ A helpful cheatsheet with useful Conda commands: https://docs.conda.io/projects/
         └── utils/
 
 ## Data
+
+### Pre-existing Data
 
 Data is zipped and located in Google Drive at:
 https://drive.google.com/drive/u/0/folders/1TA4R11xS-Lsn-TKVBSecxFMyboVPCshU
@@ -49,6 +61,10 @@ Each processed dataset ends up consisting of two files:
 
 - `data.h5`: all data is in the `inputs` and `outputs` tables
 - `norm.json`: normalization values of the training dataset
+
+### Simulate Data
+
+Data can now be simulated in this repo using PROPER in Python 3.
 
 ## Model
 
