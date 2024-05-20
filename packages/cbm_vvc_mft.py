@@ -9,8 +9,6 @@ neatned or optimized, so hopefully it never needs to be touched again.
 import numpy as np
 import proper
 
-from matplotlib import pyplot as plt
-
 
 def draw_ellipse(n, xrad, yrad, xcenter, ycenter, dark=False):
     t = np.arange(1000) / 999 * 2 * np.pi
@@ -129,8 +127,7 @@ def cbm_vvc_mft(
     n = proper.prop_get_gridsize(wavefront)
     sampling = proper.prop_get_sampling(wavefront)
     pupil_diam_pix = n * beam_ratio
-    vvc_mag = 4
-    nvvc = n * vvc_mag
+    nvvc = n * 4
     # Note: the only way i've found to improve contrast is to increase the
     # simulation gridsize (n). Each factor of 2 in gridsize lowers the contrast
     # floor by roughly an order of magnitude.
@@ -161,12 +158,11 @@ def cbm_vvc_mft(
     window_rolloff = 0.5
 
     # Calculate the outer field, multiple by window and vvc
-    outer_n = nvvc
-    window_rad_pix = window_rad_lod * outer_n / (beam_ratio * n)
+    window_rad_pix = window_rad_lod * nvvc / (beam_ratio * n)
 
-    cwindow = 1 - cos_window(outer_n, window_rad_pix, window_rolloff)
+    cwindow = 1 - cos_window(nvvc, window_rad_pix, window_rolloff)
     # To focus using FFTW
-    outer = fftsw(trim(pupil, outer_n), -1) * cwindow * trim(vvc, outer_n)
+    outer = fftsw(trim(pupil, nvvc), -1) * cwindow * trim(vvc, nvvc)
     # To pupil using FFTW
     pupil_outer = trim(fftsw(outer, 1), n)
 
