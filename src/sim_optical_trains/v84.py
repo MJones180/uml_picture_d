@@ -16,11 +16,6 @@ BEAM_RATIO = INIT_BEAM_D / lyot_stop_outer_d * 0.95
 # All distances are in meters. Assume the beam starts at HODM 1. Treat the
 # DMs as if they are not there.
 OPTICAL_TRAIN = [
-    lambda wf: proper.prop_circular_aperture(wf, INIT_BEAM_D / 2),
-    [
-        'Entrance',
-        lambda wf: proper.prop_define_entrance(wf),
-    ],
     [
         'Prop to OAP3 [From HODM 1]',
         lambda wf: proper.prop_propagate(wf, 0.7251065),

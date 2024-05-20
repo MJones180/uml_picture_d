@@ -143,30 +143,36 @@ def sim_data(cli_args):
     step_ri('Beginning to run simulations')
     for sim_idx in range(nrows):
         print(f'On simulation {sim_idx + 1}/{nrows}')
+        # Create the wavefront that will be passed through the train
         wavefront = proper.prop_begin(
             init_beam_d,
             ref_wl,
             grid_points,
             beam_ratio,
         )
+        # Define the initial aperture
+        proper.prop_circular_aperture(wavefront, init_beam_d / 2)
+        # Set this as the entrance to the train
+        proper.prop_define_entrance(wavefront)
         if save_plots:
             plot_path = f'{output_path}/plots/sim_{sim_idx}'
             make_dir(f'{plot_path}/linear')
             make_dir(f'{plot_path}/log')
-        plot_idx = 0
-        for step in optical_train:
+            plot_wf_intensity(wavefront, 'Entrance', plot_path, 0)
+        # Loop through the train
+        for plot_idx, step in enumerate(optical_train):
+            # Nested lists mean that the step should be eligible for plotting
             if type(step) is list:
-                step[1](wavefront)
+                plot_title, wf_func = step
+                wf_func(wavefront)
                 if save_plots:
-                    plot_wf_intensity(wavefront, step[0], plot_path, plot_idx)
-                    plot_idx += 1
+                    plot_wf_intensity(wavefront, plot_title, plot_path,
+                                      plot_idx + 1)
             else:
                 step(wavefront)
-
         (wavefront_intensity, sampling) = proper.prop_end(wavefront)
         simulation_data['intensity'].append(wavefront_intensity)
         simulation_data['sampling'].append(sampling)
-
         if (sim_idx + 1) % output_write_batch == 0:
             print('Writing out data')
             _write_data()
