@@ -10,8 +10,7 @@ from utils.hdf_read_and_write import HDFWriteModule
 from utils.json import json_write
 from utils.load_optical_train import load_optical_train
 from utils.path import make_dir
-from utils.printing_and_logging import (dec_print_indent, inc_print_indent,
-                                        step_ri, title)
+from utils.printing_and_logging import step_ri, title
 from utils.proper_use_fftw import proper_use_fftw
 
 
@@ -106,18 +105,40 @@ def sim_data(cli_args):
         out_file = f'{output_path}/{DATA_F}'
         HDFWriteModule(out_file).create_and_write_hdf_simple(simulation_data)
 
-    def plot_wf_intensity(wf, title, plot_path):
-        intensity = proper.prop_get_amplitude(wf)**2
-        colorbar_label = 'intensity'
-        # if SHOW_LOG_PLOT:
-        #     colorbar_label = 'log10(intensity)'
-        #     intensity = np.log10(intensity)
-        #     intensity[intensity == -np.inf] = 0
-        plt.clf()
-        plt.title(title)
-        plt.imshow(intensity, cmap='Greys_r')
-        plt.colorbar(label=colorbar_label)
-        plt.savefig(plot_path, dpi=300)
+    def plot_wf_intensity(wf, title, plot_path, plot_idx):
+
+        def _plot(use_log=False):
+            # Reset the plot
+            plt.clf()
+            plt.title(title)
+            intensity = proper.prop_get_amplitude(wf)**2
+            if use_log:
+                # Ignore divide by zero errors here if they occurr
+                with np.errstate(divide='ignore'):
+                    intensity = np.log10(intensity)
+            plt.imshow(intensity, cmap='Greys_r')
+            plt.xlabel('X [mm]')
+            plt.ylabel('Y [mm]')
+            tick_count = 7
+            tick_locations = np.linspace(0, grid_points, tick_count)
+            # Half the width of the grid in mm (originally in meters)
+            grid_rad_mm = 1e3 * proper.prop_get_sampling(wf) * grid_points / 2
+            tick_labels = np.linspace(-grid_rad_mm, grid_rad_mm, tick_count)
+            # Sometimes the middle tick likes to be negative
+            tick_labels[3] = 0
+            # Round to two decimal places
+            tick_labels = [f'{label:.2f}' for label in tick_labels]
+            plt.xticks(tick_locations, tick_labels)
+            # The y ticks get plotted from top to bottom, so flip them
+            plt.yticks(tick_locations, tick_labels[::-1])
+            colorbar_label = 'log10(intensity)' if use_log else 'intensity'
+            plt.colorbar(label=colorbar_label)
+            path_dir = 'log' if use_log else 'linear'
+            plot_path_complete = f'{plot_path}/{path_dir}/{plot_idx}.png'
+            plt.savefig(plot_path_complete, dpi=300)
+
+        _plot(use_log=False)
+        _plot(use_log=True)
 
     step_ri('Beginning to run simulations')
     for sim_idx in range(nrows):
@@ -129,15 +150,15 @@ def sim_data(cli_args):
             beam_ratio,
         )
         if save_plots:
-            plot_path = f'{output_path}/plots/{sim_idx}/'
-            make_dir(plot_path)
+            plot_path = f'{output_path}/plots/sim_{sim_idx}'
+            make_dir(f'{plot_path}/linear')
+            make_dir(f'{plot_path}/log')
         plot_idx = 0
         for step in optical_train:
             if type(step) is list:
                 step[1](wavefront)
                 if save_plots:
-                    plot_wf_intensity(wavefront, step[0],
-                                      f'{plot_path}/{plot_idx}.png')
+                    plot_wf_intensity(wavefront, step[0], plot_path, plot_idx)
                     plot_idx += 1
             else:
                 step(wavefront)
