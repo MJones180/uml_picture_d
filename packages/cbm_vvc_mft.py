@@ -14,24 +14,24 @@ def draw_ellipse(n, xrad, yrad, xcenter, ycenter, dark=False):
     t = np.arange(1000) / 999 * 2 * np.pi
     xel = xrad * np.cos(t)
     yel = yrad * np.sin(t)
-    xdiff = xel[1:999] - xel[0:998]
-    ydiff = yel[1:999] - yel[0:998]
+    xdiff = xel[1:] - xel[:999]
+    ydiff = yel[1:] - yel[:999]
     dt = t[1] / np.max(np.sqrt(xdiff**2 + ydiff**2))
     dt = dt / 100
-    nt = 2 * np.pi / dt
+    nt = int(2 * np.pi / dt)
     t = np.arange(nt) / (nt - 1) * 2 * np.pi
     xel = xrad * np.cos(t) + xcenter
     yel = yrad * np.sin(t) + ycenter
-    w = np.where(xel - np.floor(xel) == 0.5)[0]
+    w = np.where(xel - np.fix(xel) == 0.5)[0]
     if len(w) != 0:
         xel[w] = xel[w] - 0.00001
-    w = np.where(xel - np.floor(xel) == -0.5)[0]
+    w = np.where(xel - np.fix(xel) == -0.5)[0]
     if len(w) != 0:
         xel[w] = xel[w] + 0.00001
-    w = np.where(yel - np.floor(yel) == 0.5)[0]
+    w = np.where(yel - np.fix(yel) == 0.5)[0]
     if len(w) != 0:
         yel[w] = yel[w] - 0.00001
-    w = np.where(yel - np.floor(yel) == -0.5)[0]
+    w = np.where(yel - np.fix(yel) == -0.5)[0]
     if len(w) != 0:
         yel[w] = yel[w] + 0.00001
     xel = np.round(xel).astype(int)
@@ -51,15 +51,14 @@ def draw_ellipse(n, xrad, yrad, xcenter, ycenter, dark=False):
         mask[xpix, ypix] = np.max((np.sum(pix) / nsub**2, 1e-8))
     xcenter = np.round(xcenter)
     ycenter = np.round(ycenter)
-    for j in range(np.max((np.min(yel) + 1, 0)),
-                   np.min((np.max(yel) - 1, n - 1))):
-        w = np.where(mask[:xcenter, j] != 0)[0]
+    for j in range(np.max((np.min(yel) + 1, 0)), np.min((np.max(yel), n))):
+        w = np.where(mask[:xcenter + 1, j] != 0)[0]
         len_w = len(w)
         if len_w != 0 and w[len_w - 1] != xcenter:
-            mask[w[len_w - 1] + 1:xcenter, j] = 1
+            mask[w[len_w - 1] + 1:xcenter + 1, j] = 1
         w = np.where(mask[xcenter + 1:, j] != 0)[0]
         if len(w) != 0 and w[0] != 0:
-            mask[xcenter + 1:xcenter + w[0], j] = 1
+            mask[xcenter + 1:xcenter + w[0] + 1, j] = 1
     if dark is True:
         mask = 1.0 - mask
     return np.minimum(np.maximum(mask, 0), 1)
