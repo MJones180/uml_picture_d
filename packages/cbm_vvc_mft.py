@@ -2,7 +2,9 @@
 IDL code converted to Python by Michael Jones.
 Michael_Jones6@student.uml.edu
 
-Beware: it may have been converted but it is still a mess.
+Beware: while this code may have been converted, it is a terrifying mess and
+contains only the original comments. This script works, but it has not been
+neatned or optimized, so hopefully it never needs to be touched again.
 """
 import numpy as np
 import proper
