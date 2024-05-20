@@ -9,6 +9,8 @@ neatned or optimized, so hopefully it never needs to be touched again.
 import numpy as np
 import proper
 
+from matplotlib import pyplot as plt
+
 
 def draw_ellipse(n, xrad, yrad, xcenter, ycenter, dark=False):
     t = np.arange(1000) / 999 * 2 * np.pi
@@ -38,17 +40,6 @@ def draw_ellipse(n, xrad, yrad, xcenter, ycenter, dark=False):
     yel = np.round(yel).astype(int)
     mask = np.zeros((n, n))
     mask[xel, yel] = 1
-    pix_idxs = zip(*np.where(mask == 1))
-    mask[:, :] = 0
-    nsub = 75
-    x0 = np.outer(np.ones(nsub) - nsub / 2, np.arange(nsub)) / nsub
-    y0 = x0.T
-    for (xpix, ypix) in pix_idxs:
-        xsub = x0 + xpix
-        ysub = y0 + ypix
-        pix = ((xsub - xcenter)**2 / xrad**2 +
-               (ysub - ycenter)**2 / yrad**2) <= 1.0
-        mask[xpix, ypix] = np.max((np.sum(pix) / nsub**2, 1e-8))
     xcenter = np.round(xcenter)
     ycenter = np.round(ycenter)
     for j in range(np.max((np.min(yel) + 1, 0)), np.min((np.max(yel), n))):
@@ -110,7 +101,7 @@ def mft2(in_arr, dout, D, nout, direction, xoffset=0, yoffset=0, xc=0, yc=0):
     b1 = np.arange(nin) - nin / 2
     x = b1 - xc
     y = b1 - yc
-    nout = np.floor(nout)
+    nout = np.fix(nout)
     b2 = np.arange(nout) - nout / 2
     u = (b2 - xoffset / dout) * dout / D
     v = (b2 - yoffset / dout) * dout / D
@@ -171,9 +162,7 @@ def cbm_vvc_mft(
 
     # Calculate the outer field, multiple by window and vvc
     outer_n = nvvc
-    outer_mag = outer_n / n
-    outer_dx_lod = beam_ratio / outer_mag
-    window_rad_pix = window_rad_lod / outer_dx_lod
+    window_rad_pix = window_rad_lod * outer_n / (beam_ratio * n)
 
     cwindow = 1 - cos_window(outer_n, window_rad_pix, window_rolloff)
     # To focus using FFTW
