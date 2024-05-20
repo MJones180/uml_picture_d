@@ -10,4 +10,5 @@ def load_optical_train(name):
         terminate_with_message(f'No optical train by the name of `{name}` '
                                f'found within the `{SIM_OPTICAL_TRAINS}` '
                                'folder.')
-    return module.INIT_BEAM_D, module.BEAM_RATIO, module.OPTICAL_TRAIN
+    return (module.INIT_BEAM_D, module.BEAM_RATIO, module.OPTICAL_TRAIN,
+            module.CCD_PIXELS, module.CCD_SAMPLING)

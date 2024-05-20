@@ -13,6 +13,10 @@ lyot_stop_hole_r = INIT_BEAM_D * 0.9 / 2
 # Ratio of the beam to the grid
 BEAM_RATIO = INIT_BEAM_D / lyot_stop_outer_d * 0.95
 
+# Number of pixels and sampling size for the final CCD
+CCD_PIXELS = 32
+CCD_SAMPLING = 4.5e-6
+
 # All distances are in meters. Assume the beam starts at HODM 1. Treat the
 # DMs as if they are not there.
 OPTICAL_TRAIN = [

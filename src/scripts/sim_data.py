@@ -17,7 +17,8 @@ from utils.proper_use_fftw import proper_use_fftw
 def sim_data_parser(subparsers):
     """
     Example command:
-    python3 main.py sim_data test_dataset v84 600e-9 --nrow 30 --output-write-batch 10
+        python3 main.py sim_data test_dataset v84 600e-9 --nrow 30 \
+            --output-write-batch 10
     """
     subparser = subparsers.add_parser(
         'sim_data',
@@ -57,7 +58,8 @@ def sim_data_parser(subparsers):
     subparser.add_argument(
         '--save-plots',
         action='store_true',
-        help='save plots at each step of the train',
+        help=('save plots at each step of the train, NOTE: should only do '
+              'this for a few rows since the plots take extra time and space'),
     )
     subparser.add_argument(
         '--enable-proper-logs',
@@ -94,7 +96,8 @@ def sim_data(cli_args):
     json_write(f'{output_path}/{ARGS_F}', cli_args)
 
     step_ri('Loading in the optical train')
-    init_beam_d, beam_ratio, optical_train = load_optical_train(train_name)
+    (init_beam_d, beam_ratio, optical_train, ccd_pixels,
+     ccd_sampling) = load_optical_train(train_name)
 
     simulation_data = {
         'intensity': [],
@@ -134,7 +137,7 @@ def sim_data(cli_args):
             colorbar_label = 'log10(intensity)' if use_log else 'intensity'
             plt.colorbar(label=colorbar_label)
             path_dir = 'log' if use_log else 'linear'
-            plot_path_complete = f'{plot_path}/{path_dir}/{plot_idx}.png'
+            plot_path_complete = f'{plot_path}/{path_dir}/step_{plot_idx}.png'
             plt.savefig(plot_path_complete, dpi=300)
 
         _plot(use_log=False)
@@ -142,7 +145,7 @@ def sim_data(cli_args):
 
     step_ri('Beginning to run simulations')
     for sim_idx in range(nrows):
-        print(f'On simulation {sim_idx + 1}/{nrows}')
+        print(f'Simulation {sim_idx + 1}/{nrows}')
         # Create the wavefront that will be passed through the train
         wavefront = proper.prop_begin(
             init_beam_d,
@@ -170,12 +173,19 @@ def sim_data(cli_args):
                                       plot_idx + 1)
             else:
                 step(wavefront)
+
         (wavefront_intensity, sampling) = proper.prop_end(wavefront)
         simulation_data['intensity'].append(wavefront_intensity)
         simulation_data['sampling'].append(sampling)
         if (sim_idx + 1) % output_write_batch == 0:
             print('Writing out data')
             _write_data()
+
+        mag = (ccd_sampling * ccd_pixels) / (sampling * grid_points)
+        # Intensity as it appears on the CCD
+        ccd_wf_int = proper.prop_magnify(wavefront_intensity, mag, ccd_pixels)
+        # The `ccd_wf_int` and corresponding sampling should be written out
+        # instead of the `wavefront_intensity`. Much more space friendly!
 
     step_ri('Simulations completed')
     print('Saving data one last time')
