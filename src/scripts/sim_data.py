@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from utils.constants import ARGS_F, DATA_F, PROPER_SIM_DATA_P
 from utils.hdf_read_and_write import HDFWriteModule
+from utils.idl_rainbow_cmap import idl_rainbow_cmap
 from utils.json import json_write
 from utils.load_optical_train import load_optical_train
 from utils.path import make_dir
@@ -119,7 +120,13 @@ def sim_data(cli_args):
                 # Ignore divide by zero errors here if they occurr
                 with np.errstate(divide='ignore'):
                     intensity = np.log10(intensity)
-            plt.imshow(intensity, cmap='Greys_r')
+                vmin = -8
+                intensity[intensity == -np.inf] = vmin
+                cmap = idl_rainbow_cmap()
+                plt.imshow(intensity, vmin=vmin, vmax=0, cmap=cmap)
+            else:
+                plt.imshow(intensity, cmap='Greys_r')
+
             plt.xlabel('X [mm]')
             plt.ylabel('Y [mm]')
             tick_count = 7
@@ -181,11 +188,8 @@ def sim_data(cli_args):
             print('Writing out data')
             _write_data()
 
-        mag = (ccd_sampling * ccd_pixels) / (sampling * grid_points)
-        # Intensity as it appears on the CCD
-        ccd_wf_int = proper.prop_magnify(wavefront_intensity, mag, ccd_pixels)
-        # The `ccd_wf_int` and corresponding sampling should be written out
-        # instead of the `wavefront_intensity`. Much more space friendly!
+        # mag = (ccd_sampling * ccd_pixels) / (sampling * grid_points)
+        # mag = (sampling * grid_points) / (ccd_sampling * ccd_pixels)
 
     step_ri('Simulations completed')
     print('Saving data one last time')
