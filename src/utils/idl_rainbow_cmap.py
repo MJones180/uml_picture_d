@@ -262,5 +262,6 @@ RAINBOW_COLORS = [
 ]
 
 
+# The IDL equivalent of the rainbow colormap
 def idl_rainbow_cmap():
     return LinearSegmentedColormap.from_list('idl_rainbow', RAINBOW_COLORS)
