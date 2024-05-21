@@ -2,9 +2,10 @@
 This script simulates data using PROPER.
 """
 
-import proper
 import matplotlib.pyplot as plt
 import numpy as np
+from PIL import Image
+import proper
 from utils.constants import ARGS_F, DATA_F, PROPER_SIM_DATA_P
 from utils.hdf_read_and_write import HDFWriteModule
 from utils.idl_rainbow_cmap import idl_rainbow_cmap
@@ -102,6 +103,7 @@ def sim_data(cli_args):
 
     simulation_data = {
         'intensity': [],
+        'intensity_ccd': [],
         'sampling': [],
     }
 
@@ -188,8 +190,43 @@ def sim_data(cli_args):
             print('Writing out data')
             _write_data()
 
-        # mag = (ccd_sampling * ccd_pixels) / (sampling * grid_points)
-        # mag = (sampling * grid_points) / (ccd_sampling * ccd_pixels)
+        # Total grid size in meters
+        grid_size = sampling * grid_points
+        # Total grid size of the CCD in meters
+        ccd_grid_size = ccd_sampling * ccd_pixels
+        # How much bigger our current grid is than the CCD grid
+        scale_factor = grid_size / ccd_grid_size
+        # Instead of jumping right to performing the crops and resizings, we
+        # perform an intermediary step with a crop first so that we do not
+        # need to allocate so much memory (it is also faster).
+        # Grab the number of points that cover the CCD grid with a tiny bit of
+        # padding so that the full CCD grid is covered.
+        point_count_crop = int(np.ceil(grid_points / scale_factor * 1.05))
+        point_count_crop_half = point_count_crop // 2
+        grid_points_half = int(grid_points / 2)
+        lower = grid_points_half - point_count_crop_half
+        upper = grid_points_half + point_count_crop_half
+        # A cropped version of the intensity that contains mainly the CCD grid
+        wf_int = wavefront_intensity[lower:upper, lower:upper]
+        # When we resize to the larger array by this updated scale factor, the
+        # `point_count_crop` points in the middle will be the points that are
+        # inside of the CCD grid
+        scale_factor *= point_count_crop / grid_points
+        point_count_scaled = int(np.round(scale_factor * point_count_crop))
+        # Convert the cropped intensity to a Pillow Image object
+        wf_int = Image.fromarray(wf_int)
+        # Resize to the larger interpolated intensity grid
+        wf_int = wf_int.resize((point_count_scaled, point_count_scaled))
+        # Crop out the points that correspond to the CCD
+        point_count_scaled_half = point_count_scaled // 2
+        lower = point_count_scaled_half - point_count_crop_half
+        upper = point_count_scaled_half + point_count_crop_half
+        wf_int = wf_int.crop([lower, lower, upper, upper])
+        # Resize to the actual number of pixels in the CCD
+        wf_int = wf_int.resize((ccd_pixels, ccd_pixels), Image.NEAREST)
+        # Convert back to a numpy array
+        wf_int = np.array(wf_int)
+        simulation_data['intensity_ccd'].append(wf_int)
 
     step_ri('Simulations completed')
     print('Saving data one last time')
