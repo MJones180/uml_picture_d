@@ -68,6 +68,11 @@ def sim_data_parser(subparsers):
         action='store_true',
         help='enable PROPER logs',
     )
+    subparser.add_argument(
+        '--save-full-intensity',
+        action='store_true',
+        help='save the full intensity and not just the rebinned CCD version',
+    )
 
 
 def sim_data(cli_args):
@@ -84,6 +89,7 @@ def sim_data(cli_args):
     grid_points = cli_args['grid_points']
     save_plots = cli_args['save_plots']
     enable_proper_logs = cli_args['enable_proper_logs']
+    save_full_intensity = cli_args['save_full_intensity']
 
     if not enable_proper_logs:
         step_ri('Switching off PROPER logging')
@@ -102,10 +108,12 @@ def sim_data(cli_args):
      ccd_sampling) = load_optical_train(train_name)
 
     simulation_data = {
-        'intensity': [],
-        'intensity_ccd': [],
-        'sampling': [],
+        'ccd_intensity': [],
+        'ccd_sampling': [],
     }
+    if save_full_intensity:
+        simulation_data['full_intensity'] = []
+        simulation_data['full_sampling'] = []
 
     def _write_data():
         out_file = f'{output_path}/{DATA_F}'
@@ -182,13 +190,8 @@ def sim_data(cli_args):
                                       plot_idx + 1)
             else:
                 step(wavefront)
-
+        # The final wavefront intensity and sampling of its grid
         (wavefront_intensity, sampling) = proper.prop_end(wavefront)
-        simulation_data['intensity'].append(wavefront_intensity)
-        simulation_data['sampling'].append(sampling)
-        if (sim_idx + 1) % output_write_batch == 0:
-            print('Writing out data')
-            _write_data()
 
         # Total grid size in meters
         grid_size = sampling * grid_points
@@ -226,7 +229,16 @@ def sim_data(cli_args):
         wf_int = wf_int.resize((ccd_pixels, ccd_pixels), Image.NEAREST)
         # Convert back to a numpy array
         wf_int = np.array(wf_int)
-        simulation_data['intensity_ccd'].append(wf_int)
+        # Add the data to the output arrays
+        simulation_data['ccd_intensity'].append(wf_int)
+        simulation_data['ccd_sampling'].append(ccd_sampling)
+        if save_full_intensity:
+            simulation_data['full_intensity'].append(wavefront_intensity)
+            simulation_data['full_sampling'].append(sampling)
+        # Potentially write out the data now if a full batch is done
+        if (sim_idx + 1) % output_write_batch == 0:
+            print('Writing out data')
+            _write_data()
 
     step_ri('Simulations completed')
     print('Saving data one last time')
