@@ -119,30 +119,39 @@ def sim_data(cli_args):
         out_file = f'{output_path}/{DATA_F}'
         HDFWriteModule(out_file).create_and_write_hdf_simple(simulation_data)
 
-    def plot_wf_intensity(wf, title, plot_path, plot_idx):
+    def plot_wf_intensity(wf_or_intensity, title, plot_path, plot_idx):
+        # If it is a NP array, then it is the final intensity on the CCD
+        if isinstance(wf_or_intensity, np.ndarray):
+            intensity = wf_or_intensity
+            plot_sampling = ccd_sampling
+            plot_points = ccd_pixels
+        # It is a PROPER wavefront object
+        else:
+            intensity = proper.prop_get_amplitude(wf_or_intensity)**2
+            plot_sampling = proper.prop_get_sampling(wf_or_intensity)
+            plot_points = grid_points
+        # The colormap used for log plots
+        log_cmap = idl_rainbow_cmap()
 
-        def _plot(use_log=False):
+        def _plot(intensity, use_log=False):
             # Reset the plot
             plt.clf()
             plt.title(title)
-            intensity = proper.prop_get_amplitude(wf)**2
             if use_log:
                 # Ignore divide by zero errors here if they occurr
                 with np.errstate(divide='ignore'):
                     intensity = np.log10(intensity)
                 vmin = -8
                 intensity[intensity == -np.inf] = vmin
-                cmap = idl_rainbow_cmap()
-                plt.imshow(intensity, vmin=vmin, vmax=0, cmap=cmap)
+                plt.imshow(intensity, vmin=vmin, vmax=0, cmap=log_cmap)
             else:
                 plt.imshow(intensity, cmap='Greys_r')
-
             plt.xlabel('X [mm]')
             plt.ylabel('Y [mm]')
             tick_count = 7
-            tick_locations = np.linspace(0, grid_points, tick_count)
+            tick_locations = np.linspace(0, plot_points, tick_count)
             # Half the width of the grid in mm (originally in meters)
-            grid_rad_mm = 1e3 * proper.prop_get_sampling(wf) * grid_points / 2
+            grid_rad_mm = 1e3 * plot_sampling * plot_points / 2
             tick_labels = np.linspace(-grid_rad_mm, grid_rad_mm, tick_count)
             # Sometimes the middle tick likes to be negative
             tick_labels[3] = 0
@@ -157,8 +166,8 @@ def sim_data(cli_args):
             plot_path_complete = f'{plot_path}/{path_dir}/step_{plot_idx}.png'
             plt.savefig(plot_path_complete, dpi=300)
 
-        _plot(use_log=False)
-        _plot(use_log=True)
+        _plot(intensity, use_log=False)
+        _plot(intensity, use_log=True)
 
     step_ri('Beginning to run simulations')
     for sim_idx in range(nrows):
@@ -180,14 +189,12 @@ def sim_data(cli_args):
             make_dir(f'{plot_path}/log')
             plot_wf_intensity(wavefront, 'Entrance', plot_path, 0)
         # Loop through the train
-        for plot_idx, step in enumerate(optical_train):
+        for plot_idx, step in enumerate(optical_train, 1):
             # Nested lists mean that the step should be eligible for plotting
             if type(step) is list:
-                plot_title, wf_func = step
-                wf_func(wavefront)
+                step[1](wavefront)
                 if save_plots:
-                    plot_wf_intensity(wavefront, plot_title, plot_path,
-                                      plot_idx + 1)
+                    plot_wf_intensity(wavefront, step[0], plot_path, plot_idx)
             else:
                 step(wavefront)
         # The final wavefront intensity and sampling of its grid
@@ -195,6 +202,10 @@ def sim_data(cli_args):
         # Downsample to the CCD
         wf_int_ds = downsample_data(wavefront_intensity, sampling,
                                     ccd_sampling, ccd_pixels)
+        if save_plots:
+            # Plot the downsampled CCD intensity
+            plot_wf_intensity(wf_int_ds, 'CCD Resampled', plot_path,
+                              plot_idx + 1)
         # Add the data to the output arrays
         simulation_data['ccd_intensity'].append(wf_int_ds)
         simulation_data['ccd_sampling'].append(ccd_sampling)

@@ -47,8 +47,7 @@ def downsample_data(data, sampling, final_sampling, final_pixels):
     # Convert the cropped data to a Pillow Image object
     data_out = Image.fromarray(data_out)
     # Resize to the larger interpolated data grid
-    data_out = data_out.resize((point_count_scaled, point_count_scaled),
-                               Image.BICUBIC)
+    data_out = data_out.resize((point_count_scaled, point_count_scaled))
     # Crop out the points that correspond to the output
     point_count_scaled_half = point_count_scaled // 2
     lower = point_count_scaled_half - point_count_crop_half
@@ -64,5 +63,5 @@ def downsample_data(data, sampling, final_sampling, final_pixels):
     # The sum of all points with the new number of pixels
     post_sum = np.sum(data_out)
     # Normalize the values so that the sum of the points stays the same after
-    # doing the resizing to the final pixel count
+    # resizing to the final pixel count
     return data_out * pre_sum / post_sum
