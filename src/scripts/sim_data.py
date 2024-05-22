@@ -2,16 +2,15 @@
 This script simulates data using PROPER.
 """
 
-import matplotlib.pyplot as plt
 import numpy as np
 import proper
 from utils.constants import ARGS_F, DATA_F, PROPER_SIM_DATA_P
 from utils.downsample_data import downsample_data
 from utils.hdf_read_and_write import HDFWriteModule
-from utils.idl_rainbow_cmap import idl_rainbow_cmap
 from utils.json import json_write
 from utils.load_optical_train import load_optical_train
-from utils.path import make_dir
+from utils.path import get_abs_path, make_dir
+from utils.plots.plot_intensity_field import plot_intensity_field
 from utils.printing_and_logging import step_ri, title
 from utils.proper_use_fftw import proper_use_fftw
 
@@ -119,55 +118,23 @@ def sim_data(cli_args):
         out_file = f'{output_path}/{DATA_F}'
         HDFWriteModule(out_file).create_and_write_hdf_simple(simulation_data)
 
-    def plot_wf_intensity(wf_or_intensity, title, plot_path, plot_idx):
-        # If it is a NP array, then it is the final intensity on the CCD
+    def _plot_intensity(wf_or_intensity, title, plot_path, plot_idx):
+        # If it is a NP array, then it is the final intensity on the CCD,
+        # otherwise it is a PROPER wavefront object
         if isinstance(wf_or_intensity, np.ndarray):
             intensity = wf_or_intensity
             plot_sampling = ccd_sampling
-            plot_points = ccd_pixels
-        # It is a PROPER wavefront object
         else:
             intensity = proper.prop_get_amplitude(wf_or_intensity)**2
             plot_sampling = proper.prop_get_sampling(wf_or_intensity)
-            plot_points = grid_points
-        # The colormap used for log plots
-        log_cmap = idl_rainbow_cmap()
 
-        def _plot(intensity, use_log=False):
-            # Reset the plot
-            plt.clf()
-            plt.title(title)
-            if use_log:
-                # Ignore divide by zero errors here if they occurr
-                with np.errstate(divide='ignore'):
-                    intensity = np.log10(intensity)
-                vmin = -8
-                intensity[intensity == -np.inf] = vmin
-                plt.imshow(intensity, vmin=vmin, vmax=0, cmap=log_cmap)
-            else:
-                plt.imshow(intensity, cmap='Greys_r')
-            plt.xlabel('X [mm]')
-            plt.ylabel('Y [mm]')
-            tick_count = 7
-            tick_locations = np.linspace(0, plot_points, tick_count)
-            # Half the width of the grid in mm (originally in meters)
-            grid_rad_mm = 1e3 * plot_sampling * plot_points / 2
-            tick_labels = np.linspace(-grid_rad_mm, grid_rad_mm, tick_count)
-            # Sometimes the middle tick likes to be negative
-            tick_labels[3] = 0
-            # Round to two decimal places
-            tick_labels = [f'{label:.2f}' for label in tick_labels]
-            plt.xticks(tick_locations, tick_labels)
-            # The y ticks get plotted from top to bottom, so flip them
-            plt.yticks(tick_locations, tick_labels[::-1])
-            colorbar_label = 'log10(intensity)' if use_log else 'intensity'
-            plt.colorbar(label=colorbar_label)
-            path_dir = 'log' if use_log else 'linear'
-            plot_path_complete = f'{plot_path}/{path_dir}/step_{plot_idx}.png'
-            plt.savefig(plot_path_complete, dpi=300)
+        def _get_plot_path(sub_dir):
+            return get_abs_path(f'{plot_path}/{sub_dir}/step_{plot_idx}.png')
 
-        _plot(intensity, use_log=False)
-        _plot(intensity, use_log=True)
+        plot_intensity_field(intensity, plot_sampling, title,
+                             _get_plot_path('linear'))
+        plot_intensity_field(intensity, plot_sampling, title,
+                             _get_plot_path('log'), True)
 
     step_ri('Beginning to run simulations')
     for sim_idx in range(nrows):
@@ -187,14 +154,14 @@ def sim_data(cli_args):
             plot_path = f'{output_path}/plots/sim_{sim_idx}'
             make_dir(f'{plot_path}/linear')
             make_dir(f'{plot_path}/log')
-            plot_wf_intensity(wavefront, 'Entrance', plot_path, 0)
+            _plot_intensity(wavefront, 'Entrance', plot_path, 0)
         # Loop through the train
         for plot_idx, step in enumerate(optical_train, 1):
             # Nested lists mean that the step should be eligible for plotting
             if type(step) is list:
                 step[1](wavefront)
                 if save_plots:
-                    plot_wf_intensity(wavefront, step[0], plot_path, plot_idx)
+                    _plot_intensity(wavefront, step[0], plot_path, plot_idx)
             else:
                 step(wavefront)
         # The final wavefront intensity and sampling of its grid
@@ -204,8 +171,8 @@ def sim_data(cli_args):
                                     ccd_sampling, ccd_pixels)
         if save_plots:
             # Plot the downsampled CCD intensity
-            plot_wf_intensity(wf_int_ds, 'CCD Resampled', plot_path,
-                              plot_idx + 1)
+            _plot_intensity(wf_int_ds, 'CCD Resampled', plot_path,
+                            plot_idx + 1)
         # Add the data to the output arrays
         simulation_data['ccd_intensity'].append(wf_int_ds)
         simulation_data['ccd_sampling'].append(ccd_sampling)
