@@ -6,8 +6,9 @@ PROPER_SIM_DATA_P = f'{DATA_P}/proper_sim'
 RAW_FITS_DATA_P = f'{DATA_P}/raw_fits'
 
 OUTPUT_P = '../output'
-TRAINED_MODELS_P = f'{OUTPUT_P}/trained_models'
 ANALYSIS_P = f'{OUTPUT_P}/analysis'
+RANDOM_P = f'{OUTPUT_P}/random'
+TRAINED_MODELS_P = f'{OUTPUT_P}/trained_models'
 
 PACKAGES_P = '../packages'
 
