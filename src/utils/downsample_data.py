@@ -17,6 +17,7 @@ def downsample_data(data, sampling, final_sampling, final_pixels):
           for this. This step may end up being slower for comparable initial and
           final grids.
         - The grid will be zoomed in towards the middle.
+        - The final grid will be normalized so that the sum stays the same.
     """
     # Grab the number of grid points
     grid_points = data.shape[0]
@@ -46,13 +47,22 @@ def downsample_data(data, sampling, final_sampling, final_pixels):
     # Convert the cropped data to a Pillow Image object
     data_out = Image.fromarray(data_out)
     # Resize to the larger interpolated data grid
-    data_out = data_out.resize((point_count_scaled, point_count_scaled))
+    data_out = data_out.resize((point_count_scaled, point_count_scaled),
+                               Image.BICUBIC)
     # Crop out the points that correspond to the output
     point_count_scaled_half = point_count_scaled // 2
     lower = point_count_scaled_half - point_count_crop_half
     upper = point_count_scaled_half + point_count_crop_half
     data_out = data_out.crop([lower, lower, upper, upper])
+    # The sum of all the points on the output grid, this will be used for
+    # normalizing the final grid
+    pre_sum = np.sum(np.array(data_out))
     # Resize to the actual number of pixels in the output
     data_out = data_out.resize((final_pixels, final_pixels), Image.NEAREST)
     # Convert back to a numpy array
-    return np.array(data_out)
+    data_out = np.array(data_out)
+    # The sum of all points with the new number of pixels
+    post_sum = np.sum(data_out)
+    # Normalize the values so that the sum of the points stays the same after
+    # doing the resizing to the final pixel count
+    return data_out * pre_sum / post_sum
