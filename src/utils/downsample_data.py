@@ -16,6 +16,7 @@ def downsample_data(data, sampling, final_sampling, final_pixels):
           than the current grid size, an intermediary performance step is done
           for this. This step may end up being slower for comparable initial and
           final grids.
+        - The grid will be zoomed in towards the middle.
     """
     # Grab the number of grid points
     grid_points = data.shape[0]

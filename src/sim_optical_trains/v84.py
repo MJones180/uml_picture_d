@@ -11,11 +11,12 @@ lyot_stop_outer_r = lyot_stop_outer_d / 2
 lyot_stop_hole_r = INIT_BEAM_D * 0.9 / 2
 
 # Ratio of the beam to the grid
-BEAM_RATIO = INIT_BEAM_D / lyot_stop_outer_d * 0.95
+# = INIT_BEAM_D / lyot_stop_outer_d * 0.95
+BEAM_RATIO = 0.1683
 
 # Number of pixels and sampling size for the final CCD
 CCD_PIXELS = 32
-CCD_SAMPLING = 4.5e-6
+CCD_SAMPLING = 7.4e-6
 
 # All distances are in meters. Assume the beam starts at HODM 1. Treat the
 # DMs as if they are not there.
@@ -72,9 +73,10 @@ OPTICAL_TRAIN = [
         lambda wf: proper.prop_propagate(wf, 0.1016),
     ],
     # Final lens
-    lambda wf: proper.prop_lens(wf, 0.25165),
+    lambda wf: proper.prop_lens(wf, 0.25),
     [
         'CCD [From final lens]',
-        lambda wf: proper.prop_propagate(wf, 0.247396),
+        # lambda wf: proper.prop_propagate(wf, 0.247396),
+        lambda wf: proper.prop_propagate(wf, 0.24835),
     ],
 ]

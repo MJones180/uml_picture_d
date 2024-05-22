@@ -4,7 +4,6 @@ This script simulates data using PROPER.
 
 import matplotlib.pyplot as plt
 import numpy as np
-from PIL import Image
 import proper
 from utils.constants import ARGS_F, DATA_F, PROPER_SIM_DATA_P
 from utils.downsample_data import downsample_data
