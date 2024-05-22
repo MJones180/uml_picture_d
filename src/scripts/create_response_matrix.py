@@ -2,7 +2,7 @@
 Create a response matrix.
 """
 
-from utils.constants import DATA_F, PROPER_SIM_DATA_P
+from utils.constants import DATA_F, RAW_SIMULATED_DATA_P
 from utils.printing_and_logging import step_ri, title
 
 
@@ -29,5 +29,5 @@ def create_response_matrix(cli_args):
 
     simulated_data_tag = cli_args['simulated_data_tag']
     if simulated_data_tag:
-        datafile_path = f'{PROPER_SIM_DATA_P}/{simulated_data_tag}/{DATA_F}'
+        datafile_path = f'{RAW_SIMULATED_DATA_P}/{simulated_data_tag}/{DATA_F}'
         print(datafile_path)

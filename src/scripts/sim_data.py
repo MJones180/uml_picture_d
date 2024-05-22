@@ -4,7 +4,7 @@ This script simulates data using PROPER.
 
 import numpy as np
 import proper
-from utils.constants import ARGS_F, DATA_F, PROPER_SIM_DATA_P
+from utils.constants import ARGS_F, DATA_F, RAW_SIMULATED_DATA_P
 from utils.downsample_data import downsample_data
 from utils.hdf_read_and_write import HDFWriteModule
 from utils.json import json_write
@@ -18,7 +18,7 @@ from utils.terminate_with_message import terminate_with_message
 
 def sim_data_parser(subparsers):
     """
-    Example command:
+    Example commands:
         python3 main.py sim_data ds_no_aberrations v84 600e-9 \
             --no-aberrations --save-plots
         python3 main.py sim_data ds_fixed_10nm v84 600e-9 \
@@ -111,7 +111,7 @@ def sim_data(cli_args):
         proper.print_it = False
 
     step_ri('Creating output directory')
-    output_path = f'{PROPER_SIM_DATA_P}/{tag}'
+    output_path = f'{RAW_SIMULATED_DATA_P}/{tag}'
     make_dir(output_path)
 
     step_ri('Saving all CLI args')
