@@ -4,7 +4,6 @@ This script tests a model's performance against a testing dataset.
 Any prior results for a given epoch will be deleted.
 """
 
-import matplotlib.pyplot as plt
 import numpy as np
 import torch
 from utils.constants import (ANALYSIS_P, MAE, MSE, OUTPUT_MIN_X,
@@ -12,10 +11,10 @@ from utils.constants import (ANALYSIS_P, MAE, MSE, OUTPUT_MIN_X,
 from utils.hdf_read_and_write import HDFWriteModule
 from utils.model import Model
 from utils.norm import min_max_denorm
-from utils.path import delete_dir, make_dir
+from utils.path import delete_dir, get_abs_path, make_dir
+from utils.plots.plot_comparison_scatter_grid import plot_comparison_scatter_grid  # noqa
 from utils.printing_and_logging import step_ri, title
 from utils.shared_argparser_args import shared_argparser_args
-from utils.terminate_with_message import terminate_with_message
 from utils.torch_hdf_ds_loader import DSLoaderHDF
 
 
@@ -103,47 +102,11 @@ def model_test(cli_args):
         MSE: mse,
     })
 
-    step_ri('Generating plots')
-    n_rows = cli_args['n_rows']
-    n_cols = cli_args['n_cols']
-    if n_rows * n_cols < outputs_truth.shape[1]:
-        terminate_with_message('Not enough rows and columns for the data.')
-    fig, axs = plt.subplots(n_rows, n_cols, figsize=(n_cols * 3, n_rows * 3))
-    current_col = 0
-    for plot_row in range(n_rows):
-        for plot_col in range(n_cols):
-            if current_col == outputs_truth.shape[1]:
-                break
-            model_col = outputs_model_denormed[:, current_col]
-            truth_col = outputs_truth[:, current_col]
-            axs_cell = axs[plot_row, plot_col]
-            axs_cell.set_title(current_col)
-            # Take the lowest and greatest values from both sets of data
-            lower = min(np.amin(model_col), np.amin(truth_col))
-            upper = max(np.amax(model_col), np.amax(truth_col))
-            # Fix the bounds on both axes so they are 1-to-1
-            axs_cell.set_xlim(lower, upper)
-            axs_cell.set_ylim(lower, upper)
-            # Draw a 1-to-1 line for the scatters
-            # https://stackoverflow.com/a/60950862
-            xpoints = ypoints = axs_cell.get_xlim()
-            axs_cell.plot(
-                xpoints,
-                ypoints,
-                linestyle='-',
-                linewidth=2,
-                color='#FFB200',
-                scalex=False,
-                scaley=False,
-            )
-            # Plot the scatter of all the points
-            axs_cell.scatter(model_col, truth_col, 0.25)
-            current_col += 1
-    for ax in axs.flat:
-        ax.set(xlabel='Model Outputs', ylabel='Truth Outputs')
-    fig.tight_layout()
-    plt.savefig(
-        f'{analysis_path}/comparisons.png',
-        dpi=300,
-        bbox_inches='tight',
+    step_ri('Generating plot')
+    plot_comparison_scatter_grid(
+        outputs_model_denormed,
+        outputs_truth,
+        cli_args['n_rows'],
+        cli_args['n_cols'],
+        get_abs_path(f'{analysis_path}/comparisons.png'),
     )
