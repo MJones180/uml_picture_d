@@ -13,13 +13,17 @@ from utils.path import get_abs_path, make_dir
 from utils.plots.plot_intensity_field import plot_intensity_field
 from utils.printing_and_logging import step_ri, title
 from utils.proper_use_fftw import proper_use_fftw
+from utils.terminate_with_message import terminate_with_message
 
 
 def sim_data_parser(subparsers):
     """
     Example command:
-        python3 main.py sim_data test_dataset v84 600e-9 --nrow 30 \
-            --output-write-batch 10
+        python3 main.py sim_data ds_no_aberrations v84 600e-9 \
+            --no-aberrations --save-plots
+        python3 main.py sim_data ds_fixed_10nm v84 600e-9 \
+            --output-write-batch 10 \
+            --fixed-amount-per-zernike 2 22 10e-9
     """
     subparser = subparsers.add_parser(
         'sim_data',
@@ -37,12 +41,6 @@ def sim_data_parser(subparsers):
     subparser.add_argument(
         'ref_wl',
         help='reference wavelength in meters',
-    )
-    subparser.add_argument(
-        '--nrows',
-        type=int,
-        default=1,
-        help='number of rows to simulate',
     )
     subparser.add_argument(
         '--output-write-batch',
@@ -73,6 +71,21 @@ def sim_data_parser(subparsers):
         help='save the full intensity and not just the rebinned CCD version',
     )
 
+    aberrations_group = subparser.add_mutually_exclusive_group()
+    aberrations_group.add_argument(
+        '--no-aberrations',
+        action='store_true',
+        help='will simulate one row with no aberrations',
+    )
+    aberrations_group.add_argument(
+        '--fixed-amount-per-zernike',
+        nargs=3,
+        metavar=('[zernike term low]', '[zernike term high]',
+                 '[rms error in meters]'),
+        help=('will simulate `n` rows by injecting a fixed RMS error for each '
+              'Zernike term (the terms must be sequential)'),
+    )
+
 
 def sim_data(cli_args):
     title('Simulate data script')
@@ -80,15 +93,17 @@ def sim_data(cli_args):
     step_ri('Ensuring FFTW is being used')
     proper_use_fftw()
 
+    step_ri('Loading CLI args')
     tag = cli_args['tag']
     train_name = cli_args['train_name']
     ref_wl = float(cli_args['ref_wl'])
-    nrows = cli_args['nrows']
     output_write_batch = cli_args['output_write_batch']
     grid_points = cli_args['grid_points']
     save_plots = cli_args['save_plots']
     enable_proper_logs = cli_args['enable_proper_logs']
     save_full_intensity = cli_args['save_full_intensity']
+    no_aberrations = cli_args['no_aberrations']
+    fixed_amount_per_zernike = cli_args['fixed_amount_per_zernike']
 
     if not enable_proper_logs:
         step_ri('Switching off PROPER logging')
@@ -106,18 +121,7 @@ def sim_data(cli_args):
     (init_beam_d, beam_ratio, optical_train, ccd_pixels,
      ccd_sampling) = load_optical_train(train_name)
 
-    simulation_data = {
-        'ccd_intensity': [],
-        'ccd_sampling': [],
-    }
-    if save_full_intensity:
-        simulation_data['full_intensity'] = []
-        simulation_data['full_sampling'] = []
-
-    def _write_data():
-        out_file = f'{output_path}/{DATA_F}'
-        HDFWriteModule(out_file).create_and_write_hdf_simple(simulation_data)
-
+    # The plotting function
     def _plot_intensity(wf_or_intensity, title, plot_path, plot_idx):
         # If it is a NP array, then it is the final intensity on the CCD,
         # otherwise it is a PROPER wavefront object
@@ -136,6 +140,46 @@ def sim_data(cli_args):
         plot_intensity_field(intensity, plot_sampling, title,
                              _get_plot_path('log'), True)
 
+    step_ri('Figuring out how data will be simulated')
+    if no_aberrations:
+        zernike_terms = []
+        aberrations = []
+        nrows = 1
+        print('Will simulate 1 row with no aberrations')
+    elif fixed_amount_per_zernike:
+        idx_low, idx_high, perturb = fixed_amount_per_zernike
+        # List of zernike terms that will be used
+        zernike_terms = np.arange(int(idx_low), int(idx_high) + 1)
+        zernike_cols = len(zernike_terms)
+        # For this we just need an identity matrix to represent perturbing
+        # each zernike term independently
+        aberrations = np.identity(zernike_cols) * float(perturb)
+        # Add a blank row of zeros at the end
+        aberrations = np.vstack((aberrations, np.zeros(zernike_cols)))
+        nrows = aberrations.shape[0]
+        print(f'Will simulate {nrows} rows where each Zernike term '
+              f'will have an RMS error of {perturb} meters, additionally, '
+              'the row at the end will have no zernike aberrations')
+    else:
+        terminate_with_message('No method chosen on how to simulate data')
+
+    # The data that will be written out
+    simulation_data = {
+        # Noll zernike term indices that are being used
+        'zernike_terms': zernike_terms,
+        # The rms error in meters associated with each of the zernike terms
+        'zernike_coeffs': aberrations,
+        'ccd_intensity': [],
+        'ccd_sampling': [],
+    }
+    if save_full_intensity:
+        simulation_data['full_intensity'] = []
+        simulation_data['full_sampling'] = []
+
+    def _write_data():
+        out_file = f'{output_path}/{DATA_F}'
+        HDFWriteModule(out_file).create_and_write_hdf_simple(simulation_data)
+
     step_ri('Beginning to run simulations')
     for sim_idx in range(nrows):
         print(f'Simulation {sim_idx + 1}/{nrows}')
@@ -150,6 +194,11 @@ def sim_data(cli_args):
         proper.prop_circular_aperture(wavefront, init_beam_d / 2)
         # Set this as the entrance to the train
         proper.prop_define_entrance(wavefront)
+        # If there are aberrations then it will be a np array, otherwise it will
+        # be just a native list
+        if isinstance(aberrations, np.ndarray):
+            proper.prop_zernikes(wavefront, zernike_terms,
+                                 aberrations[sim_idx])
         if save_plots:
             plot_path = f'{output_path}/plots/sim_{sim_idx}'
             make_dir(f'{plot_path}/linear')
