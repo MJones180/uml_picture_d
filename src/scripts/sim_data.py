@@ -173,60 +173,63 @@ def sim_data(cli_args):
         plot_intensity_field(intensity, plot_sampling, title,
                              _get_plot_path('log'), True)
 
-    step_ri('Figuring out how data will be simulated')
+    step_ri('Figuring out aberrations')
+
+    # Generate Zernike terms in order between two bounds
+    def _zernike_terms_list(low, high):
+        terms = np.arange(int(low), int(high) + 1)
+        return terms, len(terms)
+
+    # Setup for aberration simulations that perturb between two bounds
+    def _perturb_range_setup(idx_low, idx_high, perturb_low, perturb_high,
+                             nrows):
+        nrows = int(nrows)
+        perturb_low = float(perturb_low)
+        perturb_high = float(perturb_high)
+        print(f'Perturbation range: {perturb_low} to {perturb_high} meters')
+        zernike_terms, col_count = _zernike_terms_list(idx_low, idx_high)
+        return nrows, perturb_low, perturb_high, zernike_terms, col_count
+
+    # These variables must be defined: `nrows`, `zernike_terms`, `aberrations`
     if no_aberrations:
         nrows = 1
+        print('Will not use any aberrations')
+        # These three variables must be defined, but they will not be used of
+        # course if there are no aberrations
         zernike_terms = np.array([])
         aberrations = []
     elif fixed_amount_per_zernike:
         idx_low, idx_high, perturb = fixed_amount_per_zernike
-        # List of zernike terms that will be used
-        zernike_terms = np.arange(int(idx_low), int(idx_high) + 1)
-        zernike_cols = len(zernike_terms)
+        zernike_terms, col_count = _zernike_terms_list(idx_low, idx_high)
         # For this we just need an identity matrix to represent perturbing
         # each zernike term independently
-        aberrations = np.identity(zernike_cols) * float(perturb)
+        aberrations = np.identity(col_count) * float(perturb)
         # Add a blank row of zeros at the end
-        aberrations = np.vstack((aberrations, np.zeros(zernike_cols)))
+        aberrations = np.vstack((aberrations, np.zeros(col_count)))
         nrows = aberrations.shape[0]
         print(f'Each row will consist of a Zernike term with an RMS error of '
               f'{perturb} meters')
         print('A row will also be at the end with no Zernike aberrations')
     elif rand_amount_per_zernike:
-        (idx_low, idx_high, perturb_low, perturb_high,
-         nrows) = rand_amount_per_zernike
-        nrows = int(nrows)
-        perturb_low = float(perturb_low)
-        perturb_high = float(perturb_high)
-        print(f'Perturbation range: {perturb_low} to {perturb_high} meters')
-        # List of Zernike terms that will be used
-        zernike_terms = np.arange(int(idx_low), int(idx_high) + 1)
-        # The Zernike aberrations that will be applied
+        (nrows, perturb_low, perturb_high, zernike_terms,
+         col_count) = _perturb_range_setup(*rand_amount_per_zernike)
         aberrations = np.random.uniform(perturb_low, perturb_high,
-                                        (nrows, len(zernike_terms)))
+                                        (nrows, col_count))
         print('Each row will consist of Zernike terms with random uniform '
               'RMS error')
     elif rand_amount_per_zernike_single:
-        (idx_low, idx_high, perturb_low, perturb_high,
-         nrows) = rand_amount_per_zernike_single
-        nrows = int(nrows)
-        perturb_low = float(perturb_low)
-        perturb_high = float(perturb_high)
-        print(f'Perturbation range: {perturb_low} to {perturb_high} meters')
-        # List of Zernike terms that will be used
-        zernike_terms = np.arange(int(idx_low), int(idx_high) + 1)
-        zernike_cols = len(zernike_terms)
+        (nrows, perturb_low, perturb_high, zernike_terms,
+         col_count) = _perturb_range_setup(*rand_amount_per_zernike_single)
         # One Zernike term per row
         coeffs = np.random.uniform(perturb_low, perturb_high, nrows)
-        # Pick a random column for each
-        rand_cols = np.random.randint(0, zernike_cols, nrows)
-        # The Zernike aberrations that will be applied
-        aberrations = np.zeros((nrows, zernike_cols))
+        # Pick a random column for each term
+        rand_cols = np.random.randint(0, col_count, nrows)
+        aberrations = np.zeros((nrows, col_count))
         aberrations[np.arange(nrows), rand_cols] = coeffs
         print('Each row will consist of a random Zernike term with a random '
               'RMS error')
     else:
-        terminate_with_message('No method chosen on how to simulate data')
+        terminate_with_message('No aberration procedure chosen')
     if zernike_terms.shape[0]:
         print(f'Zernike term range: {zernike_terms[0]} to {zernike_terms[-1]}')
     print(f'Total rows being simulated: {nrows}')
