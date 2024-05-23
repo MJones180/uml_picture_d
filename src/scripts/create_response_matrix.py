@@ -10,7 +10,7 @@ where the intensity field has its pixels flattened out into the rows and the
 Zernike terms are each of the columns.
 By inverting M, we can then solve for the Zernike coefficients present in a
 given image by the following:
-    Z = M_inv * I
+    Z = M_inv * I [NP: Z = M_inv @ I]
 """
 
 import numpy as np
