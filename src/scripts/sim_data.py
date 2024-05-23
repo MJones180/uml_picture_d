@@ -174,7 +174,7 @@ def sim_data(cli_args):
         # The rms error in meters associated with each of the zernike terms
         ZERNIKE_COEFFS: aberrations,
         CCD_INTENSITY: [],
-        CCD_SAMPLING: [],
+        CCD_SAMPLING: ccd_sampling,
     }
     if save_full_intensity:
         simulation_data[FULL_INTENSITY] = []
@@ -228,7 +228,6 @@ def sim_data(cli_args):
                             plot_idx + 1)
         # Add the data to the output arrays
         simulation_data[CCD_INTENSITY].append(wf_int_ds)
-        simulation_data[CCD_SAMPLING].append(ccd_sampling)
         if save_full_intensity:
             simulation_data[FULL_INTENSITY].append(wavefront_intensity)
             simulation_data[FULL_SAMPLING].append(sampling)
