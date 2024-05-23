@@ -6,7 +6,7 @@ import torch.nn.functional as F
 class Network(nn.Module):
 
     def example_input():
-        return torch.rand((1, 1, 31, 31))
+        return torch.rand((1, 1, 32, 32))
 
     def __init__(self):
         super().__init__()
@@ -15,7 +15,7 @@ class Network(nn.Module):
         self.maxpool1 = nn.MaxPool2d(2)
         self.conv3 = nn.Conv2d(10, 20, 3)
         self.conv4 = nn.Conv2d(20, 40, 3)
-        self.flattened1 = nn.Linear(3240, 500)
+        self.flattened1 = nn.Linear(4000, 500)
         self.dropout1 = nn.Dropout(0.10)
         self.flattened2 = nn.Linear(500, 264)
         self.flattened3 = nn.Linear(264, 23)
