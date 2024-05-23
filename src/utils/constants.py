@@ -1,3 +1,4 @@
+# ==============================================================================
 # Path locations are all relative to the folders one below `src`
 
 DATA_P = '../data'
@@ -18,16 +19,19 @@ TAG_LOOKUP_F = 'tag_lookup.json'
 DATA_F = 'data.h5'
 RESULTS_F = 'results.h5'
 
+# ==============================================================================
 # `src` folder names
 
 NETWORKS = 'networks'
 SIM_OPTICAL_TRAINS = 'sim_optical_trains'
 
+# ==============================================================================
 # Dataset HDF tables (belongs to the `DATA_F` file)
 
 INPUTS = 'inputs'
 OUTPUTS = 'outputs'
 
+# ==============================================================================
 # Normalization values (belongs to the `NORM_F` file)
 
 INPUT_MIN_X = 'input_min_x'
@@ -35,6 +39,7 @@ INPUT_MAX_MIN_DIFF = 'input_max_min_diff'
 OUTPUT_MIN_X = 'output_min_x'
 OUTPUT_MAX_MIN_DIFF = 'output_max_min_diff'
 
+# ==============================================================================
 # Random HDF table names
 
 RESPONSE_MATRIX = 'response_matrix'
@@ -46,12 +51,14 @@ PERTURBATION_AMOUNT = 'perturbation_amount'
 ZERNIKE_COEFFS = 'zernike_coeffs'
 ZERNIKE_TERMS = 'zernike_terms'
 
+# ==============================================================================
 # Error
 
 MAE = 'MAE'
 MSE = 'RMSE'
 RMSE = 'RMSE'
 
+# ==============================================================================
 # Constants for the different available loss and optimizers functions.
 # Each value should correspond to the function's name in PyTorch.
 
@@ -69,6 +76,7 @@ OPTIMIZERS = {
     'sgd': 'SGD',
 }
 
+# ==============================================================================
 # PROPER simulation code constants
 
 # Vector Vortex Coronagraph charge
