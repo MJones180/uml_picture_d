@@ -145,7 +145,6 @@ def sim_data(cli_args):
         zernike_terms = []
         aberrations = []
         nrows = 1
-        print('Will simulate 1 row with no aberrations')
     elif fixed_amount_per_zernike:
         idx_low, idx_high, perturb = fixed_amount_per_zernike
         # List of zernike terms that will be used
@@ -157,11 +156,13 @@ def sim_data(cli_args):
         # Add a blank row of zeros at the end
         aberrations = np.vstack((aberrations, np.zeros(zernike_cols)))
         nrows = aberrations.shape[0]
-        print(f'Will simulate {nrows} rows where each Zernike term '
-              f'will have an RMS error of {perturb} meters, additionally, '
-              'the row at the end will have no zernike aberrations')
+        print(f'Zernke term range: {idx_low}-{idx_high}')
+        print(f'Each row will consist of a Zernike term with an RMS error of '
+              f'{perturb} meters')
+        print('A row will also be at the end with no Zernike aberrations')
     else:
         terminate_with_message('No method chosen on how to simulate data')
+    print(f'Total rows being simulated: {nrows}')
 
     # The data that will be written out
     simulation_data = {
