@@ -26,26 +26,30 @@ This will result in `packages/proper/` containing the necessary Python files.
 
 ## Data
 
-### Pre-existing Data
-
-Data is zipped and located in Google Drive at:
-https://drive.google.com/drive/u/0/folders/1TA4R11xS-Lsn-TKVBSecxFMyboVPCshU
-
-The unzipped data should be placed in a folder in the `/data/raw_fits/` directory.
-The only thing the dataset should consist of are FITS files and the input CSV (`*input*.csv`).
-
-Raw data is then processed by the `/src/scripts/preprocess_data.py` script and saved in the `/data/processed/` directory.
-There are three separate datasets saved: training, validation, and testing.
-Each processed dataset ends up consisting of two files:
-
-- `data.h5`: all data is in the `inputs` and `outputs` tables
-- `norm.json`: normalization values of the training dataset
-
 ### Simulate Data
 
-Data can now be simulated in this repo using PROPER in Python 3.
+Data can be simulated in this repo by using PROPER in Python 3.
+For all simulations use the `sim_data` script.
 
-For information on the optical train files, look at the Optical Trains section.
+A simulated dataset will be outputted at `data/raw_simulated/[tag]`, where `tag` is the name of the dataset.
+The following files will be saved:
+
+- `args.json`: the arguments passed to the script to simulate the data
+- `data.h5`: all the data generated during the simulation (includes the intensity fields and Zernike aberrations)
+- `plots`: optional plots of the wavefront as it passes through the optical train
+
+### Preprocess Data
+
+To train and test a model with the simulated data, it will first need to be preprocessed.
+After running `sim_data.py`, the preprocessing script `preprocess_zernike_data.py` should be ran.
+The preprocessed data is then outputted in `data/processed/` under three separate folders for training, validation, and testing.
+
+Each processed dataset ends up consisting of four files:
+
+- `args.json`: the arguments passed to the script to preprocess the data
+- `data.h5`: all data is in the `inputs` and `outputs` tables
+- `ds_raw_info.json`: unused tables from the raw dataset that may be helpful
+- `norm.json`: normalization values of the training dataset
 
 ## Model
 
