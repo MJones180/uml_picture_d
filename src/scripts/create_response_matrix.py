@@ -14,7 +14,8 @@ given image by the following:
 """
 
 import numpy as np
-from utils.constants import DATA_F, RAW_SIMULATED_DATA_P, RESPONSE_MATRICES_P
+from utils.constants import (DATA_F, RAW_SIMULATED_DATA_P, RESPONSE_MATRICES_P,
+                             RESPONSE_MATRIX)
 from utils.hdf_read_and_write import HDFWriteModule, read_hdf
 from utils.printing_and_logging import step_ri, title
 from utils.terminate_with_message import terminate_with_message
@@ -86,8 +87,8 @@ def create_response_matrix(cli_args):
     M_matrix_inv = np.linalg.pinv(M_matrix)
 
     step_ri('Saving M_inv')
-    output_path = f'{RESPONSE_MATRICES_P}/{simulated_data_tag}'
+    output_path = f'{RESPONSE_MATRICES_P}/{simulated_data_tag}.h5'
     print(f'Outputting to {output_path}')
     HDFWriteModule(output_path).create_and_write_hdf_simple({
-        'response_matrix': M_matrix_inv,
+        RESPONSE_MATRIX: M_matrix_inv,
     })

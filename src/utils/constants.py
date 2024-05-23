@@ -36,6 +36,10 @@ INPUT_MAX_MIN_DIFF = 'input_max_min_diff'
 OUTPUT_MIN_X = 'output_min_x'
 OUTPUT_MAX_MIN_DIFF = 'output_max_min_diff'
 
+# Random HDF table names
+
+RESPONSE_MATRIX = 'response_matrix'
+
 # Error
 
 MAE = 'MAE'
