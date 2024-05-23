@@ -61,6 +61,8 @@ def create_response_matrix(cli_args):
         # For the perturbation amounts, the last row is for the base case (it
         # has no aberrations), so we can chop it off
         perturbation_amounts = data['zernike_coeffs'][:-1]
+        # The Zernike terms being used
+        zernike_terms = data['zernike_terms'][:]
 
     step_ri('Calculating M')
     # This is the delta intensity field portion
@@ -91,4 +93,6 @@ def create_response_matrix(cli_args):
     print(f'Outputting to {output_path}')
     HDFWriteModule(output_path).create_and_write_hdf_simple({
         RESPONSE_MATRIX: M_matrix_inv,
+        'perturbation_amount': perturbation_amount,
+        'zernike_terms': zernike_terms,
     })
