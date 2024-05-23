@@ -4,7 +4,10 @@ This script simulates data using PROPER.
 
 import numpy as np
 import proper
-from utils.constants import ARGS_F, DATA_F, RAW_SIMULATED_DATA_P
+from utils.constants import (ARGS_F, CCD_INTENSITY, CCD_SAMPLING, DATA_F,
+                             FULL_INTENSITY, FULL_SAMPLING,
+                             RAW_SIMULATED_DATA_P, ZERNIKE_COEFFS,
+                             ZERNIKE_TERMS)
 from utils.downsample_data import downsample_data
 from utils.hdf_read_and_write import HDFWriteModule
 from utils.json import json_write
@@ -167,15 +170,15 @@ def sim_data(cli_args):
     # The data that will be written out
     simulation_data = {
         # Noll zernike term indices that are being used
-        'zernike_terms': zernike_terms,
+        ZERNIKE_TERMS: zernike_terms,
         # The rms error in meters associated with each of the zernike terms
-        'zernike_coeffs': aberrations,
-        'ccd_intensity': [],
-        'ccd_sampling': [],
+        ZERNIKE_COEFFS: aberrations,
+        CCD_INTENSITY: [],
+        CCD_SAMPLING: [],
     }
     if save_full_intensity:
-        simulation_data['full_intensity'] = []
-        simulation_data['full_sampling'] = []
+        simulation_data[FULL_INTENSITY] = []
+        simulation_data[FULL_SAMPLING] = []
 
     def _write_data():
         out_file = f'{output_path}/{DATA_F}'
@@ -224,11 +227,11 @@ def sim_data(cli_args):
             _plot_intensity(wf_int_ds, 'CCD Resampled', plot_path,
                             plot_idx + 1)
         # Add the data to the output arrays
-        simulation_data['ccd_intensity'].append(wf_int_ds)
-        simulation_data['ccd_sampling'].append(ccd_sampling)
+        simulation_data[CCD_INTENSITY].append(wf_int_ds)
+        simulation_data[CCD_SAMPLING].append(ccd_sampling)
         if save_full_intensity:
-            simulation_data['full_intensity'].append(wavefront_intensity)
-            simulation_data['full_sampling'].append(sampling)
+            simulation_data[FULL_INTENSITY].append(wavefront_intensity)
+            simulation_data[FULL_SAMPLING].append(sampling)
         # Potentially write out the data now if a full batch is done
         if (sim_idx + 1) % output_write_batch == 0:
             print('Writing out data')

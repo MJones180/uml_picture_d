@@ -14,8 +14,9 @@ given image by the following:
 """
 
 import numpy as np
-from utils.constants import (DATA_F, RAW_SIMULATED_DATA_P, RESPONSE_MATRICES_P,
-                             RESPONSE_MATRIX)
+from utils.constants import (CCD_INTENSITY, DATA_F, PERTURBATION_AMOUNT,
+                             RAW_SIMULATED_DATA_P, RESPONSE_MATRICES_P,
+                             RESPONSE_MATRIX, ZERNIKE_COEFFS, ZERNIKE_TERMS)
 from utils.hdf_read_and_write import HDFWriteModule, read_hdf
 from utils.printing_and_logging import step_ri, title
 from utils.terminate_with_message import terminate_with_message
@@ -24,7 +25,8 @@ from utils.terminate_with_message import terminate_with_message
 def create_response_matrix_parser(subparsers):
     """
     Example command:
-        python3 main.py create_response_matrix --simulated-data-tag ds_fixed_10nm
+        python3 main.py create_response_matrix \
+            --simulated-data-tag ds_fixed_10nm
     """
     subparser = subparsers.add_parser(
         'create_response_matrix',
@@ -50,7 +52,7 @@ def create_response_matrix(cli_args):
         data = read_hdf(datafile_path)
 
         # The shape of this data is (fields, pixels, pixels)
-        intensity = data['ccd_intensity'][:]
+        intensity = data[CCD_INTENSITY][:]
         # The shape should be converted to (flattened_pixels, fields)
         intensity = intensity.reshape(intensity.shape[0], -1).T
         # The last column of data is the intensity field without any Zernike
@@ -60,9 +62,9 @@ def create_response_matrix(cli_args):
         perturbation_fields = intensity[:, :-1]
         # For the perturbation amounts, the last row is for the base case (it
         # has no aberrations), so we can chop it off
-        perturbation_amounts = data['zernike_coeffs'][:-1]
+        perturbation_amounts = data[ZERNIKE_COEFFS][:-1]
         # The Zernike terms being used
-        zernike_terms = data['zernike_terms'][:]
+        zernike_terms = data[ZERNIKE_TERMS][:]
 
     step_ri('Calculating M')
     # This is the delta intensity field portion
@@ -93,6 +95,6 @@ def create_response_matrix(cli_args):
     print(f'Outputting to {output_path}')
     HDFWriteModule(output_path).create_and_write_hdf_simple({
         RESPONSE_MATRIX: M_matrix_inv,
-        'perturbation_amount': perturbation_amount,
-        'zernike_terms': zernike_terms,
+        PERTURBATION_AMOUNT: perturbation_amount,
+        ZERNIKE_TERMS: zernike_terms,
     })

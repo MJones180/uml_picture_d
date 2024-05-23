@@ -38,6 +38,13 @@ OUTPUT_MAX_MIN_DIFF = 'output_max_min_diff'
 # Random HDF table names
 
 RESPONSE_MATRIX = 'response_matrix'
+CCD_INTENSITY = 'ccd_intensity'
+CCD_SAMPLING = 'ccd_sampling'
+FULL_INTENSITY = 'full_intensity'
+FULL_SAMPLING = 'full_sampling'
+PERTURBATION_AMOUNT = 'perturbation_amount'
+ZERNIKE_COEFFS = 'zernike_coeffs'
+ZERNIKE_TERMS = 'zernike_terms'
 
 # Error
 
