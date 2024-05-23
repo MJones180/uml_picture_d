@@ -12,7 +12,7 @@ from utils.printing_and_logging import step_ri, title
 def rank_analysis_dir_parser(subparsers):
     """
     Example commands:
-    python3 main.py rank_analysis_dir --filter global_v1
+        python3 main.py rank_analysis_dir --filter global_v1
     """
     subparser = subparsers.add_parser(
         'rank_analysis_dir',

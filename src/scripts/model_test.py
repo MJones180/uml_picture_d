@@ -21,8 +21,7 @@ from utils.torch_hdf_ds_loader import DSLoaderHDF
 def model_test_parser(subparsers):
     """
     Example commands:
-    python3 main.py model_test v1a last testing_03_05_global 5 5
-    python3 main.py model_test v1a last testing_03_05_ind 5 5
+        python3 main.py model_test v1a last test_fixed_10nm_gl 5 5
     """
     subparser = subparsers.add_parser(
         'model_test',

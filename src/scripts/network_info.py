@@ -11,7 +11,7 @@ from utils.shared_argparser_args import shared_argparser_args
 def network_info_parser(subparsers):
     """
     Example command:
-    python3 main.py network_info test
+        python3 main.py network_info test
     """
     subparser = subparsers.add_parser(
         'network_info',

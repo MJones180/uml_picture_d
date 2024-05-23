@@ -31,11 +31,11 @@ OUTPUT_NORM_OPTIONS = ['globally', 'individually']
 def preprocess_zernike_data_parser(subparsers):
     """
     Example commands:
-    python3 main.py preprocess_zernike_data \
-        ds_fixed_10nm \
-        train_fixed_10nm_gl val_fixed_10nm_gl test_fixed_10nm_gl \
-        0.75 0.10 0.15 \
-        --norm-outputs globally
+        python3 main.py preprocess_zernike_data \
+            ds_fixed_10nm \
+            train_fixed_10nm_gl val_fixed_10nm_gl test_fixed_10nm_gl \
+            0.75 0.10 0.15 \
+            --norm-outputs globally
     """
     subparser = subparsers.add_parser(
         'preprocess_zernike_data',

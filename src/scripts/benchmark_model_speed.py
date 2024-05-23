@@ -14,7 +14,7 @@ from utils.shared_argparser_args import shared_argparser_args
 def benchmark_model_speed_parser(subparsers):
     """
     Example commands:
-    python3 main.py benchmark_model_speed v1a last
+        python3 main.py benchmark_model_speed v1a last
     """
     subparser = subparsers.add_parser(
         'benchmark_model_speed',
