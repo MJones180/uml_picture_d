@@ -95,32 +95,34 @@ The following terminology is used:
 The Zernike Polynomials can be described via `n` and `m` ($`Z_n^m`$).
 More information on this can be found at en.wikipedia.org/wiki/Zernike_polynomials.
 For this repo, Zernike terms will be described by which number they are (given by Noll's indices).
-A table of the first 22 is given below (names taken from page 200 of `PROPER_manual_v3.2.7.pdf`):
+A table of the first 24 is given below ("Manual Names" taken from page 200 of `PROPER_manual_v3.2.7.pdf`):
 
-| Noll Number | `n`   | `m`   | Name                         |
-| :---:       | :---: | :---: | :---:                        |
-| 1           | 0     | 0     | Piston                       |
-| 2           | 1     | 1     | X tilt (horizontal)          |
-| 3           | 1     | -1    | Y tilt (vertical)            |
-| 4           | 2     | 0     | Focus                        |
-| 5           | 2     | -2    | 45 deg astigmatism           |
-| 6           | 2     | 2     | 0  deg astigmatism           |
-| 7           | 3     | -1    | Y coma                       |
-| 8           | 3     | 1     | X coma                       |
-| 9           | 3     | -3    | Y clover (trefoil)           |
-| 10          | 3     | 3     | X clover (trefoil)           |
-| 11          | 4     | 0     | 3rd order spherical          |
-| 12          | 4     | 2     | 5th order 0  deg astigmatism |
-| 13          | 4     | -2    | 5th order 45 deg astigmatism |
-| 14          | 4     | 4     | X quadrafoil                 |
-| 15          | 4     | -4    | Y quadrafoil                 |
-| 16          | 5     | 1     | 5th order X coma             |
-| 17          | 5     | -1    | 5th order Y coma             |
-| 18          | 5     | 3     | 5th order X clover           |
-| 19          | 5     | -3    | 5th order Y clover           |
-| 20          | 5     | 5     | X pentafoil                  |
-| 21          | 5     | -5    | Y pentafoil                  |
-| 22          | 6     | 0     | 5th order spherical          |
+Noll Number | `n`   | `m`   | Manual Names                 | Shorthand Names
+:---:       | :---: | :---: | :---:                        | :---:
+1           | 0     | 0     | Piston                       | 
+2           | 1     | 1     | X tilt (horizontal)          | Tilt X
+3           | 1     | -1    | Y tilt (vertical)            | Tilt Y
+4           | 2     | 0     | Focus                        | Power
+5           | 2     | -2    | 45 deg astigmatism           | Astig 1
+6           | 2     | 2     | 0  deg astigmatism           | Astig 2
+7           | 3     | -1    | Y coma                       | Coma 1
+8           | 3     | 1     | X coma                       | Coma 2
+9           | 3     | -3    | Y clover (trefoil)           | Trefoil 1
+10          | 3     | 3     | X clover (trefoil)           | Trefoil 2
+11          | 4     | 0     | 3rd order spherical          | Spherical
+12          | 4     | 2     | 5th order 0  deg astigmatism | 2nd Astig 1
+13          | 4     | -2    | 5th order 45 deg astigmatism | 2nd Astrig 2
+14          | 4     | 4     | X quadrafoil                 | Tetrafoil 1
+15          | 4     | -4    | Y quadrafoil                 | Tetrafoil 2
+16          | 5     | 1     | 5th order X coma             | 2nd Coma 1
+17          | 5     | -1    | 5th order Y coma             | 2nd Coma 2
+18          | 5     | 3     | 5th order X clover           | 2nd Trefoil 1
+19          | 5     | -3    | 5th order Y clover           | 2nd Trefoil 2
+20          | 5     | 5     | X pentafoil                  | Pentafoil 1
+21          | 5     | -5    | Y pentafoil                  | Pentafoil 2
+22          | 6     | 0     | 5th order spherical          | 2nd Spherical
+23          | 6     | -2    |                              | 3rd Astig 1
+24          | 6     | 2     |                              | 3rd Astig 2
 
 ## Docstrings
 
