@@ -13,6 +13,7 @@ TRAINED_MODELS_P = f'{OUTPUT_P}/trained_models'
 PACKAGES_P = '../packages'
 
 ARGS_F = 'args.json'
+DS_RAW_INFO_F = 'ds_raw_info.json'
 NORM_F = 'norm.json'
 TAG_LOOKUP_F = 'tag_lookup.json'
 DATA_F = 'data.h5'
