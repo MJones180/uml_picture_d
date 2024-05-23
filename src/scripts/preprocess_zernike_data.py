@@ -32,7 +32,7 @@ def preprocess_zernike_data_parser(subparsers):
     """
     Example commands:
         python3 main.py preprocess_zernike_data \
-            ds_fixed_10nm \
+            fixed_10nm \
             train_fixed_10nm_gl val_fixed_10nm_gl test_fixed_10nm_gl \
             0.75 0.10 0.15 \
             --norm-outputs globally

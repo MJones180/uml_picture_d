@@ -26,7 +26,7 @@ def create_response_matrix_parser(subparsers):
     """
     Example command:
         python3 main.py create_response_matrix \
-            --simulated-data-tag ds_fixed_10nm
+            --simulated-data-tag fixed_10nm
     """
     subparser = subparsers.add_parser(
         'create_response_matrix',
