@@ -1,6 +1,8 @@
 """
 Create a response matrix.
 
+The dataset should not be normalized.
+
 For an image, we can describe it by the following:
     I (image's intensity field) = M (response matrix) * Z (Zernike coefficients)
 The response matrix, M, is the Jacobian which we can solve for by using finite
