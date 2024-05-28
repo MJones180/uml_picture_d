@@ -6,23 +6,33 @@ Any prior results for a given epoch will be deleted.
 
 import numpy as np
 import torch
-from utils.constants import (ANALYSIS_P, INPUT_MAX_MIN_DIFF, INPUT_MIN_X, MAE,
-                             MSE, OUTPUT_MAX_MIN_DIFF, OUTPUT_MIN_X, RESULTS_F)
+from utils.constants import (ANALYSIS_P, DS_RAW_INFO_F, INPUT_MAX_MIN_DIFF,
+                             INPUT_MIN_X, MAE, MSE, OUTPUT_MAX_MIN_DIFF,
+                             OUTPUT_MIN_X, PROC_DATA_P, RESULTS_F,
+                             ZERNIKE_TERMS)
 from utils.hdf_read_and_write import HDFWriteModule
+from utils.json import json_load
 from utils.model import Model
 from utils.norm import min_max_denorm, min_max_norm
 from utils.path import delete_dir, get_abs_path, make_dir
 from utils.plots.plot_comparison_scatter_grid import plot_comparison_scatter_grid  # noqa
+from utils.plots.plot_zernike_response import plot_zernike_response
 from utils.printing_and_logging import step_ri, title
 from utils.shared_argparser_args import shared_argparser_args
+from utils.terminate_with_message import terminate_with_message
 from utils.torch_hdf_ds_loader import DSLoaderHDF
 
 
 def model_test_parser(subparsers):
     """
     Example commands:
-        python3 main.py model_test v1a last test_fixed_10nm_gl 5 5
-        python3 main.py model_test fixed_10nm_gl last test_rand_50nm_s_gl 5 5
+        python3 main.py model_test v1a last test_fixed_10nm_gl
+        python3 main.py model_test fixed_10nm_gl last test_rand_50nm_s_gl \
+            --scatter-plot 5 5 --zernike-response-plot-gridded
+
+        python3 main.py model_test fixed_10nm_gl last \
+            fixed_50nm_range_processed --zernike-response-plot-gridded
+
     """
     subparser = subparsers.add_parser(
         'model_test',
@@ -48,9 +58,12 @@ def model_test_parser(subparsers):
         help='generate a scatter plot',
     )
     subparser.add_argument(
-        '--zernike-response-plot',
+        '--zernike-response-plot-gridded',
         action='store_true',
-        help='generate a Zernike response plot',
+        help=('generate a Zernike response plot, the data should be simulated '
+              'with the `sim_data` script using the '
+              '`--fixed-amount-per-zernike-range` arg and preprocessed with '
+              'the `preprocess_data_bare` script'),
     )
 
 
@@ -71,7 +84,8 @@ def model_test(cli_args):
     make_dir(analysis_path)
 
     step_ri('Loading in the testing dataset')
-    testing_dataset = DSLoaderHDF(cli_args['testing_ds'])
+    testing_ds_tag = cli_args['testing_ds']
+    testing_dataset = DSLoaderHDF(testing_ds_tag)
     inputs = testing_dataset.get_inputs()
 
     if cli_args.get('inputs_need_norm'):
@@ -127,4 +141,26 @@ def model_test(cli_args):
             n_rows,
             n_cols,
             get_abs_path(f'{analysis_path}/comparisons.png'),
+        )
+
+    if cli_args.get('zernike_response_plot_gridded'):
+        step_ri('Generating a Zernike response plot')
+
+        raw_info = json_load(f'{PROC_DATA_P}/{testing_ds_tag}/{DS_RAW_INFO_F}')
+        zernike_terms = raw_info[ZERNIKE_TERMS]
+        zernike_count = len(zernike_terms)
+        nrows = outputs_model.shape[0]
+        if nrows % zernike_count != 0:
+            terminate_with_message('Data is in the incorrect shape for '
+                                   'the Zernike response plot')
+        # The number of points for rms perturbations
+        rms_point_count = nrows // zernike_count
+        plot_zernike_response(
+            zernike_terms,
+            # Each group will contain a fixed perturbation for all Zernike
+            # terms, the shape must be
+            #   (rms perturbation, zernike terms, zernike terms)
+            np.array(np.split(outputs_truth, rms_point_count)),
+            np.array(np.split(outputs_model, rms_point_count)),
+            get_abs_path(f'{analysis_path}/zernike_response.png'),
         )
