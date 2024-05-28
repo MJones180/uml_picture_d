@@ -6,11 +6,11 @@ Any prior results for a given epoch will be deleted.
 
 import numpy as np
 import torch
-from utils.constants import (ANALYSIS_P, MAE, MSE, OUTPUT_MIN_X,
-                             OUTPUT_MAX_MIN_DIFF, RESULTS_F)
+from utils.constants import (ANALYSIS_P, INPUT_MAX_MIN_DIFF, INPUT_MIN_X, MAE,
+                             MSE, OUTPUT_MAX_MIN_DIFF, OUTPUT_MIN_X, RESULTS_F)
 from utils.hdf_read_and_write import HDFWriteModule
 from utils.model import Model
-from utils.norm import min_max_denorm
+from utils.norm import min_max_denorm, min_max_norm
 from utils.path import delete_dir, get_abs_path, make_dir
 from utils.plots.plot_comparison_scatter_grid import plot_comparison_scatter_grid  # noqa
 from utils.printing_and_logging import step_ri, title
@@ -22,6 +22,7 @@ def model_test_parser(subparsers):
     """
     Example commands:
         python3 main.py model_test v1a last test_fixed_10nm_gl 5 5
+        python3 main.py model_test fixed_10nm_gl last test_rand_50nm_s_gl 5 5
     """
     subparser = subparsers.add_parser(
         'model_test',
@@ -36,14 +37,20 @@ def model_test_parser(subparsers):
               'should already be denormalized'),
     )
     subparser.add_argument(
-        'n_rows',
-        type=int,
-        help='number of rows in the plot for the output comparison',
+        '--inputs-need-norm',
+        action='store_true',
+        help='the inputs need to be normalized',
     )
     subparser.add_argument(
-        'n_cols',
-        type=int,
-        help='number of cols in the plot for the output comparison',
+        '--scatter-plot',
+        nargs=2,
+        metavar=('[n_rows]', '[n_cols]'),
+        help='generate a scatter plot',
+    )
+    subparser.add_argument(
+        '--zernike-response-plot',
+        action='store_true',
+        help='generate a Zernike response plot',
     )
 
 
@@ -65,9 +72,18 @@ def model_test(cli_args):
 
     step_ri('Loading in the testing dataset')
     testing_dataset = DSLoaderHDF(cli_args['testing_ds'])
+    inputs = testing_dataset.get_inputs()
+
+    if cli_args.get('inputs_need_norm'):
+        step_ri('Normalizing the inputs')
+        inputs = min_max_norm(
+            inputs,
+            norm_values[INPUT_MAX_MIN_DIFF],
+            norm_values[INPUT_MIN_X],
+        )
 
     step_ri('Calling the model and obtaining its outputs')
-    outputs_model = model(testing_dataset.get_inputs_torch())
+    outputs_model = model(torch.from_numpy(inputs))
 
     step_ri('Denormalizing the outputs')
     # Denormalize the outputs
@@ -101,11 +117,14 @@ def model_test(cli_args):
         MSE: mse,
     })
 
-    step_ri('Generating plot')
-    plot_comparison_scatter_grid(
-        outputs_model,
-        outputs_truth,
-        cli_args['n_rows'],
-        cli_args['n_cols'],
-        get_abs_path(f'{analysis_path}/comparisons.png'),
-    )
+    scatter_plot = cli_args['scatter_plot']
+    if scatter_plot is not None:
+        step_ri('Generating scatter plot')
+        n_rows, n_cols = [int(arg) for arg in scatter_plot]
+        plot_comparison_scatter_grid(
+            outputs_model,
+            outputs_truth,
+            n_rows,
+            n_cols,
+            get_abs_path(f'{analysis_path}/comparisons.png'),
+        )
