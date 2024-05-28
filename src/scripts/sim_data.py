@@ -27,6 +27,9 @@ def sim_data_parser(subparsers):
         python3 main.py sim_data fixed_10nm v84 600e-9 \
             --output-write-batch 10 \
             --fixed-amount-per-zernike 2 24 10e-9
+        python3 main.py sim_data fixed_50nm_range v84 600e-9 \
+            --output-write-batch 10 \
+            --fixed-amount-per-zernike-range 2 24 " -50e-9" 50e-9 21
         python3 main.py sim_data random_50nm v84 600e-9 \
             --output-write-batch 10 \
             --rand-amount-per-zernike 2 24 " -50e-9" 50e-9 500
@@ -91,8 +94,20 @@ def sim_data_parser(subparsers):
         nargs=3,
         metavar=('[zernike term low]', '[zernike term high]',
                  '[rms error in meters]'),
-        help=('will simulate `n` rows by injecting a fixed RMS error for each '
+        help=('will simulate `([zernike term high] - [zernike term low])` '
+              'rows by injecting a fixed RMS error for each '
               'Zernike term (the terms must be sequential)'),
+    )
+    aberrations_group.add_argument(
+        '--fixed-amount-per-zernike-range',
+        nargs=5,
+        metavar=('[zernike term low]', '[zernike term high]',
+                 '[rms error in meters low]', '[rms error in meters high]',
+                 '[rms error points]'),
+        help=('will simulate `([zernike term high] - [zernike term low]) * '
+              '[rms error points]` rows by injecting a fixed RMS error in the '
+              'RMS range for each Zernike term (the terms must be sequential) '
+              '| NOTE: for any negative values, write them as \" -number\"'),
     )
     aberrations_group.add_argument(
         '--rand-amount-per-zernike',
@@ -135,6 +150,7 @@ def sim_data(cli_args):
     save_full_intensity = cli_args['save_full_intensity']
     no_aberrations = cli_args['no_aberrations']
     fixed_amount_per_zernike = cli_args['fixed_amount_per_zernike']
+    fixed_amount_per_zernike_range = cli_args['fixed_amount_per_zernike_range']
     rand_amount_per_zernike = cli_args['rand_amount_per_zernike']
     rand_amount_per_zernike_single = cli_args['rand_amount_per_zernike_single']
 
@@ -210,6 +226,21 @@ def sim_data(cli_args):
         print(f'Each row will consist of a Zernike term with an RMS error of '
               f'{perturb} meters')
         print('A row will also be at the end with no Zernike aberrations')
+    elif fixed_amount_per_zernike_range:
+        # This function is technically for the random perturbations, but the
+        # code is the same, just the argument meanings are slightly different
+        (rms_points, perturb_low, perturb_high, zernike_terms,
+         col_count) = _perturb_range_setup(*fixed_amount_per_zernike_range)
+        rms_vals = np.linspace(perturb_low, perturb_high, rms_points)
+        print(f'The following RMS error values will be used ({rms_points}):')
+        print(rms_vals)
+        aberrations = []
+        # Calculate the identity RMS error for each point
+        for rms_val in rms_vals:
+            aberrations.append(np.identity(col_count) * rms_val)
+        # Stack them all so the shape is (Zernike cols * points, Zernike cols)
+        aberrations = np.vstack(aberrations)
+        nrows = aberrations.shape[0]
     elif rand_amount_per_zernike:
         (nrows, perturb_low, perturb_high, zernike_terms,
          col_count) = _perturb_range_setup(*rand_amount_per_zernike)
