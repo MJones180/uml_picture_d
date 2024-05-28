@@ -36,6 +36,11 @@ def preprocess_zernike_data_parser(subparsers):
             train_fixed_10nm_gl val_fixed_10nm_gl test_fixed_10nm_gl \
             0.75 0.10 0.15 \
             --norm-outputs globally
+        python3 main.py preprocess_zernike_data \
+            random_50nm_single \
+            train_rand_50nm_s_gl val_rand_50nm_s_gl test_rand_50nm_s_gl \
+            0.75 0.10 0.15 \
+            --norm-outputs globally
     """
     subparser = subparsers.add_parser(
         'preprocess_zernike_data',
