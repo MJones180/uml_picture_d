@@ -81,3 +81,33 @@ OPTIMIZERS = {
 
 # Vector Vortex Coronagraph charge
 VVC_CHARGE = 6
+
+# ==============================================================================
+# Zernike polynomial names
+
+ZERNIKE_NAME_LOOKUP = {
+    '1': 'Piston',
+    '2': 'Tilt X',
+    '3': 'Tilt Y',
+    '4': 'Power',
+    '5': 'Astig 1',
+    '6': 'Astig 2',
+    '7': 'Coma 1',
+    '8': 'Coma 2',
+    '9': 'Trefoil 1',
+    '10': 'Trefoil 2',
+    '11': 'Spherical',
+    '12': '2nd Astig 1',
+    '13': '2nd Astrig 2',
+    '14': 'Tetrafoil 1',
+    '15': 'Tetrafoil 2',
+    '16': '2nd Coma 1',
+    '17': '2nd Coma 2',
+    '18': '2nd Trefoil 1',
+    '19': '2nd Trefoil 2',
+    '20': 'Pentafoil 1',
+    '21': 'Pentafoil 2',
+    '22': '2nd Spherical',
+    '23': '3rd Astig 1',
+    '24': '3rd Astig 2',
+}
