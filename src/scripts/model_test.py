@@ -71,7 +71,7 @@ def model_test(cli_args):
 
     step_ri('Denormalizing the outputs')
     # Denormalize the outputs
-    outputs_model_denormed = min_max_denorm(
+    outputs_model = min_max_denorm(
         outputs_model,
         norm_values[OUTPUT_MAX_MIN_DIFF],
         norm_values[OUTPUT_MIN_X],
@@ -84,7 +84,7 @@ def model_test(cli_args):
     def _compute_loss(loss_func):
         return loss_func(reduction='none')(
             torch.from_numpy(outputs_truth),
-            torch.from_numpy(outputs_model_denormed)).numpy()
+            torch.from_numpy(outputs_model)).numpy()
 
     mae = _compute_loss(torch.nn.L1Loss)
     mse = _compute_loss(torch.nn.MSELoss)
@@ -96,14 +96,14 @@ def model_test(cli_args):
     print(f'File location: {out_file_path}')
     HDFWriteModule(out_file_path).create_and_write_hdf_simple({
         'outputs_truth': outputs_truth,
-        'outputs_model_denormed': outputs_model_denormed,
+        'outputs_model': outputs_model,
         MAE: mae,
         MSE: mse,
     })
 
     step_ri('Generating plot')
     plot_comparison_scatter_grid(
-        outputs_model_denormed,
+        outputs_model,
         outputs_truth,
         cli_args['n_rows'],
         cli_args['n_cols'],

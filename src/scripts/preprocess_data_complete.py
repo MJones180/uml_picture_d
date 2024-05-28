@@ -28,25 +28,25 @@ from utils.terminate_with_message import terminate_with_message
 OUTPUT_NORM_OPTIONS = ['globally', 'individually']
 
 
-def preprocess_zernike_data_parser(subparsers):
+def preprocess_data_complete_parser(subparsers):
     """
     Example commands:
-        python3 main.py preprocess_zernike_data \
+        python3 main.py preprocess_data_complete \
             fixed_10nm \
             train_fixed_10nm_gl val_fixed_10nm_gl test_fixed_10nm_gl \
             0.75 0.10 0.15 \
             --norm-outputs globally
-        python3 main.py preprocess_zernike_data \
+        python3 main.py preprocess_data_complete \
             random_50nm_single \
             train_rand_50nm_s_gl val_rand_50nm_s_gl test_rand_50nm_s_gl \
             0.75 0.10 0.15 \
             --norm-outputs globally
     """
     subparser = subparsers.add_parser(
-        'preprocess_zernike_data',
+        'preprocess_data_complete',
         help='preprocess data for training, validation, and testing',
     )
-    subparser.set_defaults(main=preprocess_zernike_data)
+    subparser.set_defaults(main=preprocess_data_complete)
     subparser.add_argument(
         'raw_data_tag',
         help='tag of the raw simulated data',
@@ -89,8 +89,8 @@ def preprocess_zernike_data_parser(subparsers):
     )
 
 
-def preprocess_zernike_data(cli_args):
-    title('Preprocess data script')
+def preprocess_data_complete(cli_args):
+    title('Preprocess data complete script')
 
     step_ri('Loading in data')
     raw_data_tag = cli_args['raw_data_tag']
