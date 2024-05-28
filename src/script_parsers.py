@@ -6,6 +6,7 @@ from scripts.dataset_info import dataset_info_parser
 from scripts.model_test import model_test_parser
 from scripts.model_train import model_train_parser
 from scripts.network_info import network_info_parser
+from scripts.preprocess_data_bare import preprocess_data_bare_parser
 from scripts.preprocess_data_complete import preprocess_data_complete_parser
 from scripts.rank_analysis_dir import rank_analysis_dir_parser
 from scripts.sim_data import sim_data_parser
@@ -19,6 +20,7 @@ script_parsers = [
     model_test_parser,
     model_train_parser,
     network_info_parser,
+    preprocess_data_bare_parser,
     preprocess_data_complete_parser,
     rank_analysis_dir_parser,
     sim_data_parser,
