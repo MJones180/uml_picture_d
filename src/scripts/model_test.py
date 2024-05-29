@@ -18,6 +18,7 @@ from utils.path import delete_dir, get_abs_path, make_dir
 from utils.plots.plot_comparison_scatter_grid import plot_comparison_scatter_grid  # noqa
 from utils.plots.plot_zernike_response import plot_zernike_response
 from utils.printing_and_logging import step_ri, title
+from utils.response_matrix import ResponseMatrix
 from utils.shared_argparser_args import shared_argparser_args
 from utils.terminate_with_message import terminate_with_message
 from utils.torch_hdf_ds_loader import DSLoaderHDF
@@ -29,10 +30,15 @@ def model_test_parser(subparsers):
         python3 main.py model_test v1a last test_fixed_10nm_gl
         python3 main.py model_test fixed_10nm_gl last test_rand_50nm_s_gl \
             --scatter-plot 5 5 --zernike-response-plot-gridded
+        python3 main.py model_test fixed_10nm_gl last \
+            fixed_50nm_range_processed --zernike-response-plot-gridded \
+            --inputs-need-norm \
+            --response-matrix fixed_10nm
 
         python3 main.py model_test fixed_10nm_gl last \
-            fixed_50nm_range_processed --zernike-response-plot-gridded
-
+            fixed_50nm_range_processed --zernike-response-plot-gridded \
+            --inputs-need-norm \
+            --response-matrix fixed_40nm
     """
     subparser = subparsers.add_parser(
         'model_test',
@@ -50,6 +56,12 @@ def model_test_parser(subparsers):
         '--inputs-need-norm',
         action='store_true',
         help='the inputs need to be normalized',
+    )
+    subparser.add_argument(
+        '--response-matrix',
+        help=('tag of the response matrix, will also generate plots comparing '
+              'against the response matrix, the Zernike terms should align '
+              'with the neural network model and testing dataset'),
     )
     subparser.add_argument(
         '--scatter-plot',
@@ -121,12 +133,27 @@ def model_test(cli_args):
     print(f'MAE: {np.mean(mae)}')
     print(f'MSE: {np.mean(mse)}')
 
+    response_matrix = cli_args.get('response_matrix')
+    if response_matrix:
+        # The response matrix does not work on normalized data
+        inputs_no_norm = min_max_denorm(
+            inputs,
+            norm_values[INPUT_MAX_MIN_DIFF],
+            norm_values[INPUT_MIN_X],
+        )
+        # Need to flatten out the pixels
+        inputs_no_norm = inputs_no_norm.reshape(inputs_no_norm.shape[0], -1)
+        outputs_resp_mat = ResponseMatrix(response_matrix)(inputs_no_norm)
+
     step_ri('Writing results to HDF')
     out_file_path = f'{analysis_path}/{RESULTS_F}'
     print(f'File location: {out_file_path}')
     HDFWriteModule(out_file_path).create_and_write_hdf_simple({
         'outputs_truth': outputs_truth,
         'outputs_model': outputs_model,
+        'outputs_response_matrix': outputs_resp_mat,
+        # MAE and MSE are based on the neural network output, NOT the response
+        # matrix output
         MAE: mae,
         MSE: mse,
     })
@@ -155,12 +182,21 @@ def model_test(cli_args):
                                    'the Zernike response plot')
         # The number of points for rms perturbations
         rms_point_count = nrows // zernike_count
-        plot_zernike_response(
-            zernike_terms,
-            # Each group will contain a fixed perturbation for all Zernike
-            # terms, the shape must be
-            #   (rms perturbation, zernike terms, zernike terms)
-            np.array(np.split(outputs_truth, rms_point_count)),
-            np.array(np.split(outputs_model, rms_point_count)),
-            get_abs_path(f'{analysis_path}/zernike_response.png'),
-        )
+
+        def _plot_zernike_response_wrapper(output_data, title, name):
+            plot_zernike_response(
+                zernike_terms,
+                # Each group will contain a fixed perturbation for all Zernike
+                # terms, the shape must be:
+                #   (rms perturbation, zernike terms, zernike terms)
+                np.array(np.split(outputs_truth, rms_point_count)),
+                np.array(np.split(output_data, rms_point_count)),
+                title,
+                get_abs_path(f'{analysis_path}/{name}.png'),
+            )
+
+        _plot_zernike_response_wrapper(outputs_model, 'Neural Network',
+                                       'zernike_response')
+        if response_matrix:
+            _plot_zernike_response_wrapper(outputs_resp_mat, 'Response Matrix',
+                                           'zernike_response_resp_mat')

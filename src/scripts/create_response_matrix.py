@@ -3,22 +3,26 @@ Create a response matrix.
 
 The dataset should not be normalized.
 
-For an image, we can describe it by the following:
-    I (image's intensity field) = M (response matrix) * Z (Zernike coefficients)
-The response matrix, M, is the Jacobian which we can solve for by using finite
-differencing. Each element is given by the equation:
-    (delta intensity field) / (delta Zernike perturbation)
-where the intensity field has its pixels flattened out into the rows and the
-Zernike terms are each of the columns.
+The following symbols and terms will be used:
+    I0 ≡ base intensity field (no Zernike aberrations)
+    ΔI = total intensity field - I0
+    M: response matrix
+    Z: Zernike coefficients
+    @: matrix multiplication (np notation)
+An image can be described by `ΔI = M @ Z`.
+The matrix M is the Jacobian of the fields with respect to different Zernike
+polynomial terms, it can be solved for by using finite differencing.
+The terms in M are given by `ΔI_i / ΔZ_j` where the intensity field has its
+pixels flattened into the rows and the Zernike perturbations are the columns.
 By inverting M, we can then solve for the Zernike coefficients present in a
-given image by the following:
-    Z = M_inv * I [NP: Z = M_inv @ I]
+given image by `Z = M_inv @ ΔI`.
 """
 
 import numpy as np
-from utils.constants import (CCD_INTENSITY, DATA_F, PERTURBATION_AMOUNT,
-                             RAW_SIMULATED_DATA_P, RESPONSE_MATRICES_P,
-                             RESPONSE_MATRIX, ZERNIKE_COEFFS, ZERNIKE_TERMS)
+from utils.constants import (BASE_INT_FIELD, CCD_INTENSITY, DATA_F,
+                             PERTURBATION_AMOUNT, RAW_SIMULATED_DATA_P,
+                             RESPONSE_MATRICES_P, RESPONSE_MATRIX_INV,
+                             ZERNIKE_COEFFS, ZERNIKE_TERMS)
 from utils.hdf_read_and_write import HDFWriteModule, read_hdf
 from utils.printing_and_logging import step_ri, title
 from utils.terminate_with_message import terminate_with_message
@@ -29,6 +33,8 @@ def create_response_matrix_parser(subparsers):
     Example command:
         python3 main.py create_response_matrix \
             --simulated-data-tag fixed_10nm
+        python3 main.py create_response_matrix \
+            --simulated-data-tag fixed_40nm
     """
     subparser = subparsers.add_parser(
         'create_response_matrix',
@@ -96,7 +102,8 @@ def create_response_matrix(cli_args):
     output_path = f'{RESPONSE_MATRICES_P}/{simulated_data_tag}.h5'
     print(f'Outputting to {output_path}')
     HDFWriteModule(output_path).create_and_write_hdf_simple({
-        RESPONSE_MATRIX: M_matrix_inv,
+        BASE_INT_FIELD: base_field,
+        RESPONSE_MATRIX_INV: M_matrix_inv,
         PERTURBATION_AMOUNT: perturbation_amount,
         ZERNIKE_TERMS: zernike_terms,
     })

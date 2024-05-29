@@ -27,6 +27,9 @@ def sim_data_parser(subparsers):
         python3 main.py sim_data fixed_10nm v84 600e-9 \
             --output-write-batch 10 \
             --fixed-amount-per-zernike 2 24 10e-9
+        python3 main.py sim_data fixed_40nm v84 600e-9 \
+            --output-write-batch 10 \
+            --fixed-amount-per-zernike 2 24 40e-9 --save-plots
         python3 main.py sim_data fixed_50nm_range v84 600e-9 \
             --output-write-batch 10 \
             --fixed-amount-per-zernike-range 2 24 " -50e-9" 50e-9 21

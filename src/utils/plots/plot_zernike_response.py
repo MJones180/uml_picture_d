@@ -8,6 +8,7 @@ def plot_zernike_response(
     zernike_terms,
     truth_groupings,
     pred_groupings,
+    title,
     plot_path,
 ):
     # The RMS perturbations should be the same for every Zernike polynomial
@@ -16,7 +17,7 @@ def plot_zernike_response(
     # Set the figure size and add the title + axes labels
     plt.figure(figsize=(8, 8))
     ax = plt.subplot(111)
-    plt.title('Zernike Response')
+    plt.title(f'Zernike Response ({title})')
     plt.xlabel('Truth [nm RMS]')
     plt.ylabel('Output [nm RMS]')
 
