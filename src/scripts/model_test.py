@@ -23,6 +23,7 @@ from utils.norm import min_max_denorm, min_max_norm
 from utils.path import delete_dir, get_abs_path, make_dir
 from utils.plots.plot_comparison_scatter_grid import plot_comparison_scatter_grid  # noqa
 from utils.plots.plot_zernike_response import plot_zernike_response
+from utils.plots.plot_zernike_total_cross_coupling import plot_zernike_total_cross_coupling  # noqa
 from utils.printing_and_logging import step_ri, title
 from utils.response_matrix import ResponseMatrix
 from utils.shared_argparser_args import shared_argparser_args
@@ -37,9 +38,11 @@ def model_test_parser(subparsers):
         python3 main.py model_test fixed_10nm_gl last test_rand_50nm_s_gl \
             --scatter-plot 5 5 --zernike-response-gridded-plot
         python3 main.py model_test fixed_10nm_gl last \
-            fixed_50nm_range_processed --zernike-response-gridded-plot \
+            fixed_50nm_range_processed \
             --inputs-need-norm \
-            --response-matrix fixed_40nm
+            --response-matrix fixed_40nm \
+            --zernike-response-gridded-plot \
+            --zernike-total-cross-coupling-plot
     """
     subparser = subparsers.add_parser(
         'model_test',
@@ -73,6 +76,11 @@ def model_test_parser(subparsers):
         '--zernike-response-gridded-plot',
         action='store_true',
         help='generate a Zernike response plot',
+    )
+    subparser.add_argument(
+        '--zernike-total-cross-coupling-plot',
+        action='store_true',
+        help='generate a Zernike total cross coupling plot',
     )
 
 
@@ -171,7 +179,8 @@ def model_test(cli_args):
             get_abs_path(f'{analysis_path}/comparisons.png'),
         )
 
-    if cli_args.get('zernike_response_gridded_plot'):
+    if (cli_args.get('zernike_response_gridded_plot')
+            or cli_args.get('zernike_total_cross_coupling_plot')):
         zernike_count = len(zernike_terms)
         nrows = outputs_model.shape[0]
         if nrows % zernike_count != 0:
@@ -191,13 +200,25 @@ def model_test(cli_args):
     if cli_args.get('zernike_response_gridded_plot'):
         step_ri('Generating a Zernike response plot')
 
-        def _plot_zernike_response_wr(output_groups, title, name):
+        def _plot_wrapper(output_groups, title, name):
             out_path = get_abs_path(f'{analysis_path}/{name}.png')
             plot_zernike_response(zernike_terms, outputs_truth_gr,
                                   output_groups, title, out_path)
 
-        _plot_zernike_response_wr(outputs_model_gr, 'Neural Network',
-                                  'zernike_response')
+        _plot_wrapper(outputs_model_gr, 'Neural Network', 'zernike_response')
         if response_matrix:
-            _plot_zernike_response_wr(outputs_resp_mat_gr, 'Response Matrix',
-                                      'zernike_response_resp_mat')
+            _plot_wrapper(outputs_resp_mat_gr, 'Response Matrix',
+                          'zernike_response_resp_mat')
+
+    if cli_args.get('zernike_total_cross_coupling_plot'):
+        step_ri('Generating a Zernike total cross coupling plot')
+
+        def _plot_wrapper(output_groups, title, name):
+            out_path = get_abs_path(f'{analysis_path}/{name}.png')
+            plot_zernike_total_cross_coupling(outputs_truth_gr, output_groups,
+                                              title, out_path)
+
+        _plot_wrapper(outputs_model_gr, 'Neural Network', 'cross_coupling')
+        if response_matrix:
+            _plot_wrapper(outputs_resp_mat_gr, 'Response Matrix',
+                          'cross_coupling_resp_mat')
