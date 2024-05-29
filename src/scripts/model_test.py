@@ -10,6 +10,7 @@ from utils.constants import (ANALYSIS_P, DS_RAW_INFO_F, INPUT_MAX_MIN_DIFF,
                              INPUT_MIN_X, MAE, MSE, OUTPUT_MAX_MIN_DIFF,
                              OUTPUT_MIN_X, PROC_DATA_P, RESULTS_F,
                              ZERNIKE_TERMS)
+from utils.error import mae, mse
 from utils.hdf_read_and_write import HDFWriteModule
 from utils.json import json_load
 from utils.model import Model
@@ -123,15 +124,10 @@ def model_test(cli_args):
 
     step_ri('Computing the MAE and MSE')
 
-    def _compute_loss(loss_func):
-        return loss_func(reduction='none')(
-            torch.from_numpy(outputs_truth),
-            torch.from_numpy(outputs_model)).numpy()
-
-    mae = _compute_loss(torch.nn.L1Loss)
-    mse = _compute_loss(torch.nn.MSELoss)
-    print(f'MAE: {np.mean(mae)}')
-    print(f'MSE: {np.mean(mse)}')
+    mae_val = mae(outputs_truth, outputs_model, 'all')
+    mse_val = mse(outputs_truth, outputs_model, 'all')
+    print(f'MAE: {mae_val}')
+    print(f'MSE: {mse_val}')
 
     response_matrix = cli_args.get('response_matrix')
     if response_matrix:
@@ -154,8 +150,8 @@ def model_test(cli_args):
         'outputs_response_matrix': outputs_resp_mat,
         # MAE and MSE are based on the neural network output, NOT the response
         # matrix output
-        MAE: mae,
-        MSE: mse,
+        MAE: mae_val,
+        MSE: mse_val,
     })
 
     scatter_plot = cli_args['scatter_plot']
