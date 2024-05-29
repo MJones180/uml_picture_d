@@ -56,7 +56,7 @@ ZERNIKE_TERMS = 'zernike_terms'
 # Error
 
 MAE = 'MAE'
-MSE = 'RMSE'
+MSE = 'MSE'
 RMSE = 'RMSE'
 
 # ==============================================================================

@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from utils.error import rss
+from utils.stats_and_error import rss
 
 
 def plot_zernike_total_cross_coupling(
@@ -38,10 +38,8 @@ def plot_zernike_total_cross_coupling(
     # Copy and put in nm
     pred_groupings_no_diag = np.copy(pred_groupings) * 1e9
     pred_groupings_no_diag[:, diag_idxs, diag_idxs] = 0
-    # Blank array to compare against
-    zeros = np.zeros_like(pred_groupings_no_diag)
     # Calculate the total coupled error at each perturbation amount
-    total_coupled_error = rss(pred_groupings_no_diag, zeros, (1, 2))
+    total_coupled_error = rss(pred_groupings_no_diag, (1, 2))
 
     # Set the limits on the x-axis
     ax.set_xlim(np.min(perturbation_grid), np.max(perturbation_grid))

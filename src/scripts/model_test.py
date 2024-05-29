@@ -15,7 +15,6 @@ from utils.constants import (ANALYSIS_P, DS_RAW_INFO_F, INPUT_MAX_MIN_DIFF,
                              INPUT_MIN_X, MAE, MSE, OUTPUT_MAX_MIN_DIFF,
                              OUTPUT_MIN_X, PROC_DATA_P, RESULTS_F,
                              ZERNIKE_TERMS)
-from utils.error import mae, mse
 from utils.hdf_read_and_write import HDFWriteModule
 from utils.json import json_load
 from utils.model import Model
@@ -27,6 +26,7 @@ from utils.plots.plot_zernike_total_cross_coupling import plot_zernike_total_cro
 from utils.printing_and_logging import step_ri, title
 from utils.response_matrix import ResponseMatrix
 from utils.shared_argparser_args import shared_argparser_args
+from utils.stats_and_error import mae, mse
 from utils.terminate_with_message import terminate_with_message
 from utils.torch_hdf_ds_loader import DSLoaderHDF
 
@@ -131,8 +131,8 @@ def model_test(cli_args):
 
     step_ri('Computing the MAE and MSE')
 
-    mae_val = mae(outputs_truth, outputs_model, 'all')
-    mse_val = mse(outputs_truth, outputs_model, 'all')
+    mae_val = mae(outputs_truth, outputs_model)
+    mse_val = mse(outputs_truth, outputs_model)
     print(f'Model MAE: {mae_val}')
     print(f'Model MSE: {mse_val}')
 
