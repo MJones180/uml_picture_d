@@ -6,7 +6,7 @@ from utils.idl_rainbow_cmap import idl_rainbow_cmap
 
 def plot_zernike_response(
     zernike_terms,
-    truth_groupings,
+    perturbation_grid,
     pred_groupings,
     title_append,
     plot_path,
@@ -14,32 +14,21 @@ def plot_zernike_response(
     """
     Generates and saves a Zernike response plot.
 
+    Only one Zernike term should be perturbed at a time.
+
     Parameters
     ----------
     zernike_terms : list
         Noll Zernike terms.
-    truth_groupings : np.array
-        The truth data, see the Notes for more information.
+    perturbation_grid : np.array
+        Array for how much each group is perturbed by.
     pred_groupings : np.array
-        The prediction data, see the Notes for more information.
+        The prediction data, 3D array (rms pert, zernike terms, zernike terms).
     title_append : str
         Value to add to the title.
     plot_path : str
         Path to save the plot at.
-
-    Notes
-    -----
-    The `*_groupings` arguments must be 3D arrays and have the shape of
-    (rms pert, zernike terms, zernike terms).
-
-    It is assumed that the truth Zernike terms all have the same perturbation
-    for each group and that there are only perturbations along the main
-    diagonal. Therefore, each group (first dim of the truth array) should be
-    equivalent to `perturbation * identity matrix`.
     """
-
-    # The RMS perturbations should be the same for every Zernike polynomial
-    truth_rms_pert = truth_groupings[:, 0, 0]
 
     # Set the figure size and add the title + axes labels
     plt.figure(figsize=(8, 8))
@@ -49,8 +38,8 @@ def plot_zernike_response(
     plt.ylabel('Output [nm RMS]')
 
     # Make the x and y axes have the same range and set a 1:1 aspect ratio
-    min_val = np.min(truth_rms_pert)
-    max_val = np.max(truth_rms_pert)
+    min_val = np.min(perturbation_grid)
+    max_val = np.max(perturbation_grid)
     ax.set_xlim(min_val, max_val)
     ax.set_ylim(min_val, max_val)
     ax.set_aspect(1)
@@ -76,15 +65,15 @@ def plot_zernike_response(
 
     # For this plot, we only care about elements along the main diagonal
     for term_idx, term in enumerate(zernike_terms):
-        ax.plot(truth_rms_pert,
+        ax.plot(perturbation_grid,
                 pred_groupings[:, term_idx, term_idx],
                 label=f'Z{term} {ZERNIKE_NAME_LOOKUP[term]}',
                 color=colors[term_idx])
 
     # Set the labels
-    tick_idxs = np.linspace(0, len(truth_rms_pert) - 1, 7)
+    tick_idxs = np.linspace(0, len(perturbation_grid) - 1, 7)
     tick_idxs = np.round(tick_idxs).astype(int)
-    tick_pos = truth_rms_pert[tick_idxs]
+    tick_pos = perturbation_grid[tick_idxs]
     # Need to put the positions into nm
     tick_labels = [f'{a:.0f}' for a in tick_pos * 1e9]
     ax.set_xticks(tick_pos, tick_labels)

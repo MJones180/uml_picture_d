@@ -181,8 +181,8 @@ def model_test(cli_args):
 
     if (cli_args.get('zernike_response_gridded_plot')
             or cli_args.get('zernike_total_cross_coupling_plot')):
+        nrows = outputs_truth.shape[0]
         zernike_count = len(zernike_terms)
-        nrows = outputs_model.shape[0]
         if nrows % zernike_count != 0:
             terminate_with_message('Data is in the incorrect shape for '
                                    'the Zernike plot(s)')
@@ -197,28 +197,40 @@ def model_test(cli_args):
         outputs_model_gr = _split(outputs_model)
         outputs_resp_mat_gr = _split(outputs_resp_mat)
 
+        # It is assumed that the truth terms all have the same perturbation
+        # for each group and that there are only perturbations along the main
+        # diagonal. Therefore, each group (first dim) should be equivalent to
+        # `perturbation * identity matrix`. Due to this, we can simply obtain
+        # the list of all RMS perturbations.
+        perturbation_grid = outputs_truth_gr[:, 0, 0]
+
+        # Output all Zernike-related plots in a sub-directory
+        zernike_dir = get_abs_path(f'{analysis_path}/zernike')
+        make_dir(zernike_dir)
+        # Titles used in future plots
+        NN = 'Neural Network'
+        RM = 'Response Matrix'
+
     if cli_args.get('zernike_response_gridded_plot'):
         step_ri('Generating a Zernike response plot')
 
         def _plot_wrapper(output_groups, title, name):
-            out_path = get_abs_path(f'{analysis_path}/{name}.png')
-            plot_zernike_response(zernike_terms, outputs_truth_gr,
+            out_path = f'{zernike_dir}/{name}.png'
+            plot_zernike_response(zernike_terms, perturbation_grid,
                                   output_groups, title, out_path)
 
-        _plot_wrapper(outputs_model_gr, 'Neural Network', 'zernike_response')
+        _plot_wrapper(outputs_model_gr, NN, 'zernike_response')
         if response_matrix:
-            _plot_wrapper(outputs_resp_mat_gr, 'Response Matrix',
-                          'zernike_response_resp_mat')
+            _plot_wrapper(outputs_resp_mat_gr, RM, 'zernike_response_resp_mat')
 
     if cli_args.get('zernike_total_cross_coupling_plot'):
         step_ri('Generating a Zernike total cross coupling plot')
 
         def _plot_wrapper(output_groups, title, name):
-            out_path = get_abs_path(f'{analysis_path}/{name}.png')
-            plot_zernike_total_cross_coupling(outputs_truth_gr, output_groups,
+            out_path = f'{zernike_dir}/{name}.png'
+            plot_zernike_total_cross_coupling(perturbation_grid, output_groups,
                                               title, out_path)
 
-        _plot_wrapper(outputs_model_gr, 'Neural Network', 'cross_coupling')
+        _plot_wrapper(outputs_model_gr, NN, 'cross_coupling')
         if response_matrix:
-            _plot_wrapper(outputs_resp_mat_gr, 'Response Matrix',
-                          'cross_coupling_resp_mat')
+            _plot_wrapper(outputs_resp_mat_gr, RM, 'cross_coupling_resp_mat')

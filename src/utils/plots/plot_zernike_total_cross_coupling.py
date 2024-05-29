@@ -4,7 +4,7 @@ from utils.error import rss
 
 
 def plot_zernike_total_cross_coupling(
-    truth_groupings,
+    perturbation_grid,
     pred_groupings,
     title_append,
     plot_path,
@@ -12,30 +12,19 @@ def plot_zernike_total_cross_coupling(
     """
     Generates and saves a Zernike total cross coupling plot.
 
+    Only one Zernike term should be perturbed at a time.
+
     Parameters
     ----------
-    truth_groupings : np.array
-        The truth data, see the Notes for more information.
+    perturbation_grid : np.array
+        Array for how much each group is perturbed by.
     pred_groupings : np.array
-        The prediction data, see the Notes for more information.
+        The prediction data, 3D array (rms pert, zernike terms, zernike terms).
     title_append : str
         Value to add to the title.
     plot_path : str
         Path to save the plot at.
-
-    Notes
-    -----
-    The `*_groupings` arguments must be 3D arrays and have the shape of
-    (rms pert, zernike terms, zernike terms).
-
-    It is assumed that the truth Zernike terms all have the same perturbation
-    for each group and that there are only perturbations along the main
-    diagonal. Therefore, each group (first dim of the truth array) should be
-    equivalent to `perturbation * identity matrix`.
     """
-
-    # The RMS perturbations should be the same for every Zernike polynomial
-    truth_rms_pert = truth_groupings[:, 0, 0]
 
     # Set the figure size and add the title + axes labels
     plt.figure()
@@ -55,14 +44,14 @@ def plot_zernike_total_cross_coupling(
     total_coupled_error = rss(pred_groupings_no_diag, zeros, (1, 2))
 
     # Set the limits on the x-axis
-    ax.set_xlim(np.min(truth_rms_pert), np.max(truth_rms_pert))
+    ax.set_xlim(np.min(perturbation_grid), np.max(perturbation_grid))
 
-    ax.plot(truth_rms_pert, total_coupled_error)
+    ax.plot(perturbation_grid, total_coupled_error)
 
     # Set the labels
-    tick_idxs = np.linspace(0, len(truth_rms_pert) - 1, 7)
+    tick_idxs = np.linspace(0, len(perturbation_grid) - 1, 7)
     tick_idxs = np.round(tick_idxs).astype(int)
-    tick_pos = truth_rms_pert[tick_idxs]
+    tick_pos = perturbation_grid[tick_idxs]
     # Need to put the positions into nm
     tick_labels = [f'{a:.0f}' for a in tick_pos * 1e9]
     ax.set_xticks(tick_pos, tick_labels)
