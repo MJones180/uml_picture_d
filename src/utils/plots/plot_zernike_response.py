@@ -8,16 +8,43 @@ def plot_zernike_response(
     zernike_terms,
     truth_groupings,
     pred_groupings,
-    title,
+    title_append,
     plot_path,
 ):
+    """
+    Generates and saves a Zernike response plot.
+
+    Parameters
+    ----------
+    zernike_terms : list
+        Noll Zernike terms.
+    truth_groupings : np.array
+        The truth data, see the Notes for more information.
+    pred_groupings : np.array
+        The prediction data, see the Notes for more information.
+    title_append : str
+        Value to add to the title.
+    plot_path : str
+        Path to save the plot at.
+
+    Notes
+    -----
+    The `*_groupings` arguments must be 3D arrays and have the shape of
+    (rms pert, zernike terms, zernike terms).
+
+    It is assumed that the truth Zernike terms all have the same perturbation
+    for each group and that there are only perturbations along the main
+    diagonal. Therefore, each group (first dim of the truth array) should be
+    equivalent to `perturbation * identity matrix`.
+    """
+
     # The RMS perturbations should be the same for every Zernike polynomial
     truth_rms_pert = truth_groupings[:, 0, 0]
 
     # Set the figure size and add the title + axes labels
     plt.figure(figsize=(8, 8))
     ax = plt.subplot(111)
-    plt.title(f'Zernike Response ({title})')
+    plt.title(f'Zernike Response ({title_append})')
     plt.xlabel('Truth [nm RMS]')
     plt.ylabel('Output [nm RMS]')
 

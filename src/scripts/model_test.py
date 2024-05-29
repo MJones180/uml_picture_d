@@ -2,6 +2,11 @@
 This script tests a model's performance against a testing dataset.
 
 Any prior results for a given epoch will be deleted.
+
+When using any of the Zernike-related plots, it is expected that the
+`testing_ds` was simulated with the `sim_data` script using the
+`--fixed-amount-per-zernike-range` arg and preprocessed with the
+`preprocess_data_bare` script.
 """
 
 import numpy as np
@@ -30,14 +35,9 @@ def model_test_parser(subparsers):
     Example commands:
         python3 main.py model_test v1a last test_fixed_10nm_gl
         python3 main.py model_test fixed_10nm_gl last test_rand_50nm_s_gl \
-            --scatter-plot 5 5 --zernike-response-plot-gridded
+            --scatter-plot 5 5 --zernike-response-gridded-plot
         python3 main.py model_test fixed_10nm_gl last \
-            fixed_50nm_range_processed --zernike-response-plot-gridded \
-            --inputs-need-norm \
-            --response-matrix fixed_10nm
-
-        python3 main.py model_test fixed_10nm_gl last \
-            fixed_50nm_range_processed --zernike-response-plot-gridded \
+            fixed_50nm_range_processed --zernike-response-gridded-plot \
             --inputs-need-norm \
             --response-matrix fixed_40nm
     """
@@ -60,8 +60,7 @@ def model_test_parser(subparsers):
     )
     subparser.add_argument(
         '--response-matrix',
-        help=('tag of the response matrix, will also generate plots comparing '
-              'against the response matrix, the Zernike terms should align '
+        help=('tag of the response matrix, the Zernike terms must align '
               'with the neural network model and testing dataset'),
     )
     subparser.add_argument(
@@ -71,12 +70,9 @@ def model_test_parser(subparsers):
         help='generate a scatter plot',
     )
     subparser.add_argument(
-        '--zernike-response-plot-gridded',
+        '--zernike-response-gridded-plot',
         action='store_true',
-        help=('generate a Zernike response plot, the data should be simulated '
-              'with the `sim_data` script using the '
-              '`--fixed-amount-per-zernike-range` arg and preprocessed with '
-              'the `preprocess_data_bare` script'),
+        help='generate a Zernike response plot',
     )
 
 
@@ -100,6 +96,9 @@ def model_test(cli_args):
     testing_ds_tag = cli_args['testing_ds']
     testing_dataset = DSLoaderHDF(testing_ds_tag)
     inputs = testing_dataset.get_inputs()
+    raw_info = json_load(f'{PROC_DATA_P}/{testing_ds_tag}/{DS_RAW_INFO_F}')
+    zernike_terms = raw_info[ZERNIKE_TERMS]
+    print(f'Using zernike terms: {zernike_terms}')
 
     if cli_args.get('inputs_need_norm'):
         step_ri('Normalizing the inputs')
@@ -126,11 +125,17 @@ def model_test(cli_args):
 
     mae_val = mae(outputs_truth, outputs_model, 'all')
     mse_val = mse(outputs_truth, outputs_model, 'all')
-    print(f'MAE: {mae_val}')
-    print(f'MSE: {mse_val}')
+    print(f'Model MAE: {mae_val}')
+    print(f'Model MSE: {mse_val}')
 
     response_matrix = cli_args.get('response_matrix')
     if response_matrix:
+        response_matrix_obj = ResponseMatrix(response_matrix)
+        # Ensure the Zernike terms matchup
+        zernike_terms_resp_mat = response_matrix_obj.get_zernike_terms()
+        if not np.array_equal(zernike_terms, zernike_terms_resp_mat):
+            terminate_with_message('Zernike terms in response matrix do not '
+                                   'match terms in dataset')
         # The response matrix does not work on normalized data
         inputs_no_norm = min_max_denorm(
             inputs,
@@ -139,7 +144,7 @@ def model_test(cli_args):
         )
         # Need to flatten out the pixels
         inputs_no_norm = inputs_no_norm.reshape(inputs_no_norm.shape[0], -1)
-        outputs_resp_mat = ResponseMatrix(response_matrix)(inputs_no_norm)
+        outputs_resp_mat = response_matrix_obj(inputs_no_norm)
 
     step_ri('Writing results to HDF')
     out_file_path = f'{analysis_path}/{RESULTS_F}'
@@ -166,33 +171,33 @@ def model_test(cli_args):
             get_abs_path(f'{analysis_path}/comparisons.png'),
         )
 
-    if cli_args.get('zernike_response_plot_gridded'):
-        step_ri('Generating a Zernike response plot')
-
-        raw_info = json_load(f'{PROC_DATA_P}/{testing_ds_tag}/{DS_RAW_INFO_F}')
-        zernike_terms = raw_info[ZERNIKE_TERMS]
+    if cli_args.get('zernike_response_gridded_plot'):
         zernike_count = len(zernike_terms)
         nrows = outputs_model.shape[0]
         if nrows % zernike_count != 0:
             terminate_with_message('Data is in the incorrect shape for '
-                                   'the Zernike response plot')
-        # The number of points for rms perturbations
-        rms_point_count = nrows // zernike_count
+                                   'the Zernike plot(s)')
 
-        def _plot_zernike_response_wrapper(output_data, title, name):
-            plot_zernike_response(
-                zernike_terms,
-                # Each group will contain a fixed perturbation for all Zernike
-                # terms, the shape must be:
-                #   (rms perturbation, zernike terms, zernike terms)
-                np.array(np.split(outputs_truth, rms_point_count)),
-                np.array(np.split(output_data, rms_point_count)),
-                title,
-                get_abs_path(f'{analysis_path}/{name}.png'),
-            )
+        def _split(data):
+            # Split the data so that each group (first dim) consists of all
+            # the Zernike terms perturbed by a given amount
+            return np.array(np.split(data, nrows // zernike_count))
 
-        _plot_zernike_response_wrapper(outputs_model, 'Neural Network',
-                                       'zernike_response')
+        # Groups will have the shape (rms pert, zernike terms, zernike terms)
+        outputs_truth_gr = _split(outputs_truth)
+        outputs_model_gr = _split(outputs_model)
+        outputs_resp_mat_gr = _split(outputs_resp_mat)
+
+    if cli_args.get('zernike_response_gridded_plot'):
+        step_ri('Generating a Zernike response plot')
+
+        def _plot_zernike_response_wr(output_groups, title, name):
+            out_path = get_abs_path(f'{analysis_path}/{name}.png')
+            plot_zernike_response(zernike_terms, outputs_truth_gr,
+                                  output_groups, title, out_path)
+
+        _plot_zernike_response_wr(outputs_model_gr, 'Neural Network',
+                                  'zernike_response')
         if response_matrix:
-            _plot_zernike_response_wrapper(outputs_resp_mat, 'Response Matrix',
-                                           'zernike_response_resp_mat')
+            _plot_zernike_response_wr(outputs_resp_mat_gr, 'Response Matrix',
+                                      'zernike_response_resp_mat')
