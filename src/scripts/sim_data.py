@@ -25,21 +25,21 @@ from utils.terminate_with_message import terminate_with_message
 def sim_data_parser(subparsers):
     """
     Example commands:
-        python3 main.py sim_data ds_no_aberrations v84 600e-9 \
+        python3 main_stnp.py sim_data ds_no_aberrations v84 600e-9 \
             --no-aberrations --save-plots
-        python3 main.py sim_data fixed_10nm v84 600e-9 \
+        python3 main_stnp.py sim_data fixed_10nm v84 600e-9 \
             --output-write-batch 10 \
             --fixed-amount-per-zernike 2 24 10e-9
-        python3 main.py sim_data fixed_40nm v84 600e-9 \
+        python3 main_stnp.py sim_data fixed_40nm v84 600e-9 \
             --output-write-batch 10 \
             --fixed-amount-per-zernike 2 24 40e-9 --save-plots
-        python3 main.py sim_data fixed_50nm_range v84 600e-9 \
+        python3 main_stnp.py sim_data fixed_50nm_range v84 600e-9 \
             --output-write-batch 10 \
             --fixed-amount-per-zernike-range 2 24 " -50e-9" 50e-9 21
-        python3 main.py sim_data random_50nm v84 600e-9 \
+        python3 main_stnp.py sim_data random_50nm v84 600e-9 \
             --output-write-batch 10 \
             --rand-amount-per-zernike 2 24 " -50e-9" 50e-9 500
-        python3 main.py sim_data random_50nm_single v84 600e-9 \
+        python3 main_stnp.py sim_data random_50nm_single v84 600e-9 \
             --output-write-batch 10 \
             --rand-amount-per-zernike-single 2 24 " -50e-9" 50e-9 500
     """
