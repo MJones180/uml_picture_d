@@ -24,6 +24,12 @@ Proper in Python 3 must also be installed.
 For this, install PROPER from https://proper-library.sourceforge.net/ and store the unzipped `proper` direcotry under `packages`.
 This will result in `packages/proper/` containing the necessary Python files.
 
+## Calling Scripts
+
+Navigate to the `src` folder and call the `main.py` file, all scripts are available as sub-commands.
+In the event that one of the scripts requires single-threaded NumPy, then call `main_stnp.py` instead.
+For example, do to Pathos multiprocessing, the `sim_data` script must be called via `main_stnp.py`.
+
 ## Data
 
 ### Simulate Data
