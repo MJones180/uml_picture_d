@@ -1,15 +1,16 @@
+from matplotlib.animation import FuncAnimation, PillowWriter
 import matplotlib.pyplot as plt
 import numpy as np
 from utils.constants import ZERNIKE_NAME_LOOKUP
 from utils.idl_rainbow_cmap import idl_rainbow_cmap
 
 
-def plot_zernike_response(
+def plot_zernike_cross_coupling_animation(
     zernike_terms,
     perturbation_grid,
     pred_groupings,
     title_append,
-    plot_path,
+    animation_path,
 ):
     """
     Generates and saves a Zernike response plot.
@@ -26,13 +27,12 @@ def plot_zernike_response(
         The prediction data, 3D array (rms pert, zernike terms, zernike terms).
     title_append : str
         Value to add to the title.
-    plot_path : str
-        Path to save the plot at.
+    animation_path : str
+        Path to save the animation at, must be `.gif`.
     """
 
-    # Set the figure size and add the title + axes labels
+    # Set the figure size and add the axes labels
     fig, ax = plt.subplots(figsize=(8, 8))
-    ax.set_title(f'Zernike Response ({title_append})')
     ax.set_xlabel('Truth [nm RMS]')
     ax.set_ylabel('Output [nm RMS]')
 
@@ -59,15 +59,26 @@ def plot_zernike_response(
     _add_line(x_vals=(0, 0))
     _add_line(y_vals=(0, 0))
 
-    # The colors that will be plotted for each line
-    colors = idl_rainbow_cmap()(np.linspace(0, 1, len(zernike_terms)))
+    zernike_count = len(zernike_terms)
 
-    # For this plot, we only care about elements along the main diagonal
-    for term_idx, term in enumerate(zernike_terms):
+    # The colors that will be plotted for each line
+    colors = idl_rainbow_cmap()(np.linspace(0, 1, zernike_count))
+
+    lines = [
         ax.plot(perturbation_grid,
-                pred_groupings[:, term_idx, term_idx],
+                np.zeros_like(perturbation_grid),
                 label=f'Z{term} {ZERNIKE_NAME_LOOKUP[term]}',
-                color=colors[term_idx])
+                color=colors[term_idx])[0]
+        for term_idx, term in enumerate(zernike_terms)
+    ]
+
+    base_title = f'Zernike Response ({title_append})\n'
+
+    def update(frame_idx):
+        for line_idx, line in enumerate(lines):
+            line.set_ydata(pred_groupings[:, frame_idx, line_idx])
+        term = zernike_terms[frame_idx]
+        ax.set_title(f'{base_title}Z{term} {ZERNIKE_NAME_LOOKUP[term]}')
 
     # Set the labels
     tick_idxs = np.linspace(0, len(perturbation_grid) - 1, 7)
@@ -83,5 +94,9 @@ def plot_zernike_response(
     # Ensure the legend does not get cut off
     plt.tight_layout()
 
-    # Save the plot
-    plt.savefig(plot_path, dpi=300, bbox_inches='tight')
+    # Generate the animation and save it
+    FuncAnimation(
+        fig=fig,
+        func=update,
+        frames=zernike_count,
+    ).save(animation_path, writer=PillowWriter(fps=1))

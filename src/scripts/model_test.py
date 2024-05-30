@@ -21,6 +21,7 @@ from utils.model import Model
 from utils.norm import min_max_denorm, min_max_norm
 from utils.path import delete_dir, get_abs_path, make_dir
 from utils.plots.plot_comparison_scatter_grid import plot_comparison_scatter_grid  # noqa
+from utils.plots.plot_zernike_cross_coupling_animation import plot_zernike_cross_coupling_animation  # noqa
 from utils.plots.plot_zernike_response import plot_zernike_response
 from utils.plots.plot_zernike_total_cross_coupling import plot_zernike_total_cross_coupling  # noqa
 from utils.printing_and_logging import step_ri, title
@@ -42,7 +43,8 @@ def model_test_parser(subparsers):
             --inputs-need-norm \
             --response-matrix fixed_40nm \
             --zernike-response-gridded-plot \
-            --zernike-total-cross-coupling-plot
+            --zernike-total-cross-coupling-plot \
+            --zernike-cross-coupling-animation
     """
     subparser = subparsers.add_parser(
         'model_test',
@@ -81,6 +83,11 @@ def model_test_parser(subparsers):
         '--zernike-total-cross-coupling-plot',
         action='store_true',
         help='generate a Zernike total cross coupling plot',
+    )
+    subparser.add_argument(
+        '--zernike-cross-coupling-animation',
+        action='store_true',
+        help='generate a Zernike cross coupling animation',
     )
 
 
@@ -180,7 +187,8 @@ def model_test(cli_args):
         )
 
     if (cli_args.get('zernike_response_gridded_plot')
-            or cli_args.get('zernike_total_cross_coupling_plot')):
+            or cli_args.get('zernike_total_cross_coupling_plot')
+            or cli_args.get('zernike_cross_coupling_animation')):
         nrows = outputs_truth.shape[0]
         zernike_count = len(zernike_terms)
         if nrows % zernike_count != 0:
@@ -231,6 +239,22 @@ def model_test(cli_args):
             plot_zernike_total_cross_coupling(perturbation_grid, output_groups,
                                               title, out_path)
 
-        _plot_wrapper(outputs_model_gr, NN, 'cross_coupling')
+        _plot_wrapper(outputs_model_gr, NN, 'total_cross_coupling')
         if response_matrix:
-            _plot_wrapper(outputs_resp_mat_gr, RM, 'cross_coupling_resp_mat')
+            _plot_wrapper(outputs_resp_mat_gr, RM,
+                          'total_cross_coupling_resp_mat')
+
+    if cli_args.get('zernike_cross_coupling_animation'):
+        step_ri('Generating a Zernike cross coupling animation')
+
+        def _plot_wrapper(output_groups, title, name):
+            out_path = f'{zernike_dir}/{name}.gif'
+            plot_zernike_cross_coupling_animation(zernike_terms,
+                                                  perturbation_grid,
+                                                  output_groups, title,
+                                                  out_path)
+
+        _plot_wrapper(outputs_model_gr, NN, 'zernike_cross_coupling')
+        if response_matrix:
+            _plot_wrapper(outputs_resp_mat_gr, RM,
+                          'zernike_cross_coupling_resp_mat')

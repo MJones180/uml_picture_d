@@ -27,11 +27,10 @@ def plot_zernike_total_cross_coupling(
     """
 
     # Set the figure size and add the title + axes labels
-    plt.figure()
-    ax = plt.subplot(111)
-    plt.title(f'Zernike Total Cross Coupling ({title_append})')
-    plt.xlabel('Input Zernike Amplitude [nm RMS]')
-    plt.ylabel('Total Cross Coupling [nm RMS]')
+    fig, ax = plt.subplots()
+    ax.set_title(f'Zernike Total Cross Coupling ({title_append})')
+    ax.set_xlabel('Input Zernike Amplitude [nm RMS]')
+    ax.set_ylabel('Total RSS Cross Coupling [nm RMS]')
 
     # Zero out all entries along the main diagonal
     diag_idxs = np.arange(pred_groupings.shape[1])
@@ -53,9 +52,6 @@ def plot_zernike_total_cross_coupling(
     # Need to put the positions into nm
     tick_labels = [f'{a:.0f}' for a in tick_pos * 1e9]
     ax.set_xticks(tick_pos, tick_labels)
-
-    # Ensure the legend does not get cut off
-    plt.tight_layout()
 
     # Save the plot
     plt.savefig(plot_path, dpi=300, bbox_inches='tight')
