@@ -42,6 +42,7 @@ def model_test_parser(subparsers):
             fixed_50nm_range_processed \
             --inputs-need-norm \
             --response-matrix fixed_40nm \
+            --scatter-plot 5 5 \
             --zernike-response-gridded-plot \
             --zernike-total-cross-coupling-plot \
             --zernike-cross-coupling-animation
@@ -103,7 +104,7 @@ def model_test(cli_args):
     epoch = model.get_epoch()
 
     step_ri('Creating the analysis directory')
-    analysis_path = f'{ANALYSIS_P}/{tag}_epoch_{epoch}'
+    analysis_path = get_abs_path(f'{ANALYSIS_P}/{tag}_epoch_{epoch}')
     delete_dir(analysis_path, quiet=True)
     make_dir(analysis_path)
 
@@ -174,17 +175,23 @@ def model_test(cli_args):
         MSE: mse_val,
     })
 
+    # Titles used in future plots
+    NN = 'Neural Network'
+    RM = 'Response Matrix'
+
     scatter_plot = cli_args['scatter_plot']
     if scatter_plot is not None:
         step_ri('Generating scatter plot')
         n_rows, n_cols = [int(arg) for arg in scatter_plot]
-        plot_comparison_scatter_grid(
-            outputs_model,
-            outputs_truth,
-            n_rows,
-            n_cols,
-            get_abs_path(f'{analysis_path}/comparisons.png'),
-        )
+
+        def _plot_wrapper(output_data, title, name):
+            out_path = f'{analysis_path}/{name}.png'
+            plot_comparison_scatter_grid(output_data, outputs_truth, n_rows,
+                                         n_cols, title, out_path)
+
+        _plot_wrapper(outputs_model, NN, 'scatter')
+        if response_matrix:
+            _plot_wrapper(outputs_resp_mat, RM, 'scatter_resp_mat')
 
     if (cli_args.get('zernike_response_gridded_plot')
             or cli_args.get('zernike_total_cross_coupling_plot')
@@ -213,11 +220,8 @@ def model_test(cli_args):
         perturbation_grid = outputs_truth_gr[:, 0, 0]
 
         # Output all Zernike-related plots in a sub-directory
-        zernike_dir = get_abs_path(f'{analysis_path}/zernike')
+        zernike_dir = f'{analysis_path}/zernike'
         make_dir(zernike_dir)
-        # Titles used in future plots
-        NN = 'Neural Network'
-        RM = 'Response Matrix'
 
     if cli_args.get('zernike_response_gridded_plot'):
         step_ri('Generating a Zernike response plot')
