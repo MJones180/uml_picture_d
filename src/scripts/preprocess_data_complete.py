@@ -11,6 +11,7 @@ optional and can either be global or individual. If output normalization is
 performed, it will be based on the training normalization values.
 """
 
+from glob import glob
 import numpy as np
 from utils.constants import (ARGS_F, CCD_INTENSITY, CCD_SAMPLING, DATA_F,
                              DS_RAW_INFO_F, INPUTS, INPUT_MIN_X,
@@ -92,21 +93,37 @@ def preprocess_data_complete_parser(subparsers):
 def preprocess_data_complete(cli_args):
     title('Preprocess data complete script')
 
-    step_ri('Loading in data')
+    step_ri('Loading in data chunks')
     raw_data_tag = cli_args['raw_data_tag']
-    datafile_path = f'{RAW_SIMULATED_DATA_P}/{raw_data_tag}/{DATA_F}'
-    print(f'Using path: {datafile_path}')
-    print(datafile_path)
-    data = read_hdf(datafile_path)
-    # For our models, we will want to feed in our intensity fields and output
-    # the associated Zernike polynomials
-    input_data = data[CCD_INTENSITY][:]
-    output_data = data[ZERNIKE_COEFFS][:]
+    base_path = f'{RAW_SIMULATED_DATA_P}/{raw_data_tag}'
+    # Instead of globbing the paths, it is safer to load in the datafiles using
+    # their chunk number so that they are guaranteed to be in order
+    chunk_vals = sorted([
+        # Grab the number associated with each chunk
+        int(path.split('/')[-1][:-len(DATA_F) - 1])
+        # All datafiles should follow the format [chunk]_[DATA_F]
+        for path in glob(f'{base_path}/*_{DATA_F}')
+    ])
+    input_data = []
+    output_data = []
+    for idx, chunk_val in enumerate(chunk_vals):
+        path = f'{base_path}/{chunk_val}_{DATA_F}'
+        print(f'Path: {path}')
+        data = read_hdf(path)
+        # For our models, we will want to feed in our intensity fields and
+        # output the associated Zernike polynomials
+        input_data.extend(data[CCD_INTENSITY][:])
+        output_data.extend(data[ZERNIKE_COEFFS][:])
+        # This data will be the same across all chunks, so only read it once
+        if idx == 0:
+            # Other data that will be written out for reference
+            ccd_sampling = data[CCD_SAMPLING][()]
+            zernike_terms = data[ZERNIKE_TERMS][:]
+    input_data = np.array(input_data)
+    output_data = np.array(output_data)
     print(f'Input shape: {input_data.shape}')
     print(f'Output shape: {output_data.shape}')
-    # Other data that will be written out for reference
-    ccd_sampling = data[CCD_SAMPLING][()]
-    zernike_terms = data[ZERNIKE_TERMS][:]
+    print(f'Zernike terms: {zernike_terms}')
 
     step_ri('Adding in dimension for the channels')
     # Since this is a grayscale image, there is only one channel
