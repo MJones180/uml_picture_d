@@ -72,7 +72,7 @@ def plot_zernike_cross_coupling_animation(
         for term_idx, term in enumerate(zernike_terms)
     ]
 
-    base_title = f'Zernike Response ({title_append})\n'
+    base_title = f'Cross-Coupling ({title_append})\n'
 
     def update(frame_idx):
         for line_idx, line in enumerate(lines):
