@@ -101,6 +101,11 @@ def batch_model_train_parser(subparsers):
         help=('stop training if performance does not improve after n epochs, '
               'this is based on the validation loss'),
     )
+    subparser.add_argument(
+        '--max-threads',
+        type=int,
+        help='limit the number of threads PyTorch can use',
+    )
 
 
 def batch_model_train(cli_args):
@@ -113,6 +118,7 @@ def batch_model_train(cli_args):
     overwrite_existing = cli_args['overwrite_existing']
     only_best_epoch = cli_args['only_best_epoch']
     early_stopping = cli_args['early_stopping']
+    max_threads = cli_args['max_threads']
 
     # This arg will be appeneded with each index
     base_tag = cli_args['base_tag']
@@ -150,6 +156,7 @@ def batch_model_train(cli_args):
                             'overwrite_existing': overwrite_existing,
                             'only_best_epoch': only_best_epoch,
                             'early_stopping': early_stopping,
+                            'max_threads': max_threads,
                         })
                         current_idx += 1
     total_combos = len(combinations)

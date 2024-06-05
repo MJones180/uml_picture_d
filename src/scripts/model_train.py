@@ -108,6 +108,11 @@ def model_train_parser(subparsers):
         type=float,
         help='threshold to determine if loss has improved',
     )
+    subparser.add_argument(
+        '--max-threads',
+        type=int,
+        help='limit the number of threads PyTorch can use',
+    )
     epoch_save_group = subparser.add_mutually_exclusive_group()
     epoch_save_group.add_argument(
         '--epoch-save-steps',
@@ -125,6 +130,12 @@ def model_train_parser(subparsers):
 
 def model_train(cli_args):
     title('Model train script')
+
+    max_threads = cli_args['max_threads']
+    if max_threads:
+        step_ri('Limiting available PyTorch threads')
+        torch.set_num_threads(max_threads)
+        print(f'Set to {max_threads} threads')
 
     step_ri('Creating the new model directory')
     tag = cli_args['tag']
