@@ -172,15 +172,17 @@ def model_test(cli_args):
     step_ri('Writing results to HDF')
     out_file_path = f'{analysis_path}/{RESULTS_F}'
     print(f'File location: {out_file_path}')
-    HDFWriteModule(out_file_path).create_and_write_hdf_simple({
+    out_data = {
         'outputs_truth': outputs_truth,
         'outputs_model': outputs_model,
-        'outputs_response_matrix': outputs_resp_mat,
         # MAE and MSE are based on the neural network output, NOT the response
         # matrix output
         MAE: mae_val,
         MSE: mse_val,
-    })
+    }
+    if response_matrix:
+        out_data['outputs_response_matrix'] = outputs_resp_mat
+    HDFWriteModule(out_file_path).create_and_write_hdf_simple(out_data)
 
     # Titles used in future plots
     NN = 'Neural Network'
