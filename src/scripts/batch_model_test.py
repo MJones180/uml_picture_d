@@ -19,13 +19,22 @@ def batch_model_test_parser(subparsers):
     """
     Example commands:
         python3 main.py batch_model_test \
-            test_fixed_10nm_gl 5 5 \
+            test_fixed_10nm_gl \
+            --scatter-plot 5 5 \
+            --zernike-response-gridded-plot \
+            --zernike-total-cross-coupling-plot \
             --epoch-and-tag-range last global_v1_ 1 9
         python3 main.py batch_model_test \
-            test_fixed_10nm_gl 5 5 \
+            test_fixed_10nm_gl \
+            --scatter-plot 5 5 \
+            --zernike-response-gridded-plot \
+            --zernike-total-cross-coupling-plot \
             --tag-and-epoch-range global_v1_1 3 10
         python3 main.py batch_model_test \
-            test_fixed_10nm_gl 5 5 \
+            test_fixed_10nm_gl \
+            --scatter-plot 5 5 \
+            --zernike-response-gridded-plot \
+            --zernike-total-cross-coupling-plot \
             --tags-and-epochs global_v1_1.last global_v1_5.last global_v1_8.last
     """
     subparser = subparsers.add_parser(
