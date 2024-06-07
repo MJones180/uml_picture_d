@@ -19,6 +19,10 @@ def rank_analysis_dir_parser(subparsers):
     )
     subparser.set_defaults(main=rank_analysis_dir)
     subparser.add_argument(
+        'testing_ds',
+        help='name of the testing dataset',
+    )
+    subparser.add_argument(
         '--filter',
         help='partial string to filter analysis directories by',
     )
@@ -40,12 +44,13 @@ def rank_analysis_dir(cli_args):
         print('Using MAE')
 
     step_ri('Grabbing all potential analysis directories')
+    testing_ds = cli_args['testing_ds']
     filter_str = cli_args['filter']
     if filter_str:
         print(f'Applying the filter `{filter_str}`')
     else:
         filter_str = ''
-    dir_paths = glob(f'{ANALYSIS_P}/*{filter_str}*/{RESULTS_F}')
+    dir_paths = glob(f'{ANALYSIS_P}/{testing_ds}/*{filter_str}*/{RESULTS_F}')
     print(f'Found a total of {len(dir_paths)}')
 
     step_ri('Looping through and grabbing HDF files')

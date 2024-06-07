@@ -112,7 +112,7 @@ def model_test(cli_args):
 
     step_ri('Creating the analysis directory')
     testing_ds_tag = cli_args['testing_ds']
-    analysis_path = f'{ANALYSIS_P}/{tag}_{testing_ds_tag}_epoch_{epoch}'
+    analysis_path = f'{ANALYSIS_P}/{testing_ds_tag}/{tag}_epoch_{epoch}'
     analysis_path = get_abs_path(analysis_path)
     delete_dir(analysis_path, quiet=True)
     make_dir(analysis_path)
