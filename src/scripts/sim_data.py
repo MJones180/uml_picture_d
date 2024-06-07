@@ -229,6 +229,8 @@ def sim_data(cli_args):
          col_count) = _pert_range_setup(*rand_amount_per_zernike)
         aberrations = np.random.uniform(perturb_low, perturb_high,
                                         (rows, col_count))
+        # Add a blank row of zeros at the end
+        aberrations = np.vstack((aberrations, np.zeros(col_count)))
         print('Each row will consist of Zernike terms with random uniform '
               'RMS error')
     elif rand_amount_per_zernike_single:
