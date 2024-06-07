@@ -38,15 +38,42 @@ def batch_model_test_parser(subparsers):
         help='name of the testing dataset',
     )
     subparser.add_argument(
-        'n_rows',
-        type=int,
-        help='number of rows in the plot for the output comparison',
+        '--inputs-need-norm',
+        action='store_true',
+        help='the inputs need to be normalized',
     )
     subparser.add_argument(
-        'n_cols',
-        type=int,
-        help='number of cols in the plot for the output comparison',
+        '--response-matrix',
+        help=('tag of the response matrix, the Zernike terms must align '
+              'with the neural network model and testing dataset'),
     )
+    subparser.add_argument(
+        '--scatter-plot',
+        nargs=2,
+        metavar=('[n_rows]', '[n_cols]'),
+        help='generate scatter plots',
+    )
+    subparser.add_argument(
+        '--zernike-response-gridded-plot',
+        action='store_true',
+        help='generate Zernike response plots',
+    )
+    subparser.add_argument(
+        '--zernike-total-cross-coupling-plot',
+        action='store_true',
+        help='generate Zernike total cross coupling plots',
+    )
+    subparser.add_argument(
+        '--zernike-cross-coupling-animation',
+        action='store_true',
+        help='generate Zernike cross coupling animations',
+    )
+    subparser.add_argument(
+        '--zernike-cross-coupling-mat-animation',
+        action='store_true',
+        help='generate Zernike cross coupling matrix animations',
+    )
+
     selection_group = subparser.add_mutually_exclusive_group()
     selection_group.add_argument(
         '--epoch-and-tag-range',
@@ -77,13 +104,26 @@ def batch_model_test(cli_args):
     step_ri('Gathering all model tests that must be run')
     pairs = []
 
+    # CLI args to copy over
+    base_dict = {
+        arg: cli_args[arg]
+        for arg in (
+            'testing_ds',
+            'inputs_need_norm',
+            'response_matrix',
+            'scatter_plot',
+            'zernike_response_gridded_plot',
+            'zernike_total_cross_coupling_plot',
+            'zernike_cross_coupling_animation',
+            'zernike_cross_coupling_mat_animation',
+        )
+    }
+
     def _append_pair(epoch, tag):
         pairs.append({
+            **base_dict,
             'epoch': epoch,
             'tag': tag,
-            'testing_ds': cli_args['testing_ds'],
-            'n_rows': cli_args['n_rows'],
-            'n_cols': cli_args['n_cols'],
         })
 
     epoch_and_tag_range = cli_args.get('epoch_and_tag_range')

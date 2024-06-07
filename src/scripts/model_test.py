@@ -188,7 +188,7 @@ def model_test(cli_args):
     NN = 'Neural Network'
     RM = 'Response Matrix'
 
-    scatter_plot = cli_args['scatter_plot']
+    scatter_plot = cli_args.get('scatter_plot')
     if scatter_plot is not None:
         step_ri('Generating scatter plot')
         n_rows, n_cols = [int(arg) for arg in scatter_plot]
