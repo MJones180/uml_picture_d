@@ -221,7 +221,8 @@ def model_test(cli_args):
         # Groups will have the shape (rms pert, zernike terms, zernike terms)
         outputs_truth_gr = _split(outputs_truth)
         outputs_model_gr = _split(outputs_model)
-        outputs_resp_mat_gr = _split(outputs_resp_mat)
+        if response_matrix:
+            outputs_resp_mat_gr = _split(outputs_resp_mat)
 
         # It is assumed that the truth terms all have the same perturbation
         # for each group and that there are only perturbations along the main
