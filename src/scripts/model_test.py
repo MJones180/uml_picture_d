@@ -111,12 +111,13 @@ def model_test(cli_args):
     epoch = model.get_epoch()
 
     step_ri('Creating the analysis directory')
-    analysis_path = get_abs_path(f'{ANALYSIS_P}/{tag}_epoch_{epoch}')
+    testing_ds_tag = cli_args['testing_ds']
+    analysis_path = f'{ANALYSIS_P}/{tag}_{testing_ds_tag}_epoch_{epoch}'
+    analysis_path = get_abs_path(analysis_path)
     delete_dir(analysis_path, quiet=True)
     make_dir(analysis_path)
 
     step_ri('Loading in the testing dataset')
-    testing_ds_tag = cli_args['testing_ds']
     testing_dataset = DSLoaderHDF(testing_ds_tag)
     inputs = testing_dataset.get_inputs()
     raw_info = json_load(f'{PROC_DATA_P}/{testing_ds_tag}/{DS_RAW_INFO_F}')
