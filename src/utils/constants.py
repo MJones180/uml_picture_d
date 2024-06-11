@@ -14,6 +14,7 @@ PACKAGES_P = '../packages'
 
 ARGS_F = 'args.json'
 DS_RAW_INFO_F = 'ds_raw_info.json'
+EPOCH_LOSS_F = 'epoch_loss.csv'
 NORM_F = 'norm.json'
 TAG_LOOKUP_F = 'tag_lookup.json'
 DATA_F = 'data.h5'

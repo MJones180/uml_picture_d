@@ -10,8 +10,9 @@ The training and validation dataset must have their inputs pre-normalized.
 from time import time
 import torch
 from torchvision.transforms import v2
-from utils.constants import (ARGS_F, LOSS_FUNCTIONS, NORM_F, OPTIMIZERS,
-                             OUTPUT_P, TAG_LOOKUP_F, TRAINED_MODELS_P)
+from utils.constants import (ARGS_F, EPOCH_LOSS_F, LOSS_FUNCTIONS, NORM_F,
+                             OPTIMIZERS, OUTPUT_P, TAG_LOOKUP_F,
+                             TRAINED_MODELS_P)
 from utils.json import json_load, json_write
 from utils.load_network import load_network
 from utils.path import (copy_files, delete_dir, delete_file, make_dir,
@@ -209,7 +210,7 @@ def model_train(cli_args):
     print(image_transforms)
 
     step_ri('Creating a CSV file to track loss')
-    loss_file = f'{output_model_path}/epoch_loss.csv'
+    loss_file = f'{output_model_path}/{EPOCH_LOSS_F}'
     with open(loss_file, 'w') as loss_writer:
         loss_writer.write('epoch, training_loss, validation_loss')
 
