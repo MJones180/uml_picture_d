@@ -4,7 +4,9 @@ This script outputs information on a preprocessed dataset.
 
 import matplotlib.pyplot as plt
 import torchvision
+from utils.constants import RANDOM_P
 from utils.load_network import load_network
+from utils.path import make_dir
 from utils.printing_and_logging import step_ri, title
 from utils.torch_hdf_ds_loader import DSLoaderHDF
 
@@ -15,7 +17,7 @@ def dataset_info_parser(subparsers):
         python3 main.py dataset_info \
             train_fixed_10nm_gl \
             --verify-network-compatability test \
-            --display-example-images
+            --plot-example-images --plot-outputs-hist
     """
     subparser = subparsers.add_parser(
         'dataset_info',
@@ -32,9 +34,14 @@ def dataset_info_parser(subparsers):
               '`.py`)'),
     )
     subparser.add_argument(
-        '--display-example-images',
+        '--plot-example-images',
         action='store_true',
-        help='display 5 example images',
+        help='plot 5 example images',
+    )
+    subparser.add_argument(
+        '--plot-outputs-hist',
+        action='store_true',
+        help='plot a histogram for each of the outputs in the dataset',
     )
 
 
@@ -66,10 +73,27 @@ def dataset_info(cli_args):
         else:
             print('The network DOES NOT output the correct shape')
 
-    example_images = cli_args['display_example_images']
-    if example_images:
-        step_ri('Displaying 5 example images from this dataset')
+    plot_example_images = cli_args['plot_example_images']
+    plot_outputs_hist = cli_args['plot_outputs_hist']
+    if plot_example_images or plot_outputs_hist:
+        base_plot_path = f'{RANDOM_P}/ds_info_{dataset_name}/'
+        make_dir(base_plot_path)
+
+    if plot_example_images:
+        step_ri('Plotting 5 example images from this dataset')
         images = inputs[:5]
         img_grid = torchvision.utils.make_grid(images, nrow=5).mean(dim=0)
         plt.imshow(img_grid.numpy(), cmap='Greys_r')
-        plt.show()
+        path = f'{base_plot_path}/example_images.png'
+        print(f'Saving plot: {path}')
+        plt.savefig(path, bbox_inches='tight')
+
+    if plot_outputs_hist:
+        step_ri('Plotting a histogram for each output')
+        for idx in range(outputs.shape[1]):
+            plt.clf()
+            plt.title(f'Output {idx}')
+            plt.hist(outputs[:, idx])
+            path = f'{base_plot_path}/output_hist_{idx}.png'
+            print(f'Saving plot: {path}')
+            plt.savefig(path, bbox_inches='tight')
