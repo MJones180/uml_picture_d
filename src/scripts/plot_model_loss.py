@@ -17,7 +17,7 @@ def plot_model_loss_parser(subparsers):
     """
     subparser = subparsers.add_parser(
         'plot_model_loss',
-        help='plot loss of a model',
+        help='plot training loss of a model',
     )
     subparser.set_defaults(main=plot_model_loss)
     shared_argparser_args(subparser, ['tag'])
