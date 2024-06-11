@@ -261,8 +261,9 @@ def model_train(cli_args):
             optimizer.zero_grad()
             # Make predictions for this batch
             outputs = model(inputs)
-            # Compute the loss and its gradients
-            loss = loss_function(outputs, outputs_truth)
+            # Compute the loss and its gradients, need to convert both inputs
+            # to floats (float32) so that the backward prop works for MSE
+            loss = loss_function(outputs.float(), outputs_truth.float())
             loss.backward()
             # Adjust learning weights
             optimizer.step()
