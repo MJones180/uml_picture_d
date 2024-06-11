@@ -253,7 +253,7 @@ def model_train(cli_args):
         # Turn gradient tracking on
         model.train(True)
         total_train_loss = 0
-        for i, data in enumerate(train_loader):
+        for data in train_loader:
             inputs, outputs_truth = data
             if image_transforms is not None:
                 inputs = image_transforms(inputs)
@@ -275,7 +275,7 @@ def model_train(cli_args):
         total_val_loss = 0
         # Disable gradient computation and reduce memory consumption
         with torch.no_grad():
-            for i, data in enumerate(validation_loader):
+            for data in validation_loader:
                 inputs, outputs_truth = data
                 outputs = model(inputs)
                 loss = loss_function(outputs, outputs_truth)
