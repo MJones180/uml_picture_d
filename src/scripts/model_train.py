@@ -7,6 +7,7 @@ Portions of the code from this file are adapted from:
 The training and validation dataset must have their inputs pre-normalized.
 """
 
+from time import time
 import torch
 from torchvision.transforms import v2
 from utils.constants import (ARGS_F, LOSS_FUNCTIONS, NORM_F, OPTIMIZERS,
@@ -249,6 +250,7 @@ def model_train(cli_args):
     step_ri('Beginning training')
     for epoch_idx in range(1, epoch_count + 1):
         step(f'EPOCH {epoch_idx}/{epoch_count}')
+        start_time = time()
 
         # Turn gradient tracking on
         model.train(True)
@@ -335,4 +337,5 @@ def model_train(cli_args):
             print('Ending training due to early stopping')
             break
 
+        print(f'Time: {time() - start_time}')
         dec_print_indent()
