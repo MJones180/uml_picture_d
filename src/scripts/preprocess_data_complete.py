@@ -33,12 +33,12 @@ def preprocess_data_complete_parser(subparsers):
         python3 main.py preprocess_data_complete \
             fixed_10nm \
             train_fixed_10nm_gl val_fixed_10nm_gl test_fixed_10nm_gl \
-            0.75 0.10 0.15 \
+            75 10 15 \
             --norm-outputs globally
         python3 main.py preprocess_data_complete \
             random_50nm_single \
             train_rand_50nm_s_gl val_rand_50nm_s_gl test_rand_50nm_s_gl \
-            0.75 0.10 0.15 \
+            75 10 15 \
             --norm-outputs globally
     """
     subparser = subparsers.add_parser(
@@ -64,21 +64,21 @@ def preprocess_data_complete_parser(subparsers):
     )
     subparser.add_argument(
         'training_percentage',
-        type=float,
-        default=0.7,
-        help='percentage of the data that will go to training',
+        type=int,
+        default=7,
+        help='int percentage of the data that will go to training',
     )
     subparser.add_argument(
         'validation_percentage',
-        type=float,
-        default=0.15,
-        help='percentage of the data that will go to validation',
+        type=int,
+        default=15,
+        help='int percentage of the data that will go to validation',
     )
     subparser.add_argument(
         'testing_percentage',
-        type=float,
-        default=0.15,
-        help='percentage of the data that will go to testing',
+        type=int,
+        default=15,
+        help='int percentage of the data that will go to testing',
     )
     subparser.add_argument(
         '--norm-outputs',
@@ -142,8 +142,9 @@ def preprocess_data_complete(cli_args):
     training_percentage = cli_args['training_percentage']
     validation_percentage = cli_args['validation_percentage']
     testing_percentage = cli_args['testing_percentage']
-    if training_percentage + validation_percentage + testing_percentage != 1:
-        terminate_with_message('Percentages must add up to 100%')
+    psum = training_percentage + validation_percentage + testing_percentage
+    if psum != 100:
+        terminate_with_message(f'Percentages must add up to 100%, at {psum}%')
     # Add up the percentages for where the data will be split
     idxs = np.cumsum((training_percentage, validation_percentage))
     # Need to figure out how many rows this equates to
