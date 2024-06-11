@@ -146,7 +146,7 @@ def preprocess_data_complete(cli_args):
     if psum != 100:
         terminate_with_message(f'Percentages must add up to 100%, at {psum}%')
     # Add up the percentages for where the data will be split
-    idxs = np.cumsum((training_percentage, validation_percentage))
+    idxs = np.cumsum((training_percentage, validation_percentage)) / 100
     # Need to figure out how many rows this equates to
     idxs *= input_data.shape[0]
     # Convert to integers so the values can be split
@@ -161,7 +161,7 @@ def preprocess_data_complete(cli_args):
         train_outputs = np.vstack((train_outputs, no_aber_output_row[None]))
 
     def _print_split(word, percentage, inputs):
-        print(f'{word} percentage: {(percentage * 100)}%, '
+        print(f'{word} percentage: {(percentage)}%, '
               f'rows: {inputs.shape[0]}')
 
     _print_split('Training', training_percentage, train_inputs)
