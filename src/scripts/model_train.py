@@ -15,6 +15,7 @@ from utils.constants import (ARGS_F, EPOCH_LOSS_F, LOSS_FUNCTIONS, NORM_F,
                              TRAINED_MODELS_P)
 from utils.json import json_load, json_write
 from utils.load_network import load_network
+from utils.model import Model
 from utils.path import (copy_files, delete_dir, delete_file, make_dir,
                         path_exists, path_parent)
 from utils.printing_and_logging import dec_print_indent, step, step_ri, title
@@ -115,6 +116,13 @@ def model_train_parser(subparsers):
         type=int,
         help='limit the number of threads PyTorch can use',
     )
+    subparser.add_argument(
+        '--init-weights',
+        nargs=2,
+        metavar=('[pretrained model tag]', '[pretrained model epoch]'),
+        help=('init the weights from a pretrained model, the network '
+              'structure must be the same'),
+    )
     epoch_save_group = subparser.add_mutually_exclusive_group()
     epoch_save_group.add_argument(
         '--epoch-save-steps',
@@ -188,6 +196,13 @@ def model_train(cli_args):
     network_name = cli_args['network_name']
     model = load_network(network_name)()
     print(model)
+
+    init_weights = cli_args.get('init_weights')
+    if init_weights is not None:
+        step_ri('Initializing weights from trained model')
+        print(f'Trained model: {init_weights[0]}, Epoch: {init_weights[1]}')
+        pt_model = Model(*init_weights, suppress_logs=True).get_model()
+        model.load_state_dict(pt_model.state_dict())
 
     step_ri('Setting the loss function')
     loss_name = cli_args['loss']
