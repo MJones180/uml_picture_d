@@ -10,16 +10,19 @@ from utils.terminate_with_message import terminate_with_message
 
 class Model():
 
-    def __init__(self, tag, epoch):
-        step('Loading in the trained model')
+    def __init__(self, tag, epoch, suppress_logs=False):
+        if not suppress_logs:
+            step('Loading in the trained model')
 
         dir_path = f'{TRAINED_MODELS_P}/{tag}'
-        print(f'Model directory path: {dir_path}')
+        if not suppress_logs:
+            print(f'Model directory path: {dir_path}')
         if not path_exists(dir_path):
             terminate_with_message(f'Directory not found: {dir_path}')
 
         if epoch.lower() == 'last':
-            step('Epoch set to `last` mode, so finding last epoch')
+            if not suppress_logs:
+                step('Epoch set to `last` mode, so finding last epoch')
             # The base path of the model to find the epochs within
             epoch_path_part = f'{dir_path}/epoch_'
             epoch_path_part_len = len(epoch_path_part)
@@ -30,7 +33,8 @@ class Model():
                 # Get a glob of all epochs found
                 for path in glob(f'{epoch_path_part}[0-9]*')
             ])
-            print(f'Using epoch {epoch}')
+            if not suppress_logs:
+                print(f'Using epoch {epoch}')
             dec_print_indent()
             print()
 
@@ -39,19 +43,23 @@ class Model():
         self.epoch = epoch
 
         model_path = f'{dir_path}/epoch_{epoch}'
-        print(f'Model directory path with epoch: {model_path}')
+        if not suppress_logs:
+            print(f'Model directory path with epoch: {model_path}')
         if not path_exists(model_path):
             terminate_with_message(f'Model not found at {model_path}')
 
-        print('Loading in the norm values')
+        if not suppress_logs:
+            print('Loading in the norm values')
         self.norm_values = json_load(f'{dir_path}/{NORM_F}')
 
-        print('Loading in the training args')
+        if not suppress_logs:
+            print('Loading in the training args')
         self.training_args = json_load(f'{dir_path}/{ARGS_F}')
 
         self.network_name = self.training_args['network_name']
-        print(f'Loading in the network (`{self.network_name}`) '
-              'and setting weights')
+        if not suppress_logs:
+            print(f'Loading in the network (`{self.network_name}`) '
+                  'and setting weights')
         # Need to first load in the network
         self.network = load_network(self.network_name)
         self.model = self.network()
