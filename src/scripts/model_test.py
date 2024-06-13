@@ -136,8 +136,8 @@ def model_test(cli_args):
     }
     HDFWriteModule(out_file_path).create_and_write_hdf_simple(out_data)
 
-    # Titles used in future plots
     plot_title = 'Neural Network'
+    plot_identifier = f'{tag}, epoch {epoch}'
 
     scatter_plot = cli_args.get('scatter_plot')
     if scatter_plot is not None:
@@ -149,6 +149,7 @@ def model_test(cli_args):
             n_rows,
             n_cols,
             title,
+            plot_identifier,
             f'{analysis_path}/scatter.png',
         )
 
@@ -181,6 +182,7 @@ def model_test(cli_args):
             perturbation_grid,
             outputs_model_gr,
             plot_title,
+            plot_identifier,
             f'{analysis_path}/zernike_response.png',
         )
 
@@ -189,6 +191,7 @@ def model_test(cli_args):
             perturbation_grid,
             outputs_model_gr,
             plot_title,
+            plot_identifier,
             f'{analysis_path}/total_cross_coupling.png',
         )
 
@@ -198,6 +201,7 @@ def model_test(cli_args):
             perturbation_grid,
             outputs_model_gr,
             plot_title,
+            plot_identifier,
             f'{analysis_path}/zernike_cross_coupling.gif',
         )
 
@@ -207,5 +211,6 @@ def model_test(cli_args):
             perturbation_grid,
             outputs_model_gr,
             plot_title,
+            plot_identifier,
             f'{analysis_path}/zernike_cross_coupling_mat.gif',
         )

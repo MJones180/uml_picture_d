@@ -111,6 +111,7 @@ def run_response_matrix(cli_args):
     HDFWriteModule(out_file_path).create_and_write_hdf_simple(out_data)
 
     plot_title = 'Response Matrix'
+    plot_identifier = response_matrix
 
     scatter_plot = cli_args.get('scatter_plot')
     if scatter_plot is not None:
@@ -122,6 +123,7 @@ def run_response_matrix(cli_args):
             n_rows,
             n_cols,
             plot_title,
+            plot_identifier,
             f'{analysis_path}/scatter.png',
         )
 
@@ -154,6 +156,7 @@ def run_response_matrix(cli_args):
             perturbation_grid,
             outputs_resp_mat_gr,
             plot_title,
+            plot_identifier,
             f'{analysis_path}/zernike_response_resp_mat.png',
         )
 
@@ -162,6 +165,7 @@ def run_response_matrix(cli_args):
             perturbation_grid,
             outputs_resp_mat_gr,
             plot_title,
+            plot_identifier,
             f'{analysis_path}/total_cross_coupling_resp_mat.png',
         )
 
@@ -171,6 +175,7 @@ def run_response_matrix(cli_args):
             perturbation_grid,
             outputs_resp_mat_gr,
             plot_title,
+            plot_identifier,
             f'{analysis_path}/zernike_cross_coupling_resp_mat.gif',
         )
 
@@ -180,5 +185,6 @@ def run_response_matrix(cli_args):
             perturbation_grid,
             outputs_resp_mat_gr,
             plot_title,
+            plot_identifier,
             f'{analysis_path}/zernike_cross_coupling_mat_resp_mat.gif',
         )

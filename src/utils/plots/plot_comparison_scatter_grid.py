@@ -9,13 +9,14 @@ def plot_comparison_scatter_grid(
     n_rows,
     n_cols,
     title_vs,
+    identifier,
     output_path,
 ):
     row_count, col_count = model_data.shape
     if n_rows * n_cols < col_count:
         terminate_with_message('Not enough rows and columns for the data.')
     fig, axs = plt.subplots(n_rows, n_cols, figsize=(n_cols * 3, n_rows * 3))
-    plt.suptitle(f'Truth vs {title_vs}')
+    plt.suptitle(f'Truth vs {title_vs} [{identifier}]')
     current_col = 0
     for plot_row in range(n_rows):
         for plot_col in range(n_cols):

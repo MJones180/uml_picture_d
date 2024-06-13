@@ -7,6 +7,7 @@ def plot_zernike_total_cross_coupling(
     perturbation_grid,
     pred_groupings,
     title_append,
+    identifier,
     plot_path,
 ):
     """
@@ -22,13 +23,16 @@ def plot_zernike_total_cross_coupling(
         The prediction data, 3D array (rms pert, zernike terms, zernike terms).
     title_append : str
         Value to add to the title.
+    identifier : str
+        Identifier for what predicted the data.
     plot_path : str
         Path to save the plot at.
     """
 
     # Set the figure size and add the title + axes labels
     fig, ax = plt.subplots()
-    ax.set_title(f'Zernike Total Cross Coupling ({title_append})')
+    title = f'Zernike Total Cross Coupling ({title_append})\n{identifier}'
+    ax.set_title(title)
     ax.set_xlabel('Input Zernike Amplitude [nm RMS]')
     ax.set_ylabel('Total RSS Cross Coupling [nm RMS]')
 

@@ -9,6 +9,7 @@ def plot_zernike_response(
     perturbation_grid,
     pred_groupings,
     title_append,
+    identifier,
     plot_path,
 ):
     """
@@ -26,13 +27,15 @@ def plot_zernike_response(
         The prediction data, 3D array (rms pert, zernike terms, zernike terms).
     title_append : str
         Value to add to the title.
+    identifier : str
+        Identifier for what predicted the data.
     plot_path : str
         Path to save the plot at.
     """
 
     # Set the figure size and add the title + axes labels
     fig, ax = plt.subplots(figsize=(8, 8))
-    ax.set_title(f'Zernike Response ({title_append})')
+    ax.set_title(f'Zernike Response ({title_append})\n{identifier}')
     ax.set_xlabel('Truth [nm RMS]')
     ax.set_ylabel('Output [nm RMS]')
 

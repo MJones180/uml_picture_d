@@ -10,6 +10,7 @@ def plot_zernike_cross_coupling_animation(
     perturbation_grid,
     pred_groupings,
     title_append,
+    identifier,
     animation_path,
 ):
     """
@@ -27,6 +28,8 @@ def plot_zernike_cross_coupling_animation(
         The prediction data, 3D array (rms pert, zernike terms, zernike terms).
     title_append : str
         Value to add to the title.
+    identifier : str
+        Identifier for what predicted the data.
     animation_path : str
         Path to save the animation at, must be `.gif`.
     """
@@ -72,7 +75,7 @@ def plot_zernike_cross_coupling_animation(
         for term_idx, term in enumerate(zernike_terms)
     ]
 
-    base_title = f'Cross-Coupling ({title_append})\n'
+    base_title = f'Cross-Coupling ({title_append})\n{identifier}\n'
 
     def update(frame_idx):
         for line_idx, line in enumerate(lines):
