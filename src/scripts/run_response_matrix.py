@@ -157,7 +157,7 @@ def run_response_matrix(cli_args):
             outputs_resp_mat_gr,
             plot_title,
             plot_identifier,
-            f'{analysis_path}/zernike_response_resp_mat.png',
+            f'{analysis_path}/zernike_response.png',
         )
 
         step_ri('Generating a Zernike total cross coupling plot')
@@ -166,7 +166,7 @@ def run_response_matrix(cli_args):
             outputs_resp_mat_gr,
             plot_title,
             plot_identifier,
-            f'{analysis_path}/total_cross_coupling_resp_mat.png',
+            f'{analysis_path}/total_cross_coupling.png',
         )
 
         step_ri('Generating a Zernike cross coupling animation')
@@ -176,7 +176,7 @@ def run_response_matrix(cli_args):
             outputs_resp_mat_gr,
             plot_title,
             plot_identifier,
-            f'{analysis_path}/zernike_cross_coupling_resp_mat.gif',
+            f'{analysis_path}/zernike_cross_coupling.gif',
         )
 
         step_ri('Generating a Zernike cross coupling matrix animation')
@@ -186,5 +186,5 @@ def run_response_matrix(cli_args):
             outputs_resp_mat_gr,
             plot_title,
             plot_identifier,
-            f'{analysis_path}/zernike_cross_coupling_mat_resp_mat.gif',
+            f'{analysis_path}/zernike_cross_coupling_mat.gif',
         )
