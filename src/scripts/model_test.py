@@ -148,7 +148,7 @@ def model_test(cli_args):
             outputs_truth,
             n_rows,
             n_cols,
-            title,
+            plot_title,
             plot_identifier,
             f'{analysis_path}/scatter.png',
         )
