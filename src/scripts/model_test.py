@@ -119,7 +119,6 @@ def model_test(cli_args):
     outputs_truth = testing_dataset.get_outputs()
 
     step_ri('Computing the MAE and MSE')
-
     mae_val = mae(outputs_truth, outputs_model)
     mse_val = mse(outputs_truth, outputs_model)
     print(f'Model MAE: {mae_val}')
