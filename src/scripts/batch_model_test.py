@@ -21,20 +21,17 @@ def batch_model_test_parser(subparsers):
         python3 main.py batch_model_test \
             test_fixed_10nm_gl \
             --scatter-plot 5 5 \
-            --zernike-response-gridded-plot \
-            --zernike-total-cross-coupling-plot \
+            --zernike-plots \
             --epoch-and-tag-range last global_v1_ 1 9
         python3 main.py batch_model_test \
             test_fixed_10nm_gl \
             --scatter-plot 5 5 \
-            --zernike-response-gridded-plot \
-            --zernike-total-cross-coupling-plot \
+            --zernike-plots \
             --tag-and-epoch-range global_v1_1 3 10
         python3 main.py batch_model_test \
             test_fixed_10nm_gl \
             --scatter-plot 5 5 \
-            --zernike-response-gridded-plot \
-            --zernike-total-cross-coupling-plot \
+            --zernike-plots \
             --tags-and-epochs global_v1_1.last global_v1_5.last global_v1_8.last
     """
     subparser = subparsers.add_parser(
@@ -52,35 +49,15 @@ def batch_model_test_parser(subparsers):
         help='the inputs need to be normalized',
     )
     subparser.add_argument(
-        '--response-matrix',
-        help=('tag of the response matrix, the Zernike terms must align '
-              'with the neural network model and testing dataset'),
-    )
-    subparser.add_argument(
         '--scatter-plot',
         nargs=2,
         metavar=('[n_rows]', '[n_cols]'),
         help='generate scatter plots',
     )
     subparser.add_argument(
-        '--zernike-response-gridded-plot',
+        '--zernike-plots',
         action='store_true',
-        help='generate Zernike response plots',
-    )
-    subparser.add_argument(
-        '--zernike-total-cross-coupling-plot',
-        action='store_true',
-        help='generate Zernike total cross coupling plots',
-    )
-    subparser.add_argument(
-        '--zernike-cross-coupling-animation',
-        action='store_true',
-        help='generate Zernike cross coupling animations',
-    )
-    subparser.add_argument(
-        '--zernike-cross-coupling-mat-animation',
-        action='store_true',
-        help='generate Zernike cross coupling matrix animations',
+        help='generate the Zernike plots',
     )
 
     selection_group = subparser.add_mutually_exclusive_group()
@@ -119,12 +96,8 @@ def batch_model_test(cli_args):
         for arg in (
             'testing_ds',
             'inputs_need_norm',
-            'response_matrix',
             'scatter_plot',
-            'zernike_response_gridded_plot',
-            'zernike_total_cross_coupling_plot',
-            'zernike_cross_coupling_animation',
-            'zernike_cross_coupling_mat_animation',
+            'zernike_plots',
         )
     }
 

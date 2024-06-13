@@ -1,24 +1,20 @@
 """
-This script tests a model's performance against a testing dataset.
+This script tests a response matrix's performance against a testing dataset.
 
-Any prior results for a given epoch will be deleted.
+Any prior results for a given response matrix will be deleted.
 
-When generating any of the Zernike-related plots, it is expected that
-the `testing_ds` was simulated with the `sim_data` script using the
-`--fixed-amount-per-zernike-range` arg and preprocessed with the
+It is expected that the `testing_ds` was simulated with the `sim_data` script
+using the `--fixed-amount-per-zernike-range` arg and preprocessed with the
 `preprocess_data_bare` script.
+
+This code is very similar to `model_test`.
 """
 
 import numpy as np
-import torch
-from utils.constants import (ANALYSIS_P, DS_RAW_INFO_F, INPUT_MAX_MIN_DIFF,
-                             INPUT_MIN_X, MAE, MSE, OUTPUT_MAX_MIN_DIFF,
-                             OUTPUT_MIN_X, PROC_DATA_P, RESULTS_F,
-                             ZERNIKE_TERMS)
+from utils.constants import (ANALYSIS_P, DS_RAW_INFO_F, MAE, MSE, PROC_DATA_P,
+                             RESULTS_F, ZERNIKE_TERMS)
 from utils.hdf_read_and_write import HDFWriteModule
 from utils.json import json_load
-from utils.model import Model
-from utils.norm import min_max_denorm, min_max_norm
 from utils.path import delete_dir, get_abs_path, make_dir
 from utils.plots.plot_comparison_scatter_grid import plot_comparison_scatter_grid  # noqa
 from utils.plots.plot_zernike_cross_coupling_animation import plot_zernike_cross_coupling_animation  # noqa
@@ -26,38 +22,32 @@ from utils.plots.plot_zernike_cross_coupling_mat_animation import plot_zernike_c
 from utils.plots.plot_zernike_response import plot_zernike_response
 from utils.plots.plot_zernike_total_cross_coupling import plot_zernike_total_cross_coupling  # noqa
 from utils.printing_and_logging import step_ri, title
-from utils.shared_argparser_args import shared_argparser_args
+from utils.response_matrix import ResponseMatrix
 from utils.stats_and_error import mae, mse
 from utils.terminate_with_message import terminate_with_message
 from utils.torch_hdf_ds_loader import DSLoaderHDF
 
 
-def model_test_parser(subparsers):
+def run_response_matrix_parser(subparsers):
     """
     Example commands:
-        python3 main.py model_test v1a last test_fixed_10nm_gl
-        python3 main.py model_test fixed_10nm_gl last \
+        python3 main.py run_response_matrix fixed_40nm \
             fixed_50nm_range_processed \
-            --inputs-need-norm \
-            --scatter-plot 5 5 \
-            --zernike-plots
+            --scatter-plot 5 5 --zernike-plots
     """
     subparser = subparsers.add_parser(
-        'model_test',
+        'run_response_matrix',
         help='test a trained model',
     )
-    subparser.set_defaults(main=model_test)
-    shared_argparser_args(subparser, ['tag', 'epoch'])
+    subparser.set_defaults(main=run_response_matrix)
     subparser.add_argument(
-        'testing_ds',
-        help=('name of the testing dataset, will use the norm values from the '
-              'trained model - NOT from the testing dataset directly, outputs '
-              'should already be denormalized'),
+        'response_matrix',
+        help='tag of the response matrix',
     )
     subparser.add_argument(
-        '--inputs-need-norm',
-        action='store_true',
-        help='the inputs need to be normalized',
+        'testing_ds',
+        help=('name of the testing dataset, values must have been generated '
+              'along a fixed grid; data must have no normalization'),
     )
     subparser.add_argument(
         '--scatter-plot',
@@ -72,20 +62,16 @@ def model_test_parser(subparsers):
     )
 
 
-def model_test(cli_args):
-    title('Model test script')
+def run_response_matrix(cli_args):
+    title('Run response matrix script')
 
-    tag = cli_args['tag']
-    epoch = cli_args['epoch']
-
-    model = Model(tag, epoch)
-    norm_values = model.get_norm_values()
-    # Grab the epoch number so that the output directory has what epoch it is
-    epoch = model.get_epoch()
+    step_ri('Loading in the response matrix')
+    response_matrix = cli_args.get('response_matrix')
+    response_matrix_obj = ResponseMatrix(response_matrix)
 
     step_ri('Creating the analysis directory')
     testing_ds_tag = cli_args['testing_ds']
-    analysis_path = f'{ANALYSIS_P}/{testing_ds_tag}/{tag}_epoch_{epoch}'
+    analysis_path = f'{ANALYSIS_P}/{testing_ds_tag}/resp_mat_{response_matrix}'
     analysis_path = get_abs_path(analysis_path)
     delete_dir(analysis_path, quiet=True)
     make_dir(analysis_path)
@@ -93,35 +79,23 @@ def model_test(cli_args):
     step_ri('Loading in the testing dataset')
     testing_dataset = DSLoaderHDF(testing_ds_tag)
     inputs = testing_dataset.get_inputs()
+    outputs_truth = testing_dataset.get_outputs()
     raw_info = json_load(f'{PROC_DATA_P}/{testing_ds_tag}/{DS_RAW_INFO_F}')
     zernike_terms = raw_info[ZERNIKE_TERMS]
     print(f'Using zernike terms: {zernike_terms}')
 
-    if cli_args.get('inputs_need_norm'):
-        step_ri('Normalizing the inputs')
-        inputs = min_max_norm(
-            inputs,
-            norm_values[INPUT_MAX_MIN_DIFF],
-            norm_values[INPUT_MIN_X],
-        )
-
-    step_ri('Calling the model and obtaining its outputs')
-    outputs_model = model(torch.from_numpy(inputs))
-
-    step_ri('Denormalizing the outputs')
-    # Denormalize the outputs
-    outputs_model = min_max_denorm(
-        outputs_model,
-        norm_values[OUTPUT_MAX_MIN_DIFF],
-        norm_values[OUTPUT_MIN_X],
-    )
-    # Testing output data should already be denormalized
-    outputs_truth = testing_dataset.get_outputs()
+    step_ri('Calling the response matrix')
+    # Ensure the Zernike terms matchup
+    zernike_terms_resp_mat = response_matrix_obj.get_zernike_terms()
+    if not np.array_equal(zernike_terms, zernike_terms_resp_mat):
+        terminate_with_message('Zernike terms in response matrix do not '
+                               'match terms in dataset')
+    # Need to flatten out the pixels before calling the response matrix
+    outputs_resp_mat = response_matrix_obj(inputs.reshape(inputs.shape[0], -1))
 
     step_ri('Computing the MAE and MSE')
-
-    mae_val = mae(outputs_truth, outputs_model)
-    mse_val = mse(outputs_truth, outputs_model)
+    mae_val = mae(outputs_truth, outputs_resp_mat)
+    mse_val = mse(outputs_truth, outputs_resp_mat)
     print(f'Model MAE: {mae_val}')
     print(f'Model MSE: {mse_val}')
 
@@ -130,25 +104,24 @@ def model_test(cli_args):
     print(f'File location: {out_file_path}')
     out_data = {
         'outputs_truth': outputs_truth,
-        'outputs_model': outputs_model,
+        'outputs_response_matrix': outputs_resp_mat,
         MAE: mae_val,
         MSE: mse_val,
     }
     HDFWriteModule(out_file_path).create_and_write_hdf_simple(out_data)
 
-    # Titles used in future plots
-    plot_title = 'Neural Network'
+    plot_title = 'Response Matrix'
 
     scatter_plot = cli_args.get('scatter_plot')
     if scatter_plot is not None:
         step_ri('Generating scatter plot')
         n_rows, n_cols = [int(arg) for arg in scatter_plot]
         plot_comparison_scatter_grid(
-            outputs_model,
+            outputs_resp_mat,
             outputs_truth,
             n_rows,
             n_cols,
-            title,
+            plot_title,
             f'{analysis_path}/scatter.png',
         )
 
@@ -166,7 +139,7 @@ def model_test(cli_args):
 
         # Groups will have the shape (rms pert, zernike terms, zernike terms)
         outputs_truth_gr = _split(outputs_truth)
-        outputs_model_gr = _split(outputs_model)
+        outputs_resp_mat_gr = _split(outputs_resp_mat)
 
         # It is assumed that the truth terms all have the same perturbation
         # for each group and that there are only perturbations along the main
@@ -179,33 +152,33 @@ def model_test(cli_args):
         plot_zernike_response(
             zernike_terms,
             perturbation_grid,
-            outputs_model_gr,
+            outputs_resp_mat_gr,
             plot_title,
-            f'{analysis_path}/zernike_response.png',
+            f'{analysis_path}/zernike_response_resp_mat.png',
         )
 
         step_ri('Generating a Zernike total cross coupling plot')
         plot_zernike_total_cross_coupling(
             perturbation_grid,
-            outputs_model_gr,
+            outputs_resp_mat_gr,
             plot_title,
-            f'{analysis_path}/total_cross_coupling.png',
+            f'{analysis_path}/total_cross_coupling_resp_mat.png',
         )
 
         step_ri('Generating a Zernike cross coupling animation')
         plot_zernike_cross_coupling_animation(
             zernike_terms,
             perturbation_grid,
-            outputs_model_gr,
+            outputs_resp_mat_gr,
             plot_title,
-            f'{analysis_path}/zernike_cross_coupling.gif',
+            f'{analysis_path}/zernike_cross_coupling_resp_mat.gif',
         )
 
         step_ri('Generating a Zernike cross coupling matrix animation')
         plot_zernike_cross_coupling_mat_animation(
             zernike_terms,
             perturbation_grid,
-            outputs_model_gr,
+            outputs_resp_mat_gr,
             plot_title,
-            f'{analysis_path}/zernike_cross_coupling_mat.gif',
+            f'{analysis_path}/zernike_cross_coupling_mat_resp_mat.gif',
         )
