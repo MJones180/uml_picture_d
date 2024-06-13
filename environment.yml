@@ -9,10 +9,10 @@ dependencies:
   - brotli-python=1.1.0
   - bzip2=1.0.8
   - c-ares=1.24.0
-  - ca-certificates=2024.2.2
+  - ca-certificates=2024.6.2
   - cached-property=1.5.2
   - cached_property=1.5.2
-  - certifi=2024.2.2
+  - certifi=2024.6.2
   - charset-normalizer=3.3.2
   - contourpy=1.2.0
   - cycler=0.12.1
@@ -75,13 +75,14 @@ dependencies:
   - nomkl=1.0
   - numpy=1.26.4
   - openjpeg=2.5.0
-  - openssl=3.3.0
+  - openssl=3.3.1
   - packaging=23.2
   - pathos=0.3.2
   - pillow=10.2.0
   - pip=23.3.2
   - pox=0.3.4
   - ppft=1.7.6.8
+  - prettytable=3.10.0
   - pthread-stubs=0.4
   - pyerfa=2.0.1.1
   - pyfftw=0.13.1
@@ -105,6 +106,7 @@ dependencies:
   - typing_extensions=4.9.0
   - tzdata=2023d
   - urllib3=2.1.0
+  - wcwidth=0.2.13
   - wheel=0.42.0
   - xorg-libxau=1.0.11
   - xorg-libxdmcp=1.1.3
