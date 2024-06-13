@@ -94,15 +94,25 @@ def preprocess_data_complete_parser(subparsers):
               'field; this requires that the last row of the raw simulated '
               'data contains no aberrations'),
     )
+    subparser.add_argument(
+        '--additional-raw-data-tags',
+        nargs='*',
+        help='additional raw simulated data to preprocess and merge together',
+    )
 
 
 def preprocess_data_complete(cli_args):
     title('Preprocess data complete script')
 
     step_ri('Loading in data chunks')
-    raw_data_tag = cli_args['raw_data_tag']
     (input_data, output_data, zernike_terms,
-     ccd_sampling) = load_raw_sim_data_chunks(raw_data_tag)
+     ccd_sampling) = load_raw_sim_data_chunks(cli_args['raw_data_tag'])
+    for tag in cli_args.get('additional_raw_data_tags') or []:
+        (additional_input_data, additional_output_data, _,
+         _) = load_raw_sim_data_chunks(tag)
+        # Keep stacking on the other datasets
+        input_data = np.vstack((input_data, additional_input_data))
+        output_data = np.vstack((output_data, additional_output_data))
     print(f'Input shape: {input_data.shape}')
     print(f'Output shape: {output_data.shape}')
     print(f'Zernike terms: {zernike_terms}')
