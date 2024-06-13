@@ -28,9 +28,9 @@ def rank_analysis_dir_parser(subparsers):
         help='partial string to filter analysis directories by',
     )
     subparser.add_argument(
-        '--use-mse',
+        '--use-mae',
         action='store_true',
-        help='use MSE instead of MAE',
+        help='use MAE instead of MSE',
     )
 
 
@@ -38,11 +38,11 @@ def rank_analysis_dir(cli_args):
     title('Model test script')
 
     step_ri('Error')
-    use_mse = cli_args['use_mse']
-    if use_mse:
-        print('Using MSE')
-    else:
+    use_mae = cli_args['use_mae']
+    if use_mae:
         print('Using MAE')
+    else:
+        print('Using MSE')
 
     step_ri('Grabbing all potential analysis directories')
     testing_ds = cli_args['testing_ds']
@@ -63,7 +63,8 @@ def rank_analysis_dir(cli_args):
         mae = data[MAE][()]
         mse = data[MSE][()]
         # Parse out the [tag].[epoch] portion of the path for the second value
-        results.append([mse if use_mse else mae, dir_path.split('/')[-2]])
+        # results.append([mse if use_mse else mae, dir_path.split('/')[-2]])
+        results.append([mae if use_mae else mse, dir_path.split('/')[-2]])
 
     step_ri('Sorting the rankings')
     sorted_results = sorted(results, key=lambda pair: pair[0])
