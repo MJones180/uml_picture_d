@@ -38,7 +38,7 @@ def plot_model_loss(cli_args):
 
     # Create and save the plot
     fig, ax = plt.subplots()
-    ax.set_title('Epoch Loss During Training')
+    ax.set_title(f'Epoch Loss During Training\n{tag}')
     ax.set_xlabel('Epoch')
     ax.set_ylabel(f'Loss ({loss_func})')
     ax.plot(epochs, train_loss, 'r', label='Train Loss')
