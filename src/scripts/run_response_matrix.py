@@ -3,18 +3,22 @@ This script tests a response matrix's performance against a testing dataset.
 
 Any prior results for a given response matrix will be deleted.
 
-It is expected that the `testing_ds` was simulated with the `sim_data` script
-using the `--fixed-amount-per-zernike-range` arg and preprocessed with the
-`preprocess_data_bare` script.
+For the Zernie plots, it is expected that the `testing_ds` was simulated with
+the `sim_data` script using the `--fixed-amount-per-zernike-range` arg and
+preprocessed with the `preprocess_data_bare` script.
 
 This code is very similar to `model_test`.
+
+The response matrix runs on denormalized inputs.
 """
 
 import numpy as np
-from utils.constants import (ANALYSIS_P, DS_RAW_INFO_F, MAE, MSE, PROC_DATA_P,
+from utils.constants import (ANALYSIS_P, DS_RAW_INFO_F, INPUT_MAX_MIN_DIFF,
+                             INPUT_MIN_X, MAE, MSE, NORM_F, PROC_DATA_P,
                              RESULTS_F, ZERNIKE_TERMS)
 from utils.hdf_read_and_write import HDFWriteModule
 from utils.json import json_load
+from utils.norm import min_max_denorm
 from utils.path import delete_dir, get_abs_path, make_dir
 from utils.plots.plot_comparison_scatter_grid import plot_comparison_scatter_grid  # noqa
 from utils.plots.plot_zernike_cross_coupling_animation import plot_zernike_cross_coupling_animation  # noqa
@@ -60,6 +64,11 @@ def run_response_matrix_parser(subparsers):
         action='store_true',
         help='generate the Zernike plots',
     )
+    subparser.add_argument(
+        '--inputs-need-denorm',
+        action='store_true',
+        help='the inputs need to be denormalized',
+    )
 
 
 def run_response_matrix(cli_args):
@@ -80,9 +89,19 @@ def run_response_matrix(cli_args):
     testing_dataset = DSLoaderHDF(testing_ds_tag)
     inputs = testing_dataset.get_inputs()
     outputs_truth = testing_dataset.get_outputs()
-    raw_info = json_load(f'{PROC_DATA_P}/{testing_ds_tag}/{DS_RAW_INFO_F}')
+    base_path = f'{PROC_DATA_P}/{testing_ds_tag}'
+    raw_info = json_load(f'{base_path}/{DS_RAW_INFO_F}')
     zernike_terms = raw_info[ZERNIKE_TERMS]
     print(f'Using zernike terms: {zernike_terms}')
+
+    if cli_args.get('inputs_need_denorm'):
+        step_ri('Denormalizing the input values')
+        norm_values = json_load(f'{base_path}/{NORM_F}')
+        inputs = min_max_denorm(
+            inputs,
+            norm_values[INPUT_MAX_MIN_DIFF],
+            norm_values[INPUT_MIN_X],
+        )
 
     step_ri('Calling the response matrix')
     # Ensure the Zernike terms matchup
