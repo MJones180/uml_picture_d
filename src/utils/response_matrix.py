@@ -36,21 +36,32 @@ class ResponseMatrix():
     def get_zernike_terms(self):
         return self.zernike_terms
 
-    def call_response_matrix(self, total_intensity_field):
+    def call_response_matrix(
+        self,
+        total_int_field=None,
+        diff_int_field=None,
+    ):
         """
         Obtain the Zernike coefficients using a response matrix.
 
         Parameters
         ----------
-        total_intensity_field : np.array
+        total_int_field : np.array, optional
             The total intensity field with the 2D dimensions of (rows, pixels).
+        diff_int_field : np.array, optional
+            The difference of the intensity field with the 2D dimensions of
+            (rows, pixels). This represents the `delta_intensity` because the
+            base field has already been subtracted from the aberrated field.
 
         Returns
         -------
         no.array
             2D array with dimensions of (rows, Zernike coefficients).
         """
-        delta_intensity = total_intensity_field - self.base_int_field
+        if total_int_field is not None:
+            delta_intensity = total_int_field - self.base_int_field
+        else:
+            delta_intensity = diff_int_field
         # The response matrix is of the shape (Zernike terms, pixels), so need
         # to transpose the change in intensity so the dimensionality works out.
         return (self.resp_mat_inv @ delta_intensity.T).T

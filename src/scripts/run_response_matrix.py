@@ -69,6 +69,11 @@ def run_response_matrix_parser(subparsers):
         action='store_true',
         help='the inputs need to be denormalized',
     )
+    subparser.add_argument(
+        '--inputs-are-diff',
+        action='store_true',
+        help='the inputs are the delta from the base field',
+    )
 
 
 def run_response_matrix(cli_args):
@@ -110,7 +115,13 @@ def run_response_matrix(cli_args):
         terminate_with_message('Zernike terms in response matrix do not '
                                'match terms in dataset')
     # Need to flatten out the pixels before calling the response matrix
-    outputs_resp_mat = response_matrix_obj(inputs.reshape(inputs.shape[0], -1))
+    inputs_reshaped = inputs.reshape(inputs.shape[0], -1)
+    if cli_args.get('inputs_are_diff'):
+        print('Passing in the difference of the intensity field')
+        outputs_resp_mat = response_matrix_obj(diff_int_field=inputs_reshaped)
+    else:
+        print('Passing in the total intensity field')
+        outputs_resp_mat = response_matrix_obj(total_int_field=inputs_reshaped)
 
     step_ri('Computing the MAE and MSE')
     mae_val = mae(outputs_truth, outputs_resp_mat)
