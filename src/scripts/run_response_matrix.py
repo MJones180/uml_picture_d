@@ -32,12 +32,6 @@ from utils.torch_hdf_ds_loader import DSLoaderHDF
 
 
 def run_response_matrix_parser(subparsers):
-    """
-    Example commands:
-        python3 main.py run_response_matrix fixed_40nm \
-            fixed_50nm_range_processed \
-            --scatter-plot 5 5 --zernike-plots
-    """
     subparser = subparsers.add_parser(
         'run_response_matrix',
         help='test a trained model',

@@ -24,14 +24,6 @@ from utils.torch_hdf_ds_loader import DSLoaderHDF
 
 
 def model_train_parser(subparsers):
-    """
-    Example commands:
-        python3 main.py model_train \
-            v1a train_fixed_10nm_gl val_fixed_10nm_gl \
-            test mae adam 1e-3 250 \
-            --batch-size 64 --overwrite-existing \
-            --only-best-epoch --early-stopping 10
-    """
     subparser = subparsers.add_parser(
         'model_train',
         help='train a new model',

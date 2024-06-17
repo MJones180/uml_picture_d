@@ -2,16 +2,6 @@
 
 This is a listing of some of the commands that have been used for the various scripts.
 
-## Response Matrix
-
-Create a response matrix at 40 nm, will have the name `fixed_40nm`.
-
-    python3 main_stnp.py sim_data fixed_40nm v84 600e-9 \
-        --output-write-batch 10 \
-        --fixed-amount-per-zernike 2 24 40e-9 \
-        --cores 4
-    python3 main.py create_response_matrix --simulated-data-tag fixed_40nm
-
 ## Fixed Grid Data
 
 Simulate data along a fixed grid from -50 to 50 nm in 10 nm increments.
@@ -22,6 +12,23 @@ This data is used to generate all the `zernike` plots.
         --fixed-amount-per-zernike-range 2 24 " -50e-9" 50e-9 21 \
         --cores 4
     python3 main.py preprocess_data_bare fixed_50nm_range fixed_50nm_range_processed
+
+## Response Matrix
+
+Simulate the data and create a response matrix at 40 nm, will have the name `fixed_40nm`.
+
+    python3 main_stnp.py sim_data fixed_40nm v84 600e-9 \
+        --output-write-batch 10 \
+        --fixed-amount-per-zernike 2 24 40e-9 \
+        --cores 4
+    python3 main.py create_response_matrix --simulated-data-tag fixed_40nm
+
+## Running the Response Matrix
+
+Calling the response matrix `fixed_40nm` on the `fixed_50nm_range_processed` dataset:
+
+    python3 main.py run_response_matrix \
+            fixed_40nm fixed_50nm_range_processed --scatter-plot 5 5 --zernike-plots
 
 ## Training and Testing Data
 
@@ -83,7 +90,6 @@ Based off of the `train_ran50nm_gl_lg_diff` dataset, will have tags `ran50nm_gl_
                 --batch-sizes 64 128 \
                 --overwrite-existing --only-best-epoch --early-stopping 10 \
                 --max-threads 4
-    python3 main.py plot_model_loss ran50nm_gl_lg_diff_
 
 Based off of the `train_com50nm_gl_diff` dataset, will have tags `com50nm_gl_diff_`:
 
@@ -96,7 +102,6 @@ Based off of the `train_com50nm_gl_diff` dataset, will have tags `com50nm_gl_dif
         --batch-sizes 64 128 \
         --overwrite-existing --only-best-epoch --early-stopping 10 \
         --max-threads 4
-    python3 main.py plot_model_loss com50nm_gl_diff_
 
 Based off of the `train_com50nm_gl_diff` dataset, will have tags `com50nm_gl_diff_v2_`:
 
@@ -109,7 +114,6 @@ Based off of the `train_com50nm_gl_diff` dataset, will have tags `com50nm_gl_dif
         --batch-sizes 64 \
         --overwrite-existing --only-best-epoch --early-stopping 10 \
         --max-threads 4
-    python3 main.py plot_model_loss com50nm_gl_diff_v2_
 
 ## Model Testing
 
@@ -164,9 +168,23 @@ Testing for models with `com50nm_gl_diff_v2_` tags:
     python3 main.py rank_analysis_dir fixed_50nm_range_processed \
         --ds-on-fixed-grid --r-min-filter 0.4 --filter com50nm_gl_diff_v2 --first 5
 
-## Running the Response Matrix
+## Random Commands
 
-Calling the response matrix `fixed_40nm` on the `fixed_50nm_range_processed` dataset:
+Print out the layers, trainable neurons, and time it takes to run the `dfc3` network:
 
-    python3 main.py run_response_matrix \
-            fixed_40nm fixed_50nm_range_processed --scatter-plot 5 5 --zernike-plots
+    python3 main.py network_info dfc3 --benchmark 1000
+
+Output information on the `train_com50nm_gl_diff` dataset:
+
+    python3 main.py dataset_info \
+        train_com50nm_gl_diff \
+        --verify-network-compatability dfc3 \
+        --plot-example-images --plot-outputs-hist
+
+Plot the training vs validation loss for all epochs in `com50nm_gl_diff_v2_1`:
+
+    python3 main.py plot_model_loss com50nm_gl_diff_v2_1
+
+Prune the `tag_lookup.json` file from older models:
+
+    python3 main.py prune_tag_lookup

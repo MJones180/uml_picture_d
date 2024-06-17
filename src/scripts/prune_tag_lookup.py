@@ -10,10 +10,6 @@ from utils.printing_and_logging import step_ri, title
 
 
 def prune_tag_lookup_parser(subparsers):
-    """
-    Example commands:
-        python3 main.py prune_tag_lookup
-    """
     subparser = subparsers.add_parser(
         'prune_tag_lookup',
         help='prune the `tag_lookup.json` file',

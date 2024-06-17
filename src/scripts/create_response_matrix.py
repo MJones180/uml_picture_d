@@ -29,13 +29,6 @@ from utils.terminate_with_message import terminate_with_message
 
 
 def create_response_matrix_parser(subparsers):
-    """
-    Example command:
-        python3 main.py create_response_matrix \
-            --simulated-data-tag fixed_10nm
-        python3 main.py create_response_matrix \
-            --simulated-data-tag fixed_40nm
-    """
     subparser = subparsers.add_parser(
         'create_response_matrix',
         help='simulate data using PROPER',

@@ -11,11 +11,6 @@ from utils.printing_and_logging import dec_print_indent, step_ri, title
 
 
 def rank_analysis_dir_parser(subparsers):
-    """
-    Example commands:
-        python3 main.py rank_analysis_dir fixed_50nm_range_processed \
-            --ds-on-fixed-grid --r-min-filter 0.4
-    """
     subparser = subparsers.add_parser(
         'rank_analysis_dir',
         help='rank all model analyses',

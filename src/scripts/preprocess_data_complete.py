@@ -28,19 +28,6 @@ OUTPUT_NORM_OPTIONS = ['globally', 'individually']
 
 
 def preprocess_data_complete_parser(subparsers):
-    """
-    Example commands:
-        python3 main.py preprocess_data_complete \
-            fixed_10nm \
-            train_fixed_10nm_gl val_fixed_10nm_gl test_fixed_10nm_gl \
-            75 10 15 \
-            --norm-outputs globally
-        python3 main.py preprocess_data_complete \
-            random_50nm_single \
-            train_rand_50nm_s_gl val_rand_50nm_s_gl test_rand_50nm_s_gl \
-            75 10 15 \
-            --norm-outputs globally
-    """
     subparser = subparsers.add_parser(
         'preprocess_data_complete',
         help='preprocess data for training, validation, and testing',

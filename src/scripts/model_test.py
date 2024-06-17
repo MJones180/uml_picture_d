@@ -32,15 +32,6 @@ from utils.torch_hdf_ds_loader import DSLoaderHDF
 
 
 def model_test_parser(subparsers):
-    """
-    Example commands:
-        python3 main.py model_test v1a last test_fixed_10nm_gl
-        python3 main.py model_test fixed_10nm_gl last \
-            fixed_50nm_range_processed \
-            --inputs-need-norm \
-            --scatter-plot 5 5 \
-            --zernike-plots
-    """
     subparser = subparsers.add_parser(
         'model_test',
         help='test a trained model',

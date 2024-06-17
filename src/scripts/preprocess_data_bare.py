@@ -22,11 +22,6 @@ from utils.printing_and_logging import step_ri, title
 
 
 def preprocess_data_bare_parser(subparsers):
-    """
-    Example commands:
-        python3 main.py preprocess_data_bare \
-            fixed_50nm_range fixed_50nm_range_processed
-    """
     subparser = subparsers.add_parser(
         'preprocess_data_bare',
         help='preprocess data for training, validation, and testing',

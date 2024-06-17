@@ -12,13 +12,6 @@ from utils.torch_hdf_ds_loader import DSLoaderHDF
 
 
 def dataset_info_parser(subparsers):
-    """
-    Example command:
-        python3 main.py dataset_info \
-            train_fixed_10nm_gl \
-            --verify-network-compatability test \
-            --plot-example-images --plot-outputs-hist
-    """
     subparser = subparsers.add_parser(
         'dataset_info',
         help='display info on a dataset',

@@ -11,10 +11,6 @@ from utils.shared_argparser_args import shared_argparser_args
 
 
 def plot_model_loss_parser(subparsers):
-    """
-    Example command:
-        python3 main.py plot_model_loss test
-    """
     subparser = subparsers.add_parser(
         'plot_model_loss',
         help='plot training loss of a model',

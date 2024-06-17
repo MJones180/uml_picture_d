@@ -19,17 +19,6 @@ from utils.printing_and_logging import dec_print_indent, divider, step_ri, title
 
 
 def batch_model_train_parser(subparsers):
-    """
-    Example commands:
-        python3 main.py batch_model_train \
-            train_fixed_10nm_gl val_fixed_10nm_gl \
-            global_v1_ 20 \
-            --networks test \
-            --losses mae --optimizers adam \
-            --lrs 1e-3 1e-4 1e-5 \
-            --batch-sizes 32 64 128 \
-            --overwrite-existing --only-best-epoch --early-stopping 10
-    """
     subparser = subparsers.add_parser(
         'batch_model_train',
         help='batch model train different configurations',
