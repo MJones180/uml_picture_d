@@ -74,27 +74,6 @@ class Model():
         self.model.eval()
         dec_print_indent()
 
-    def get_args(self):
-        return self.training_args
-
-    def get_model(self):
-        return self.model
-
-    def get_network(self):
-        return self.network
-
-    def get_norm_values(self):
-        return self.norm_values
-
-    def get_extra_vars(self):
-        return self.extra_vars
-
-    def get_epoch(self):
-        return self.epoch
-
-    def get_tag(self):
-        return self.tag
-
     def call_model(self, data):
         with torch.no_grad():
             model_outputs = self.model(data).numpy()

@@ -206,7 +206,7 @@ def model_train(cli_args):
     if init_weights is not None:
         step_ri('Initializing weights from trained model')
         print(f'Trained model: {init_weights[0]}, Epoch: {init_weights[1]}')
-        pt_model = Model(*init_weights, suppress_logs=True).get_model()
+        pt_model = Model(*init_weights, suppress_logs=True).model
         model.load_state_dict(pt_model.state_dict())
 
     step_ri('Setting the loss function')

@@ -27,15 +27,6 @@ class ResponseMatrix():
 
         dec_print_indent()
 
-    def get_tag(self):
-        return self.tag
-
-    def get_perturbation_amount(self):
-        return self.pert_amount
-
-    def get_zernike_terms(self):
-        return self.zernike_terms
-
     def call_response_matrix(
         self,
         total_int_field=None,

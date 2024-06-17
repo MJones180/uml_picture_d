@@ -109,7 +109,7 @@ def run_response_matrix(cli_args):
 
     step_ri('Calling the response matrix')
     # Ensure the Zernike terms matchup
-    zernike_terms_resp_mat = response_matrix_obj.get_zernike_terms()
+    zernike_terms_resp_mat = response_matrix_obj.zernike_terms
     if not np.array_equal(zernike_terms, zernike_terms_resp_mat):
         terminate_with_message('Zernike terms in response matrix do not '
                                'match terms in dataset')

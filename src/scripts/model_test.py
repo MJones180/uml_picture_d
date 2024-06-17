@@ -83,9 +83,9 @@ def model_test(cli_args):
     epoch = cli_args['epoch']
 
     model = Model(tag, epoch)
-    norm_values = model.get_norm_values()
+    norm_values = model.norm_values
     # Grab the epoch number so that the output directory has what epoch it is
-    epoch = model.get_epoch()
+    epoch = model.epoch
 
     step_ri('Creating the analysis directory')
     testing_ds_tag = cli_args['testing_ds']
@@ -107,7 +107,7 @@ def model_test(cli_args):
     # off before normalization occurs.
     if cli_args.get('inputs_need_diff'):
         step_ri('Taking the diff of the inputs')
-        extra_vars = model.get_extra_vars()
+        extra_vars = model.extra_vars
         if BASE_INT_FIELD not in list(extra_vars):
             terminate_with_message('Base field not present in raw ds info')
         inputs = inputs - extra_vars[BASE_INT_FIELD]
