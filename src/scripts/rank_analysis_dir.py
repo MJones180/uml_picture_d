@@ -30,6 +30,11 @@ def rank_analysis_dir_parser(subparsers):
         help='partial string to filter analysis directories by',
     )
     subparser.add_argument(
+        '--first',
+        type=int,
+        help='only use the first n rows',
+    )
+    subparser.add_argument(
         '--use-mae',
         action='store_true',
         help='use MAE instead of MSE',
@@ -66,6 +71,7 @@ def rank_analysis_dir(cli_args):
 
     ds_on_fixed_grid = cli_args['ds_on_fixed_grid']
     r_min_filter = cli_args['r_min_filter']
+    first = cli_args['first']
 
     step_ri('Looping through and grabbing HDF files')
     results = []
@@ -112,6 +118,8 @@ def rank_analysis_dir(cli_args):
         key=lambda pair: pair[1],
     )
     sorted_idxs = [idx for idx, val in sorted_results]
+    if first is not None:
+        sorted_idxs = sorted_idxs[:first]
 
     step_ri('Rankings')
     dec_print_indent()
