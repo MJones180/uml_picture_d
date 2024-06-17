@@ -12,7 +12,7 @@ the `sim_data` script:
 Note: some code is shared with the `preprocess_data_complete` script (hardcoded)
 """
 
-from utils.constants import (ARGS_F, CCD_SAMPLING, DATA_F, DS_RAW_INFO_F,
+from utils.constants import (ARGS_F, CCD_SAMPLING, DATA_F, EXTRA_VARS_F,
                              INPUTS, OUTPUTS, PROC_DATA_P, ZERNIKE_TERMS)
 from utils.hdf_read_and_write import HDFWriteModule
 from utils.json import json_write
@@ -60,8 +60,7 @@ def preprocess_data_bare(cli_args):
 
     step_ri('Creating new dataset')
     # Extra tables of information taken from the raw datafile
-    ds_raw_info = {
-        # This is likely a small float, so write it as a string
+    extra_vars = {
         CCD_SAMPLING: ccd_sampling,
         ZERNIKE_TERMS: zernike_terms,
     }
@@ -72,9 +71,9 @@ def preprocess_data_bare(cli_args):
         make_dir(out_path)
         # Write out the CLI args that this script was called with
         json_write(f'{out_path}/{ARGS_F}', cli_args)
-        # Add a file with unused data from the raw dataset
-        HDFWriteModule(f'{out_path}/{DS_RAW_INFO_F}'
-                       ).create_and_write_hdf_simple(ds_raw_info)
+        # Add a file with other necessary variables
+        HDFWriteModule(f'{out_path}/{EXTRA_VARS_F}'
+                       ).create_and_write_hdf_simple(extra_vars)
         # Write out the processed HDF file
         HDFWriteModule(f'{out_path}/{DATA_F}').create_and_write_hdf_simple({
             INPUTS: inputs,

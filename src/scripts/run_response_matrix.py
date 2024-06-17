@@ -13,7 +13,7 @@ The response matrix runs on denormalized inputs.
 """
 
 import numpy as np
-from utils.constants import (ANALYSIS_P, DS_RAW_INFO_F, INPUT_MAX_MIN_DIFF,
+from utils.constants import (ANALYSIS_P, EXTRA_VARS_F, INPUT_MAX_MIN_DIFF,
                              INPUT_MIN_X, MAE, MSE, NORM_F, PROC_DATA_P,
                              RESULTS_F, ZERNIKE_TERMS)
 from utils.hdf_read_and_write import HDFWriteModule, read_hdf
@@ -95,7 +95,7 @@ def run_response_matrix(cli_args):
     inputs = testing_dataset.get_inputs()
     outputs_truth = testing_dataset.get_outputs()
     base_path = f'{PROC_DATA_P}/{testing_ds_tag}'
-    zernike_terms = read_hdf(f'{base_path}/{DS_RAW_INFO_F}')[ZERNIKE_TERMS]
+    zernike_terms = read_hdf(f'{base_path}/{EXTRA_VARS_F}')[ZERNIKE_TERMS]
     print(f'Using zernike terms: {zernike_terms}')
 
     if cli_args.get('inputs_need_denorm'):

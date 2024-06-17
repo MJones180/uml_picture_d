@@ -14,7 +14,7 @@ TRAINED_MODELS_P = f'{OUTPUT_P}/trained_models'
 PACKAGES_P = '../packages'
 
 ARGS_F = 'args.json'
-DS_RAW_INFO_F = 'ds_raw_info.h5'
+EXTRA_VARS_F = 'extra_variables.h5'
 EPOCH_LOSS_F = 'epoch_loss.csv'
 NORM_F = 'norm.json'
 TAG_LOOKUP_F = 'tag_lookup.json'

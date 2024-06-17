@@ -13,7 +13,7 @@ performed, it will be based on the training normalization values.
 
 import numpy as np
 from utils.constants import (ARGS_F, BASE_INT_FIELD, CCD_SAMPLING, DATA_F,
-                             DS_RAW_INFO_F, INPUTS, INPUT_MIN_X,
+                             EXTRA_VARS_F, INPUTS, INPUT_MIN_X,
                              INPUT_MAX_MIN_DIFF, NORM_F, OUTPUTS, OUTPUT_MIN_X,
                              OUTPUT_MAX_MIN_DIFF, PROC_DATA_P, ZERNIKE_TERMS)
 from utils.hdf_read_and_write import HDFWriteModule
@@ -217,14 +217,14 @@ def preprocess_data_complete(cli_args):
 
     step_ri('Creating new datasets')
     # Extra tables of information taken from the raw datafile
-    ds_raw_info = {
-        # This is likely a small float, so write it as a string
+    extra_vars = {
         CCD_SAMPLING: ccd_sampling,
         ZERNIKE_TERMS: zernike_terms,
     }
-    # Need to save the base field so that it can be subtracted if necessary
+    # Need to save the base field so that it can be subtracted if necessary,
+    # this is unnormalized and should be subtracted before normalization occurs
     if base_field is not None:
-        ds_raw_info[BASE_INT_FIELD] = base_field
+        extra_vars[BASE_INT_FIELD] = base_field
 
     def _create_dataset(cli_arg, inputs, outputs):
         out_path = f'{PROC_DATA_P}/{cli_args[cli_arg]}'
@@ -232,9 +232,9 @@ def preprocess_data_complete(cli_args):
         make_dir(out_path)
         # Write out the CLI args that this script was called with
         json_write(f'{out_path}/{ARGS_F}', cli_args)
-        # Add a file with unused data from the raw dataset
-        HDFWriteModule(f'{out_path}/{DS_RAW_INFO_F}'
-                       ).create_and_write_hdf_simple(ds_raw_info)
+        # Add a file with other necessary variables
+        HDFWriteModule(f'{out_path}/{EXTRA_VARS_F}'
+                       ).create_and_write_hdf_simple(extra_vars)
         # Add the file with the normalization input and output values
         json_write(f'{out_path}/{NORM_F}', norm_values)
         # Write out the processed HDF file

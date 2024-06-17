@@ -10,7 +10,7 @@ The training and validation dataset must have their inputs pre-normalized.
 from time import time
 import torch
 from torchvision.transforms import v2
-from utils.constants import (ARGS_F, DS_RAW_INFO_F, EPOCH_LOSS_F,
+from utils.constants import (ARGS_F, EPOCH_LOSS_F, EXTRA_VARS_F,
                              LOSS_FUNCTIONS, NORM_F, OPTIMIZERS, OUTPUT_P,
                              PROC_DATA_P, TAG_LOOKUP_F, TRAINED_MODELS_P)
 from utils.json import json_load, json_write
@@ -169,9 +169,9 @@ def model_train(cli_args):
     train_ds_folder = f'{PROC_DATA_P}/{train_ds_tag}'
     copy_files(f'{train_ds_folder}/{NORM_F}', f'{output_model_path}/{NORM_F}')
 
-    step_ri('Copying over the raw ds values from the training dataset')
-    copy_files(f'{train_ds_folder}/{DS_RAW_INFO_F}',
-               f'{output_model_path}/{DS_RAW_INFO_F}')
+    step_ri('Copying over the extra variables from the training dataset')
+    copy_files(f'{train_ds_folder}/{EXTRA_VARS_F}',
+               f'{output_model_path}/{EXTRA_VARS_F}')
 
     step_ri('Saving all CLI args')
     json_write(f'{output_model_path}/{ARGS_F}', cli_args)

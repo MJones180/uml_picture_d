@@ -11,7 +11,7 @@ the `testing_ds` was simulated with the `sim_data` script using the
 
 import numpy as np
 import torch
-from utils.constants import (ANALYSIS_P, BASE_INT_FIELD, DS_RAW_INFO_F,
+from utils.constants import (ANALYSIS_P, BASE_INT_FIELD, EXTRA_VARS_F,
                              INPUT_MAX_MIN_DIFF, INPUT_MIN_X, MAE, MSE,
                              OUTPUT_MAX_MIN_DIFF, OUTPUT_MIN_X, PROC_DATA_P,
                              RESULTS_F, ZERNIKE_TERMS)
@@ -97,8 +97,8 @@ def model_test(cli_args):
     step_ri('Loading in the testing dataset')
     testing_dataset = DSLoaderHDF(testing_ds_tag)
     inputs = testing_dataset.get_inputs()
-    raw_ds_info_path = f'{PROC_DATA_P}/{testing_ds_tag}/{DS_RAW_INFO_F}'
-    zernike_terms = read_hdf(raw_ds_info_path)[ZERNIKE_TERMS]
+    extra_vars_path = f'{PROC_DATA_P}/{testing_ds_tag}/{EXTRA_VARS_F}'
+    zernike_terms = read_hdf(extra_vars_path)[ZERNIKE_TERMS]
     print(f'Using zernike terms: {zernike_terms}')
 
     # If the model was trained on the difference between the aberrated and the
@@ -107,10 +107,10 @@ def model_test(cli_args):
     # off before normalization occurs.
     if cli_args.get('inputs_need_diff'):
         step_ri('Taking the diff of the inputs')
-        raw_ds_info = model.get_raw_ds_info()
-        if BASE_INT_FIELD not in list(raw_ds_info):
+        extra_vars = model.get_extra_vars()
+        if BASE_INT_FIELD not in list(extra_vars):
             terminate_with_message('Base field not present in raw ds info')
-        inputs = inputs - raw_ds_info[BASE_INT_FIELD]
+        inputs = inputs - extra_vars[BASE_INT_FIELD]
 
     if cli_args.get('inputs_need_norm'):
         step_ri('Normalizing the inputs')

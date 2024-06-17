@@ -1,6 +1,6 @@
 from glob import glob
 import torch
-from utils.constants import ARGS_F, DS_RAW_INFO_F, NORM_F, TRAINED_MODELS_P
+from utils.constants import ARGS_F, EXTRA_VARS_F, NORM_F, TRAINED_MODELS_P
 from utils.hdf_read_and_write import read_hdf
 from utils.json import json_load
 from utils.load_network import load_network
@@ -58,8 +58,8 @@ class Model():
         self.training_args = json_load(f'{dir_path}/{ARGS_F}')
 
         if not suppress_logs:
-            print('Loading in the raw training dataset info')
-        self.raw_ds_info = read_hdf(f'{dir_path}/{DS_RAW_INFO_F}')
+            print('Loading in the extra variables')
+        self.extra_vars = read_hdf(f'{dir_path}/{EXTRA_VARS_F}')
 
         self.network_name = self.training_args['network_name']
         if not suppress_logs:
@@ -86,8 +86,8 @@ class Model():
     def get_norm_values(self):
         return self.norm_values
 
-    def get_raw_ds_info(self):
-        return self.raw_ds_info
+    def get_extra_vars(self):
+        return self.extra_vars
 
     def get_epoch(self):
         return self.epoch
