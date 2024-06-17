@@ -101,6 +101,10 @@ def model_test(cli_args):
     zernike_terms = read_hdf(raw_ds_info_path)[ZERNIKE_TERMS]
     print(f'Using zernike terms: {zernike_terms}')
 
+    # If the model was trained on the difference between the aberrated and the
+    # base field, then the model must be tested on the same thing. If the data
+    # is not already of the difference, then the base field must be subtracted
+    # off before normalization occurs.
     if cli_args.get('inputs_need_diff'):
         step_ri('Taking the diff of the inputs')
         raw_ds_info = model.get_raw_ds_info()
