@@ -2,6 +2,8 @@
 This script outputs information on a given network (untrained model structure).
 """
 
+import time
+import torch
 from utils.load_network import load_network
 from utils.printing_and_logging import (dec_print_indent, inc_print_indent,
                                         step_ri, title)
@@ -19,6 +21,11 @@ def network_info_parser(subparsers):
     )
     subparser.set_defaults(main=network_info)
     shared_argparser_args(subparser, ['network_name'])
+    subparser.add_argument(
+        '--benchmark',
+        type=int,
+        help='benchmark network by running n rows',
+    )
 
 
 def network_info(cli_args):
@@ -63,3 +70,15 @@ def network_info(cli_args):
     for module in network_inst.children():
         module.register_forward_hook(hook)
     network_inst(input_data)
+
+    if cli_args['benchmark'] is not None:
+        iterations = cli_args['benchmark']
+        # Redefining the instance because the previous one has an added hook
+        model = network()
+        step_ri(f'Running benchmark ({iterations} iterations)')
+        start_time = time.time()
+        for i in range(iterations):
+            with torch.no_grad():
+                model(input_data).numpy()
+        avg_time = (time.time() - start_time) / iterations
+        print('Average time for the nn to run one row: ', avg_time)
