@@ -59,7 +59,8 @@ Random Zernike aberration for only one term in each row ranging from -50 to 50 n
         --rand-amount-per-zernike-single 2 24 " -50e-9" 50e-9 25000 \
         --cores 4
 
-Preprocessed dataset consisting of two of the above raw datasets (125,000 rows):
+Preprocessed dataset consisting of two of the above raw datasets (`random_50nm_single_med` and `random_50nm_large`, 125,000 rows).
+The base field is subtracted off for each row so that they consist of only the differences:
 
     python3 main.py preprocess_data_complete \
         random_50nm_single_med \
@@ -97,6 +98,19 @@ Based off of the `train_com50nm_gl_diff` dataset, will have tags `com50nm_gl_dif
         --max-threads 4
     python3 main.py plot_model_loss com50nm_gl_diff_
 
+Based off of the `train_com50nm_gl_diff` dataset, will have tags `com50nm_gl_diff_v2_`:
+
+    python3 main_stnp.py batch_model_train \
+        train_com50nm_gl_diff val_com50nm_gl_diff \
+        com50nm_gl_diff_v2_ 500 \
+        --networks dfc2v2 dfc3v2 btbc4 \
+        --losses mse --optimizers adam nadam \
+        --lrs 1e-4 6e-5 \
+        --batch-sizes 64 \
+        --overwrite-existing --only-best-epoch --early-stopping 10 \
+        --max-threads 4
+    python3 main.py plot_model_loss com50nm_gl_diff_v2_
+
 ## Model Testing
 
 Testing for models with `ran50nm_gl_lg_diff_` tags:
@@ -106,14 +120,15 @@ Testing for models with `ran50nm_gl_lg_diff_` tags:
         --epoch-and-tag-range last ran50nm_gl_lg_diff_ 1 30
     python3 main.py run_response_matrix fixed_40nm test_ran50nm_gl_lg_diff \
         --scatter-plot 5 5 --inputs-need-denorm --inputs-are-diff
-    python3 main.py rank_analysis_dir test_ran50nm_gl_lg_diff
+    python3 main.py rank_analysis_dir test_ran50nm_gl_lg_diff --first 5
 
     python3 main.py batch_model_test \
         fixed_50nm_range_processed  \
-        --inputs-need-norm --scatter-plot 5 5 --zernike-plots \
+        --inputs-need-norm --inputs-need-diff \
+        --scatter-plot 5 5 --zernike-plots \
         --epoch-and-tag-range last ran50nm_gl_lg_diff_ 1 30
     python3 main.py rank_analysis_dir fixed_50nm_range_processed \
-        --ds-on-fixed-grid --r-min-filter 0.4 --filter ran50nm_gl_lg_diff
+        --ds-on-fixed-grid --r-min-filter 0.4 --filter ran50nm_gl_lg_diff --first 5
 
 Testing for models with `com50nm_gl_diff_` tags:
 
@@ -122,15 +137,32 @@ Testing for models with `com50nm_gl_diff_` tags:
         --epoch-and-tag-range last com50nm_gl_diff_ 1 30
     python3 main.py run_response_matrix fixed_40nm test_com50nm_gl_diff \
         --scatter-plot 5 5 --inputs-need-denorm --inputs-are-diff
-    python3 main.py rank_analysis_dir test_com50nm_gl_diff
+    python3 main.py rank_analysis_dir test_com50nm_gl_diff --first 5
 
     python3 main.py batch_model_test \
         fixed_50nm_range_processed  \
-        --inputs-need-norm --scatter-plot 5 5 --zernike-plots \
+        --inputs-need-norm --inputs-need-diff \
+        --scatter-plot 5 5 --zernike-plots \
         --epoch-and-tag-range last com50nm_gl_diff_ 1 30
     python3 main.py rank_analysis_dir fixed_50nm_range_processed \
-        --ds-on-fixed-grid --r-min-filter 0.4 --filter com50nm_gl_diff
+        --ds-on-fixed-grid --r-min-filter 0.4 --filter com50nm_gl_diff --first 5
 
+Testing for models with `com50nm_gl_diff_v2_` tags:
+
+    python3 main.py batch_model_test \
+        test_com50nm_gl_diff --scatter-plot 5 5 \
+        --epoch-and-tag-range last com50nm_gl_diff_v2_ 1 12
+    python3 main.py run_response_matrix fixed_40nm test_com50nm_gl_diff \
+        --scatter-plot 5 5 --inputs-need-denorm --inputs-are-diff
+    python3 main.py rank_analysis_dir test_com50nm_gl_diff --first 5
+
+    python3 main.py batch_model_test \
+        fixed_50nm_range_processed  \
+        --inputs-need-norm --inputs-need-diff \
+        --scatter-plot 5 5 --zernike-plots \
+        --epoch-and-tag-range last com50nm_gl_diff_v2_ 1 12
+    python3 main.py rank_analysis_dir fixed_50nm_range_processed \
+        --ds-on-fixed-grid --r-min-filter 0.4 --filter com50nm_gl_diff_v2 --first 5
 
 ## Running the Response Matrix
 
