@@ -74,6 +74,7 @@ LOSS_FUNCTIONS = {
 OPTIMIZERS = {
     'adagrad': 'Adagrad',
     'adam': 'Adam',
+    'ndam': 'NAdam',
     'rmsprop': 'RMSprop',
     'sgd': 'SGD',
 }
