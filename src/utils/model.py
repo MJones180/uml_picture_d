@@ -12,18 +12,26 @@ from utils.terminate_with_message import terminate_with_message
 class Model():
 
     def __init__(self, tag, epoch, suppress_logs=False):
-        if not suppress_logs:
-            step('Loading in the trained model')
+
+        def _step(text):
+            if suppress_logs:
+                return
+            step(text)
+
+        def _print(text):
+            if suppress_logs:
+                return
+            print(text)
+
+        _step('Loading in the trained model')
 
         dir_path = f'{TRAINED_MODELS_P}/{tag}'
-        if not suppress_logs:
-            print(f'Model directory path: {dir_path}')
+        _print(f'Model directory path: {dir_path}')
         if not path_exists(dir_path):
             terminate_with_message(f'Directory not found: {dir_path}')
 
         if epoch.lower() == 'last':
-            if not suppress_logs:
-                step('Epoch set to `last` mode, so finding last epoch')
+            _step('Epoch set to `last` mode, so finding last epoch')
             # The base path of the model to find the epochs within
             epoch_path_part = f'{dir_path}/epoch_'
             epoch_path_part_len = len(epoch_path_part)
@@ -34,8 +42,7 @@ class Model():
                 # Get a glob of all epochs found
                 for path in glob(f'{epoch_path_part}[0-9]*')
             ])
-            if not suppress_logs:
-                print(f'Using epoch {epoch}')
+            _print(f'Using epoch {epoch}')
             dec_print_indent()
             print()
 
@@ -44,23 +51,19 @@ class Model():
         self.epoch = epoch
 
         model_path = f'{dir_path}/epoch_{epoch}'
-        if not suppress_logs:
-            print(f'Model directory path with epoch: {model_path}')
+        _print(f'Model directory path with epoch: {model_path}')
         if not path_exists(model_path):
             terminate_with_message(f'Model not found at {model_path}')
 
-        if not suppress_logs:
-            print('Loading in the training args')
+        _print('Loading in the training args')
         self.training_args = json_load(f'{dir_path}/{ARGS_F}')
 
-        if not suppress_logs:
-            print('Loading in the extra variables')
+        _print('Loading in the extra variables')
         self.extra_vars = read_hdf(f'{dir_path}/{EXTRA_VARS_F}')
 
         self.network_name = self.training_args['network_name']
-        if not suppress_logs:
-            print(f'Loading in the network (`{self.network_name}`) '
-                  'and setting weights')
+        _print(f'Loading in the network (`{self.network_name}`) '
+               'and setting weights')
         # Need to first load in the network
         self.network = load_network(self.network_name)
         self.model = self.network()
