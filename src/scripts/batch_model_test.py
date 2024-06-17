@@ -44,6 +44,11 @@ def batch_model_test_parser(subparsers):
         help='name of the testing dataset',
     )
     subparser.add_argument(
+        '--inputs-need-diff',
+        action='store_true',
+        help='the inputs need to subtract the base field to get the diff',
+    )
+    subparser.add_argument(
         '--inputs-need-norm',
         action='store_true',
         help='the inputs need to be normalized',
@@ -95,6 +100,7 @@ def batch_model_test(cli_args):
         arg: cli_args[arg]
         for arg in (
             'testing_ds',
+            'inputs_need_diff',
             'inputs_need_norm',
             'scatter_plot',
             'zernike_plots',
