@@ -14,10 +14,9 @@ The response matrix runs on denormalized inputs.
 
 import numpy as np
 from utils.constants import (ANALYSIS_P, EXTRA_VARS_F, INPUT_MAX_MIN_DIFF,
-                             INPUT_MIN_X, MAE, MSE, NORM_F, PROC_DATA_P,
-                             RESULTS_F, ZERNIKE_TERMS)
+                             INPUT_MIN_X, MAE, MSE, PROC_DATA_P, RESULTS_F,
+                             ZERNIKE_TERMS)
 from utils.hdf_read_and_write import HDFWriteModule, read_hdf
-from utils.json import json_load
 from utils.norm import min_max_denorm
 from utils.path import delete_dir, get_abs_path, make_dir
 from utils.plots.plot_comparison_scatter_grid import plot_comparison_scatter_grid  # noqa
@@ -95,16 +94,16 @@ def run_response_matrix(cli_args):
     inputs = testing_dataset.get_inputs()
     outputs_truth = testing_dataset.get_outputs()
     base_path = f'{PROC_DATA_P}/{testing_ds_tag}'
-    zernike_terms = read_hdf(f'{base_path}/{EXTRA_VARS_F}')[ZERNIKE_TERMS]
+    extra_vars = read_hdf(f'{base_path}/{EXTRA_VARS_F}')
+    zernike_terms = extra_vars[ZERNIKE_TERMS]
     print(f'Using zernike terms: {zernike_terms}')
 
     if cli_args.get('inputs_need_denorm'):
         step_ri('Denormalizing the input values')
-        norm_values = json_load(f'{base_path}/{NORM_F}')
         inputs = min_max_denorm(
             inputs,
-            norm_values[INPUT_MAX_MIN_DIFF],
-            norm_values[INPUT_MIN_X],
+            extra_vars[INPUT_MAX_MIN_DIFF],
+            extra_vars[INPUT_MIN_X],
         )
 
     step_ri('Calling the response matrix')

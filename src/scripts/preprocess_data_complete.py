@@ -14,7 +14,7 @@ performed, it will be based on the training normalization values.
 import numpy as np
 from utils.constants import (ARGS_F, BASE_INT_FIELD, CCD_SAMPLING, DATA_F,
                              EXTRA_VARS_F, INPUTS, INPUT_MIN_X,
-                             INPUT_MAX_MIN_DIFF, NORM_F, OUTPUTS, OUTPUT_MIN_X,
+                             INPUT_MAX_MIN_DIFF, OUTPUTS, OUTPUT_MIN_X,
                              OUTPUT_MAX_MIN_DIFF, PROC_DATA_P, ZERNIKE_TERMS)
 from utils.hdf_read_and_write import HDFWriteModule
 from utils.json import json_write
@@ -220,6 +220,7 @@ def preprocess_data_complete(cli_args):
     extra_vars = {
         CCD_SAMPLING: ccd_sampling,
         ZERNIKE_TERMS: zernike_terms,
+        **norm_values,
     }
     # Need to save the base field so that it can be subtracted if necessary,
     # this is unnormalized and should be subtracted before normalization occurs
@@ -232,11 +233,9 @@ def preprocess_data_complete(cli_args):
         make_dir(out_path)
         # Write out the CLI args that this script was called with
         json_write(f'{out_path}/{ARGS_F}', cli_args)
-        # Add a file with other necessary variables
+        # Add a file with other necessary variables (includes norm values)
         HDFWriteModule(f'{out_path}/{EXTRA_VARS_F}'
                        ).create_and_write_hdf_simple(extra_vars)
-        # Add the file with the normalization input and output values
-        json_write(f'{out_path}/{NORM_F}', norm_values)
         # Write out the processed HDF file
         HDFWriteModule(f'{out_path}/{DATA_F}').create_and_write_hdf_simple({
             INPUTS: inputs,

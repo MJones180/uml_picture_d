@@ -83,7 +83,7 @@ def model_test(cli_args):
     epoch = cli_args['epoch']
 
     model = Model(tag, epoch)
-    norm_values = model.norm_values
+    model_vars = model.extra_vars
     # Grab the epoch number so that the output directory has what epoch it is
     epoch = model.epoch
 
@@ -107,17 +107,16 @@ def model_test(cli_args):
     # off before normalization occurs.
     if cli_args.get('inputs_need_diff'):
         step_ri('Taking the diff of the inputs')
-        extra_vars = model.extra_vars
-        if BASE_INT_FIELD not in list(extra_vars):
+        if BASE_INT_FIELD not in list(model_vars):
             terminate_with_message('Base field not present in raw ds info')
-        inputs = inputs - extra_vars[BASE_INT_FIELD]
+        inputs = inputs - model_vars[BASE_INT_FIELD]
 
     if cli_args.get('inputs_need_norm'):
         step_ri('Normalizing the inputs')
         inputs = min_max_norm(
             inputs,
-            norm_values[INPUT_MAX_MIN_DIFF],
-            norm_values[INPUT_MIN_X],
+            model_vars[INPUT_MAX_MIN_DIFF],
+            model_vars[INPUT_MIN_X],
         )
 
     step_ri('Calling the model and obtaining its outputs')
@@ -127,8 +126,8 @@ def model_test(cli_args):
     # Denormalize the outputs
     outputs_model = min_max_denorm(
         outputs_model,
-        norm_values[OUTPUT_MAX_MIN_DIFF],
-        norm_values[OUTPUT_MIN_X],
+        model_vars[OUTPUT_MAX_MIN_DIFF],
+        model_vars[OUTPUT_MIN_X],
     )
     # Testing output data should already be denormalized
     outputs_truth = testing_dataset.get_outputs()

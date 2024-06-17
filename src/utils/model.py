@@ -1,6 +1,6 @@
 from glob import glob
 import torch
-from utils.constants import ARGS_F, EXTRA_VARS_F, NORM_F, TRAINED_MODELS_P
+from utils.constants import ARGS_F, EXTRA_VARS_F, TRAINED_MODELS_P
 from utils.hdf_read_and_write import read_hdf
 from utils.json import json_load
 from utils.load_network import load_network
@@ -48,10 +48,6 @@ class Model():
             print(f'Model directory path with epoch: {model_path}')
         if not path_exists(model_path):
             terminate_with_message(f'Model not found at {model_path}')
-
-        if not suppress_logs:
-            print('Loading in the norm values')
-        self.norm_values = json_load(f'{dir_path}/{NORM_F}')
 
         if not suppress_logs:
             print('Loading in the training args')

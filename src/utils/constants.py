@@ -16,7 +16,6 @@ PACKAGES_P = '../packages'
 ARGS_F = 'args.json'
 EPOCH_LOSS_F = 'epoch_loss.csv'
 EXTRA_VARS_F = 'extra_variables.h5'
-NORM_F = 'norm.json'
 TAG_LOOKUP_F = 'tag_lookup.json'
 DATA_F = 'data.h5'
 RESULTS_F = 'results.h5'
@@ -34,7 +33,7 @@ INPUTS = 'inputs'
 OUTPUTS = 'outputs'
 
 # ==============================================================================
-# Normalization values (belongs to the `NORM_F` file)
+# Normalization values (belongs to the `EXTRA_VARS_F` file)
 
 INPUT_MIN_X = 'input_min_x'
 INPUT_MAX_MIN_DIFF = 'input_max_min_diff'

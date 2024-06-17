@@ -64,8 +64,7 @@ Each processed dataset ends up consisting of four files:
 
 - `args.json`: the arguments passed to the script to preprocess the data
 - `data.h5`: all data is in the `inputs` and `outputs` tables
-- `extra_variables.h5`: variables that may be required later
-- `norm.json`: normalization values of the training dataset
+- `extra_variables.h5`: variables that may be required later (such as normalization)
 
 ## Model
 
@@ -74,8 +73,7 @@ Each model is stored under the unique tag given to it during training.
 Along with each epoch, models store the following files:
 
 - `args.json`: the CLI args used to the model training script
-- `extra_variables.h5`: variables that may be required later
-- `norm.json`: normalization values used in the training dataset
+- `extra_variables.h5`: variables that may be required later (such as normalization)
 
 To easily lookup a model by its tag, there exists a JSON file at `output/tag_lookup.json` that can be referenced.
 

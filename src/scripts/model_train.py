@@ -11,8 +11,8 @@ from time import time
 import torch
 from torchvision.transforms import v2
 from utils.constants import (ARGS_F, EPOCH_LOSS_F, EXTRA_VARS_F,
-                             LOSS_FUNCTIONS, NORM_F, OPTIMIZERS, OUTPUT_P,
-                             PROC_DATA_P, TAG_LOOKUP_F, TRAINED_MODELS_P)
+                             LOSS_FUNCTIONS, OPTIMIZERS, OUTPUT_P, PROC_DATA_P,
+                             TAG_LOOKUP_F, TRAINED_MODELS_P)
 from utils.json import json_load, json_write
 from utils.load_network import load_network
 from utils.model import Model
@@ -164,13 +164,9 @@ def model_train(cli_args):
     train_dataset = _fetch_loader('training_ds')
     validation_dataset = _fetch_loader('validation_ds')
 
-    step_ri('Copying over the normalization values from the training dataset')
-    train_ds_tag = cli_args['training_ds']
-    train_ds_folder = f'{PROC_DATA_P}/{train_ds_tag}'
-    copy_files(f'{train_ds_folder}/{NORM_F}', f'{output_model_path}/{NORM_F}')
-
     step_ri('Copying over the extra variables from the training dataset')
-    copy_files(f'{train_ds_folder}/{EXTRA_VARS_F}',
+    train_ds_tag = cli_args['training_ds']
+    copy_files(f'{PROC_DATA_P}/{train_ds_tag}/{EXTRA_VARS_F}',
                f'{output_model_path}/{EXTRA_VARS_F}')
 
     step_ri('Saving all CLI args')

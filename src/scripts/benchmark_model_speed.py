@@ -39,10 +39,10 @@ def benchmark_model_speed(cli_args):
 
     model = Model(tag, epoch)
     network = model.network
-    norm_values = model.norm_values
+    model_vars = model.extra_vars
 
-    output_max_min_diff = norm_values[OUTPUT_MAX_MIN_DIFF]
-    output_min_x = norm_values[OUTPUT_MIN_X]
+    output_max_min_diff = model_vars[OUTPUT_MAX_MIN_DIFF]
+    output_min_x = model_vars[OUTPUT_MIN_X]
 
     example_input = network.example_input()
 
