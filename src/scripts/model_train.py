@@ -10,14 +10,14 @@ The training and validation dataset must have their inputs pre-normalized.
 from time import time
 import torch
 from torchvision.transforms import v2
-from utils.constants import (ARGS_F, EPOCH_LOSS_F, LOSS_FUNCTIONS, NORM_F,
-                             OPTIMIZERS, OUTPUT_P, TAG_LOOKUP_F,
-                             TRAINED_MODELS_P)
+from utils.constants import (ARGS_F, DS_RAW_INFO_F, EPOCH_LOSS_F,
+                             LOSS_FUNCTIONS, NORM_F, OPTIMIZERS, OUTPUT_P,
+                             PROC_DATA_P, TAG_LOOKUP_F, TRAINED_MODELS_P)
 from utils.json import json_load, json_write
 from utils.load_network import load_network
 from utils.model import Model
 from utils.path import (copy_files, delete_dir, delete_file, make_dir,
-                        path_exists, path_parent)
+                        path_exists)
 from utils.printing_and_logging import dec_print_indent, step, step_ri, title
 from utils.shared_argparser_args import shared_argparser_args
 from utils.torch_hdf_ds_loader import DSLoaderHDF
@@ -165,8 +165,13 @@ def model_train(cli_args):
     validation_dataset = _fetch_loader('validation_ds')
 
     step_ri('Copying over the normalization values from the training dataset')
-    copy_files(f'{path_parent(train_dataset.get_path())}/{NORM_F}',
-               f'{output_model_path}/{NORM_F}')
+    train_ds_tag = cli_args['training_ds']
+    train_ds_folder = f'{PROC_DATA_P}/{train_ds_tag}'
+    copy_files(f'{train_ds_folder}/{NORM_F}', f'{output_model_path}/{NORM_F}')
+
+    step_ri('Copying over the raw ds values from the training dataset')
+    copy_files(f'{train_ds_folder}/{DS_RAW_INFO_F}',
+               f'{output_model_path}/{DS_RAW_INFO_F}')
 
     step_ri('Saving all CLI args')
     json_write(f'{output_model_path}/{ARGS_F}', cli_args)

@@ -1,6 +1,7 @@
 from glob import glob
 import torch
-from utils.constants import ARGS_F, NORM_F, TRAINED_MODELS_P
+from utils.constants import ARGS_F, DS_RAW_INFO_F, NORM_F, TRAINED_MODELS_P
+from utils.hdf_read_and_write import read_hdf
 from utils.json import json_load
 from utils.load_network import load_network
 from utils.path import path_exists
@@ -56,6 +57,10 @@ class Model():
             print('Loading in the training args')
         self.training_args = json_load(f'{dir_path}/{ARGS_F}')
 
+        if not suppress_logs:
+            print('Loading in the raw training dataset info')
+        self.raw_ds_info = read_hdf(f'{dir_path}/{DS_RAW_INFO_F}')
+
         self.network_name = self.training_args['network_name']
         if not suppress_logs:
             print(f'Loading in the network (`{self.network_name}`) '
@@ -80,6 +85,9 @@ class Model():
 
     def get_norm_values(self):
         return self.norm_values
+
+    def get_raw_ds_info(self):
+        return self.raw_ds_info
 
     def get_epoch(self):
         return self.epoch

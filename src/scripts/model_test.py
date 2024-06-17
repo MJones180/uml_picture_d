@@ -11,12 +11,11 @@ the `testing_ds` was simulated with the `sim_data` script using the
 
 import numpy as np
 import torch
-from utils.constants import (ANALYSIS_P, DS_RAW_INFO_F, INPUT_MAX_MIN_DIFF,
-                             INPUT_MIN_X, MAE, MSE, OUTPUT_MAX_MIN_DIFF,
-                             OUTPUT_MIN_X, PROC_DATA_P, RESULTS_F,
-                             ZERNIKE_TERMS)
-from utils.hdf_read_and_write import HDFWriteModule
-from utils.json import json_load
+from utils.constants import (ANALYSIS_P, BASE_INT_FIELD, DS_RAW_INFO_F,
+                             INPUT_MAX_MIN_DIFF, INPUT_MIN_X, MAE, MSE,
+                             OUTPUT_MAX_MIN_DIFF, OUTPUT_MIN_X, PROC_DATA_P,
+                             RESULTS_F, ZERNIKE_TERMS)
+from utils.hdf_read_and_write import HDFWriteModule, read_hdf
 from utils.model import Model
 from utils.norm import min_max_denorm, min_max_norm
 from utils.path import delete_dir, get_abs_path, make_dir
@@ -53,6 +52,11 @@ def model_test_parser(subparsers):
         help=('name of the testing dataset, will use the norm values from the '
               'trained model - NOT from the testing dataset directly, outputs '
               'should already be denormalized'),
+    )
+    subparser.add_argument(
+        '--inputs-need-diff',
+        action='store_true',
+        help='the inputs need to subtract the base field to get the diff',
     )
     subparser.add_argument(
         '--inputs-need-norm',
@@ -93,9 +97,16 @@ def model_test(cli_args):
     step_ri('Loading in the testing dataset')
     testing_dataset = DSLoaderHDF(testing_ds_tag)
     inputs = testing_dataset.get_inputs()
-    raw_info = json_load(f'{PROC_DATA_P}/{testing_ds_tag}/{DS_RAW_INFO_F}')
-    zernike_terms = raw_info[ZERNIKE_TERMS]
+    raw_ds_info_path = f'{PROC_DATA_P}/{testing_ds_tag}/{DS_RAW_INFO_F}'
+    zernike_terms = read_hdf(raw_ds_info_path)[ZERNIKE_TERMS]
     print(f'Using zernike terms: {zernike_terms}')
+
+    if cli_args.get('inputs_need_diff'):
+        step_ri('Taking the diff of the inputs')
+        raw_ds_info = model.get_raw_ds_info()
+        if BASE_INT_FIELD not in list(raw_ds_info):
+            terminate_with_message('Base field not present in raw ds info')
+        inputs = inputs - raw_ds_info[BASE_INT_FIELD]
 
     if cli_args.get('inputs_need_norm'):
         step_ri('Normalizing the inputs')

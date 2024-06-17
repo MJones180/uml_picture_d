@@ -73,7 +73,8 @@ def preprocess_data_bare(cli_args):
         # Write out the CLI args that this script was called with
         json_write(f'{out_path}/{ARGS_F}', cli_args)
         # Add a file with unused data from the raw dataset
-        json_write(f'{out_path}/{DS_RAW_INFO_F}', ds_raw_info)
+        HDFWriteModule(f'{out_path}/{DS_RAW_INFO_F}'
+                       ).create_and_write_hdf_simple(ds_raw_info)
         # Write out the processed HDF file
         HDFWriteModule(f'{out_path}/{DATA_F}').create_and_write_hdf_simple({
             INPUTS: inputs,

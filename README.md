@@ -64,7 +64,7 @@ Each processed dataset ends up consisting of four files:
 
 - `args.json`: the arguments passed to the script to preprocess the data
 - `data.h5`: all data is in the `inputs` and `outputs` tables
-- `ds_raw_info.json`: unused tables from the raw dataset that may be helpful
+- `ds_raw_info.h5`: unused tables from the raw dataset that may be helpful
 - `norm.json`: normalization values of the training dataset
 
 ## Model
@@ -74,6 +74,7 @@ Each model is stored under the unique tag given to it during training.
 Along with each epoch, models store the following files:
 
 - `args.json`: the CLI args used to the model training script
+- `ds_raw_info.h5`: unused tables from the raw dataset that may be helpful
 - `norm.json`: normalization values used in the training dataset
 
 To easily lookup a model by its tag, there exists a JSON file at `output/tag_lookup.json` that can be referenced.

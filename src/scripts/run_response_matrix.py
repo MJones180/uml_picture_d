@@ -16,7 +16,7 @@ import numpy as np
 from utils.constants import (ANALYSIS_P, DS_RAW_INFO_F, INPUT_MAX_MIN_DIFF,
                              INPUT_MIN_X, MAE, MSE, NORM_F, PROC_DATA_P,
                              RESULTS_F, ZERNIKE_TERMS)
-from utils.hdf_read_and_write import HDFWriteModule
+from utils.hdf_read_and_write import HDFWriteModule, read_hdf
 from utils.json import json_load
 from utils.norm import min_max_denorm
 from utils.path import delete_dir, get_abs_path, make_dir
@@ -95,8 +95,7 @@ def run_response_matrix(cli_args):
     inputs = testing_dataset.get_inputs()
     outputs_truth = testing_dataset.get_outputs()
     base_path = f'{PROC_DATA_P}/{testing_ds_tag}'
-    raw_info = json_load(f'{base_path}/{DS_RAW_INFO_F}')
-    zernike_terms = raw_info[ZERNIKE_TERMS]
+    zernike_terms = read_hdf(f'{base_path}/{DS_RAW_INFO_F}')[ZERNIKE_TERMS]
     print(f'Using zernike terms: {zernike_terms}')
 
     if cli_args.get('inputs_need_denorm'):
