@@ -24,11 +24,9 @@ def plot_model_loss(cli_args):
 
     tag = cli_args['tag']
     base_path = f'{TRAINED_MODELS_P}/{tag}'
+    # Columns of the datafile are epochs, train_loss, val_loss. If there is a
+    # fourth column, it is the post training loss.
     data = np.loadtxt(f'{base_path}/{EPOCH_LOSS_F}', skiprows=1, delimiter=',')
-    # Columns of the datafile are epochs, train_loss, val_loss
-    epochs = data[:, 0]
-    train_loss = data[:, 1]
-    val_loss = data[:, 2]
     # Load in the loss function used
     loss_func = json_load(f'{base_path}/{ARGS_F}')['loss']
 
@@ -37,8 +35,11 @@ def plot_model_loss(cli_args):
     ax.set_title(f'Epoch Loss During Training\n{tag}')
     ax.set_xlabel('Epoch')
     ax.set_ylabel(f'Loss ({loss_func})')
-    ax.plot(epochs, train_loss, 'r', label='Train Loss')
-    ax.plot(epochs, val_loss, 'g', label='Validation Loss')
+    epochs = data[:, 0]
+    ax.plot(epochs, data[:, 1], 'b', label='Train Loss')
+    ax.plot(epochs, data[:, 2], 'r', label='Validation Loss')
+    if data.shape[1] == 4:
+        ax.plot(epochs, data[:, 3], 'g', label='Post Train Loss')
     plt.legend()
     path = f'{RANDOM_P}/model_loss_{tag}.png'
     print(f'Saving plot to {path}')

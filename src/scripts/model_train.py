@@ -115,6 +115,14 @@ def model_train_parser(subparsers):
         help=('init the weights from a pretrained model, the network '
               'structure must be the same'),
     )
+    subparser.add_argument(
+        '--save-post-training-loss',
+        action='store_true',
+        help=('calculate the loss of the training dataset after weights for '
+              'the epoch have been finalized, this will increase computation '
+              'time as all the training batches will have to be iterated '
+              'over again'),
+    )
     epoch_save_group = subparser.add_mutually_exclusive_group()
     epoch_save_group.add_argument(
         '--epoch-save-steps',
@@ -219,8 +227,12 @@ def model_train(cli_args):
 
     step_ri('Creating a CSV file to track loss')
     loss_file = f'{output_model_path}/{EPOCH_LOSS_F}'
+    loss_keys = 'epoch, training_loss, validation_loss'
+    save_post_training_loss = cli_args.get('save_post_training_loss')
+    if save_post_training_loss:
+        loss_keys += ', post_training_loss'
     with open(loss_file, 'w') as loss_writer:
-        loss_writer.write('epoch, training_loss, validation_loss')
+        loss_writer.write(loss_keys)
 
     step_ri('Writing to the tag lookup')
     tag_lookup_path = f'{OUTPUT_P}/{TAG_LOOKUP_F}'
@@ -294,8 +306,25 @@ def model_train(cli_args):
                 total_val_loss += loss
         avg_val_loss = total_val_loss / validation_batches
 
+        # Iterate through the training dataset again and compute the loss now
+        # that the weights for this epoch have been finalized. If there is
+        # dropout, the previous `avg_train_loss` will probably be higher than
+        # the `avg_val_loss`
+        if save_post_training_loss:
+            total_post_train_loss = 0
+            with torch.no_grad():
+                for data in train_loader:
+                    inputs, outputs_truth = data
+                    outputs = model(inputs)
+                    loss = loss_function(outputs, outputs_truth)
+                    total_post_train_loss += loss
+            avg_post_train_loss = total_post_train_loss / training_batches
+
         with open(loss_file, 'a+') as loss_writer:
             out_line = f'\n{epoch_idx}, {avg_train_loss}, {avg_val_loss}'
+            if save_post_training_loss:
+                out_line += f', {avg_post_train_loss}'
+
             loss_writer.write(out_line)
 
         current_epoch_path = f'{output_model_path}/epoch_{epoch_idx}'
