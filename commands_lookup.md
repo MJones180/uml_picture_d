@@ -59,6 +59,14 @@ Random Zernike aberrations for each term ranging from -50 to 50 nm:
                 --norm-outputs globally \
                 --use-field-diff
 
+Random Zernike aberrations for each term ranging from -10 to 10 nm:
+
+    python3 main_stnp.py sim_data random_10nm_med v84 600e-9 \
+                --output-write-batch 500 \
+                --rand-amount-per-zernike 2 24 " -10e-9" 10e-9 25000 \
+                --cores 4
+    python3 main.py preprocess_data_bare random_10nm_med random_10nm_med_processed
+
 Random Zernike aberration for only one term in each row ranging from -50 to 50 nm:
 
     python3 main_stnp.py sim_data random_50nm_single_med v84 600e-9 \
