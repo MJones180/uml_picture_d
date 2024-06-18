@@ -99,7 +99,7 @@ def model_test(cli_args):
     if cli_args.get('inputs_need_diff'):
         step_ri('Taking the diff of the inputs')
         if BASE_INT_FIELD not in list(model_vars):
-            terminate_with_message('Base field not present in raw ds info')
+            terminate_with_message('Base field not present in extra variables')
         inputs = inputs - model_vars[BASE_INT_FIELD]
 
     if cli_args.get('inputs_need_norm'):

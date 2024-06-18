@@ -139,6 +139,8 @@ Noll Number | `n`   | `m`   | Manual Names                 | Shorthand Names
 23          | 6     | -2    |                              | 3rd Astig 1
 24          | 6     | 2     |                              | 3rd Astig 2
 
+The coefficient for each Zernike term represents the RMS wavefront error associated with that temr.
+
 ## Docstrings
 
 Docstrings throughout the code are mostly formatted using `numpydoc` (https://numpydoc.readthedocs.io/en/latest/format.html).
