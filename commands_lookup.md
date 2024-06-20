@@ -238,21 +238,21 @@ The `ran50nm_single_diff_` tag:
     python3 main_stnp.py batch_model_train \
         train_ran50nm_single_diff val_ran50nm_single_diff  \
         ran50nm_single_diff_ 500 --max-threads 4 \
-        --networks dfc2v3 dfc3v3 btbc4 \
+        --networks dfc2 dfc2v3 dfc3 dfc3v3 btbc4 \
         --losses mse --optimizers adam \
         --lrs 1e-4 6e-5 --batch-sizes 64 \
         --overwrite-existing --only-best-epoch --early-stopping 10 \
 
     python3 main.py batch_model_test \
         test_ran50nm_single_diff --scatter-plot 5 5 \
-        --epoch-and-tag-range last ran50nm_single_diff_ 1 6
+        --epoch-and-tag-range last ran50nm_single_diff_ 1 10
 
     python3 main.py batch_model_test \
         fixed_50nm_range_processed --scatter-plot 5 5 --zernike-plots \
         --inputs-need-norm --inputs-need-diff \
-        --epoch-and-tag-range last ran50nm_single_diff_ 1 6
+        --epoch-and-tag-range last ran50nm_single_diff_ 1 10
 
     python3 main.py batch_model_test \
         random_10nm_med_processed --scatter-plot 5 5 \
         --inputs-need-norm --inputs-need-diff \
-        --epoch-and-tag-range last ran50nm_single_diff_ 1 6
+        --epoch-and-tag-range last ran50nm_single_diff_ 1 10
