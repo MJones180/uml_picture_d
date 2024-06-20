@@ -75,11 +75,10 @@ def preprocess_data_complete_parser(subparsers):
     )
     subparser.add_argument(
         '--use-field-diff',
-        action='store_true',
         help=('for the intensity fields (the inputs), take the difference '
               'between the base field (no aberrations) and each aberrated '
-              'field; this requires that the last row of the raw simulated '
-              'data contains no aberrations'),
+              'field; should be the name of the raw dataset with one row '
+              'containing no aberrations'),
     )
     subparser.add_argument(
         '--additional-raw-data-tags',
@@ -109,26 +108,26 @@ def preprocess_data_complete(cli_args):
     input_data = input_data[:, None, :, :]
     print(f'Input shape: {input_data.shape}')
 
-    # Check if the last row contains the base field
-    base_field = None
-    no_aber_output_row = None
-    if np.all(output_data[-1] == 0):
-        # Chop off the input and output base field
-        base_field = input_data[-1]
-        no_aber_output_row = output_data[-1]
-        input_data = input_data[:-1]
-        output_data = output_data[:-1]
+    use_field_diff = cli_args['use_field_diff']
+    if use_field_diff:
+        step_ri('Loading in the base field')
+        base_field, _, _, _ = load_raw_sim_data_chunks(use_field_diff)
+
+    step_ri('Removing all rows with no aberrations')
+    # The rows with no aberrations, these are equal to the base field
+    no_aber_rows = np.all(output_data == 0, axis=1)
+    # This should be the same as the base_field, but the base_field may not be
+    # passed in from the separate datafile
+    no_aber_input_row = input_data[no_aber_rows][0]
+    no_aber_output_row = output_data[no_aber_rows][0]
+    # Chop of all rows with no aberrations
+    input_data = input_data[~no_aber_rows]
+    output_data = output_data[~no_aber_rows]
 
     if cli_args['use_field_diff']:
         step_ri('Taking the difference between the inputs and the base field')
-        if no_aber_output_row is None:
-            terminate_with_message('Last row not aberration free')
         # Take the diff between the base field and each of the individual fields
         input_data = input_data - base_field
-    elif no_aber_output_row is not None:
-        step_ri('Last row has zeros for all Zernike coefficients')
-        print('This row has no aberrations')
-        print('Removing row so that it can be added to the training dataset')
 
     step_ri('Shuffling')
     random_shuffle_idxs = np.random.permutation(len(input_data))
@@ -153,8 +152,8 @@ def preprocess_data_complete(cli_args):
 
     # Add back in the base field if it was removed and the field diff is not
     # being done
-    if no_aber_output_row is not None and not cli_args['use_field_diff']:
-        train_inputs = np.vstack((train_inputs, base_field[None]))
+    if not use_field_diff and no_aber_input_row is not None:
+        train_inputs = np.vstack((train_inputs, no_aber_input_row[None]))
         train_outputs = np.vstack((train_outputs, no_aber_output_row[None]))
 
     def _print_split(word, percentage, inputs):
