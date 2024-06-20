@@ -113,16 +113,17 @@ def preprocess_data_complete(cli_args):
         step_ri('Loading in the base field')
         base_field, _, _, _ = load_raw_sim_data_chunks(use_field_diff)
 
-    step_ri('Removing all rows with no aberrations')
     # The rows with no aberrations, these are equal to the base field
     no_aber_rows = np.all(output_data == 0, axis=1)
-    # This should be the same as the base_field, but the base_field may not be
-    # passed in from the separate datafile
-    no_aber_input_row = input_data[no_aber_rows][0]
-    no_aber_output_row = output_data[no_aber_rows][0]
-    # Chop of all rows with no aberrations
-    input_data = input_data[~no_aber_rows]
-    output_data = output_data[~no_aber_rows]
+    if no_aber_rows.any():
+        step_ri('Removing all rows with no aberrations')
+        # This should be the same as the base_field, but the base_field may not
+        # be passed in from the separate datafile
+        no_aber_input_row = input_data[no_aber_rows][0]
+        no_aber_output_row = output_data[no_aber_rows][0]
+        # Chop of all rows with no aberrations
+        input_data = input_data[~no_aber_rows]
+        output_data = output_data[~no_aber_rows]
 
     if cli_args['use_field_diff']:
         step_ri('Taking the difference between the inputs and the base field')
