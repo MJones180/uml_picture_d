@@ -27,6 +27,7 @@ def rank_analysis_dir_parser(subparsers):
     subparser.add_argument(
         '--first',
         type=int,
+        default=5,
         help='only use the first n rows',
     )
     subparser.add_argument(
@@ -113,8 +114,7 @@ def rank_analysis_dir(cli_args):
         key=lambda pair: pair[1],
     )
     sorted_idxs = [idx for idx, val in sorted_results]
-    if first is not None:
-        sorted_idxs = sorted_idxs[:first]
+    sorted_idxs = sorted_idxs[:first]
 
     step_ri('Rankings')
     dec_print_indent()
