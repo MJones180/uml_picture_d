@@ -109,6 +109,7 @@ def preprocess_data_complete(cli_args):
     print(f'Input shape: {input_data.shape}')
 
     use_field_diff = cli_args['use_field_diff']
+    base_field = None
     if use_field_diff:
         step_ri('Loading in the base field')
         base_field, _, _, _ = load_raw_sim_data_chunks(use_field_diff)
@@ -125,7 +126,7 @@ def preprocess_data_complete(cli_args):
         input_data = input_data[~no_aber_rows]
         output_data = output_data[~no_aber_rows]
 
-    if cli_args['use_field_diff']:
+    if use_field_diff:
         step_ri('Taking the difference between the inputs and the base field')
         # Take the diff between the base field and each of the individual fields
         input_data = input_data - base_field
