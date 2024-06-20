@@ -176,6 +176,14 @@ Testing for models with `com50nm_gl_diff_v2_` tags:
     python3 main.py rank_analysis_dir fixed_50nm_range_processed \
         --ds-on-fixed-grid --r-min-filter 0.4 --filter com50nm_gl_diff_v2 --first 5
 
+    python3 main.py batch_model_test \
+        random_10nm_med_processed  \
+        --inputs-need-norm --inputs-need-diff \
+        --scatter-plot 5 5
+        --epoch-and-tag-range last com50nm_gl_diff_v2_ 1 12
+    python3 main.py rank_analysis_dir random_10nm_med_processed \
+        --r-min-filter 0.4 --filter com50nm_gl_diff_v2 --first 5
+
 ## Random Commands
 
 Print out the layers, trainable neurons, and time it takes to run the `dfc3` network:
