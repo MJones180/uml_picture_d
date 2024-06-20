@@ -179,7 +179,7 @@ The `ran50nm_gl_lg_diff_` tag:
         --networks dfc1 dfc2 sc1 btbc1 btbc2 \
         --losses mse --optimizers adam \
         --lrs 1e-3 5e-4 1e-4 --batch-sizes 64 128 \
-        --overwrite-existing --only-best-epoch --early-stopping 10 \
+        --overwrite-existing --only-best-epoch --early-stopping 10
 
     python3 main.py batch_model_test \
         test_ran50nm_gl_lg_diff --scatter-plot 5 5 \
@@ -198,7 +198,7 @@ The `com50nm_gl_diff_` tag:
         --networks dfc1 dfc2 dfc3 btbc2 btbc3 \
         --losses mse --optimizers adam \
         --lrs 6e-4 1e-4 6e-5 --batch-sizes 64 128 \
-        --overwrite-existing --only-best-epoch --early-stopping 10 \
+        --overwrite-existing --only-best-epoch --early-stopping 10
 
     python3 main.py batch_model_test \
         test_com50nm_gl_diff --scatter-plot 5 5 \
@@ -217,7 +217,7 @@ The `com50nm_gl_diff_v2_` tag (updated networks and hyperparameters):
         --networks dfc2v2 dfc3v2 \
         --losses mse --optimizers adam nadam \
         --lrs 1e-4 6e-5 --batch-sizes 64 \
-        --overwrite-existing --only-best-epoch --early-stopping 10 \
+        --overwrite-existing --only-best-epoch --early-stopping 10
 
     python3 main.py batch_model_test \
         test_com50nm_gl_diff --scatter-plot 5 5 \
@@ -241,7 +241,7 @@ The `ran50nm_single_diff_` tag:
         --networks dfc2 dfc2v3 dfc3 dfc3v3 btbc4 \
         --losses mse --optimizers adam \
         --lrs 1e-4 6e-5 --batch-sizes 64 \
-        --overwrite-existing --only-best-epoch --early-stopping 10 \
+        --overwrite-existing --only-best-epoch --early-stopping 10
 
     python3 main.py batch_model_test \
         test_ran50nm_single_diff --scatter-plot 5 5 \
