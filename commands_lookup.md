@@ -74,7 +74,7 @@ Random aberration for only one term in each row ranging from -50 to 50 nm:
 
 Random aberration ranging from -50 to 50 nm for only one term in each row and a row for each of the Zernike terms (can be used to create a response matrix):
 
-    python3 main_stnp.py sim_data random_50nm_single_each_med v84 600e-9 \
+    python3 main_stnp.py sim_data random_50nm_single_each_large v84 600e-9 \
         --output-write-batch 1000 \
         --rand-amount-per-zernike-single-each 2 24 " -50e-9" 50e-9 5000 \
         --cores 4
@@ -116,8 +116,8 @@ Can be used for model training:
         --additional-raw-data-tags random_50nm_large
 
     python3 main.py preprocess_data_complete \
-        random_50nm_single_each_med \
-        train_ran50nm_single_each_diff val_ran50nm_single_each_diff test_ran50nm_single_each_diff \
+        random_50nm_single_each_large \
+        train_ran50nm_se_diff val_ran50nm_se_diff test_ran50nm_se_diff \
         75 25 0 \
         --norm-outputs globally \
         --use-field-diff no_aberrations
@@ -126,15 +126,15 @@ Can be used for testing:
 
     python3 main.py preprocess_data_bare random_10nm_med random_10nm_med_processed
 
-## Response Matrix
+## Creating a Response Matrix
 
-Create response matrix at 40 nm:
+Response matrix at 40 nm:
 
     python3 main.py create_response_matrix --simulated-data-tag fixed_40nm
 
-Create averaged response matrix:
+Averaged response matrix:
 
-    [COMING SOON]
+    COMING SOON - Will use `random_50nm_single_each_large`
 
 ## Running a Response Matrix
 
@@ -152,6 +152,10 @@ Create averaged response matrix:
 
     python3 main.py run_response_matrix fixed_40nm \
         test_com50nm_gl_diff --scatter-plot 5 5 \
+        --inputs-need-denorm --inputs-are-diff
+
+    python3 main.py run_response_matrix fixed_40nm \
+        test_ran50nm_single_diff --scatter-plot 5 5 \
         --inputs-need-denorm --inputs-are-diff
 
 ## Model Training and Testing
@@ -238,3 +242,17 @@ The `ran50nm_single_diff_` tag:
         --losses mse --optimizers adam \
         --lrs 1e-4 6e-5 --batch-sizes 64 \
         --overwrite-existing --only-best-epoch --early-stopping 10 \
+
+    python3 main.py batch_model_test \
+        test_ran50nm_single_diff --scatter-plot 5 5 \
+        --epoch-and-tag-range last ran50nm_single_diff_ 1 6
+
+    python3 main.py batch_model_test \
+        fixed_50nm_range_processed --scatter-plot 5 5 --zernike-plots \
+        --inputs-need-norm --inputs-need-diff \
+        --epoch-and-tag-range last ran50nm_single_diff_ 1 6
+
+    python3 main.py batch_model_test \
+        random_10nm_med_processed --scatter-plot 5 5 \
+        --inputs-need-norm --inputs-need-diff \
+        --epoch-and-tag-range last ran50nm_single_diff_ 1 6
