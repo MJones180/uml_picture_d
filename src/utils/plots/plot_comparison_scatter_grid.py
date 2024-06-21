@@ -1,6 +1,23 @@
+from matplotlib.colors import LinearSegmentedColormap
 import matplotlib.pyplot as plt
+import mpl_scatter_density  # noqa: F401; 'scatter_density' projection
 import numpy as np
 from utils.terminate_with_message import terminate_with_message
+
+# https://stackoverflow.com/a/64105308
+density_cmap = LinearSegmentedColormap.from_list(
+    'density_cmap',
+    [
+        (0, '#000000'),
+        (1e-20, '#440053'),
+        (0.2, '#404388'),
+        (0.4, '#2a788e'),
+        (0.6, '#21a784'),
+        (0.8, '#78d151'),
+        (1, '#fde624'),
+    ],
+    N=256,
+)
 
 
 def plot_comparison_scatter_grid(
@@ -11,11 +28,15 @@ def plot_comparison_scatter_grid(
     title_vs,
     identifier,
     output_path,
+    plot_density=False,
 ):
     row_count, col_count = pred_data.shape
     if n_rows * n_cols < col_count:
         terminate_with_message('Not enough rows and columns for the data.')
-    fig, axs = plt.subplots(n_rows, n_cols, figsize=(n_cols * 3, n_rows * 3))
+    subplot_args = {'figsize': (n_cols * 3, n_rows * 3)}
+    if plot_density:
+        subplot_args['subplot_kw'] = {'projection': 'scatter_density'}
+    fig, axs = plt.subplots(n_rows, n_cols, **subplot_args)
     plt.suptitle(f'Truth vs {title_vs} [{identifier}]')
     current_col = 0
     for plot_row in range(n_rows):
@@ -40,12 +61,20 @@ def plot_comparison_scatter_grid(
                 ypoints,
                 linestyle='-',
                 linewidth=2,
-                color='#FFB200',
+                color='#FFFFFF' if plot_density else '#FFB200',
                 scalex=False,
                 scaley=False,
             )
-            # Plot the scatter of all the points
-            axs_cell.scatter(truth_col, pred_col, 0.25)
+            if plot_density:
+                density = axs_cell.scatter_density(
+                    pred_col,
+                    truth_col,
+                    cmap=density_cmap,
+                )
+                fig.colorbar(density, label='Retrievals Per Pixel')
+            else:
+                # Plot the scatter of all the points
+                axs_cell.scatter(truth_col, pred_col, 0.25)
             current_col += 1
     for ax in axs.flat:
         ax.set(xlabel='Truth Outputs', ylabel='Pred Outputs')

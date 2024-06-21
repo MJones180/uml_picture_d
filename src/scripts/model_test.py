@@ -156,6 +156,16 @@ def model_test(cli_args):
             plot_identifier,
             f'{analysis_path}/scatter.png',
         )
+        plot_comparison_scatter_grid(
+            outputs_model,
+            outputs_truth,
+            n_rows,
+            n_cols,
+            plot_title,
+            plot_identifier,
+            f'{analysis_path}/density_scatter.png',
+            plot_density=True,
+        )
 
     if cli_args.get('zernike_plots'):
         nrows = outputs_truth.shape[0]
