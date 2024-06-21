@@ -159,6 +159,14 @@ Averaged response matrix:
         test_ran50nm_single_diff --scatter-plot 5 5 \
         --inputs-need-denorm --inputs-are-diff
 
+`random_50nm_single_each_large` response matrix:
+
+    python3 main.py run_response_matrix random_50nm_single_each_large \
+        fixed_50nm_range_processed --scatter-plot 5 5 --zernike-plots
+
+    python3 main.py run_response_matrix random_50nm_single_each_large \
+        random_10nm_med_processed --scatter-plot 5 5
+
 ## Model Training and Testing
 
 Model training is listed from oldest to newest (newest at the bottom).
@@ -257,3 +265,43 @@ The `ran50nm_single_diff_` tag:
         random_10nm_med_processed --scatter-plot 5 5 \
         --inputs-need-norm --inputs-need-diff \
         --epoch-and-tag-range last ran50nm_single_diff_ 1 10
+
+The `ran50nm_single_diff_v2` tag:
+
+    python3 main_stnp.py batch_model_train \
+        train_ran50nm_single_diff val_ran50nm_single_diff  \
+        ran50nm_single_diff_v2_ 500 --max-threads 4 \
+        --networks dfc1n dfc2n \
+        --losses mse --optimizers adam \
+        --lrs 1e-4 6e-5 --batch-sizes 64 \
+        --overwrite-existing --only-best-epoch --early-stopping 10
+
+    python3 main.py batch_model_test \
+        fixed_50nm_range_processed --scatter-plot 5 5 --zernike-plots \
+        --inputs-need-norm --inputs-need-diff \
+        --epoch-and-tag-range last ran50nm_single_diff_v2_ 1 4
+
+    python3 main.py batch_model_test \
+        random_10nm_med_processed --scatter-plot 5 5 \
+        --inputs-need-norm --inputs-need-diff \
+        --epoch-and-tag-range last ran50nm_single_diff_v2_ 1 4
+
+The `nn_rm_comparison` tag:
+
+    python3 main_stnp.py batch_model_train \
+        train_ran50nm_se_diff val_ran50nm_se_diff \
+        nn_rm_comparison_ 500 --max-threads 4 \
+        --networks dfc1n dfc2n dfc3n \
+        --losses mse --optimizers adam \
+        --lrs 1e-4 6e-5 --batch-sizes 64 \
+        --overwrite-existing --only-best-epoch --early-stopping 10
+
+    python3 main.py batch_model_test \
+        fixed_50nm_range_processed --scatter-plot 5 5 --zernike-plots \
+        --inputs-need-norm --inputs-need-diff \
+        --epoch-and-tag-range last nn_rm_comparison_ 1 6
+
+    python3 main.py batch_model_test \
+        random_10nm_med_processed --scatter-plot 5 5 \
+        --inputs-need-norm --inputs-need-diff \
+        --epoch-and-tag-range last nn_rm_comparison_ 1 6
