@@ -1,6 +1,7 @@
 from matplotlib.colors import LinearSegmentedColormap
 import matplotlib.pyplot as plt
 import mpl_scatter_density  # noqa: F401; 'scatter_density' projection
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 import numpy as np
 from utils.terminate_with_message import terminate_with_message
 
@@ -33,9 +34,15 @@ def plot_comparison_scatter_grid(
     row_count, col_count = pred_data.shape
     if n_rows * n_cols < col_count:
         terminate_with_message('Not enough rows and columns for the data.')
-    subplot_args = {'figsize': (n_cols * 3, n_rows * 3)}
     if plot_density:
-        subplot_args['subplot_kw'] = {'projection': 'scatter_density'}
+        subplot_args = {
+            'figsize': (n_cols * 5, n_rows * 5),
+            'subplot_kw': {
+                'projection': 'scatter_density'
+            }
+        }
+    else:
+        subplot_args = {'figsize': (n_cols * 3, n_rows * 3)}
     fig, axs = plt.subplots(n_rows, n_cols, **subplot_args)
     plt.suptitle(f'Truth vs {title_vs} [{identifier}]')
     current_col = 0
@@ -71,7 +78,13 @@ def plot_comparison_scatter_grid(
                     truth_col,
                     cmap=density_cmap,
                 )
-                fig.colorbar(density, label='Retrievals Per Pixel')
+                divider = make_axes_locatable(axs_cell)
+                caxd = divider.append_axes('right', size='5%', pad=0.05)
+                fig.colorbar(density, label='Retrievals Per Pixel', cax=caxd)
+                # Have to set these parameters to make the plots square
+                axs_cell.set_aspect(1)
+                axs_cell.set_xlim(lower, upper)
+                axs_cell.set_ylim(lower, upper)
             else:
                 # Plot the scatter of all the points
                 axs_cell.scatter(truth_col, pred_col, 0.25)

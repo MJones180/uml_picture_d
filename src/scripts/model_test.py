@@ -156,6 +156,7 @@ def model_test(cli_args):
             plot_identifier,
             f'{analysis_path}/scatter.png',
         )
+        step_ri('Generating density scatter plot')
         plot_comparison_scatter_grid(
             outputs_model,
             outputs_truth,

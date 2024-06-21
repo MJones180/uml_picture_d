@@ -148,6 +148,7 @@ def run_response_matrix(cli_args):
             plot_identifier,
             f'{analysis_path}/scatter.png',
         )
+        step_ri('Generating density scatter plot')
         plot_comparison_scatter_grid(
             outputs_resp_mat,
             outputs_truth,
