@@ -114,3 +114,6 @@ dependencies:
   - yaml=0.2.5
   - zipp=3.17.0
   - zstd=1.5.5
+  - pip:
+      - fast-histogram==0.14
+      - mpl-scatter-density==0.7
