@@ -130,11 +130,12 @@ Can be used for testing:
 
 Response matrix at 40 nm:
 
-    python3 main.py create_response_matrix --simulated-data-tag fixed_40nm
+    python3 main.py create_response_matrix --simulated-data-tag-single fixed_40nm
 
 Averaged response matrix:
 
-    COMING SOON - Will use `random_50nm_single_each_large`
+    python3 main.py create_response_matrix \
+        --simulated-data-tag-average random_50nm_single_each_large
 
 ## Running a Response Matrix
 
