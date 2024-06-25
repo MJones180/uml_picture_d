@@ -10,7 +10,8 @@ def plot_zernike_response(
     pred_groupings,
     title_append,
     identifier,
-    plot_path,
+    plot_path=None,
+    interactive_view=False,
 ):
     """
     Generates and saves a Zernike response plot.
@@ -31,6 +32,8 @@ def plot_zernike_response(
         Identifier for what predicted the data.
     plot_path : str
         Path to save the plot at.
+    interactive_view : bool
+        Display the plot in interactive mode instead of saving it.
     """
 
     # Set the figure size and add the title + axes labels
@@ -86,5 +89,8 @@ def plot_zernike_response(
     # Ensure the legend does not get cut off
     plt.tight_layout()
 
-    # Save the plot
-    plt.savefig(plot_path, dpi=300, bbox_inches='tight')
+    if interactive_view:
+        plt.show()
+    else:
+        # Save the plot
+        plt.savefig(plot_path, dpi=300, bbox_inches='tight')

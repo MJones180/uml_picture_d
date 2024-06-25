@@ -8,7 +8,8 @@ def plot_zernike_total_cross_coupling(
     pred_groupings,
     title_append,
     identifier,
-    plot_path,
+    plot_path=None,
+    interactive_view=False,
 ):
     """
     Generates and saves a Zernike total cross coupling plot.
@@ -27,6 +28,8 @@ def plot_zernike_total_cross_coupling(
         Identifier for what predicted the data.
     plot_path : str
         Path to save the plot at.
+    interactive_view : bool
+        Display the plot in interactive mode instead of saving it.
     """
 
     # Set the figure size and add the title + axes labels
@@ -57,5 +60,8 @@ def plot_zernike_total_cross_coupling(
     tick_labels = [f'{a:.0f}' for a in tick_pos * 1e9]
     ax.set_xticks(tick_pos, tick_labels)
 
-    # Save the plot
-    plt.savefig(plot_path, dpi=300, bbox_inches='tight')
+    if interactive_view:
+        plt.show()
+    else:
+        # Save the plot
+        plt.savefig(plot_path, dpi=300, bbox_inches='tight')

@@ -28,8 +28,9 @@ def plot_comparison_scatter_grid(
     n_cols,
     title_vs,
     identifier,
-    output_path,
+    plot_path=None,
     plot_density=False,
+    interactive_view=False,
 ):
     row_count, col_count = pred_data.shape
     if n_rows * n_cols < col_count:
@@ -92,4 +93,8 @@ def plot_comparison_scatter_grid(
     for ax in axs.flat:
         ax.set(xlabel='Truth Outputs', ylabel='Pred Outputs')
     fig.tight_layout()
-    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    if interactive_view:
+        plt.show()
+    else:
+        # Save the plot
+        plt.savefig(plot_path, dpi=300, bbox_inches='tight')
