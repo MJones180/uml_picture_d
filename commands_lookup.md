@@ -24,6 +24,11 @@ Prune the `tag_lookup.json` file to remove old models:
 
     python3 main.py prune_tag_lookup
 
+Interactively view plots after `model_test` has been run:
+
+    # Example on ran50nm_single_diff_v2_3 model, epoch 31 
+    python3 main.py interactive_model_test_plots ran50nm_single_diff_v2_3 31 fixed_50nm_range_processed --scatter-plot 5 5 --zernike-plots 2 24
+
 ## Data Simulation
 
 A single row with no aberrations (used to compute the difference during preprocessing):

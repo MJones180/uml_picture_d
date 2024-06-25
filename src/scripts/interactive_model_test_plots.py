@@ -61,7 +61,7 @@ def interactive_model_test_plots(cli_args):
 
     scatter_plot = cli_args.get('scatter_plot')
     if scatter_plot is not None:
-        step_ri('Generating scatter plot')
+        step_ri('Displaying scatter plot')
         n_rows, n_cols = [int(arg) for arg in scatter_plot]
         plot_comparison_scatter_grid(
             outputs_model,
@@ -72,7 +72,7 @@ def interactive_model_test_plots(cli_args):
             plot_identifier,
             interactive_view=True,
         )
-        step_ri('Generating density scatter plot')
+        step_ri('Displaying density scatter plot')
         plot_comparison_scatter_grid(
             outputs_model,
             outputs_truth,
@@ -105,7 +105,7 @@ def interactive_model_test_plots(cli_args):
         # the list of all RMS perturbations.
         perturbation_grid = outputs_truth_gr[:, 0, 0]
 
-        step_ri('Generating a Zernike response plot')
+        step_ri('Displaying a Zernike response plot')
         plot_zernike_response(
             zernike_terms,
             perturbation_grid,
@@ -115,7 +115,7 @@ def interactive_model_test_plots(cli_args):
             interactive_view=True,
         )
 
-        step_ri('Generating a Zernike total cross coupling plot')
+        step_ri('Displaying a Zernike total cross coupling plot')
         plot_zernike_total_cross_coupling(
             perturbation_grid,
             outputs_model_gr,

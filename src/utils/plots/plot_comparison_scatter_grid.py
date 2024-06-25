@@ -49,8 +49,9 @@ def plot_comparison_scatter_grid(
     current_col = 0
     for plot_row in range(n_rows):
         for plot_col in range(n_cols):
-            if current_col == col_count:
-                break
+            if current_col >= col_count:
+                fig.delaxes(axs[plot_row, plot_col])
+                continue
             pred_col = pred_data[:, current_col]
             truth_col = truth_data[:, current_col]
             axs_cell = axs[plot_row, plot_col]
