@@ -322,7 +322,7 @@ The `nn_rm_comparison_o` tag:
 
     python3 main_stnp.py batch_model_train \
         train_val_ran50nm_se_diff_all train_val_ran50nm_se_diff_all \
-        nn_rm_comparison_o_ 15 --max-threads 4 \
+        nn_rm_comparison_o_ 20 --max-threads 4 \
         --networks dfc1n dfc2n dfc3n \
         --losses mse --optimizers adam \
         --lrs 1e-4 6e-5 --batch-sizes 64 \
