@@ -84,6 +84,13 @@ Random aberration ranging from -50 to 50 nm for only one term in each row and a 
         --rand-amount-per-zernike-single-each 2 24 " -50e-9" 50e-9 5000 \
         --cores 4
 
+Fixed grid from -50 to 50 nm with 2000 points in between:
+
+    python3 main_stnp.py sim_data fixed_50nm_range_2000 v84 600e-9 \
+        --output-write-batch 1000 \
+        --fixed-amount-per-zernike-range 2 24 " -50e-9" 50e-9 2000 \
+        --cores 4
+
 ## Data Preprocessing
 
 This data can be used to generate the `zernike` plots:
@@ -149,6 +156,9 @@ Averaged response matrix:
     python3 main.py create_response_matrix \
         --simulated-data-tag-average random_50nm_single_each_large
 
+    python3 main.py create_response_matrix \
+        --simulated-data-tag-average fixed_50nm_range_2000
+
 ## Running a Response Matrix
 
 `fixed_40nm` response matrix:
@@ -177,6 +187,14 @@ Averaged response matrix:
         fixed_50nm_range_processed --scatter-plot 5 5 --zernike-plots
 
     python3 main.py run_response_matrix random_50nm_single_each_large \
+        random_10nm_med_processed --scatter-plot 5 5
+
+`fixed_50nm_range_2000` response matrix:
+
+    python3 main.py run_response_matrix fixed_50nm_range_2000 \
+        fixed_50nm_range_processed --scatter-plot 5 5 --zernike-plots
+
+    python3 main.py run_response_matrix fixed_50nm_range_2000 \
         random_10nm_med_processed --scatter-plot 5 5
 
 ## Model Training and Testing
