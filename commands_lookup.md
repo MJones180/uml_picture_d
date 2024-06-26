@@ -122,8 +122,15 @@ Can be used for model training:
 
     python3 main.py preprocess_data_complete \
         random_50nm_single_each_large \
-        train_ran50nm_se_diff val_ran50nm_se_diff test_ran50nm_se_diff \
+        train_ran50nm_se_diff val_ran50nm_se_diff empty \
         75 25 0 \
+        --norm-outputs globally \
+        --use-field-diff no_aberrations
+
+    python3 main.py preprocess_data_complete \
+        random_50nm_single_each_large \
+        train_val_ran50nm_se_diff_all empty empty \
+        100 0 0 \
         --norm-outputs globally \
         --use-field-diff no_aberrations
 
@@ -310,3 +317,23 @@ The `nn_rm_comparison` tag:
         random_10nm_med_processed --scatter-plot 5 5 \
         --inputs-need-norm --inputs-need-diff \
         --epoch-and-tag-range last nn_rm_comparison_ 1 6
+
+The `nn_rm_comparison_o` tag:
+
+    python3 main_stnp.py batch_model_train \
+        train_val_ran50nm_se_diff_all train_val_ran50nm_se_diff_all \
+        nn_rm_comparison_o_ 500 --max-threads 4 \
+        --networks dfc1n dfc2n dfc3n \
+        --losses mse --optimizers adam \
+        --lrs 1e-4 6e-5 --batch-sizes 64 \
+        --overwrite-existing --only-best-epoch --early-stopping 10
+
+    python3 main.py batch_model_test \
+        fixed_50nm_range_processed --zernike-plots \
+        --inputs-need-norm --inputs-need-diff \
+        --epoch-and-tag-range last nn_rm_comparison_o_ 1 6
+
+    python3 main.py batch_model_test \
+        random_10nm_med_processed --scatter-plot 5 5 \
+        --inputs-need-norm --inputs-need-diff \
+        --epoch-and-tag-range last nn_rm_comparison_o_ 1 6
