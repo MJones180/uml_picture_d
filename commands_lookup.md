@@ -40,6 +40,7 @@ Data at 40 nm (used to create a response matrix):
     python3 main_stnp.py sim_data fixed_40nm v84 600e-9 \
         --output-write-batch 10 \
         --fixed-amount-per-zernike 2 24 40e-9 \
+        --append-no-aberrations-row \
         --cores 4
 
 Fixed grid from -50 to 50 nm in 10 nm increments:
@@ -55,12 +56,14 @@ Random aberrations for each term ranging from -50 to 50 nm:
     python3 main_stnp.py sim_data random_50nm_med v84 600e-9 \
         --output-write-batch 500 \
         --rand-amount-per-zernike 2 24 " -50e-9" 50e-9 25000 \
+        --append-no-aberrations-row \
         --cores 4
 
     # 100,000 rows
     python3 main_stnp.py sim_data random_50nm_large v84 600e-9 \
         --output-write-batch 500 \
         --rand-amount-per-zernike 2 24 " -50e-9" 50e-9 100000\
+        --append-no-aberrations-row \
         --cores 4
 
 Random aberrations for each term ranging from -10 to 10 nm:
@@ -68,6 +71,7 @@ Random aberrations for each term ranging from -10 to 10 nm:
     python3 main_stnp.py sim_data random_10nm_med v84 600e-9 \
         --output-write-batch 500 \
         --rand-amount-per-zernike 2 24 " -10e-9" 10e-9 25000 \
+        --append-no-aberrations-row \
         --cores 4
 
 Random aberration for only one term in each row ranging from -50 to 50 nm:
@@ -75,6 +79,7 @@ Random aberration for only one term in each row ranging from -50 to 50 nm:
     python3 main_stnp.py sim_data random_50nm_single_med v84 600e-9 \
         --output-write-batch 500 \
         --rand-amount-per-zernike-single 2 24 " -50e-9" 50e-9 25000 \
+        --append-no-aberrations-row \
         --cores 4
 
 Random aberration ranging from -50 to 50 nm for only one term in each row and a row for each of the Zernike terms (can be used to create a response matrix):
@@ -82,6 +87,7 @@ Random aberration ranging from -50 to 50 nm for only one term in each row and a 
     python3 main_stnp.py sim_data random_50nm_single_each_large v84 600e-9 \
         --output-write-batch 1000 \
         --rand-amount-per-zernike-single-each 2 24 " -50e-9" 50e-9 5000 \
+        --append-no-aberrations-row \
         --cores 4
 
 Fixed grid from -50 to 50 nm with 2000 points in between:
@@ -89,6 +95,7 @@ Fixed grid from -50 to 50 nm with 2000 points in between:
     python3 main_stnp.py sim_data fixed_50nm_range_2000 v84 600e-9 \
         --output-write-batch 1000 \
         --fixed-amount-per-zernike-range 2 24 " -50e-9" 50e-9 2000 \
+        --append-no-aberrations-row \
         --cores 4
 
 ## Data Preprocessing
@@ -355,3 +362,23 @@ The `nn_rm_comparison_o` tag:
         random_10nm_med_processed --scatter-plot 5 5 \
         --inputs-need-norm --inputs-need-diff \
         --epoch-and-tag-range last nn_rm_comparison_o_ 1 6
+
+The `nn_rm_comparison_fixed` tag:
+
+    python3 main_stnp.py batch_model_train \
+        train_val_ran50nm_se_diff_all train_val_ran50nm_se_diff_all \
+        nn_rm_comparison_fixed_ 20 --max-threads 4 \
+        --networks dfc1n dfc2n dfc3n \
+        --losses mse --optimizers adam \
+        --lrs 1e-4 6e-5 --batch-sizes 64 \
+        --overwrite-existing --only-best-epoch
+
+    python3 main.py batch_model_test \
+        fixed_50nm_range_processed --zernike-plots \
+        --inputs-need-norm --inputs-need-diff \
+        --epoch-and-tag-range last nn_rm_comparison_fixed_ 1 6
+
+    python3 main.py batch_model_test \
+        random_10nm_med_processed --scatter-plot 5 5 \
+        --inputs-need-norm --inputs-need-diff \
+        --epoch-and-tag-range last nn_rm_comparison_fixed_ 1 6
