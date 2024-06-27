@@ -148,9 +148,20 @@ Can be used for model training:
         --norm-outputs globally \
         --use-field-diff no_aberrations
 
+    python3 main.py preprocess_data_complete \
+        fixed_50nm_range_2000 \
+        train_val_fixed_50nm_diff empty empty \
+        100 0 0 \
+        --norm-outputs globally \
+        --use-field-diff no_aberrations
+
 Can be used for testing:
 
+    # 10 nm
     python3 main.py preprocess_data_bare random_10nm_med random_10nm_med_processed
+
+    # 50 nm
+    python3 main.py preprocess_data_bare random_50nm_med random_50nm_med_processed
 
 ## Creating a Response Matrix
 
@@ -196,6 +207,9 @@ Averaged response matrix:
     python3 main.py run_response_matrix random_50nm_single_each_large \
         random_10nm_med_processed --scatter-plot 5 5
 
+    python3 main.py run_response_matrix random_50nm_single_each_large \
+       random_50nm_med_processed --scatter-plot 5 5
+
 `fixed_50nm_range_2000` response matrix:
 
     python3 main.py run_response_matrix fixed_50nm_range_2000 \
@@ -203,6 +217,9 @@ Averaged response matrix:
 
     python3 main.py run_response_matrix fixed_50nm_range_2000 \
         random_10nm_med_processed --scatter-plot 5 5
+
+    python3 main.py run_response_matrix fixed_50nm_range_2000 \
+       random_50nm_med_processed --scatter-plot 5 5
 
 ## Model Training and Testing
 
@@ -363,22 +380,32 @@ The `nn_rm_comparison_o` tag:
         --inputs-need-norm --inputs-need-diff \
         --epoch-and-tag-range last nn_rm_comparison_o_ 1 6
 
+    python3 main.py batch_model_test \
+        random_50nm_med_processed --scatter-plot 5 5 \
+        --inputs-need-norm --inputs-need-diff \
+        --epoch-and-tag-range last nn_rm_comparison_o_ 1 6
+
 The `nn_rm_comparison_fixed` tag:
 
     python3 main_stnp.py batch_model_train \
-        train_val_ran50nm_se_diff_all train_val_ran50nm_se_diff_all \
-        nn_rm_comparison_fixed_ 20 --max-threads 4 \
+        train_val_fixed_50nm_diff train_val_fixed_50nm_diff \
+        nn_rm_comparison_fixed_ 100 --max-threads 4 \
         --networks dfc1n dfc2n dfc3n \
         --losses mse --optimizers adam \
-        --lrs 1e-4 6e-5 --batch-sizes 64 \
-        --overwrite-existing --only-best-epoch
+        --lrs 6e-5 --batch-sizes 64 \
+        --overwrite-existing --only-best-epoch --early-stopping 10
 
     python3 main.py batch_model_test \
         fixed_50nm_range_processed --zernike-plots \
         --inputs-need-norm --inputs-need-diff \
-        --epoch-and-tag-range last nn_rm_comparison_fixed_ 1 6
+        --epoch-and-tag-range last nn_rm_comparison_fixed_ 1 3
 
     python3 main.py batch_model_test \
         random_10nm_med_processed --scatter-plot 5 5 \
         --inputs-need-norm --inputs-need-diff \
-        --epoch-and-tag-range last nn_rm_comparison_fixed_ 1 6
+        --epoch-and-tag-range last nn_rm_comparison_fixed_ 1 3
+
+    python3 main.py batch_model_test \
+        random_50nm_med_processed --scatter-plot 5 5 \
+        --inputs-need-norm --inputs-need-diff \
+        --epoch-and-tag-range last nn_rm_comparison_fixed_ 1 3
