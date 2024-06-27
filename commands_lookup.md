@@ -360,6 +360,11 @@ The `nn_rm_comparison` tag:
         --inputs-need-norm --inputs-need-diff \
         --epoch-and-tag-range last nn_rm_comparison_ 1 6
 
+    python3 main.py batch_model_test \
+        random_50nm_med_processed --scatter-plot 5 5 \
+        --inputs-need-norm --inputs-need-diff \
+        --epoch-and-tag-range last nn_rm_comparison_ 1 6
+
 The `nn_rm_comparison_o` tag:
 
     python3 main_stnp.py batch_model_train \
