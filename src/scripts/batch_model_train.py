@@ -78,6 +78,12 @@ def batch_model_train_parser(subparsers):
         help='if existing model with tag, delete before training',
     )
     subparser.add_argument(
+        '--epoch-save-steps',
+        type=int,
+        metavar='n',
+        help='every n epochs and the most recent epoch will be saved',
+    )
+    subparser.add_argument(
         '--only-best-epoch',
         action='store_true',
         help=('only the best epoch as based on the validation '
@@ -113,6 +119,7 @@ def batch_model_train(cli_args):
     validation_ds = cli_args['validation_ds']
     epochs = cli_args['epochs']
     overwrite_existing = cli_args['overwrite_existing']
+    epoch_save_steps = cli_args['epoch_save_steps']
     only_best_epoch = cli_args['only_best_epoch']
     early_stopping = cli_args['early_stopping']
     max_threads = cli_args['max_threads']
@@ -152,6 +159,7 @@ def batch_model_train(cli_args):
                             'batch_size': batch_size,
                             'epochs': epochs,
                             'overwrite_existing': overwrite_existing,
+                            'epoch_save_steps': epoch_save_steps,
                             'only_best_epoch': only_best_epoch,
                             'early_stopping': early_stopping,
                             'max_threads': max_threads,
