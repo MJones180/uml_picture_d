@@ -394,11 +394,11 @@ The `nn_rm_comparison_fixed` tag:
 
     python3 main_stnp.py batch_model_train \
         train_val_fixed_50nm_diff train_val_fixed_50nm_diff \
-        nn_rm_comparison_fixed_ 100 --max-threads 4 \
+        nn_rm_comparison_fixed_ 50 --max-threads 4 \
         --networks dfc1n dfc2n dfc3n \
         --losses mse --optimizers adam \
         --lrs 6e-5 --batch-sizes 64 \
-        --overwrite-existing --only-best-epoch --early-stopping 10
+        --overwrite-existing --epoch-save-steps 10
 
     python3 main.py batch_model_test \
         fixed_50nm_range_processed --zernike-plots \
