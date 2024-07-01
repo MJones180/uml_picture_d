@@ -92,6 +92,14 @@ def sim_data_parser(subparsers):
               'Zernike term (the terms must be sequential)'),
     )
     aberrations_group.add_argument(
+        '--fixed-amount-per-zernike-all',
+        nargs=3,
+        metavar=('[zernike term low]', '[zernike term high]',
+                 '[rms error in meters]'),
+        help=('will simulate 1 row by injecting a fixed RMS error for each '
+              'Zernike term (the terms must be sequential)'),
+    )
+    aberrations_group.add_argument(
         '--fixed-amount-per-zernike-range',
         nargs=5,
         metavar=('[zernike term low]', '[zernike term high]',
@@ -160,6 +168,7 @@ def sim_data(cli_args):
     append_no_aberrations_row = cli_args.get('append_no_aberrations_row')
     no_aberrations = cli_args['no_aberrations']
     fixed_amount_per_zernike = cli_args['fixed_amount_per_zernike']
+    fixed_amount_per_zernike_all = cli_args['fixed_amount_per_zernike_all']
     fixed_amount_per_zernike_range = cli_args['fixed_amount_per_zernike_range']
     rand_amount_per_zernike = cli_args['rand_amount_per_zernike']
     rand_amount_per_zernike_single = cli_args['rand_amount_per_zernike_single']
@@ -205,9 +214,15 @@ def sim_data(cli_args):
         # For this we just need an identity matrix to represent perturbing
         # each zernike term independently
         aberrations = np.identity(col_count) * float(perturb)
-        print(f'Each row will consist of a Zernike term with an RMS error of '
+        print('Each row will consist of a Zernike term with an RMS error of '
               f'{perturb} meters')
-        print('A row will also be at the end with no Zernike aberrations')
+    elif fixed_amount_per_zernike_all:
+        idx_low, idx_high, perturb = fixed_amount_per_zernike_all
+        zernike_terms, col_count = _zernike_terms_list(idx_low, idx_high)
+        aberrations = np.identity(col_count) * float(perturb)
+        aberrations = np.ones((1, col_count))
+        print('A single row where each term will have an RMS error of '
+              f'{perturb} meters')
     elif fixed_amount_per_zernike_range:
         # This function is technically for the random perturbations, but the
         # code is the same, just the argument meanings are slightly different

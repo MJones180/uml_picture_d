@@ -35,8 +35,20 @@ A single row with no aberrations (used to compute the difference during preproce
 
     python3 main.py sim_data no_aberrations v84 600e-9 --no-aberrations
 
-Data at 40 nm (used to create a response matrix):
+A single row with aberrations on every term:
 
+    python3 main.py sim_data all_10nm v84 600e-9 --fixed-amount-per-zernike-all 2 22 10e-9
+
+Data at a fixed RMS error (can be used to create a response matrix):
+
+    # 10 nm
+    python3 main_stnp.py sim_data fixed_10nm v84 600e-9 \
+        --output-write-batch 10 \
+        --fixed-amount-per-zernike 2 24 10e-9 \
+        --append-no-aberrations-row \
+        --cores 4
+
+    # 40 nm
     python3 main_stnp.py sim_data fixed_40nm v84 600e-9 \
         --output-write-batch 10 \
         --fixed-amount-per-zernike 2 24 40e-9 \
