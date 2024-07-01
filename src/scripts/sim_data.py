@@ -219,8 +219,7 @@ def sim_data(cli_args):
     elif fixed_amount_per_zernike_all:
         idx_low, idx_high, perturb = fixed_amount_per_zernike_all
         zernike_terms, col_count = _zernike_terms_list(idx_low, idx_high)
-        aberrations = np.identity(col_count) * float(perturb)
-        aberrations = np.ones((1, col_count))
+        aberrations = np.full((1, col_count), float(perturb))
         print('A single row where each term will have an RMS error of '
               f'{perturb} meters')
     elif fixed_amount_per_zernike_range:
