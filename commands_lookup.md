@@ -29,6 +29,11 @@ Interactively view plots after `model_test` has been run:
     # Example on ran50nm_single_diff_v2_3 model, epoch 31 
     python3 main.py interactive_model_test_plots ran50nm_single_diff_v2_3 31 fixed_50nm_range_processed --scatter-plot 5 5 --zernike-plots 2 24
 
+Test the orthogonality of the terms in a wavefront:
+
+    python3 main.py wavefront_orthogonality fixed_10nm fixed_10nm --row-idx 6 --use-full-field
+    python3 main.py wavefront_orthogonality fixed_10nm all_10nm 
+
 ## Data Simulation
 
 A single row with no aberrations (used to compute the difference during preprocessing):
@@ -37,7 +42,9 @@ A single row with no aberrations (used to compute the difference during preproce
 
 A single row with aberrations on every term:
 
-    python3 main.py sim_data all_10nm v84 600e-9 --fixed-amount-per-zernike-all 2 22 10e-9
+    python3 main.py sim_data all_10nm v84 600e-9 \
+        --fixed-amount-per-zernike-all 2 24 10e-9 \
+        --save-full-intensity
 
 Data at a fixed RMS error (can be used to create a response matrix):
 
@@ -46,6 +53,7 @@ Data at a fixed RMS error (can be used to create a response matrix):
         --output-write-batch 10 \
         --fixed-amount-per-zernike 2 24 10e-9 \
         --append-no-aberrations-row \
+        --save-full-intensity \
         --cores 4
 
     # 40 nm
