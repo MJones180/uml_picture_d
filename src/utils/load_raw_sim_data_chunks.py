@@ -1,12 +1,13 @@
 from glob import glob
 import numpy as np
 from utils.constants import (CCD_INTENSITY, CCD_SAMPLING, DATA_F,
+                             FULL_INTENSITY, FULL_SAMPLING,
                              RAW_SIMULATED_DATA_P, ZERNIKE_COEFFS,
                              ZERNIKE_TERMS)
 from utils.hdf_read_and_write import read_hdf
 
 
-def load_raw_sim_data_chunks(raw_data_tag):
+def load_raw_sim_data_chunks(raw_data_tag, full_intensity=False):
     base_path = f'{RAW_SIMULATED_DATA_P}/{raw_data_tag}'
     # Instead of globbing the paths, it is safer to load in the datafiles using
     # their chunk number so that they are guaranteed to be in order
@@ -18,19 +19,20 @@ def load_raw_sim_data_chunks(raw_data_tag):
     ])
     input_data = []
     output_data = []
+    intensity_tag = FULL_INTENSITY if full_intensity else CCD_INTENSITY
+    sampling_tag = FULL_SAMPLING if full_intensity else CCD_SAMPLING
     for idx, chunk_val in enumerate(chunk_vals):
         path = f'{base_path}/{chunk_val}_{DATA_F}'
         print(f'Path: {path}')
         data = read_hdf(path)
         # For our models, we will want to feed in our intensity fields and
         # output the associated Zernike polynomials
-        input_data.extend(data[CCD_INTENSITY][:])
+        input_data.extend(data[intensity_tag][:])
         output_data.extend(data[ZERNIKE_COEFFS][:])
         # This data will be the same across all chunks, so only read it once
         if idx == 0:
-            # Other data that will be written out for reference
-            ccd_sampling = data[CCD_SAMPLING][()]
             zernike_terms = data[ZERNIKE_TERMS][:]
+            sampling = data[sampling_tag][()]
     input_data = np.array(input_data)
     output_data = np.array(output_data)
-    return input_data, output_data, zernike_terms, ccd_sampling
+    return input_data, output_data, zernike_terms, sampling
