@@ -99,18 +99,26 @@ def wavefront_orthogonality(cli_args):
 
     step_ri('Plotting a bar plot')
     fig, ax = plt.subplots(figsize=(12, 6))
-    width = 0.8
+    bar_width = 0.8
     indices = np.arange(zernike_count)
-    plt.bar(indices,
-            truth_zernike_coeffs * 1e9,
-            width=width,
-            color='b',
-            label='Truth')
-    plt.bar(indices,
-            coeffs * 1e9,
-            width=0.5 * width,
-            color='r',
-            label='Obtained')
+    plt.plot(indices, np.zeros(zernike_count), color='black', linewidth=1)
+    plt.bar(
+        indices,
+        coeffs * 1e9,
+        width=bar_width,
+        color='blue',
+        alpha=0.5,
+        label='Obtained',
+    )
+    plt.bar(
+        indices,
+        truth_zernike_coeffs * 1e9,
+        width=bar_width,
+        linewidth=2,
+        edgecolor='black',
+        color='none',
+        label='Truth',
+    )
     plt.ylabel('RMS Error (nm)')
     plt.xlabel('Zernike Terms')
     plt.xticks(indices, [term for term in zernike_terms])
