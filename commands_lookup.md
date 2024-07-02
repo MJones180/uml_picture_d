@@ -31,8 +31,7 @@ Interactively view plots after `model_test` has been run:
 
 Test the orthogonality of the terms in a wavefront:
 
-    python3 main.py wavefront_orthogonality fixed_10nm fixed_10nm --row-idx 6 --use-full-field
-    python3 main.py wavefront_orthogonality fixed_10nm all_10nm 
+    python3 main.py wavefront_orthogonality fixed_10nm all_10nm --use-full-field
 
 ## Data Simulation
 
@@ -61,6 +60,7 @@ Data at a fixed RMS error (can be used to create a response matrix):
         --output-write-batch 10 \
         --fixed-amount-per-zernike 2 24 40e-9 \
         --append-no-aberrations-row \
+        --save-full-intensity \
         --cores 4
 
 Fixed grid from -50 to 50 nm in 10 nm increments:

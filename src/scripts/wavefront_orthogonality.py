@@ -1,9 +1,14 @@
 """
-Notes on this script
+This script takes in a dataset where each row has one term with a fixed RMS
+error, these rows will be used as the basis terms. Using these rows, the cross
+coupling between basis terms will be calculated. Additionally, the orthogonality
+of the wavefront from a given row in another dataset will be calculated.
 """
 
 import matplotlib.pyplot as plt
 import numpy as np
+from utils.constants import RANDOM_P
+from utils.idl_rainbow_cmap import idl_rainbow_cmap
 from utils.load_raw_sim_data_chunks import load_raw_sim_data_chunks
 from utils.printing_and_logging import step_ri, title
 from utils.terminate_with_message import terminate_with_message
@@ -37,6 +42,16 @@ def wavefront_orthogonality_parser(subparsers):
         action='store_true',
         help='use the full field instead of the CCD field',
     )
+    subparser.add_argument(
+        '--remove-outside-for-circle',
+        action='store_true',
+        help='remove corner pixels that fall outside of a circle',
+    )
+    subparser.add_argument(
+        '--save-plots',
+        action='store_true',
+        help='save plots instead of displaying them',
+    )
 
 
 def wavefront_orthogonality(cli_args):
@@ -47,6 +62,8 @@ def wavefront_orthogonality(cli_args):
     test_ds = cli_args['test_ds']
     row_idx = cli_args['row_idx']
     use_full_field = cli_args['use_full_field']
+    remove_outside_for_circle = cli_args['remove_outside_for_circle']
+    save_plots = cli_args['save_plots']
 
     step_ri('Loading in the terms dataset')
     (intensity_fields, zernike_amounts, zernike_terms,
@@ -76,13 +93,15 @@ def wavefront_orthogonality(cli_args):
     wavefront = test_ds_data[0][row_idx] - base_field
     truth_zernike_coeffs = test_ds_data[1][row_idx]
 
-    pixels = wavefront.shape[0]
-    x_grid = np.linspace(-1, 1, pixels)
-    x_grid = np.repeat(x_grid[None], pixels, axis=0)
-    y_grid = x_grid.T
-    valid_mask = (x_grid**2 + y_grid**2)**0.5 <= 1
-    wavefront = wavefront * valid_mask
-    term_fields = term_fields * valid_mask
+    if remove_outside_for_circle:
+        step_ri('Removing corner pixels to make a circle')
+        pixel_count = wavefront.shape[0]
+        x_grid = np.linspace(-1, 1, pixel_count)
+        x_grid = np.repeat(x_grid[None], pixel_count, axis=0)
+        y_grid = x_grid.T
+        valid_mask = (x_grid**2 + y_grid**2)**0.5 <= 1
+        term_fields = term_fields * valid_mask
+        wavefront = wavefront * valid_mask
 
     step_ri('Computing the term normalization')
     # To properly normalize the term, compute the product of each term with
@@ -91,20 +110,48 @@ def wavefront_orthogonality(cli_args):
     # when the field is called on itself.
     normalizations = np.sum(term_fields**2, axis=(1, 2)) / base_rms_error
 
-    step_ri('Computing the coefficients for each term')
-    # Need to compute the product of the wavefront with each term and then sum
-    # over the entire field. Each coefficient needs to be divided by the
-    # normalization factor for that term.
-    coeffs = np.sum(term_fields * wavefront, axis=(1, 2)) / normalizations
+    step_ri('Computing coefficients')
 
-    step_ri('Plotting a bar plot')
+    def _compute_coeffs(function):
+        # Need to compute the product of the wavefront with each term and then
+        # sum over the entire field. Each coefficient needs to be divided by the
+        # normalization factor for that term.
+        return np.sum(term_fields * function, axis=(1, 2)) / normalizations
+
+    # Calculate the crosstalk of each basis term with the other basis terms
+    term_ct_coeffs = np.array([_compute_coeffs(term) for term in term_fields])
+    # Calculate the crosstalk of the wavefront with each of the basis terms
+    wf_coeffs = _compute_coeffs(wavefront)
+
+    # Put all coeffs in to nm
+    wf_coeffs_nm = wf_coeffs * 1e9
+    truth_zernike_coeffs_nm = truth_zernike_coeffs * 1e9
+    term_ct_coeffs_nm = term_ct_coeffs * 1e9
+
+    step_ri('Plotting cross-coupling between basis terms')
+    # Display the crosstalk of each of the basis terms in a grid
+    fig, ax = plt.subplots(figsize=(10, 10))
+    ax.set_title(f'Cross-Coupling Between Basis Terms (at {base_rms_error} '
+                 'nm RMS)')
+    im = ax.imshow(term_ct_coeffs_nm, cmap=idl_rainbow_cmap())
+    ax.set_ylim(ax.get_ylim()[::-1])
+    plt.colorbar(im, ax=ax, label='nm RMS')
+    if save_plots:
+        fig.tight_layout()
+        base_out_path = f'{RANDOM_P}/{terms_ds}'
+        plot_path = f'{base_out_path}_basis_term_matrix.png'
+        plt.savefig(plot_path, dpi=300, bbox_inches='tight')
+    else:
+        plt.show()
+
+    step_ri('Plotting a bar plot of wavefront coefficients')
     fig, ax = plt.subplots(figsize=(12, 6))
     bar_width = 0.8
     indices = np.arange(zernike_count)
     plt.plot(indices, np.zeros(zernike_count), color='black', linewidth=1)
     plt.bar(
         indices,
-        coeffs * 1e9,
+        wf_coeffs_nm,
         width=bar_width,
         color='blue',
         alpha=0.5,
@@ -112,7 +159,7 @@ def wavefront_orthogonality(cli_args):
     )
     plt.bar(
         indices,
-        truth_zernike_coeffs * 1e9,
+        truth_zernike_coeffs_nm,
         width=bar_width,
         linewidth=2,
         edgecolor='black',
@@ -123,5 +170,9 @@ def wavefront_orthogonality(cli_args):
     plt.xlabel('Zernike Terms')
     plt.xticks(indices, [term for term in zernike_terms])
     plt.legend()
-    plt.show()
-    plt.show()
+    if save_plots:
+        fig.tight_layout()
+        plot_path = f'{base_out_path}_{test_ds}_row_{row_idx}_bar_graph.png'
+        plt.savefig(plot_path, dpi=300, bbox_inches='tight')
+    else:
+        plt.show()
