@@ -122,6 +122,12 @@ def model_test(cli_args):
     )
     # Testing output data should already be denormalized
     outputs_truth = testing_dataset.get_outputs()
+    # If a dataset with no aberrations is being tested against, the
+    # dimensionality will not check out. If that occurs, make the output shape
+    # match the model's output shape.
+    if outputs_truth.shape[1] == 1 and outputs_truth[0][0] == 0:
+        step_ri('Padding truth with zeros')
+        outputs_truth = np.zeros_like(outputs_model)
 
     step_ri('Computing the MAE and MSE')
     mae_val = mae(outputs_truth, outputs_model)
