@@ -31,7 +31,7 @@ Interactively view plots after `model_test` has been run:
 
 Test the orthogonality of the terms in a wavefront:
 
-    python3 main.py wavefront_orthogonality fixed_10nm all_10nm --use-full-field
+    python3 main.py wavefront_orthogonality fixed_10nm all_10nm --use-full-field --save-plots
 
 ## Data Simulation
 

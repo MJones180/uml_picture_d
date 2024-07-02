@@ -166,6 +166,7 @@ def wavefront_orthogonality(cli_args):
         color='none',
         label='Truth',
     )
+    plt.title(f'Basis Terms Normalized at {base_rms_error} nm')
     plt.ylabel('RMS Error (nm)')
     plt.xlabel('Zernike Terms')
     plt.xticks(indices, [term for term in zernike_terms])
