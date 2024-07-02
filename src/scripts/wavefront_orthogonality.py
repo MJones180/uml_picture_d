@@ -133,8 +133,10 @@ def wavefront_orthogonality(cli_args):
     fig, ax = plt.subplots(figsize=(10, 10))
     ax.set_title(f'Cross-Coupling Between Basis Terms (at {base_rms_error} '
                  'nm RMS)')
-    im = ax.imshow(term_ct_coeffs_nm, cmap=idl_rainbow_cmap())
+    im = ax.imshow(term_ct_coeffs_nm.T, cmap=idl_rainbow_cmap())
     ax.set_ylim(ax.get_ylim()[::-1])
+    ax.set_xlabel('Base Term')
+    ax.set_ylabel('Projection on to Term')
     plt.colorbar(im, ax=ax, label='nm RMS')
     if save_plots:
         fig.tight_layout()
