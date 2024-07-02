@@ -439,6 +439,6 @@ The `nn_rm_comparison_fixed` tag:
         --epoch-and-tag-range last nn_rm_comparison_fixed_ 1 3
 
     python3 main.py batch_model_test \
-        no_aberrations_processed --scatter-plot 5 5 \
+        no_aberrations_processed \
         --inputs-need-norm --inputs-need-diff \
         --epoch-and-tag-range last nn_rm_comparison_fixed_ 1 3
