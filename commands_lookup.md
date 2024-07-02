@@ -183,6 +183,9 @@ Can be used for testing:
     # 50 nm
     python3 main.py preprocess_data_bare random_50nm_med random_50nm_med_processed
 
+    # One row with no aberrations
+    python3 main.py preprocess_data_bare no_aberrations no_aberrations_processed
+
 ## Creating a Response Matrix
 
 Response matrix at 40 nm:
@@ -432,5 +435,10 @@ The `nn_rm_comparison_fixed` tag:
 
     python3 main.py batch_model_test \
         random_50nm_med_processed --scatter-plot 5 5 \
+        --inputs-need-norm --inputs-need-diff \
+        --epoch-and-tag-range last nn_rm_comparison_fixed_ 1 3
+
+    python3 main.py batch_model_test \
+        no_aberrations --scatter-plot 5 5 \
         --inputs-need-norm --inputs-need-diff \
         --epoch-and-tag-range last nn_rm_comparison_fixed_ 1 3
