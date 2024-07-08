@@ -158,6 +158,13 @@ def preprocess_data_complete(cli_args):
         train_inputs = np.vstack((train_inputs, no_aber_input_row[None]))
         train_outputs = np.vstack((train_outputs, no_aber_output_row[None]))
 
+    if use_field_diff:
+        # Add a row with no aberrations to the training data
+        train_inputs = np.vstack(
+            (train_inputs, np.zeros_like(base_field)[None]))
+        train_outputs = np.vstack(
+            (train_outputs, np.zeros(len(zernike_terms))[None]))
+
     def _print_split(word, percentage, inputs):
         print(f'{word} percentage: {(percentage)}%, '
               f'rows: {inputs.shape[0]}')
