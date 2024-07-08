@@ -441,4 +441,5 @@ The `nn_rm_comparison_fixed` tag:
     python3 main.py batch_model_test \
         no_aberrations_processed \
         --inputs-need-norm --inputs-need-diff \
+        --print-outputs --take-rss-model-outputs \
         --epoch-and-tag-range last nn_rm_comparison_fixed_ 1 3

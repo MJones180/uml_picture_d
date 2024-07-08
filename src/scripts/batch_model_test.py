@@ -46,6 +46,16 @@ def batch_model_test_parser(subparsers):
         action='store_true',
         help='generate the Zernike plots',
     )
+    subparser.add_argument(
+        '--print-outputs',
+        action='store_true',
+        help='print out the truth and model outputs',
+    )
+    subparser.add_argument(
+        '--take-rss-model-outputs',
+        action='store_true',
+        help='print out the RSS of the model outputs',
+    )
 
     selection_group = subparser.add_mutually_exclusive_group()
     selection_group.add_argument(
@@ -86,6 +96,8 @@ def batch_model_test(cli_args):
             'inputs_need_norm',
             'scatter_plot',
             'zernike_plots',
+            'print_outputs',
+            'take_rss_model_outputs',
         )
     }
 

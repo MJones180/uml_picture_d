@@ -26,7 +26,7 @@ from utils.plots.plot_zernike_response import plot_zernike_response
 from utils.plots.plot_zernike_total_cross_coupling import plot_zernike_total_cross_coupling  # noqa
 from utils.printing_and_logging import step_ri, title
 from utils.shared_argparser_args import shared_argparser_args
-from utils.stats_and_error import mae, mse
+from utils.stats_and_error import mae, mse, rss
 from utils.terminate_with_message import terminate_with_message
 from utils.torch_hdf_ds_loader import DSLoaderHDF
 
@@ -64,6 +64,16 @@ def model_test_parser(subparsers):
         '--zernike-plots',
         action='store_true',
         help='generate the Zernike plots',
+    )
+    subparser.add_argument(
+        '--print-outputs',
+        action='store_true',
+        help='print out the truth and model outputs',
+    )
+    subparser.add_argument(
+        '--take-rss-model-outputs',
+        action='store_true',
+        help='print out the RSS of the model outputs',
     )
 
 
@@ -122,6 +132,18 @@ def model_test(cli_args):
     )
     # Testing output data should already be denormalized
     outputs_truth = testing_dataset.get_outputs()
+
+    # Print the results to the console
+    if cli_args.get('print_outputs'):
+        step_ri('Results')
+        print('Outputs truth:')
+        print(outputs_truth)
+        print('Outputs model:')
+        print(outputs_model)
+
+    # This only makes sense if a test is being done on a row without aberrations
+    if cli_args.get('take_rss_model_outputs'):
+        print('Model outputs RSS: ', rss(outputs_model))
 
     step_ri('Computing the MAE and MSE')
     mae_val = mae(outputs_truth, outputs_model)
