@@ -41,20 +41,11 @@ def plot_zernike_total_cross_coupling(
 
     # Zero out all entries along the main diagonal
     diag_idxs = np.arange(pred_groupings.shape[1])
-    # Put the values in nm
-    pred_groupings_nm = pred_groupings * 1e9
-    # For 0 nm RMS, every row in the group will be the same. That means the
-    # total calculated error will be much higher than it actually is. To fix
-    # this, we can directly calculate the correct error and replace it.
-    idx_for_0_nm = np.where(perturbation_grid == 0)[0]
-    total_coupled_error_at_0 = rss(pred_groupings_nm[idx_for_0_nm, 0])
-    # Copy and remove the main diagonal
-    pred_groupings_no_diag = np.copy(pred_groupings_nm)
+    # Convert to nm and remove the main diagonal
+    pred_groupings_no_diag = pred_groupings * 1e9
     pred_groupings_no_diag[:, diag_idxs, diag_idxs] = 0
     # Calculate the total coupled error at each perturbation amount
     total_coupled_error = rss(pred_groupings_no_diag, (1, 2))
-    # Replace the error for at 0 nm
-    total_coupled_error[idx_for_0_nm] = total_coupled_error_at_0
 
     # Set the limits on the x-axis
     ax.set_xlim(np.min(perturbation_grid), np.max(perturbation_grid))
