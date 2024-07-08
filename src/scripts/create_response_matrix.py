@@ -43,8 +43,9 @@ def create_response_matrix_parser(subparsers):
     subparser.add_argument(
         '--simulated-data-tag-average',
         help=('generate the response matrix from raw simulated data, the '
-              'data should be simulated via the `sim_data` script with the '
-              '`--rand-amount-per-zernike-single-each` argument passed; '
+              'data should be simulated via the `sim_data` script with either '
+              'the `--rand-amount-per-zernike-single-each` or '
+              '`--fixed-amount-per-zernike-range` arguments passed; '
               'the average of all the perturbations will be taken'),
     )
 
