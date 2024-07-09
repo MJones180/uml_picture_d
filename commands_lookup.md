@@ -118,6 +118,14 @@ Fixed grid from -50 to 50 nm with 2000 points in between:
         --append-no-aberrations-row \
         --cores 4
 
+Fixed grid from -1 to 1 nm with 301 points in between:
+
+    python3 main_stnp.py sim_data fixed_1nm_range_301 v84 600e-9 \
+        --output-write-batch 1000 \
+        --fixed-amount-per-zernike-range 2 24 " -1e-9" 1e-9 301 \
+        --append-no-aberrations-row \
+        --cores 4
+
 ## Data Preprocessing
 
 This data can be used to generate the `zernike` plots:
