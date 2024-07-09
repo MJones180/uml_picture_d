@@ -4,6 +4,6 @@ Warning, the files may:
 - Contain no documentation
 - Be very messy
 - Be incorrect
-- Not even run
+- Not even run (at the very least, they will need to be moved for necessary package dependencies)
 
 Continue at your own risk :o
