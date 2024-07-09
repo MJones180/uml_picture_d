@@ -1,4 +1,11 @@
 """
+-- NOTE ------------------------------------------------------------------------
+This file used to be a script. Turns out the theory behind the code I wrote is
+completely wrong and will not work sense the basis functions are not orthogonal.
+Instead, I would need to use a least squares fit or something to determine the
+Zernike coefficients of the propagated wavefront.
+--------------------------------------------------------------------------------
+
 This script takes in a dataset where each row has one term with a fixed RMS
 error, these rows will be used as the basis terms. Using these rows, the cross
 coupling between basis terms will be calculated. Additionally, the orthogonality

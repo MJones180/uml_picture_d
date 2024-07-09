@@ -13,7 +13,6 @@ from scripts.prune_tag_lookup import prune_tag_lookup_parser
 from scripts.rank_analysis_dir import rank_analysis_dir_parser
 from scripts.run_response_matrix import run_response_matrix_parser
 from scripts.sim_data import sim_data_parser
-from scripts.wavefront_orthogonality import wavefront_orthogonality_parser
 
 script_parsers = [
     batch_model_test_parser,
@@ -31,5 +30,4 @@ script_parsers = [
     rank_analysis_dir_parser,
     run_response_matrix_parser,
     sim_data_parser,
-    wavefront_orthogonality_parser,
 ]
