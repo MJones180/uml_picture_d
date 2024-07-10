@@ -196,7 +196,7 @@ Can be used for model training:
         train_val_fixed_50nm_diff_1nm_supersampled empty empty \
         100 0 0 \
         --norm-outputs globally \
-        --use-field-diff no_aberrations
+        --use-field-diff no_aberrations \
         --additional-raw-data-tags fixed_1nm_range_301
 
 Can be used for testing:
