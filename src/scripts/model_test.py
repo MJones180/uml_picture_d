@@ -13,8 +13,9 @@ import numpy as np
 import torch
 from utils.constants import (ANALYSIS_P, BASE_INT_FIELD, EXTRA_VARS_F,
                              INPUT_MAX_MIN_DIFF, INPUT_MIN_X, MAE, MSE,
-                             OUTPUT_MAX_MIN_DIFF, OUTPUT_MIN_X, PROC_DATA_P,
-                             RESULTS_F, ZERNIKE_TERMS)
+                             NORM_RANGE_ONES, OUTPUT_MAX_MIN_DIFF,
+                             OUTPUT_MIN_X, PROC_DATA_P, RESULTS_F,
+                             ZERNIKE_TERMS)
 from utils.hdf_read_and_write import HDFWriteModule, read_hdf
 from utils.model import Model
 from utils.norm import min_max_denorm, min_max_norm
@@ -112,12 +113,17 @@ def model_test(cli_args):
             terminate_with_message('Base field not present in extra variables')
         inputs = inputs - model_vars[BASE_INT_FIELD]
 
+    # Check if the data was normalized between -1 and 1
+    norm_range_ones = (model_vars[NORM_RANGE_ONES][()]
+                       if NORM_RANGE_ONES in model_vars else False)
+
     if cli_args.get('inputs_need_norm'):
         step_ri('Normalizing the inputs')
         inputs = min_max_norm(
             inputs,
             model_vars[INPUT_MAX_MIN_DIFF],
             model_vars[INPUT_MIN_X],
+            norm_range_ones,
         )
 
     step_ri('Calling the model and obtaining its outputs')
@@ -129,6 +135,7 @@ def model_test(cli_args):
         outputs_model,
         model_vars[OUTPUT_MAX_MIN_DIFF],
         model_vars[OUTPUT_MIN_X],
+        norm_range_ones,
     )
     # Testing output data should already be denormalized
     outputs_truth = testing_dataset.get_outputs()

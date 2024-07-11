@@ -14,8 +14,9 @@ performed, it will be based on the training normalization values.
 import numpy as np
 from utils.constants import (ARGS_F, BASE_INT_FIELD, CCD_SAMPLING, DATA_F,
                              EXTRA_VARS_F, INPUTS, INPUT_MIN_X,
-                             INPUT_MAX_MIN_DIFF, OUTPUTS, OUTPUT_MIN_X,
-                             OUTPUT_MAX_MIN_DIFF, PROC_DATA_P, ZERNIKE_TERMS)
+                             INPUT_MAX_MIN_DIFF, NORM_RANGE_ONES, OUTPUTS,
+                             OUTPUT_MIN_X, OUTPUT_MAX_MIN_DIFF, PROC_DATA_P,
+                             ZERNIKE_TERMS)
 from utils.hdf_read_and_write import HDFWriteModule
 from utils.json import json_write
 from utils.load_raw_sim_data_chunks import load_raw_sim_data_chunks
@@ -72,6 +73,11 @@ def preprocess_data_complete_parser(subparsers):
         choices=OUTPUT_NORM_OPTIONS,
         help=('normalize training and validation output values either '
               'globally or individually'),
+    )
+    subparser.add_argument(
+        '--norm-range-ones',
+        action='store_true',
+        help='normalize data between -1 and 1 instead of 0 to 1',
     )
     subparser.add_argument(
         '--use-field-diff',
@@ -174,28 +180,32 @@ def preprocess_data_complete(cli_args):
     _print_split('Testing', testing_percentage, test_inputs)
 
     step_ri('Normalizing inputs')
-    norm_values = {}
+    # Normalize between -1 and 1 if set to true
+    nro = cli_args['norm_range_ones']
+    norm_values = {NORM_RANGE_ONES: nro}
     print('Globally normalizing inputs of training data')
-    train_inputs, max_min_diff, min_x = find_min_max_norm(train_inputs, True)
+    train_inputs, max_min_diff, min_x = find_min_max_norm(
+        train_inputs, True, nro)
     # These will both be singular floats. If individual input normalization
     # could be handy and needs to be added, then these should always be arrays
     norm_values[INPUT_MIN_X] = min_x
     norm_values[INPUT_MAX_MIN_DIFF] = max_min_diff
     print('Normalizing inputs of validation/testing data based on training '
           'normalization values')
-    val_inputs = min_max_norm(val_inputs, max_min_diff, min_x)
-    test_inputs = min_max_norm(test_inputs, max_min_diff, min_x)
+    val_inputs = min_max_norm(val_inputs, max_min_diff, min_x, nro)
+    test_inputs = min_max_norm(test_inputs, max_min_diff, min_x, nro)
 
     step_ri('Normalizing outputs')
     output_normalization = True
     norm_outputs = cli_args.get('norm_outputs')
     if norm_outputs == 'individually':
         print('Individually normalizing outputs of training data')
-        train_outputs, max_min_diff, min_x = find_min_max_norm(train_outputs)
+        train_outputs, max_min_diff, min_x = find_min_max_norm(
+            train_outputs, nro)
     elif norm_outputs == 'globally':
         print('Globally normalizing outputs of training data')
         train_outputs, max_min_diff, min_x = find_min_max_norm(
-            train_outputs, True)
+            train_outputs, True, nro)
         # For the output normalization, it is easier if there is a norm value
         # for every single element
         min_x = np.repeat(min_x, train_outputs.shape[1])
@@ -208,7 +218,7 @@ def preprocess_data_complete(cli_args):
               'normalization values')
         norm_values[OUTPUT_MIN_X] = min_x
         norm_values[OUTPUT_MAX_MIN_DIFF] = max_min_diff
-        val_outputs = min_max_norm(val_outputs, max_min_diff, min_x)
+        val_outputs = min_max_norm(val_outputs, max_min_diff, min_x, nro)
 
     step_ri('Creating new datasets')
     # Extra tables of information taken from the raw datafile

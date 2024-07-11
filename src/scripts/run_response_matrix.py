@@ -14,8 +14,8 @@ The response matrix runs on denormalized inputs.
 
 import numpy as np
 from utils.constants import (ANALYSIS_P, EXTRA_VARS_F, INPUT_MAX_MIN_DIFF,
-                             INPUT_MIN_X, MAE, MSE, PROC_DATA_P, RESULTS_F,
-                             ZERNIKE_TERMS)
+                             INPUT_MIN_X, MAE, MSE, NORM_RANGE_ONES,
+                             PROC_DATA_P, RESULTS_F, ZERNIKE_TERMS)
 from utils.hdf_read_and_write import HDFWriteModule, read_hdf
 from utils.norm import min_max_denorm
 from utils.path import delete_dir, get_abs_path, make_dir
@@ -98,6 +98,8 @@ def run_response_matrix(cli_args):
             inputs,
             extra_vars[INPUT_MAX_MIN_DIFF],
             extra_vars[INPUT_MIN_X],
+            extra_vars[NORM_RANGE_ONES][()]
+            if NORM_RANGE_ONES in extra_vars else False,
         )
 
     step_ri('Calling the response matrix')
