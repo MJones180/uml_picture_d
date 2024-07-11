@@ -139,7 +139,7 @@ def model_test(cli_args):
         print('Outputs truth:')
         print(outputs_truth)
         print('Outputs model:')
-        print(outputs_model)
+        print(np.array2string(outputs_model, separator=', ', precision=3))
 
     # This only makes sense if a test is being done on a row without aberrations
     if cli_args.get('take_rss_model_outputs'):
