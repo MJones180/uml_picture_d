@@ -1,21 +1,31 @@
 """
--- NOTE ------------------------------------------------------------------------
-This file used to be a script. Turns out the theory behind the code I wrote is
-completely wrong and will not work sense the basis functions are not orthogonal.
-Instead, I would need to use a least squares fit or something to determine the
-Zernike coefficients of the propagated wavefront.
+--- NOTE -----------------------------------------------------------------------
+This file used to be a script. I realized why this code does not work: we
+end up having linearly dependent basis vectors which means that there is not a
+unique mapping from the wavefront back to coefficients. Basically, a wavefront's
+projection onto a set of basis functions can take different coefficient combos.
 --------------------------------------------------------------------------------
 
 This script takes in a dataset where each row has one term with a fixed RMS
-error, these rows will be used as the basis terms. Using these rows, the cross
-coupling between basis terms will be calculated. Additionally, the orthogonality
+error, these rows will be used as the basis terms. The orthogonality
 of the wavefront from a given row in another dataset will be calculated.
+Plots will be stored in `output/random/`.
+
+The theory behind this can be found in the `oral_exam_studying/MATH/Basis` file.
+Additionallity, it is outlined on Math Stackexchange:
+    math.stackexchange.com/questions/148199/equation-for-non-orthogonal-projection-of-a-point-onto-two-vectors-representing
+
+Commands to run this script:
+    python3 main.py wavefront_orthogonality \
+        fixed_10nm fixed_10nm --use-full-field --save-plots \
+        --row-idx -2 --remove-outside-for-circle
+    python3 main.py wavefront_orthogonality \
+        fixed_10nm all_10nm --use-full-field --save-plots
 """
 
 import matplotlib.pyplot as plt
 import numpy as np
 from utils.constants import RANDOM_P
-from utils.idl_rainbow_cmap import idl_rainbow_cmap
 from utils.load_raw_sim_data_chunks import load_raw_sim_data_chunks
 from utils.printing_and_logging import step_ri, title
 from utils.terminate_with_message import terminate_with_message
@@ -90,7 +100,7 @@ def wavefront_orthogonality(cli_args):
     # The last row represents the base field
     base_field = intensity_fields[-1]
     # All the data now consists of perturbed fields for each Zernike term
-    term_fields = intensity_fields[:-1] - base_field
+    basis_terms = intensity_fields[:-1] - base_field
 
     step_ri('Loading in the test dataset')
     test_ds_data = load_raw_sim_data_chunks(test_ds, use_full_field)
@@ -107,51 +117,31 @@ def wavefront_orthogonality(cli_args):
         x_grid = np.repeat(x_grid[None], pixel_count, axis=0)
         y_grid = x_grid.T
         valid_mask = (x_grid**2 + y_grid**2)**0.5 <= 1
-        term_fields = term_fields * valid_mask
-        wavefront = wavefront * valid_mask
-
-    step_ri('Computing the term normalization')
-    # To properly normalize the term, compute the product of each term with
-    # itself and sum over the entire field. Then, the RMS error of the field
-    # needs to be divided by. This will properly output the correct RMS error
-    # when the field is called on itself.
-    normalizations = np.sum(term_fields**2, axis=(1, 2)) / base_rms_error
+        basis_terms *= valid_mask
+        wavefront *= valid_mask
 
     step_ri('Computing coefficients')
 
-    def _compute_coeffs(function):
-        # Need to compute the product of the wavefront with each term and then
-        # sum over the entire field. Each coefficient needs to be divided by the
-        # normalization factor for that term.
-        return np.sum(term_fields * function, axis=(1, 2)) / normalizations
+    # Our fields now represent our basis terms. Each field, when flattened, can
+    # be considered a basis vector in our space. Normally, basis vectors fill
+    # the columns of a matrix, but for this they are the rows.
+    basis_terms = basis_terms.reshape(zernike_count, -1)
 
-    # Calculate the crosstalk of each basis term with the other basis terms
-    term_ct_coeffs = np.array([_compute_coeffs(term) for term in term_fields])
-    # Calculate the crosstalk of the wavefront with each of the basis terms
-    wf_coeffs = _compute_coeffs(wavefront)
+    # Our wavefront should also be flattened so that it is a vector
+    wavefront = wavefront.reshape(-1)
 
-    # Put all coeffs in to nm
-    wf_coeffs_nm = wf_coeffs * 1e9
-    truth_zernike_coeffs_nm = truth_zernike_coeffs * 1e9
-    term_ct_coeffs_nm = term_ct_coeffs * 1e9
+    # Compute the dot products between each of the basis terms
+    basis_terms_dot_products = basis_terms @ basis_terms.T
 
-    step_ri('Plotting cross-coupling between basis terms')
-    # Display the crosstalk of each of the basis terms in a grid
-    fig, ax = plt.subplots(figsize=(10, 10))
-    ax.set_title(f'Cross-Coupling Between Basis Terms (at {base_rms_error} '
-                 'nm RMS)')
-    im = ax.imshow(term_ct_coeffs_nm.T, cmap=idl_rainbow_cmap())
-    ax.set_ylim(ax.get_ylim()[::-1])
-    ax.set_xlabel('Base Term')
-    ax.set_ylabel('Projection on to Term')
-    plt.colorbar(im, ax=ax, label='nm RMS')
-    if save_plots:
-        fig.tight_layout()
-        base_out_path = f'{RANDOM_P}/{terms_ds}'
-        plot_path = f'{base_out_path}_basis_term_matrix.png'
-        plt.savefig(plot_path, dpi=300, bbox_inches='tight')
-    else:
-        plt.show()
+    # Compute the dot product of the wavefront with each of the basis terms
+    wavefront_dot_products = basis_terms @ wavefront
+
+    # The crosstalk between the wavefront with each of the basis terms. This is
+    # computed by just solving for the system of equations.
+    coeffs = np.linalg.solve(basis_terms_dot_products, wavefront_dot_products)
+
+    # Needs to be put back into the same units
+    coeffs_scaled = coeffs * base_rms_error
 
     step_ri('Plotting a bar plot of wavefront coefficients')
     fig, ax = plt.subplots(figsize=(12, 6))
@@ -160,7 +150,7 @@ def wavefront_orthogonality(cli_args):
     plt.plot(indices, np.zeros(zernike_count), color='black', linewidth=1)
     plt.bar(
         indices,
-        wf_coeffs_nm,
+        coeffs_scaled,
         width=bar_width,
         color='blue',
         alpha=0.5,
@@ -168,7 +158,7 @@ def wavefront_orthogonality(cli_args):
     )
     plt.bar(
         indices,
-        truth_zernike_coeffs_nm,
+        truth_zernike_coeffs,
         width=bar_width,
         linewidth=2,
         edgecolor='black',
@@ -182,7 +172,21 @@ def wavefront_orthogonality(cli_args):
     plt.legend()
     if save_plots:
         fig.tight_layout()
-        plot_path = f'{base_out_path}_{test_ds}_row_{row_idx}_bar_graph.png'
-        plt.savefig(plot_path, dpi=300, bbox_inches='tight')
+        path = f'{RANDOM_P}/{terms_ds}_{test_ds}_row_{row_idx}_bar_graph.png'
+        plt.savefig(path, dpi=300, bbox_inches='tight')
+    else:
+        plt.show()
+
+    fig, ax = plt.subplots(1, 2, figsize=(12, 6))
+    reconstructed_wf = coeffs @ basis_terms
+    pixels = int(wavefront.shape[0]**0.5)
+    ax[0].imshow(wavefront.reshape(pixels, pixels))
+    ax[0].set_title('Original Wavefront')
+    ax[1].imshow(reconstructed_wf.reshape(pixels, pixels))
+    ax[1].set_title('Reconstructed Wavefront')
+    if save_plots:
+        fig.tight_layout()
+        path = f'{RANDOM_P}/{terms_ds}_{test_ds}_row_{row_idx}_wavefront.png'
+        plt.savefig(path, dpi=300, bbox_inches='tight')
     else:
         plt.show()
