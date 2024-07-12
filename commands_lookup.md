@@ -203,6 +203,13 @@ Can be used for model training:
         --use-field-diff no_aberrations \
         --additional-raw-data-tags fixed_1nm_range_301
 
+    python3 main.py preprocess_data_complete \
+        fixed_50nm_range_2000 \
+        train_val_fixed_50nm_diff_ones_range empty empty \
+        100 0 0 \
+        --norm-outputs globally --norm-range-ones \
+        --use-field-diff no_aberrations
+
 Can be used for testing:
 
     # 10 nm
@@ -576,3 +583,45 @@ The `nn_50nm_fixed_1nm_supersampled_nro` tag:
         --inputs-need-norm --inputs-need-diff \
         --print-outputs --take-rss-model-outputs \
         --epoch-and-tag-range last nn_50nm_fixed_1nm_supersampled_nro_ 1 3
+
+The `nn_rm_comparison_fixed_nro` tag:
+
+    python3 main_stnp.py batch_model_train \
+        train_val_fixed_50nm_diff_ones_range \
+        train_val_fixed_50nm_diff_ones_range \
+        nn_rm_comparison_fixed_nro_ 50 --max-threads 4 \
+        --networks dfc1n dfc2n dfc3n \
+        --losses mse --optimizers adam \
+        --lrs 6e-5 --batch-sizes 8 \
+        --overwrite-existing --epoch-save-steps 5
+
+    python3 main.py batch_model_test \
+        fixed_50nm_range_processed --zernike-plots \
+        --inputs-need-norm --inputs-need-diff \
+        --epoch-and-tag-range 25 nn_rm_comparison_fixed_nro_ 1 3
+
+    python3 main.py batch_model_test \
+        random_10nm_med_processed --scatter-plot 5 5 \
+        --inputs-need-norm --inputs-need-diff \
+        --epoch-and-tag-range 25 nn_rm_comparison_fixed_nro_ 1 3
+
+    python3 main.py batch_model_test \
+        fixed_50nm_range_processed --zernike-plots \
+        --inputs-need-norm --inputs-need-diff \
+        --epoch-and-tag-range last nn_rm_comparison_fixed_nro_ 1 3
+
+    python3 main.py batch_model_test \
+        random_10nm_med_processed --scatter-plot 5 5 \
+        --inputs-need-norm --inputs-need-diff \
+        --epoch-and-tag-range last nn_rm_comparison_fixed_nro_ 1 3
+
+    python3 main.py batch_model_test \
+        random_50nm_med_processed --scatter-plot 5 5 \
+        --inputs-need-norm --inputs-need-diff \
+        --epoch-and-tag-range last nn_rm_comparison_fixed_nro_ 1 3
+
+    python3 main.py batch_model_test \
+        no_aberrations_processed \
+        --inputs-need-norm --inputs-need-diff \
+        --print-outputs --take-rss-model-outputs \
+        --epoch-and-tag-range last nn_rm_comparison_fixed_nro_ 1 3
