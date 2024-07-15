@@ -292,7 +292,7 @@ After model testing, it is useful to rank the model analyses:
     # Or, ranking of another testing dataset, for instance `test_ran50nm_gl_lg_diff`
     python3 main.py rank_analysis_dir test_ran50nm_gl_lg_diff
 
-The `ran50nm_gl_lg_diff_` tag:
+[V1] The `ran50nm_gl_lg_diff_` tag:
 
     python3 main_stnp.py batch_model_train \
         train_ran50nm_gl_lg_diff val_ran50nm_gl_lg_diff \
@@ -311,7 +311,7 @@ The `ran50nm_gl_lg_diff_` tag:
         --inputs-need-norm --inputs-need-diff \
         --epoch-and-tag-range last ran50nm_gl_lg_diff_ 1 30
 
-The `com50nm_gl_diff_` tag:
+[V2] The `com50nm_gl_diff_` tag:
 
     python3 main_stnp.py batch_model_train \
         train_com50nm_gl_diff val_com50nm_gl_diff \
@@ -330,7 +330,7 @@ The `com50nm_gl_diff_` tag:
         --inputs-need-norm --inputs-need-diff \
         --epoch-and-tag-range last com50nm_gl_diff_ 1 30
 
-The `com50nm_gl_diff_v2_` tag (updated networks and hyperparameters):
+[V3] The `com50nm_gl_diff_v2_` tag (updated networks and hyperparameters):
 
     python3 main_stnp.py batch_model_train \
         train_com50nm_gl_diff val_com50nm_gl_diff \
@@ -354,7 +354,7 @@ The `com50nm_gl_diff_v2_` tag (updated networks and hyperparameters):
         --inputs-need-norm --inputs-need-diff \
         --epoch-and-tag-range last com50nm_gl_diff_v2_ 1 5
 
-The `ran50nm_single_diff_` tag:
+[V4] The `ran50nm_single_diff_` tag:
 
     python3 main_stnp.py batch_model_train \
         train_ran50nm_single_diff val_ran50nm_single_diff  \
@@ -378,7 +378,7 @@ The `ran50nm_single_diff_` tag:
         --inputs-need-norm --inputs-need-diff \
         --epoch-and-tag-range last ran50nm_single_diff_ 1 10
 
-The `ran50nm_single_diff_v2` tag:
+[V5] The `ran50nm_single_diff_v2` tag:
 
     python3 main_stnp.py batch_model_train \
         train_ran50nm_single_diff val_ran50nm_single_diff  \
@@ -398,7 +398,7 @@ The `ran50nm_single_diff_v2` tag:
         --inputs-need-norm --inputs-need-diff \
         --epoch-and-tag-range last ran50nm_single_diff_v2_ 1 4
 
-The `nn_rm_comparison` tag:
+[V6] The `nn_rm_comparison` tag:
 
     python3 main_stnp.py batch_model_train \
         train_ran50nm_se_diff val_ran50nm_se_diff \
@@ -423,7 +423,7 @@ The `nn_rm_comparison` tag:
         --inputs-need-norm --inputs-need-diff \
         --epoch-and-tag-range last nn_rm_comparison_ 1 6
 
-The `nn_rm_comparison_o` tag:
+[V7] The `nn_rm_comparison_o` tag:
 
     python3 main_stnp.py batch_model_train \
         train_val_ran50nm_se_diff_all train_val_ran50nm_se_diff_all \
@@ -448,7 +448,7 @@ The `nn_rm_comparison_o` tag:
         --inputs-need-norm --inputs-need-diff \
         --epoch-and-tag-range last nn_rm_comparison_o_ 1 6
 
-The `nn_rm_comparison_fixed` tag:
+[V8] The `nn_rm_comparison_fixed` tag:
 
     python3 main_stnp.py batch_model_train \
         train_val_fixed_50nm_diff train_val_fixed_50nm_diff \
@@ -479,7 +479,7 @@ The `nn_rm_comparison_fixed` tag:
         --print-outputs --take-rss-model-outputs \
         --epoch-and-tag-range last nn_rm_comparison_fixed_ 1 3
 
-The `nn_rm_comparison_fixed_v2` tag:
+[V9] The `nn_rm_comparison_fixed_v2` tag:
 
     python3 main_stnp.py batch_model_train \
         train_val_fixed_50nm_diff_v2 train_val_fixed_50nm_diff_v2 \
@@ -510,7 +510,7 @@ The `nn_rm_comparison_fixed_v2` tag:
         --print-outputs --take-rss-model-outputs \
         --epoch-and-tag-range last nn_rm_comparison_fixed_v2_ 1 3
 
-The `nn_50nm_fixed_1nm_supersampled` tag:
+[V10] The `nn_50nm_fixed_1nm_supersampled` tag:
 
     python3 main_stnp.py batch_model_train \
         train_val_fixed_50nm_diff_1nm_supersampled \
@@ -542,7 +542,7 @@ The `nn_50nm_fixed_1nm_supersampled` tag:
         --print-outputs --take-rss-model-outputs \
         --epoch-and-tag-range last nn_50nm_fixed_1nm_supersampled_ 1 3
 
-The `nn_50nm_fixed_1nm_supersampled_nro` tag:
+[V11] The `nn_50nm_fixed_1nm_supersampled_nro` tag:
 
     python3 main_stnp.py batch_model_train \
         train_val_fixed_50nm_diff_1nm_supersampled_ones_range \
@@ -584,7 +584,7 @@ The `nn_50nm_fixed_1nm_supersampled_nro` tag:
         --print-outputs --take-rss-model-outputs \
         --epoch-and-tag-range last nn_50nm_fixed_1nm_supersampled_nro_ 1 3
 
-The `nn_rm_comparison_fixed_nro` tag:
+[V12] The `nn_rm_comparison_fixed_nro` tag:
 
     python3 main_stnp.py batch_model_train \
         train_val_fixed_50nm_diff_ones_range \
@@ -626,7 +626,7 @@ The `nn_rm_comparison_fixed_nro` tag:
         --print-outputs --take-rss-model-outputs \
         --epoch-and-tag-range last nn_rm_comparison_fixed_nro_ 1 3
 
-The `overfit_bs1_norm_comp` tag:
+[V13] The `overfit_bs1_norm_comp` tag:
 
     python3 main_stnp.py model_train \
         overfit_bs1_norm_comp_1 \
