@@ -625,3 +625,38 @@ The `nn_rm_comparison_fixed_nro` tag:
         --inputs-need-norm --inputs-need-diff \
         --print-outputs --take-rss-model-outputs \
         --epoch-and-tag-range last nn_rm_comparison_fixed_nro_ 1 3
+
+The `overfit_bs1_norm_comp` tag:
+
+    python3 main_stnp.py model_train \
+        overfit_bs1_norm_comp_1 \
+        train_val_fixed_50nm_diff_ones_range train_val_fixed_50nm_diff_ones_range \
+        dfc2n --loss mse --optimizer adam --learning-rate 6e-5 --batch-size 1 \
+        --epochs 50 --max-threads 4 --overwrite-existing --epoch-save-steps 5
+
+    python3 main_stnp.py model_train \
+        overfit_bs1_norm_comp_2 \
+        train_val_fixed_50nm_diff_v2 train_val_fixed_50nm_diff_v2 \
+        dfc2n --loss mse --optimizer adam --learning-rate 6e-5 --batch-size 1 \
+        --epochs 50 --max-threads 4 --overwrite-existing --epoch-save-steps 5
+
+    python3 main.py batch_model_test \
+        fixed_50nm_range_processed --zernike-plots \
+        --inputs-need-norm --inputs-need-diff \
+        --epoch-and-tag-range last overfit_bs1_norm_comp_ 1 2
+
+    python3 main.py batch_model_test \
+        random_10nm_med_processed --scatter-plot 5 5 \
+        --inputs-need-norm --inputs-need-diff \
+        --epoch-and-tag-range last overfit_bs1_norm_comp_ 1 2
+
+    python3 main.py batch_model_test \
+        random_50nm_med_processed --scatter-plot 5 5 \
+        --inputs-need-norm --inputs-need-diff \
+        --epoch-and-tag-range last overfit_bs1_norm_comp_ 1 2
+
+    python3 main.py batch_model_test \
+        no_aberrations_processed \
+        --inputs-need-norm --inputs-need-diff \
+        --print-outputs --take-rss-model-outputs \
+        --epoch-and-tag-range last overfit_bs1_norm_comp_ 1 2
