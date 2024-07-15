@@ -631,14 +631,14 @@ The `overfit_bs1_norm_comp` tag:
     python3 main_stnp.py model_train \
         overfit_bs1_norm_comp_1 \
         train_val_fixed_50nm_diff_ones_range train_val_fixed_50nm_diff_ones_range \
-        dfc2n --loss mse --optimizer adam --learning-rate 6e-5 --batch-size 1 \
-        --epochs 50 --max-threads 4 --overwrite-existing --epoch-save-steps 5
+        dfc2n mse adam 6e-5 50 --batch-size 1 \
+        --max-threads 4 --overwrite-existing --epoch-save-steps 5
 
     python3 main_stnp.py model_train \
         overfit_bs1_norm_comp_2 \
         train_val_fixed_50nm_diff_v2 train_val_fixed_50nm_diff_v2 \
-        dfc2n --loss mse --optimizer adam --learning-rate 6e-5 --batch-size 1 \
-        --epochs 50 --max-threads 4 --overwrite-existing --epoch-save-steps 5
+        dfc2n mse adam 6e-5 50 --batch-size 1 \
+        --max-threads 4 --overwrite-existing --epoch-save-steps 5
 
     python3 main.py batch_model_test \
         fixed_50nm_range_processed --zernike-plots \
