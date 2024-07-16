@@ -654,28 +654,28 @@ After model testing, it is useful to rank the model analyses:
     python3 main_stnp.py batch_model_train \
         train_val_fixed_50nm_diff_ones_range train_val_fixed_50nm_diff_ones_range \
         nn_architecture_comp_ 50 --max-threads 4 \
-        --networks dfcd1 dfcs1 cnn1 cnn2 cnn2bn dfc2nbn \
+        --networks dfcd1 dfcs1 cnn1 cnn2 cnn2bn dfc2n dfc2nbn \
         --losses mse --optimizers adam \
-        --lrs 6e-5 --batch-sizes 8 \
+        --lrs 6e-5 --batch-sizes 32 \
         --overwrite-existing --epoch-save-steps 5
 
     python3 main.py batch_model_test \
         fixed_50nm_range_processed --zernike-plots \
         --inputs-need-norm --inputs-need-diff \
-        --epoch-and-tag-range last nn_architecture_comp_ 1 6
+        --epoch-and-tag-range last nn_architecture_comp_ 1 7
 
     python3 main.py batch_model_test \
         random_10nm_med_processed --scatter-plot 5 5 \
         --inputs-need-norm --inputs-need-diff \
-        --epoch-and-tag-range last nn_architecture_comp_ 1 6
+        --epoch-and-tag-range last nn_architecture_comp_ 1 7
 
     python3 main.py batch_model_test \
         random_50nm_med_processed --scatter-plot 5 5 \
         --inputs-need-norm --inputs-need-diff \
-        --epoch-and-tag-range last nn_architecture_comp_ 1 6
+        --epoch-and-tag-range last nn_architecture_comp_ 1 7
 
     python3 main.py batch_model_test \
         no_aberrations_processed \
         --inputs-need-norm --inputs-need-diff \
         --print-outputs --take-rss-model-outputs \
-        --epoch-and-tag-range last nn_architecture_comp_ 1 6
+        --epoch-and-tag-range last nn_architecture_comp_ 1 7
