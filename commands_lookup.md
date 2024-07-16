@@ -652,7 +652,7 @@ After model testing, it is useful to rank the model analyses:
 [V14] The `nn_architecture_comp` tag:
 
     python3 main_stnp.py batch_model_train \
-        train_val_fixed_50nm_diff_v2 train_val_fixed_50nm_diff_v2 \
+        train_val_fixed_50nm_diff_ones_range train_val_fixed_50nm_diff_ones_range \
         nn_architecture_comp_ 50 --max-threads 4 \
         --networks dfcd1 dfcs1 cnn1 cnn2 cnn2bn dfc2nbn \
         --losses mse --optimizers adam \
