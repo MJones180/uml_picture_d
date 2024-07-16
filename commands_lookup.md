@@ -634,29 +634,48 @@ After model testing, it is useful to rank the model analyses:
         dfc2n mse adam 6e-5 50 --batch-size 1 \
         --max-threads 4 --overwrite-existing --epoch-save-steps 5
 
-    python3 main_stnp.py model_train \
-        overfit_bs1_norm_comp_2 \
+    python3 main.py model_test \
+        overfit_bs1_norm_comp_1 last \
+        fixed_50nm_range_processed --zernike-plots \
+        --inputs-need-norm --inputs-need-diff
+
+    python3 main.py model_test \
+        overfit_bs1_norm_comp_1 last \
+        random_10nm_med_processed --scatter-plot 5 5 \
+        --inputs-need-norm --inputs-need-diff
+
+    python3 main.py model_test \
+        overfit_bs1_norm_comp_1 last \
+        random_50nm_med_processed --scatter-plot 5 5 \
+        --inputs-need-norm --inputs-need-diff
+
+[V14] The `nn_architecture_comp` tag:
+
+    python3 main_stnp.py batch_model_train \
         train_val_fixed_50nm_diff_v2 train_val_fixed_50nm_diff_v2 \
-        dfc2n mse adam 6e-5 50 --batch-size 1 \
-        --max-threads 4 --overwrite-existing --epoch-save-steps 5
+        nn_architecture_comp_ 50 --max-threads 4 \
+        --networks dfcd1 dfcs1 cnn1 cnn2 cnn2bn dfc2nbn \
+        --losses mse --optimizers adam \
+        --lrs 6e-5 --batch-sizes 8 \
+        --overwrite-existing --epoch-save-steps 5
 
     python3 main.py batch_model_test \
         fixed_50nm_range_processed --zernike-plots \
         --inputs-need-norm --inputs-need-diff \
-        --epoch-and-tag-range last overfit_bs1_norm_comp_ 1 2
+        --epoch-and-tag-range last nn_architecture_comp_ 1 6
 
     python3 main.py batch_model_test \
         random_10nm_med_processed --scatter-plot 5 5 \
         --inputs-need-norm --inputs-need-diff \
-        --epoch-and-tag-range last overfit_bs1_norm_comp_ 1 2
+        --epoch-and-tag-range last nn_architecture_comp_ 1 6
 
     python3 main.py batch_model_test \
         random_50nm_med_processed --scatter-plot 5 5 \
         --inputs-need-norm --inputs-need-diff \
-        --epoch-and-tag-range last overfit_bs1_norm_comp_ 1 2
+        --epoch-and-tag-range last nn_architecture_comp_ 1 6
 
     python3 main.py batch_model_test \
         no_aberrations_processed \
         --inputs-need-norm --inputs-need-diff \
         --print-outputs --take-rss-model-outputs \
-        --epoch-and-tag-range last overfit_bs1_norm_comp_ 1 2
+        --epoch-and-tag-range last nn_architecture_comp_ 1 6
