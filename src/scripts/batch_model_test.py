@@ -131,7 +131,7 @@ def batch_model_test(cli_args):
 
     print('Will begin iteratively calling `model_test` for each pair')
     for idx, pair in enumerate(pairs):
-        step_ri(f'Pair {idx}/{total_pairs}')
+        step_ri(f'Pair {idx + 1}/{total_pairs}')
         for key, val in pair.items():
             print(f'{key}: {val}')
         dec_print_indent()
