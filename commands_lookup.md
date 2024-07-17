@@ -219,6 +219,13 @@ Can be used for model training:
         --use-field-diff no_aberrations
 
     python3 main.py preprocess_data_complete \
+        fixed_50nm_range_2000 \
+        train_fixed_50nm_ones_range val_fixed_50nm_ones_range empty \
+        80 20 0 \
+        --norm-outputs globally --norm-range-ones \
+        --use-field-diff no_aberrations
+
+    python3 main.py preprocess_data_complete \
         fixed_10nm_range_401 \
         train_val_fixed_10nm_diff_ones_range empty empty \
         100 0 0 \
@@ -788,3 +795,34 @@ After model testing, it is useful to rank the model analyses:
         --inputs-need-norm --inputs-need-diff cnn2 \
         --print-outputs --take-rss-model-outputs \
         --epoch-and-tag-range last dfcs1_comp_ss_ 1 6
+
+[V18] The `cnn_comp` tag:
+
+    python3 main_stnp.py batch_model_train \
+        train_fixed_50nm_ones_range val_fixed_50nm_ones_range \
+        cnn_comp_ 75 --max-threads 4 \
+        --networks cnn1 cnn3 cnn4 \
+        --losses mse --optimizers adam \
+        --lrs 1e-3 1e-4 6e-5 1e-5 --batch-sizes 32 64 128 \
+        --overwrite-existing --only-best-epoch --early-stopping 15
+
+    python3 main.py batch_model_test \
+        fixed_50nm_range_processed --zernike-plots \
+        --inputs-need-norm --inputs-need-diff \
+        --epoch-and-tag-range last cnn_comp_ 1 12
+
+    python3 main.py batch_model_test \
+        random_10nm_med_processed --scatter-plot 5 5 \
+        --inputs-need-norm --inputs-need-diff \
+        --epoch-and-tag-range last cnn_comp_ 1 12
+
+    python3 main.py batch_model_test \
+        random_50nm_med_processed --scatter-plot 5 5 \
+        --inputs-need-norm --inputs-need-diff \
+        --epoch-and-tag-range last cnn_comp_ 1 12
+
+    python3 main.py batch_model_test \
+        no_aberrations_processed \
+        --inputs-need-norm --inputs-need-diff cnn2 \
+        --print-outputs --take-rss-model-outputs \
+        --epoch-and-tag-range last cnn_comp_ 1 12
