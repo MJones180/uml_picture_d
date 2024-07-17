@@ -114,6 +114,14 @@ Fixed grid from -50 to 50 nm with 2000 points in between:
         --append-no-aberrations-row \
         --cores 4
 
+Fixed grid from -10 to 10 nm with 401 points in between:
+
+    python3 main_stnp.py sim_data fixed_10nm_range_401 v84 600e-9 \
+        --output-write-batch 1000 \
+        --fixed-amount-per-zernike-range 2 24 " -50e-9" 50e-9 401 \
+        --append-no-aberrations-row \
+        --cores 4
+
 Fixed grid from -1 to 1 nm with 301 points in between:
 
     python3 main_stnp.py sim_data fixed_1nm_range_301 v84 600e-9 \
@@ -206,6 +214,13 @@ Can be used for model training:
     python3 main.py preprocess_data_complete \
         fixed_50nm_range_2000 \
         train_val_fixed_50nm_diff_ones_range empty empty \
+        100 0 0 \
+        --norm-outputs globally --norm-range-ones \
+        --use-field-diff no_aberrations
+
+    python3 main.py preprocess_data_complete \
+        fixed_10nm_range_401 \
+        train_val_fixed_10nm_diff_ones_range empty empty \
         100 0 0 \
         --norm-outputs globally --norm-range-ones \
         --use-field-diff no_aberrations
