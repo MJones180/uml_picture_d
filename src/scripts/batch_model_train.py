@@ -109,6 +109,12 @@ def batch_model_train_parser(subparsers):
               'time as all the training batches will have to be iterated '
               'over again'),
     )
+    subparser.add_argument(
+        '--starting-tag-idx',
+        type=int,
+        default=1,
+        help='index to start tag numbers at',
+    )
 
 
 def batch_model_train(cli_args):
@@ -137,7 +143,7 @@ def batch_model_train(cli_args):
 
     step_ri('Computing all possible combinations of the provided args.')
     combinations = []
-    current_idx = 1
+    current_idx = cli_args.get('starting_tag_idx')
     # I know this is disgusting, a giant structure of nested for loops, but it
     # is quick and easy and will work as expected without extra complication
     for network in networks:
