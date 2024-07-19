@@ -587,13 +587,13 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main_stnp.py model_train \
         double_small_1 \
-        train_fixed_50nm_ones_range val_fixed_50nm_ones_range \
+        train_val_fixed_50nm_diff_ones_range train_val_fixed_50nm_diff_ones_range \
         dfcd2 mse adam 1e-5 50 --batch-size 32 \
         --max-threads 4 --overwrite-existing --epoch-save-steps 5
 
     python3 main_stnp.py model_train \
         double_small_2 \
-        train_fixed_50nm_ones_range val_fixed_50nm_ones_range \
+        train_val_fixed_50nm_diff_ones_range train_val_fixed_50nm_diff_ones_range \
         dfcd2 mae adam 1e-5 50 --batch-size 32 \
         --max-threads 4 --overwrite-existing --epoch-save-steps 5 \
         --init-weights double_small_1 50
