@@ -65,3 +65,13 @@ def downsample_data(data, sampling, final_sampling, final_pixels):
     # Normalize the values so that the sum of the points stays the same after
     # resizing to the final pixel count
     return data_out * pre_sum / post_sum
+
+
+def resize_pixel_grid(data, final_pixels):
+    # Convert the data to a Pillow Image object
+    data_out = Image.fromarray(data)
+    # Resize to the actual number of pixels in the output and convert to np
+    data_out = np.array(data_out.resize((final_pixels, final_pixels)))
+    # Normalize the values so that the sum of the points stays the same after
+    # resizing to the final pixel count
+    return data_out * np.sum(data) / np.sum(data_out)

@@ -11,7 +11,7 @@ from utils.constants import (ARGS_F, CCD_INTENSITY, CCD_SAMPLING, DATA_F,
                              FULL_INTENSITY, FULL_SAMPLING,
                              RAW_SIMULATED_DATA_P, ZERNIKE_COEFFS,
                              ZERNIKE_TERMS)
-from utils.downsample_data import downsample_data
+from utils.downsample_data import downsample_data, resize_pixel_grid
 from utils.hdf_read_and_write import HDFWriteModule
 from utils.json import json_write
 from utils.load_optical_train import load_optical_train
@@ -75,7 +75,11 @@ def sim_data_parser(subparsers):
         action='store_true',
         help='append a row at the end with no aberrations',
     )
-
+    subparser.add_argument(
+        '--use-only-aberration-map',
+        action='store_true',
+        help='do not propagate a wavefront and just store the aberration map',
+    )
     aberrations_group = subparser.add_mutually_exclusive_group()
     aberrations_group.add_argument(
         '--no-aberrations',
@@ -165,7 +169,8 @@ def sim_data(cli_args):
     grid_points = cli_args['grid_points']
     save_plots = cli_args['save_plots']
     save_full_intensity = cli_args['save_full_intensity']
-    append_no_aberrations_row = cli_args.get('append_no_aberrations_row')
+    append_no_aberrations_row = cli_args['append_no_aberrations_row']
+    use_only_aberration_map = cli_args['use_only_aberration_map']
     no_aberrations = cli_args['no_aberrations']
     fixed_amount_per_zernike = cli_args['fixed_amount_per_zernike']
     fixed_amount_per_zernike_all = cli_args['fixed_amount_per_zernike_all']
@@ -350,22 +355,34 @@ def sim_data(cli_args):
             # Set this as the entrance to the train
             proper.prop_define_entrance(wavefront)
             # Add in the aberrations to the wavefront
-            proper.prop_zernikes(wavefront, zernike_terms,
-                                 aberrations_chunk[sim_idx])
+            aberration_map = proper.prop_zernikes(wavefront, zernike_terms,
+                                                  aberrations_chunk[sim_idx])
             _plot_intensity(wavefront, 'Entrance', reset=True)
-            # Loop through the train
-            for step in optical_train:
-                # Nested list mean that the step should be eligible for plotting
-                if type(step) is list:
-                    step[1](wavefront)
-                    _plot_intensity(wavefront, step[0])
-                else:
-                    step(wavefront)
-            # The final wavefront intensity and sampling of its grid
-            (wavefront_intensity, sampling) = proper.prop_end(wavefront)
-            # Downsample to the CCD
-            wf_int_ds = downsample_data(wavefront_intensity, sampling,
-                                        ccd_sampling, ccd_pixels)
+            if use_only_aberration_map:
+                # Pixels where the circle is
+                aperture_mask = proper.prop_get_amplitude(wavefront)**2 > 0
+                # If only using the aberration map, then no need to propagate
+                # the wavefront through the optical setup.
+                wavefront_intensity = aberration_map * aperture_mask
+                _plot_intensity(wavefront_intensity, 'Aberration Map')
+                # For the CCD, we will just resize the grid so that the number
+                # of pixels matches. No need to do any resampling.
+                wf_int_ds = resize_pixel_grid(wavefront_intensity, ccd_pixels)
+                sampling = ccd_sampling
+            else:
+                # Loop through the train
+                for step in optical_train:
+                    # Nested list means step is eligible for plotting
+                    if type(step) is list:
+                        step[1](wavefront)
+                        _plot_intensity(wavefront, step[0])
+                    else:
+                        step(wavefront)
+                # The final wavefront intensity and sampling of its grid
+                (wavefront_intensity, sampling) = proper.prop_end(wavefront)
+                # Downsample to the CCD
+                wf_int_ds = downsample_data(wavefront_intensity, sampling,
+                                            ccd_sampling, ccd_pixels)
             # Plot the downsampled CCD intensity
             _plot_intensity(wf_int_ds, 'CCD Resampled')
             # Add the data to the output arrays
