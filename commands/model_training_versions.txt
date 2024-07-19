@@ -545,4 +545,40 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py model_test \
         smaller_range_test last no_aberrations_processed --inputs-need-norm \
-        --inputs-need-diff --print-outputs --take-rss-model-outputs 
+        --inputs-need-diff --print-outputs --take-rss-model-outputs
+
+[V20] The `mae_test` tag:
+
+    python3 main_stnp.py model_train \
+        mae_test_1 \
+        train_val_fixed_50nm_diff_ones_range train_val_fixed_50nm_diff_ones_range \
+        dfcs1 mae adam 1e-5 100 --batch-size 32 \
+        --max-threads 4 --overwrite-existing --epoch-save-steps 5
+
+    python3 main_stnp.py model_train \
+        mae_test_2 \
+        train_val_fixed_50nm_diff_ones_range train_val_fixed_50nm_diff_ones_range \
+        dfcs1 mae adam 1e-5 50 --batch-size 32 \
+        --max-threads 4 --overwrite-existing --epoch-save-steps 5
+        --init-weights nn_architecture_comp_v3_4 50
+
+    python3 main.py batch_model_test \
+        fixed_50nm_range_processed --zernike-plots \
+        --inputs-need-norm --inputs-need-diff \
+        --epoch-and-tag-range last mae_test_ 1 2
+
+    python3 main.py batch_model_test \
+        random_10nm_med_processed --scatter-plot 5 5 \
+        --inputs-need-norm --inputs-need-diff \
+        --epoch-and-tag-range last mae_test_ 1 2
+
+    python3 main.py batch_model_test \
+        random_50nm_med_processed --scatter-plot 5 5 \
+        --inputs-need-norm --inputs-need-diff \
+        --epoch-and-tag-range last mae_test_ 1 2
+
+    python3 main.py batch_model_test \
+        no_aberrations_processed \
+        --inputs-need-norm --inputs-need-diff cnn2 \
+        --print-outputs --take-rss-model-outputs \
+        --epoch-and-tag-range last mae_test_ 1 2
