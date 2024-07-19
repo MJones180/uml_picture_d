@@ -663,15 +663,15 @@ After model testing, it is useful to rank the model analyses:
     python3 main.py batch_model_test \
         fixed_50nm_range_processed --zernike-plots \
         --inputs-need-norm --inputs-need-diff \
-        --epoch-and-tag-range last val_against_ran10_ 1 2
+        --epoch-and-tag-range last val_against_ran10 1 2
 
     python3 main.py batch_model_test \
         random_50nm_med_processed --scatter-plot 5 5 \
         --inputs-need-norm --inputs-need-diff \
-        --epoch-and-tag-range last val_against_ran10_ 1 2
+        --epoch-and-tag-range last val_against_ran10 1 2
 
     python3 main.py batch_model_test \
         no_aberrations_processed \
         --inputs-need-norm --inputs-need-diff cnn2 \
         --print-outputs --take-rss-model-outputs \
-        --epoch-and-tag-range last val_against_ran10_ 1 2
+        --epoch-and-tag-range last val_against_ran10 1 2
