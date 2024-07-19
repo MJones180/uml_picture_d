@@ -826,3 +826,25 @@ After model testing, it is useful to rank the model analyses:
         --inputs-need-norm --inputs-need-diff cnn2 \
         --print-outputs --take-rss-model-outputs \
         --epoch-and-tag-range last cnn_comp_ 1 12
+
+[V19] The `smaller_range_test` tag:
+
+    python3 main_stnp.py model_train \
+        smaller_range_test \
+        train_val_fixed_10nm_diff_ones_range train_val_fixed_10nm_diff_ones_range \
+        dfcs1 mse adam 1e-5 50 --batch-size 32 \
+        --max-threads 4 --overwrite-existing --epoch-save-steps 5
+
+    python3 main.py model_test \
+        smaller_range_test last \
+        fixed_50nm_range_processed --zernike-plots \
+        --inputs-need-norm --inputs-need-diff
+
+    python3 main.py model_test \
+        smaller_range_test last \
+        random_10nm_med_processed --scatter-plot 5 5 \
+        --inputs-need-norm --inputs-need-diff
+
+    python3 main.py model_test \
+        smaller_range_test last no_aberrations_processed --inputs-need-norm \
+        --inputs-need-diff --print-outputs --take-rss-model-outputs 
