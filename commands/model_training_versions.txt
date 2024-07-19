@@ -559,7 +559,7 @@ After model testing, it is useful to rank the model analyses:
         mae_test_2 \
         train_val_fixed_50nm_diff_ones_range train_val_fixed_50nm_diff_ones_range \
         dfcs1 mae adam 1e-5 50 --batch-size 32 \
-        --max-threads 4 --overwrite-existing --epoch-save-steps 5
+        --max-threads 4 --overwrite-existing --epoch-save-steps 5 \
         --init-weights nn_architecture_comp_v3_4 50
 
     python3 main.py batch_model_test \
@@ -582,3 +582,39 @@ After model testing, it is useful to rank the model analyses:
         --inputs-need-norm --inputs-need-diff cnn2 \
         --print-outputs --take-rss-model-outputs \
         --epoch-and-tag-range last mae_test_ 1 2
+
+[V21] The `double_small` tag:
+
+    python3 main_stnp.py model_train \
+        double_small_1 \
+        train_fixed_50nm_ones_range val_fixed_50nm_ones_range \
+        dfcd2 mse adam 1e-5 50 --batch-size 32 \
+        --max-threads 4 --overwrite-existing --epoch-save-steps 5
+
+    python3 main_stnp.py model_train \
+        double_small_2 \
+        train_fixed_50nm_ones_range val_fixed_50nm_ones_range \
+        dfcd2 mae adam 1e-5 50 --batch-size 32 \
+        --max-threads 4 --overwrite-existing --epoch-save-steps 5 \
+        --init-weights double_small_1 50
+
+    python3 main.py batch_model_test \
+        fixed_50nm_range_processed --zernike-plots \
+        --inputs-need-norm --inputs-need-diff \
+        --epoch-and-tag-range last double_small_ 1 2
+
+    python3 main.py batch_model_test \
+        random_10nm_med_processed --scatter-plot 5 5 \
+        --inputs-need-norm --inputs-need-diff \
+        --epoch-and-tag-range last double_small_ 1 2
+
+    python3 main.py batch_model_test \
+        random_50nm_med_processed --scatter-plot 5 5 \
+        --inputs-need-norm --inputs-need-diff \
+        --epoch-and-tag-range last double_small_ 1 2
+
+    python3 main.py batch_model_test \
+        no_aberrations_processed \
+        --inputs-need-norm --inputs-need-diff cnn2 \
+        --print-outputs --take-rss-model-outputs \
+        --epoch-and-tag-range last double_small_ 1 2
