@@ -16,10 +16,10 @@ Additionallity, it is outlined on Math Stackexchange:
     math.stackexchange.com/questions/148199/equation-for-non-orthogonal-projection-of-a-point-onto-two-vectors-representing
 
 Commands to run this script:
-    python3 main.py wavefront_orthogonality \
+    python3 main.py find_wavefront_coeffs \
         fixed_10nm fixed_10nm --use-full-field --save-plots \
         --row-idx -2 --remove-outside-for-circle
-    python3 main.py wavefront_orthogonality \
+    python3 main.py find_wavefront_coeffs \
         fixed_10nm all_10nm --use-full-field --save-plots
 """
 
@@ -31,12 +31,12 @@ from utils.printing_and_logging import step_ri, title
 from utils.terminate_with_message import terminate_with_message
 
 
-def wavefront_orthogonality_parser(subparsers):
+def find_wavefront_coeffs_parser(subparsers):
     subparser = subparsers.add_parser(
-        'wavefront_orthogonality',
-        help='test the orthogonality of a wavefront',
+        'find_wavefront_coeffs',
+        help='test the coefficients of a wavefront',
     )
-    subparser.set_defaults(main=wavefront_orthogonality)
+    subparser.set_defaults(main=find_wavefront_coeffs)
     subparser.add_argument(
         'terms_ds',
         help=('name of the dataset containing each of the Zernike terms, '
@@ -71,7 +71,7 @@ def wavefront_orthogonality_parser(subparsers):
     )
 
 
-def wavefront_orthogonality(cli_args):
+def find_wavefront_coeffs(cli_args):
     title('Wavefront orthogonality script')
 
     step_ri('Loading in CLI args')
