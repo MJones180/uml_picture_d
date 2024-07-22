@@ -140,6 +140,11 @@ Just the Zernike wavefront without any propagation:
         --save-full-intensity \
         --cores 4 --use-only-aberration-map
 
+    # 10 nm on all terms at once
+    python3 main.py sim_data all_10nm_zernike_wf v84_unprop_wf 600e-9 \
+        --fixed-amount-per-zernike-all 2 24 10e-9 \
+        --save-full-intensity --use-only-aberration-map
+
     # Fixed grid from -50 to 50 nm with 21 points in between
     python3 main_stnp.py sim_data fixed_50nm_range_zernike_wf v84_unprop_wf 600e-9 \
         --output-write-batch 50 \
