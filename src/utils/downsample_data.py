@@ -72,6 +72,5 @@ def resize_pixel_grid(data, final_pixels):
     data_out = Image.fromarray(data)
     # Resize to the actual number of pixels in the output and convert to np
     data_out = np.array(data_out.resize((final_pixels, final_pixels)))
-    # Normalize the values so that the sum of the points stays the same after
-    # resizing to the final pixel count
-    return data_out * np.sum(data) / np.sum(data_out)
+    # Normalize the values so that they range roughly from -1 to 1
+    return data_out / np.abs(np.min(data_out))
