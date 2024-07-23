@@ -274,6 +274,14 @@ Can be used for model training:
         --norm-outputs globally --norm-range-ones \
         --use-field-diff no_aberrations
 
+    python3 main.py preprocess_data_complete \
+        fixed_50nm_range_2000 \
+        train_fixed_2000_and_random_large val_fixed_2000_and_random_large empty \
+        75 25 0 \
+        --norm-outputs globally \
+        --use-field-diff no_aberrations \
+        --additional-raw-data-tags random_50nm_large
+
 Can be used for testing:
 
     # 10 nm
