@@ -278,7 +278,7 @@ Can be used for model training:
         fixed_50nm_range_2000 \
         train_fixed_2000_and_random_large val_fixed_2000_and_random_large empty \
         75 25 0 \
-        --norm-outputs globally \
+        --norm-outputs globally --norm-range-ones \
         --use-field-diff no_aberrations \
         --additional-raw-data-tags random_50nm_large
 
