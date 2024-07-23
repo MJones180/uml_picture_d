@@ -7,8 +7,8 @@ projection onto a set of basis functions can take different coefficient combos.
 --------------------------------------------------------------------------------
 
 This script takes in a dataset where each row has one term with a fixed RMS
-error, these rows will be used as the basis terms. The orthogonality
-of the wavefront from a given row in another dataset will be calculated.
+error, these rows will be used as the basis terms. The coefficients of the
+wavefront from a given row in another dataset will be calculated.
 Plots will be stored in `output/random/`.
 
 The theory behind this can be found in the `oral_exam_studying/MATH/Basis` file.
@@ -45,14 +45,14 @@ def find_wavefront_coeffs_parser(subparsers):
     )
     subparser.add_argument(
         'test_ds',
-        help=('name of the dataset to check the wavefront orthogonality for, '
+        help=('name of the dataset to find the wavefront coefficients for, '
               'this should be a raw dataset'),
     )
     subparser.add_argument(
         '--row-idx',
         type=int,
         default=0,
-        help='the row to check the wavefront orthogonality for',
+        help='the row to find the wavefront coefficients for',
     )
     subparser.add_argument(
         '--use-full-field',
@@ -72,7 +72,7 @@ def find_wavefront_coeffs_parser(subparsers):
 
 
 def find_wavefront_coeffs(cli_args):
-    title('Wavefront orthogonality script')
+    title('Find wavefront coeffs script')
 
     step_ri('Loading in CLI args')
     terms_ds = cli_args['terms_ds']
