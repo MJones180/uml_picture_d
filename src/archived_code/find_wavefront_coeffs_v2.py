@@ -43,7 +43,7 @@ def find_wavefront_coeffs_v2_parser(subparsers):
     )
     subparser.add_argument(
         'test_ds',
-        help=('name of the dataset to check the wavefront orthogonality for, '
+        help=('name of the dataset to find the wavefront coefficients for, '
               'this should be a raw dataset'),
     )
     subparser.add_argument(
@@ -56,7 +56,7 @@ def find_wavefront_coeffs_v2_parser(subparsers):
         '--row-idx',
         type=int,
         default=0,
-        help='the row to check the wavefront orthogonality for',
+        help='the row to find the wavefront coefficients for',
     )
     subparser.add_argument(
         '--use-full-field',
@@ -76,7 +76,7 @@ def find_wavefront_coeffs_v2_parser(subparsers):
 
 
 def find_wavefront_coeffs_v2(cli_args):
-    title('Wavefront orthogonality script')
+    title('Find wavefront coeffs v2 script')
 
     step_ri('Loading in CLI args')
     terms_ds = cli_args['terms_ds']
