@@ -14,7 +14,7 @@ parts should be modularized and the plots should be put into separate files.
 
 Commands to run this script:
     python3 main.py find_wavefront_coeffs_v3 \
-        no_aberrations all_10nm -50 50 --save-plots --cores 4
+        no_aberrations all_10nm -100 100 --save-plots --cores 4
 """
 
 import matplotlib.pyplot as plt
@@ -181,11 +181,11 @@ def find_wavefront_coeffs_v3(cli_args):
             if worker_sim_results is not None:
                 fields = np.vstack((fields, worker_sim_results[field_type]))
         print(f'\tCall time: {time() - start_time}')
-        return fields
+        return fields - base_field
 
     def minimize_func(coeffs):
         # The finite difference amount
-        STEP_SIZE = 1e-8
+        STEP_SIZE = 0.01
         # To calculate the gradient, we need to perturb each coeff by itself
         coeff_vectors = np.repeat(coeffs[None], zernike_count, axis=0)
         coeff_vectors[np.diag_indices_from(coeff_vectors)] += STEP_SIZE
@@ -204,13 +204,17 @@ def find_wavefront_coeffs_v3(cli_args):
         grad = (grad_wfe - wavefront_error) / STEP_SIZE
         return wavefront_error, grad
 
+    def post_iteration_cb(intermediate_result):
+        print(f'\tCost function: {intermediate_result.fun}')
+
     minimization = minimize(
         minimize_func,
         # Initial coefficient guesses
         np.random.uniform(*init_coeff_bounds, zernike_count),
         jac=True,
-        tol=1e-12,
+        tol=1e-8,
         method='L-BFGS-B',
+        callback=post_iteration_cb,
     )
     print(minimization)
     coeffs = minimization.x
