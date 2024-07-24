@@ -2,6 +2,13 @@
 This script simulates data using PROPER.
 
 A datafile will be outputted for every worker.
+
+Right now, this script is only setup to write out data to a file. Additionally,
+the only way to specify aberrations is by having the code generate them – they
+cannot be passed in directly. That is why the code within this file has been
+taken and reused within the `find_wavefront_coeffs_v3.py` script. If this code
+needs to be used in more places, then this script needs to be modularized to
+reduce copied code.
 """
 
 import numpy as np
