@@ -13,8 +13,8 @@ exactly the same. If any of these become non-archived scripts, then the shared
 parts should be modularized and the plots should be put into separate files.
 
 Commands to run this script:
-    python3 main.py find_wavefront_coeffs_v3 \
-        no_aberrations all_10nm -100 100 --save-plots --cores 4
+    python3 main_stnp.py find_wavefront_coeffs_v3 \
+        no_aberrations all_10nm -50 50 --save-plots --cores 4
 """
 
 import matplotlib.pyplot as plt
