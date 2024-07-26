@@ -1,42 +1,40 @@
 """
---- NOTE -----------------------------------------------------------------------
-This file used to be a script. I realized why this code does not work: we
-end up having linearly dependent basis vectors which means that there is not a
-unique mapping from the wavefront back to coefficients. Basically, a wavefront's
-projection onto a set of basis functions can take different coefficient combos.
---------------------------------------------------------------------------------
+This file is copied from `find_wavefront_coeffs_v1.py`. The difference is,
+instead of solving a system of equations to find the coefficients, this script
+uses the SciPy `minimize` function to fit the coefficients.
 
-This script takes in a dataset where each row has one term with a fixed RMS
-error, these rows will be used as the basis terms. The coefficients of the
-wavefront from a given row in another dataset will be calculated.
-Plots will be stored in `output/random/`.
-
-The theory behind this can be found in the `oral_exam_studying/MATH/Basis` file.
-Additionallity, it is outlined on Math Stackexchange:
-    math.stackexchange.com/questions/148199/equation-for-non-orthogonal-projection-of-a-point-onto-two-vectors-representing
+This script uses the propagated basis vectors to do the fitting. For the
+propagated basis vectors, it is not possible to fit any given wavefront. In the
+case of basis vectors propagated with 10 nm RMS error, it is not possible to fit
+a wavefront that was propagated with 10 nm RMS error on each term. However, for
+unpropagated orthogonal basis vectors containing the Zernike terms, these can
+fit any unpropagated wavefront. The reason for this is that the propagated basis
+vectors do not span the full space, so they cannot represent all potential
+wavefront vectors.
 
 Commands to run this script:
-    python3 main.py find_wavefront_coeffs \
-        fixed_10nm fixed_10nm --use-full-field --save-plots \
-        --row-idx -2 --remove-outside-for-circle
-    python3 main.py find_wavefront_coeffs \
-        fixed_10nm all_10nm --use-full-field --save-plots
+    python3 main.py find_wavefront_coeffs_v2 \
+        fixed_10nm all_10nm -50 50 --save-plots
+    python3 main.py find_wavefront_coeffs_v2 \
+        fixed_10nm_zernike_wf all_10nm_zernike_wf -50 50 --save-plots
 """
 
 import matplotlib.pyplot as plt
 import numpy as np
 from utils.constants import RANDOM_P
 from utils.load_raw_sim_data_chunks import load_raw_sim_data_chunks
+from scipy.optimize import minimize
 from utils.printing_and_logging import step_ri, title
+from utils.stats_and_error import sum_of_abs
 from utils.terminate_with_message import terminate_with_message
 
 
-def find_wavefront_coeffs_parser(subparsers):
+def find_wavefront_coeffs_v2_parser(subparsers):
     subparser = subparsers.add_parser(
-        'find_wavefront_coeffs',
+        'find_wavefront_coeffs_v2',
         help='test the coefficients of a wavefront',
     )
-    subparser.set_defaults(main=find_wavefront_coeffs)
+    subparser.set_defaults(main=find_wavefront_coeffs_v2)
     subparser.add_argument(
         'terms_ds',
         help=('name of the dataset containing each of the Zernike terms, '
@@ -47,6 +45,12 @@ def find_wavefront_coeffs_parser(subparsers):
         'test_ds',
         help=('name of the dataset to find the wavefront coefficients for, '
               'this should be a raw dataset'),
+    )
+    subparser.add_argument(
+        'init_coeff_bounds',
+        type=int,
+        nargs=2,
+        help='initial bounds to pick first guess between',
     )
     subparser.add_argument(
         '--row-idx',
@@ -71,12 +75,13 @@ def find_wavefront_coeffs_parser(subparsers):
     )
 
 
-def find_wavefront_coeffs(cli_args):
-    title('Find wavefront coeffs script')
+def find_wavefront_coeffs_v2(cli_args):
+    title('Find wavefront coeffs v2 script')
 
     step_ri('Loading in CLI args')
     terms_ds = cli_args['terms_ds']
     test_ds = cli_args['test_ds']
+    init_coeff_bounds = cli_args['init_coeff_bounds']
     row_idx = cli_args['row_idx']
     use_full_field = cli_args['use_full_field']
     remove_outside_for_circle = cli_args['remove_outside_for_circle']
@@ -109,6 +114,7 @@ def find_wavefront_coeffs(cli_args):
                                'two datasets')
     wavefront = test_ds_data[0][row_idx] - base_field
     truth_zernike_coeffs = test_ds_data[1][row_idx]
+    print('TRUTH: ', truth_zernike_coeffs)
 
     if remove_outside_for_circle:
         step_ri('Removing corner pixels to make a circle')
@@ -130,15 +136,32 @@ def find_wavefront_coeffs(cli_args):
     # Our wavefront should also be flattened so that it is a vector
     wavefront = wavefront.reshape(-1)
 
-    # Compute the dot products between each of the basis terms
-    basis_terms_dot_products = basis_terms @ basis_terms.T
+    def minimize_func(coeffs):
+        # The wavefront error can be calculated as the sum of the absolute
+        # differences between the target wavefront and reconstructed wavefront
+        wavefront_error = sum_of_abs(wavefront - (coeffs @ basis_terms))
+        # The finite difference amount
+        STEP_SIZE = 1e-8
+        # To calculate the gradient, we need to perturb each coeff by itself
+        coeff_vectors = np.repeat(coeffs[None], zernike_count, axis=0)
+        coeff_vectors[np.diag_indices_from(coeff_vectors)] += STEP_SIZE
+        # Calculate the error for each perturbed coefficient
+        grad_wfe = sum_of_abs(wavefront - (coeff_vectors @ basis_terms), 1)
+        # Calculate the gradient
+        grad = (grad_wfe - wavefront_error) / STEP_SIZE
+        return wavefront_error, grad
 
-    # Compute the dot product of the wavefront with each of the basis terms
-    wavefront_dot_products = basis_terms @ wavefront
-
-    # The crosstalk between the wavefront with each of the basis terms. This is
-    # computed by just solving for the system of equations.
-    coeffs = np.linalg.solve(basis_terms_dot_products, wavefront_dot_products)
+    minimization = minimize(
+        minimize_func,
+        # Initial coefficient guesses
+        np.random.uniform(*init_coeff_bounds, zernike_count),
+        jac=True,
+        tol=1e-8,
+        method='L-BFGS-B',
+    )
+    print(minimization)
+    coeffs = minimization.x
+    print(coeffs)
 
     step_ri('Plotting a bar plot of wavefront coefficients')
     fig, ax = plt.subplots(figsize=(12, 6))
