@@ -5,6 +5,7 @@ from utils.constants import (CCD_INTENSITY, CCD_SAMPLING, DATA_F,
                              RAW_SIMULATED_DATA_P, ZERNIKE_COEFFS,
                              ZERNIKE_TERMS)
 from utils.hdf_read_and_write import read_hdf
+from utils.printing_and_logging import dec_print_indent, inc_print_indent
 
 
 def load_raw_sim_data_chunks(raw_data_tag, full_intensity=False):
@@ -21,6 +22,8 @@ def load_raw_sim_data_chunks(raw_data_tag, full_intensity=False):
     output_data = []
     intensity_tag = FULL_INTENSITY if full_intensity else CCD_INTENSITY
     sampling_tag = FULL_SAMPLING if full_intensity else CCD_SAMPLING
+    print(f'Tag: {raw_data_tag}')
+    inc_print_indent()
     for idx, chunk_val in enumerate(chunk_vals):
         path = f'{base_path}/{chunk_val}_{DATA_F}'
         print(f'Path: {path}')
@@ -33,6 +36,7 @@ def load_raw_sim_data_chunks(raw_data_tag, full_intensity=False):
         if idx == 0:
             zernike_terms = data[ZERNIKE_TERMS][:]
             sampling = data[sampling_tag][()]
+    dec_print_indent()
     input_data = np.array(input_data)
     output_data = np.array(output_data)
     return input_data, output_data, zernike_terms, sampling

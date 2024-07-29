@@ -91,6 +91,13 @@ def preprocess_data_complete_parser(subparsers):
         nargs='*',
         help='additional raw simulated data to preprocess and merge together',
     )
+    subparser.add_argument(
+        '--additional-raw-data-tags-train-only',
+        nargs='*',
+        help=('additional raw simulated data to preprocess and merge '
+              'together, however, this data will only go in the '
+              'training dataset'),
+    )
 
 
 def preprocess_data_complete(cli_args):
@@ -99,26 +106,42 @@ def preprocess_data_complete(cli_args):
     step_ri('Loading in data chunks')
     (input_data, output_data, zernike_terms,
      ccd_sampling) = load_raw_sim_data_chunks(cli_args['raw_data_tag'])
-    for tag in cli_args.get('additional_raw_data_tags') or []:
-        (additional_input_data, additional_output_data, _,
-         _) = load_raw_sim_data_chunks(tag)
-        # Keep stacking on the other datasets
-        input_data = np.vstack((input_data, additional_input_data))
-        output_data = np.vstack((output_data, additional_output_data))
     print(f'Input shape: {input_data.shape}')
     print(f'Output shape: {output_data.shape}')
     print(f'Zernike terms: {zernike_terms}')
+
+    def _load_and_merge_chunks(tag):
+        (additional_input_data, additional_output_data,
+         additional_zernike_terms, _) = load_raw_sim_data_chunks(tag)
+        # Keep stacking on the other datasets
+        input_data_merged = np.vstack((input_data, additional_input_data))
+        output_data_merged = np.vstack((output_data, additional_output_data))
+        if not np.array_equal(additional_zernike_terms, zernike_terms):
+            terminate_with_message('Zernike terms from additional dataset '
+                                   'are different')
+        print(f'Merged input shape: {input_data_merged.shape}')
+        print(f'Merged output shape: {output_data_merged.shape}')
+        return input_data_merged, output_data_merged
+
+    if cli_args.get('additional_raw_data_tags') is not None:
+        step_ri('Loading in additional data chunks')
+        for tag in cli_args.get('additional_raw_data_tags'):
+            input_data, output_data = _load_and_merge_chunks(tag)
+
+    train_only_mask = None
+    if cli_args.get('additional_raw_data_tags_train_only') is not None:
+        step_ri('Loading in additional data chunks for training only')
+        starting_idx = input_data.shape[0]
+        for tag in cli_args.get('additional_raw_data_tags_train_only'):
+            input_data, output_data = _load_and_merge_chunks(tag)
+        # Create a mask to grab the rows that should be used for training only
+        train_only_mask = np.zeros(input_data.shape[0]).astype(bool)
+        train_only_mask[starting_idx:] = 1
 
     step_ri('Adding in dimension for the channels')
     # Since this is a grayscale image, there is only one channel
     input_data = input_data[:, None, :, :]
     print(f'Input shape: {input_data.shape}')
-
-    use_field_diff = cli_args['use_field_diff']
-    base_field = None
-    if use_field_diff:
-        step_ri('Loading in the base field')
-        base_field, _, _, _ = load_raw_sim_data_chunks(use_field_diff)
 
     # The rows with no aberrations, these are equal to the base field
     no_aber_rows = np.all(output_data == 0, axis=1)
@@ -131,8 +154,15 @@ def preprocess_data_complete(cli_args):
         # Chop of all rows with no aberrations
         input_data = input_data[~no_aber_rows]
         output_data = output_data[~no_aber_rows]
+        if train_only_mask is not None:
+            train_only_mask = train_only_mask[~no_aber_rows]
 
+    use_field_diff = cli_args['use_field_diff']
+    base_field = None
     if use_field_diff:
+        step_ri('Loading in the base field')
+        base_field, _, _, _ = load_raw_sim_data_chunks(use_field_diff)
+
         step_ri('Taking the difference between the inputs and the base field')
         # Take the diff between the base field and each of the individual fields
         input_data = input_data - base_field
@@ -141,6 +171,14 @@ def preprocess_data_complete(cli_args):
     random_shuffle_idxs = np.random.permutation(len(input_data))
     input_data = input_data[random_shuffle_idxs]
     output_data = output_data[random_shuffle_idxs]
+    if train_only_mask is not None:
+        train_only_mask = train_only_mask[random_shuffle_idxs]
+
+        step_ri('Splitting apart the train only data')
+        input_data_train_only = input_data[train_only_mask]
+        output_data_train_only = output_data[train_only_mask]
+        input_data = input_data[~train_only_mask]
+        output_data = output_data[~train_only_mask]
 
     step_ri('Splitting')
     training_percentage = cli_args['training_percentage']
@@ -157,6 +195,10 @@ def preprocess_data_complete(cli_args):
     idxs = idxs.astype(int)
     train_inputs, val_inputs, test_inputs = np.split(input_data, idxs)
     train_outputs, val_outputs, test_outputs = np.split(output_data, idxs)
+    if train_only_mask is not None:
+        # Adding back in the train only datasets
+        train_inputs = np.vstack((train_inputs, input_data_train_only))
+        train_outputs = np.vstack((train_outputs, output_data_train_only))
 
     # Add back in the base field if it was removed and the field diff is not
     # being done
