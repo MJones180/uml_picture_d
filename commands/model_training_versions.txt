@@ -396,7 +396,7 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py batch_model_test \
         no_aberrations_processed \
-        --inputs-need-norm --inputs-need-diff cnn2 \
+        --inputs-need-norm --inputs-need-diff \
         --print-outputs --take-rss-model-outputs \
         --epoch-and-tag-range last nn_architecture_comp_ 1 6
 
@@ -427,7 +427,7 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py batch_model_test \
         no_aberrations_processed \
-        --inputs-need-norm --inputs-need-diff cnn2 \
+        --inputs-need-norm --inputs-need-diff \
         --print-outputs --take-rss-model-outputs \
         --epoch-and-tag-range last nn_architecture_comp_v2_ 1 4
 
@@ -458,7 +458,7 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py batch_model_test \
         no_aberrations_processed \
-        --inputs-need-norm --inputs-need-diff cnn2 \
+        --inputs-need-norm --inputs-need-diff \
         --print-outputs --take-rss-model-outputs \
         --epoch-and-tag-range last nn_architecture_comp_v3_ 1 4
 
@@ -490,7 +490,7 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py batch_model_test \
         no_aberrations_processed \
-        --inputs-need-norm --inputs-need-diff cnn2 \
+        --inputs-need-norm --inputs-need-diff \
         --print-outputs --take-rss-model-outputs \
         --epoch-and-tag-range last dfcs1_comp_ss_ 1 6
 
@@ -521,7 +521,7 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py batch_model_test \
         no_aberrations_processed \
-        --inputs-need-norm --inputs-need-diff cnn2 \
+        --inputs-need-norm --inputs-need-diff \
         --print-outputs --take-rss-model-outputs \
         --epoch-and-tag-range last cnn_comp_ 1 36
 
@@ -579,7 +579,7 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py batch_model_test \
         no_aberrations_processed \
-        --inputs-need-norm --inputs-need-diff cnn2 \
+        --inputs-need-norm --inputs-need-diff \
         --print-outputs --take-rss-model-outputs \
         --epoch-and-tag-range last mae_test_ 1 2
 
@@ -615,7 +615,7 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py batch_model_test \
         no_aberrations_processed \
-        --inputs-need-norm --inputs-need-diff cnn2 \
+        --inputs-need-norm --inputs-need-diff \
         --print-outputs --take-rss-model-outputs \
         --epoch-and-tag-range last double_small_ 1 2
 
@@ -646,7 +646,7 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py batch_model_test \
         no_aberrations_processed \
-        --inputs-need-norm --inputs-need-diff cnn2 \
+        --inputs-need-norm --inputs-need-diff \
         --print-outputs --take-rss-model-outputs \
         --epoch-and-tag-range last dfc_comp_ 1 6
 
@@ -672,7 +672,7 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py batch_model_test \
         no_aberrations_processed \
-        --inputs-need-norm --inputs-need-diff cnn2 \
+        --inputs-need-norm --inputs-need-diff \
         --print-outputs --take-rss-model-outputs \
         --epoch-and-tag-range last val_against_ran10 1 2
 
@@ -703,7 +703,7 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py batch_model_test \
         no_aberrations_processed \
-        --inputs-need-norm --inputs-need-diff cnn2 \
+        --inputs-need-norm --inputs-need-diff \
         --print-outputs --take-rss-model-outputs \
         --epoch-and-tag-range last cnn_comp_v2_ 1 6
 
@@ -734,7 +734,7 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py batch_model_test \
         no_aberrations_processed \
-        --inputs-need-norm --inputs-need-diff cnn2 \
+        --inputs-need-norm --inputs-need-diff \
         --print-outputs --take-rss-model-outputs \
         --epoch-and-tag-range last multiple_terms_per_row_ 1 8
 
@@ -765,6 +765,6 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py batch_model_test \
         no_aberrations_processed \
-        --inputs-need-norm --inputs-need-diff cnn2 \
+        --inputs-need-norm --inputs-need-diff \
         --print-outputs --take-rss-model-outputs \
         --epoch-and-tag-range last cnn_comp_multi_ 1 4
