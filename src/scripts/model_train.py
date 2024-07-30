@@ -281,7 +281,7 @@ def model_train(cli_args):
             if image_transforms is not None:
                 inputs = image_transforms(inputs)
             # Zero gradients for every batch
-            optimizer.zero_grad()
+            optimizer.zero_grad(set_to_none=True)
             # Make predictions for this batch
             outputs = model(inputs)
             # Compute the loss and its gradients, need to convert both inputs
