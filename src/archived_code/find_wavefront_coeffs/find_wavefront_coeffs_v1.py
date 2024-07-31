@@ -8,10 +8,10 @@ wavefront from a given row in another dataset will be calculated.
 Plots will be stored in `output/random/`.
 
 Commands to run this script:
-    python3 main.py find_wavefront_coeffs \
+    python3 main.py find_wavefront_coeffs_v1 \
         fixed_10nm fixed_10nm --use-full-field --save-plots \
         --row-idx -2 --remove-outside-for-circle
-    python3 main.py find_wavefront_coeffs \
+    python3 main.py find_wavefront_coeffs_v1 \
         fixed_10nm all_10nm --use-full-field --save-plots
 """
 
