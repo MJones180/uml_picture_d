@@ -26,6 +26,13 @@ When this happens, uninstall `pyFFTW` from Conda and install with pip:
     conda uninstall pyfftw
     pip install pyfftw
 
+**Bug Note**: The following error may arise when calling scripts that use the `pathos` library (such as `sim_data`):
+
+    objc[...]: +[__NSCFConstantString initialize] may have been in progress in another thread when fork() was called.
+    objc[...]: +[__NSCFConstantString initialize] may have been in progress in another thread when fork() was called. We cannot safely call it or ignore it in the fork() child process. Crashing instead. Set a breakpoint on objc_initializeAfterForkError to debug.
+
+To fix this, run `export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES`.
+
 **Dependency note**: when writing out an updated `environment.yml` file, it must be manually edited to edit the dependency `libgfortran>=3.0.0`.
 
 ### PROPER
