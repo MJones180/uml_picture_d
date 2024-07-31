@@ -23,9 +23,9 @@ from utils.printing_and_logging import step_ri, title
 from utils.terminate_with_message import terminate_with_message
 
 
-def find_wavefront_coeffs_parser(subparsers):
+def find_wavefront_coeffs_v1_parser(subparsers):
     subparser = subparsers.add_parser(
-        'find_wavefront_coeffs',
+        'find_wavefront_coeffs_v1',
         help='test the coefficients of a wavefront',
     )
     subparser.set_defaults(main=find_wavefront_coeffs)
