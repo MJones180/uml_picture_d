@@ -768,3 +768,34 @@ After model testing, it is useful to rank the model analyses:
         --inputs-need-norm --inputs-need-diff \
         --print-outputs --take-rss-model-outputs \
         --epoch-and-tag-range last cnn_comp_multi_ 1 4
+
+[V27] The `cnn_comp_multi_v2` tag:
+
+    python3 main_stnp.py batch_model_train \
+        train_fixed_2000_and_random_large_v2 val_fixed_2000_and_random_large_v2 \
+        cnn_comp_multi_v2_ 250 --max-threads 4 \
+        --networks cnn7bn cnn8bn \
+        --losses mse --optimizers adam \
+        --lrs 1e-5 --batch-sizes 128 256 \
+        --overwrite-existing --only-best-epoch --early-stopping 15
+
+    python3 main.py batch_model_test \
+        fixed_50nm_range_processed --zernike-plots \
+        --inputs-need-norm --inputs-need-diff \
+        --epoch-and-tag-range last cnn_comp_multi_v2_ 1 4
+
+    python3 main.py batch_model_test \
+        random_10nm_med_processed --scatter-plot 5 5 \
+        --inputs-need-norm --inputs-need-diff \
+        --epoch-and-tag-range last cnn_comp_multi_v2_ 1 4
+
+    python3 main.py batch_model_test \
+        random_50nm_med_processed --scatter-plot 5 5 \
+        --inputs-need-norm --inputs-need-diff \
+        --epoch-and-tag-range last cnn_comp_multi_v2_ 1 4
+
+    python3 main.py batch_model_test \
+        no_aberrations_processed \
+        --inputs-need-norm --inputs-need-diff \
+        --print-outputs --take-rss-model-outputs \
+        --epoch-and-tag-range last cnn_comp_multi_v2_ 1 4
