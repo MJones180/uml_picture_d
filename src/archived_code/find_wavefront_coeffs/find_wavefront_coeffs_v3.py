@@ -142,6 +142,7 @@ def find_wavefront_coeffs_v3(cli_args):
             ccd_sampling,
             zernike_terms,
             coeffs_vectors_nm,
+            save_full_intensity=True,
             grid_points=grid_points,
             enable_logs=False,
         )

@@ -145,6 +145,7 @@ def multi_worker_sim_prop_many_wf(
     ccd_sampling,
     zernike_terms,
     aberrations,
+    save_full_intensity=False,
     grid_points=1024,
     plot_path=None,
     use_only_aberration_map=False,
@@ -178,6 +179,9 @@ def multi_worker_sim_prop_many_wf(
         Noll Zernike terms that will have aberrations.
     aberrations : np.array
         The aberrations for each simulation.
+    save_full_intensity, bool, optional
+        If True, will save the full intensity field and return it, but this will
+        take up much more memory, default is False.
     grid_points : int, optional
         Number of grid points, defaults to 1024.
     plot_path : str, optional
@@ -224,9 +228,10 @@ def multi_worker_sim_prop_many_wf(
             ZERNIKE_COEFFS: aberrations_chunk,
             CCD_INTENSITY: [],
             CCD_SAMPLING: ccd_sampling,
-            FULL_INTENSITY: [],
-            FULL_SAMPLING: [],
         }
+        if save_full_intensity:
+            simulation_data[FULL_INTENSITY] = []
+            simulation_data[FULL_SAMPLING] = []
         for sim_idx in range(sim_count):
             if enable_logs:
                 print(f'[{worker_idx}] Simulation, {sim_idx + 1}/{sim_count}')
@@ -248,8 +253,9 @@ def multi_worker_sim_prop_many_wf(
                 disable_proper_logs=disable_proper_logs,
             )
             simulation_data[CCD_INTENSITY].append(ccd_wf)
-            simulation_data[FULL_INTENSITY].append(full_wf)
-            simulation_data[FULL_SAMPLING].append(full_sampling)
+            if save_full_intensity:
+                simulation_data[FULL_INTENSITY].append(full_wf)
+                simulation_data[FULL_SAMPLING].append(full_sampling)
             if sim_post_cb is not None:
                 sim_post_cb(worker_idx, sim_idx, simulation_data)
         if worker_post_cb is not None:
@@ -264,19 +270,24 @@ def multi_worker_sim_prop_many_wf(
     worker_indexes = np.arange(core_count)
     # Split the rows into chunks to pass to each worker
     aberrations_chunks = np.array_split(aberrations, core_count)
-
     if enable_logs:
         step_ri('Beginning to run simulations')
-    # Since each worker writes out its own data, no need to aggregate at the end
-    results = pool.map(worker_sim_and_write, worker_indexes,
-                       aberrations_chunks)
-    merged_results = results[0]
+    results = pool.map(
+        worker_sim_and_write,
+        worker_indexes,
+        aberrations_chunks,
+    )
     # Merge together all the worker results
+    merged_results = results[0]
     for result_dict in results[1:]:
         if result_dict is None:
             continue
-        keys = [ZERNIKE_COEFFS, CCD_INTENSITY, FULL_INTENSITY, FULL_SAMPLING]
-        for key in keys:
-            merged_results[key] = np.concatenate(
-                (merged_results[key], result_dict[key]))
+        merge_keys = [ZERNIKE_COEFFS, CCD_INTENSITY]
+        if save_full_intensity:
+            merge_keys.extend([FULL_INTENSITY, FULL_SAMPLING])
+        for key in merge_keys:
+            merged_results[key] = np.concatenate((
+                merged_results[key],
+                result_dict[key],
+            ))
     return merged_results

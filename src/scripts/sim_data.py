@@ -284,11 +284,7 @@ def sim_data(cli_args):
     def write_cb(worker_idx, simulation_data):
         print(f'Worker [{worker_idx}] writing out data')
         out_file = f'{output_path}/{worker_idx}_{DATA_F}'
-        keys = [ZERNIKE_TERMS, ZERNIKE_COEFFS, CCD_INTENSITY, CCD_SAMPLING]
-        if save_full_intensity:
-            keys.extend([FULL_INTENSITY, FULL_SAMPLING])
-        out_data = {x: simulation_data[x] for x in keys}
-        HDFWriteModule(out_file).create_and_write_hdf_simple(out_data)
+        HDFWriteModule(out_file).create_and_write_hdf_simple(simulation_data)
 
     def batch_write_cb(worker_idx, sim_idx, simulation_data):
         if (sim_idx + 1) % output_write_batch == 0:
@@ -306,6 +302,7 @@ def sim_data(cli_args):
         ccd_sampling,
         zernike_terms,
         aberrations,
+        save_full_intensity=save_full_intensity,
         grid_points=grid_points,
         plot_path=f'{output_path}/plots/' if save_plots else None,
         use_only_aberration_map=use_only_aberration_map,
