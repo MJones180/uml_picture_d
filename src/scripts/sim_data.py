@@ -2,30 +2,21 @@
 This script simulates data using PROPER.
 
 A datafile will be outputted for every worker.
-
-Right now, this script is only setup to write out data to a file. Additionally,
-the only way to specify aberrations is by having the code generate them – they
-cannot be passed in directly. That is why the code within this file has been
-taken and reused within the `find_wavefront_coeffs_v3.py` script. If this code
-needs to be used in more places, then this script needs to be modularized to
-reduce copied code.
 """
 
 import numpy as np
 from pathos.multiprocessing import ProcessPool
-import proper
 from utils.constants import (ARGS_F, CCD_INTENSITY, CCD_SAMPLING, DATA_F,
                              FULL_INTENSITY, FULL_SAMPLING,
                              RAW_SIMULATED_DATA_P, ZERNIKE_COEFFS,
                              ZERNIKE_TERMS)
-from utils.downsample_data import downsample_data, resize_pixel_grid
 from utils.hdf_read_and_write import HDFWriteModule
 from utils.json import json_write
 from utils.load_optical_train import load_optical_train
-from utils.path import get_abs_path, make_dir
-from utils.plots.plot_intensity_field import plot_intensity_field
+from utils.path import make_dir
 from utils.printing_and_logging import step_ri, title
 from utils.proper_use_fftw import proper_use_fftw
+from utils.sim_prop_wf import sim_prop_wf
 from utils.terminate_with_message import terminate_with_message
 
 
@@ -299,8 +290,6 @@ def sim_data(cli_args):
             print(f'{worker_str} not assigned any simulations')
             return
         print(f'{worker_str} assigned {sim_count} simulation(s)')
-        # Ignore all proper logs
-        proper.print_it = False
         # The data that will be written out
         simulation_data = {
             # Noll zernike term indices that are being used for aberrations
@@ -320,83 +309,28 @@ def sim_data(cli_args):
             HDFWriteModule(out_file).create_and_write_hdf_simple(
                 simulation_data)
 
-        plot_idx = 0
-
-        def _plot_intensity(wf_or_intensity, title, reset=False):
-            if not save_plots:
-                return
-            nonlocal plot_idx
-            plot_path = f'{output_path}/plots/w_{worker_idx}_sim_{sim_idx}'
-            linear_path = f'{plot_path}/linear'
-            log_path = f'{plot_path}/log'
-            # Needs to be done for each simulation
-            if reset:
-                plot_idx = 0
-                make_dir(linear_path)
-                make_dir(log_path)
-            # If it is a NP array, then it is the final intensity on the CCD,
-            # otherwise it is a PROPER wavefront object
-            if isinstance(wf_or_intensity, np.ndarray):
-                intensity = wf_or_intensity
-                plot_sampling = ccd_sampling
-            else:
-                intensity = proper.prop_get_amplitude(wf_or_intensity)**2
-                plot_sampling = proper.prop_get_sampling(wf_or_intensity)
-
-            def _get_plot_path(sub_dir):
-                return get_abs_path(f'{sub_dir}/step_{plot_idx}.png')
-
-            plot_intensity_field(intensity, plot_sampling, title,
-                                 _get_plot_path(linear_path))
-            plot_intensity_field(intensity, plot_sampling, title,
-                                 _get_plot_path(log_path), True)
-            plot_idx += 1
-
+        plot_path = None
         for sim_idx in range(sim_count):
             print(f'[{worker_idx}] Simulation, {sim_idx + 1}/{sim_count}')
-            # Create the wavefront that will be passed through the train
-            wavefront = proper.prop_begin(init_beam_d, ref_wl, grid_points,
-                                          beam_ratio)
-            # Define the initial aperture
-            proper.prop_circular_aperture(wavefront, init_beam_d / 2)
-            # Set this as the entrance to the train
-            proper.prop_define_entrance(wavefront)
-            # Add in the aberrations to the wavefront
-            aberration_map = proper.prop_zernikes(wavefront, zernike_terms,
-                                                  aberrations_chunk[sim_idx])
-            _plot_intensity(wavefront, 'Entrance', reset=True)
-            if use_only_aberration_map:
-                # Pixels where the circle is
-                aperture_mask = proper.prop_get_amplitude(wavefront)**2 > 0
-                # If only using the aberration map, then no need to propagate
-                # the wavefront through the optical setup.
-                wavefront_intensity = aberration_map * aperture_mask
-                _plot_intensity(wavefront_intensity, 'Aberration Map')
-                # For the CCD, we will just resize the grid so that the number
-                # of pixels matches. No need to do any resampling.
-                wf_int_ds = resize_pixel_grid(wavefront_intensity, ccd_pixels)
-                sampling = ccd_sampling
-            else:
-                # Loop through the train
-                for step in optical_train:
-                    # Nested list means step is eligible for plotting
-                    if type(step) is list:
-                        step[1](wavefront)
-                        _plot_intensity(wavefront, step[0])
-                    else:
-                        step(wavefront)
-                # The final wavefront intensity and sampling of its grid
-                (wavefront_intensity, sampling) = proper.prop_end(wavefront)
-                # Downsample to the CCD
-                wf_int_ds = downsample_data(wavefront_intensity, sampling,
-                                            ccd_sampling, ccd_pixels)
-            # Plot the downsampled CCD intensity
-            _plot_intensity(wf_int_ds, 'CCD Resampled')
-            # Add the data to the output arrays
-            simulation_data[CCD_INTENSITY].append(wf_int_ds)
+            if save_plots:
+                plot_path = f'{output_path}/plots/w_{worker_idx}_sim_{sim_idx}'
+            ccd_wf, full_wf, full_sampling = sim_prop_wf(
+                init_beam_d,
+                ref_wl,
+                beam_ratio,
+                optical_train,
+                ccd_pixels,
+                ccd_sampling,
+                zernike_terms,
+                aberrations_chunk[sim_idx],
+                grid_points=grid_points,
+                plot_path=plot_path,
+                use_only_aberration_map=use_only_aberration_map,
+            )
+            simulation_data[CCD_INTENSITY].append(ccd_wf)
             if save_full_intensity:
-                simulation_data[FULL_INTENSITY].append(wavefront_intensity)
-                simulation_data[FULL_SAMPLING].append(sampling)
+                simulation_data[FULL_INTENSITY].append(full_wf)
+                simulation_data[FULL_SAMPLING].append(full_sampling)
             # Potentially write out the data now if a full batch is done
             if (sim_idx + 1) % output_write_batch == 0:
                 _write_data()
