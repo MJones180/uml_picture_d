@@ -16,7 +16,7 @@ from utils.load_optical_train import load_optical_train
 from utils.path import make_dir
 from utils.printing_and_logging import step_ri, title
 from utils.proper_use_fftw import proper_use_fftw
-from utils.sim_prop_wf import sim_prop_wf
+from utils.sim_prop_wf import multi_worker_sim_prop_many_wf
 from utils.terminate_with_message import terminate_with_message
 
 
@@ -281,72 +281,37 @@ def sim_data(cli_args):
     nrows = aberrations.shape[0]
     print(f'Total rows being simulated: {nrows}')
 
-    # Data will be simulated and written out by this function (will be called
-    # independently by each worker)
-    def worker_sim_and_write(worker_idx, aberrations_chunk):
-        sim_count = aberrations_chunk.shape[0]
-        worker_str = f'Worker [{worker_idx}]'
-        if sim_count == 0:
-            print(f'{worker_str} not assigned any simulations')
-            return
-        print(f'{worker_str} assigned {sim_count} simulation(s)')
-        # The data that will be written out
-        simulation_data = {
-            # Noll zernike term indices that are being used for aberrations
-            ZERNIKE_TERMS: zernike_terms,
-            # The rms error in meters associated with each of the zernike terms
-            ZERNIKE_COEFFS: aberrations_chunk,
-            CCD_INTENSITY: [],
-            CCD_SAMPLING: ccd_sampling,
-        }
+    def write_cb(worker_idx, simulation_data):
+        print(f'Worker [{worker_idx}] writing out data')
+        out_file = f'{output_path}/{worker_idx}_{DATA_F}'
+        keys = [ZERNIKE_TERMS, ZERNIKE_COEFFS, CCD_INTENSITY, CCD_SAMPLING]
         if save_full_intensity:
-            simulation_data[FULL_INTENSITY] = []
-            simulation_data[FULL_SAMPLING] = []
+            keys.extend([FULL_INTENSITY, FULL_SAMPLING])
+        out_data = {x: simulation_data[x] for x in keys}
+        HDFWriteModule(out_file).create_and_write_hdf_simple(out_data)
 
-        def _write_data():
-            print(f'{worker_str} writing out data')
-            out_file = f'{output_path}/{worker_idx}_{DATA_F}'
-            HDFWriteModule(out_file).create_and_write_hdf_simple(
-                simulation_data)
+    def batch_write_cb(worker_idx, sim_idx, simulation_data):
+        if (sim_idx + 1) % output_write_batch == 0:
+            write_cb(worker_idx, simulation_data)
 
-        plot_path = None
-        for sim_idx in range(sim_count):
-            print(f'[{worker_idx}] Simulation, {sim_idx + 1}/{sim_count}')
-            if save_plots:
-                plot_path = f'{output_path}/plots/w_{worker_idx}_sim_{sim_idx}'
-            ccd_wf, full_wf, full_sampling = sim_prop_wf(
-                init_beam_d,
-                ref_wl,
-                beam_ratio,
-                optical_train,
-                ccd_pixels,
-                ccd_sampling,
-                zernike_terms,
-                aberrations_chunk[sim_idx],
-                grid_points=grid_points,
-                plot_path=plot_path,
-                use_only_aberration_map=use_only_aberration_map,
-            )
-            simulation_data[CCD_INTENSITY].append(ccd_wf)
-            if save_full_intensity:
-                simulation_data[FULL_INTENSITY].append(full_wf)
-                simulation_data[FULL_SAMPLING].append(full_sampling)
-            # Potentially write out the data now if a full batch is done
-            if (sim_idx + 1) % output_write_batch == 0:
-                _write_data()
-        # Do one final write at the end
-        _write_data()
-
-    step_ri('Creating the chunks for the workers')
-    print(f'Splitting {nrows} simulations across {cores} core(s)')
-    # Allow identification of individual workers
-    worker_indexes = np.arange(cores)
-    # Split the rows into chunks to pass to each worker
-    aberrations_chunks = np.array_split(aberrations, cores)
-
-    step_ri('Beginning to run simulations')
-    # Since each worker writes out its own data, no need to aggregate at the end
-    pool.map(worker_sim_and_write, worker_indexes, aberrations_chunks)
+    # Run all the simulations and save the results
+    multi_worker_sim_prop_many_wf(
+        pool,
+        cores,
+        init_beam_d,
+        ref_wl,
+        beam_ratio,
+        optical_train,
+        ccd_pixels,
+        ccd_sampling,
+        zernike_terms,
+        aberrations,
+        grid_points=grid_points,
+        plot_path=f'{output_path}/plots/' if save_plots else None,
+        use_only_aberration_map=use_only_aberration_map,
+        sim_post_cb=batch_write_cb,
+        worker_post_cb=write_cb,
+    )
 
     step_ri('Simulations completed')
     # Close the pool to any new jobs and remove it

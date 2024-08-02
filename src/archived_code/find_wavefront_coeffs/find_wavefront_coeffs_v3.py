@@ -17,14 +17,15 @@ import matplotlib.pyplot as plt
 import numpy as np
 from pathos.multiprocessing import ProcessPool
 from time import time
-from utils.constants import ARGS_F, RANDOM_P, RAW_SIMULATED_DATA_P
+from utils.constants import (ARGS_F, CCD_INTENSITY, RANDOM_P, FULL_INTENSITY,
+                             RAW_SIMULATED_DATA_P)
 from utils.json import json_load
 from utils.load_optical_train import load_optical_train
 from utils.load_raw_sim_data_chunks import load_raw_sim_data_chunks
 from scipy.optimize import minimize
 from utils.printing_and_logging import step_ri, title
 from utils.proper_use_fftw import proper_use_fftw
-from utils.sim_prop_wf import sim_prop_wf
+from utils.sim_prop_wf import multi_worker_sim_prop_many_wf
 from utils.stats_and_error import sum_of_abs
 
 
@@ -128,44 +129,23 @@ def find_wavefront_coeffs_v3(cli_args):
         nonlocal call_idx
         call_idx += 1
         print(f'[{call_idx}] Forward model call ({len(coeffs_vectors)} rows)')
-
-        # This function is called by each worker
-        def worker_sim(aberrations_chunk):
-            sim_count = aberrations_chunk.shape[0]
-            if sim_count == 0:
-                return
-            ccd_intensity = []
-            full_intensity = []
-            for sim_idx in range(sim_count):
-                # Call the optical propagation
-                ccd_wf, full_wf, full_sampling = sim_prop_wf(
-                    init_beam_d,
-                    ref_wl,
-                    beam_ratio,
-                    optical_train,
-                    ccd_pixels,
-                    ccd_sampling,
-                    zernike_terms,
-                    aberrations_chunk[sim_idx],
-                    grid_points=grid_points,
-                )
-                # Add the data to the output arrays
-                ccd_intensity.append(ccd_wf)
-                full_intensity.append(full_wf)
-            return [ccd_intensity, full_intensity]
-
         # The coeffs should be in nm, this will be our list of aberrations
         coeffs_vectors_nm = coeffs_vectors * 1e-9
-        aberrations_chunks = np.array_split(coeffs_vectors_nm, cores)
-        # Each worker returns both the ccd and full intensity
-        sim_results = pool.map(worker_sim, aberrations_chunks)
-        # Need to choose between the full field and the ccd field
-        field_type = 1 if use_full_field else 0
-        # Need to combine the results back together from each worker
-        fields = sim_results[0][field_type]
-        for worker_sim_results in sim_results[1:]:
-            if worker_sim_results is not None:
-                fields = np.vstack((fields, worker_sim_results[field_type]))
+        results = multi_worker_sim_prop_many_wf(
+            pool,
+            cores,
+            init_beam_d,
+            ref_wl,
+            beam_ratio,
+            optical_train,
+            ccd_pixels,
+            ccd_sampling,
+            zernike_terms,
+            coeffs_vectors_nm,
+            grid_points=grid_points,
+            enable_logs=False,
+        )
+        fields = results[FULL_INTENSITY if use_full_field else CCD_INTENSITY]
         print(f'\tCall time: {time() - start_time}')
         return fields - base_field
 
