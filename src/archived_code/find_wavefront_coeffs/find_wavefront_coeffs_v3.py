@@ -4,10 +4,6 @@ instead of fitting based off of the propagated basis vectors, this code properly
 does a forward model fit. That means, each time a coefficient is adjusted, the
 Zernike wavefront is propagated through the optical setup.
 
-The code to simulate data in this script was taken from `sim_data.py`. If that
-code becomes modularized, then the simulation code in this script needs to be
-rewritten.
-
 Additionally, most of the code between the three versions of this file are
 exactly the same. If any of these become non-archived scripts, then the shared
 parts should be modularized and the plots should be put into separate files.
@@ -20,16 +16,15 @@ Commands to run this script:
 import matplotlib.pyplot as plt
 import numpy as np
 from pathos.multiprocessing import ProcessPool
-import proper
 from time import time
 from utils.constants import ARGS_F, RANDOM_P, RAW_SIMULATED_DATA_P
-from utils.downsample_data import downsample_data
 from utils.json import json_load
 from utils.load_optical_train import load_optical_train
 from utils.load_raw_sim_data_chunks import load_raw_sim_data_chunks
 from scipy.optimize import minimize
 from utils.printing_and_logging import step_ri, title
 from utils.proper_use_fftw import proper_use_fftw
+from utils.sim_prop_wf import sim_prop_wf
 from utils.stats_and_error import sum_of_abs
 
 
@@ -139,33 +134,24 @@ def find_wavefront_coeffs_v3(cli_args):
             sim_count = aberrations_chunk.shape[0]
             if sim_count == 0:
                 return
-            # Ignore all proper logs
-            proper.print_it = False
             ccd_intensity = []
             full_intensity = []
             for sim_idx in range(sim_count):
-                # Create the wavefront that will be passed through the train
-                wavefront = proper.prop_begin(init_beam_d, ref_wl, grid_points,
-                                              beam_ratio)
-                # Define the initial aperture
-                proper.prop_circular_aperture(wavefront, init_beam_d / 2)
-                # Set this as the entrance to the train
-                proper.prop_define_entrance(wavefront)
-                # Add in the aberrations to the wavefront
-                proper.prop_zernikes(wavefront, zernike_terms,
-                                     aberrations_chunk[sim_idx])
-                # Loop through the train
-                for step in optical_train:
-                    step_func = step if type(step) is not list else step[1]
-                    step_func(wavefront)
-                # The final wavefront intensity and sampling of its grid
-                (wavefront_intensity, sampling) = proper.prop_end(wavefront)
-                # Downsample to the CCD
-                wf_int_ds = downsample_data(wavefront_intensity, sampling,
-                                            ccd_sampling, ccd_pixels)
+                # Call the optical propagation
+                ccd_wf, full_wf, full_sampling = sim_prop_wf(
+                    init_beam_d,
+                    ref_wl,
+                    beam_ratio,
+                    optical_train,
+                    ccd_pixels,
+                    ccd_sampling,
+                    zernike_terms,
+                    aberrations_chunk[sim_idx],
+                    grid_points=grid_points,
+                )
                 # Add the data to the output arrays
-                ccd_intensity.append(wf_int_ds)
-                full_intensity.append(wavefront_intensity)
+                ccd_intensity.append(ccd_wf)
+                full_intensity.append(full_wf)
             return [ccd_intensity, full_intensity]
 
         # The coeffs should be in nm, this will be our list of aberrations
