@@ -8,6 +8,7 @@ from utils.load_network import load_network
 from utils.printing_and_logging import (dec_print_indent, inc_print_indent,
                                         step_ri, title)
 from utils.shared_argparser_args import shared_argparser_args
+from utils.torch_grab_device import torch_grab_device
 
 
 def network_info_parser(subparsers):
@@ -16,7 +17,7 @@ def network_info_parser(subparsers):
         help='display info on a network',
     )
     subparser.set_defaults(main=network_info)
-    shared_argparser_args(subparser, ['network_name'])
+    shared_argparser_args(subparser, ['network_name', 'force_cpu'])
     subparser.add_argument(
         '--benchmark',
         type=int,
@@ -32,7 +33,8 @@ def network_info(cli_args):
     print(f'Network: {network_name}')
     network = load_network(network_name)
     input_data = network.example_input()
-    network_inst = network()
+    device = torch_grab_device(cli_args['force_cpu'])
+    network_inst = network().to(device)
 
     step_ri('Trainable parameters')
     total = 0
@@ -47,8 +49,10 @@ def network_info(cli_args):
     step_ri('Layers')
     print(network_inst)
 
+    input_data_dev = input_data.to(device)
+
     step_ri('Sample call')
-    output_data = network_inst(input_data)
+    output_data = network_inst(input_data_dev)
     print('Output data: ', output_data)
     print('Output shape: ', output_data.shape)
 
@@ -65,16 +69,16 @@ def network_info(cli_args):
 
     for module in network_inst.children():
         module.register_forward_hook(hook)
-    network_inst(input_data)
+    network_inst(input_data_dev)
 
     if cli_args['benchmark'] is not None:
         iterations = cli_args['benchmark']
         # Redefining the instance because the previous one has an added hook
-        model = network()
+        model = network().to(device)
         step_ri(f'Running benchmark ({iterations} iterations)')
         start_time = time.time()
         for i in range(iterations):
             with torch.no_grad():
-                model(input_data).numpy()
+                model(input_data_dev).cpu().numpy()
         avg_time = (time.time() - start_time) / iterations
         print('Average time for the nn to run one row: ', avg_time)

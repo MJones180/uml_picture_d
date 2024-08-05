@@ -76,6 +76,7 @@ def model_test_parser(subparsers):
         action='store_true',
         help='print out the RSS of the model outputs',
     )
+    shared_argparser_args(subparser, ['force_cpu'])
 
 
 def model_test(cli_args):
@@ -84,7 +85,7 @@ def model_test(cli_args):
     tag = cli_args['tag']
     epoch = cli_args['epoch']
 
-    model = Model(tag, epoch)
+    model = Model(tag, epoch, force_cpu=cli_args['force_cpu'])
     model_vars = model.extra_vars
     # Grab the epoch number so that the output directory has what epoch it is
     epoch = model.epoch

@@ -29,6 +29,11 @@ def shared_argparser_args(sp, args_to_add):
             'tag',
             help='tag of the model',
         ),
+        'force_cpu': lambda: sp.add_argument(
+            '--force-cpu',
+            action='store_true',
+            help='use only the CPU even if a GPU is present',
+        ),
     }
     # Add only the requested args
     for arg_to_add in args_to_add:

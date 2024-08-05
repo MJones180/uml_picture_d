@@ -7,11 +7,12 @@ from utils.load_network import load_network
 from utils.path import path_exists
 from utils.printing_and_logging import dec_print_indent, step
 from utils.terminate_with_message import terminate_with_message
+from utils.torch_grab_device import torch_grab_device
 
 
 class Model():
 
-    def __init__(self, tag, epoch, suppress_logs=False):
+    def __init__(self, tag, epoch, suppress_logs=False, force_cpu=False):
 
         def _step(text):
             if suppress_logs:
@@ -64,9 +65,10 @@ class Model():
         self.network_name = self.training_args['network_name']
         _print(f'Loading in the network (`{self.network_name}`) '
                'and setting weights')
+        self.device = torch_grab_device(force_cpu)
         # Need to first load in the network
         self.network = load_network(self.network_name)
-        self.model = self.network()
+        self.model = self.network().to(self.device)
         # Now, the weights can be set
         self.model.load_state_dict(torch.load(model_path))
         # Set to evaluation mode
@@ -75,7 +77,8 @@ class Model():
 
     def call_model(self, data):
         with torch.no_grad():
-            model_outputs = self.model(data).numpy()
+            data_dev = data.to(self.device)
+            model_outputs = self.model(data_dev).cpu().numpy()
         return model_outputs
 
     def __call__(self, *args, **kwargs):

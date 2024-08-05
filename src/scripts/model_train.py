@@ -20,6 +20,7 @@ from utils.path import (copy_files, delete_dir, delete_file, make_dir,
                         path_exists)
 from utils.printing_and_logging import dec_print_indent, step, step_ri, title
 from utils.shared_argparser_args import shared_argparser_args
+from utils.torch_grab_device import torch_grab_device
 from utils.torch_hdf_ds_loader import DSLoaderHDF
 
 
@@ -123,6 +124,7 @@ def model_train_parser(subparsers):
               'time as all the training batches will have to be iterated '
               'over again'),
     )
+    shared_argparser_args(subparser, ['force_cpu'])
     epoch_save_group = subparser.add_mutually_exclusive_group()
     epoch_save_group.add_argument(
         '--epoch-save-steps',
@@ -193,9 +195,12 @@ def model_train(cli_args):
         shuffle=False,
     )
 
+    step_ri('Grabbing the device')
+    device = torch_grab_device(cli_args['force_cpu'])
+
     step_ri('Loading the network')
     network_name = cli_args['network_name']
-    model = load_network(network_name)()
+    model = load_network(network_name)().to(device)
     print(model)
 
     init_weights = cli_args.get('init_weights')
@@ -276,8 +281,9 @@ def model_train(cli_args):
         # Turn gradient tracking on
         model.train(True)
         total_train_loss = 0
-        for data in train_loader:
-            inputs, outputs_truth = data
+        for inputs, outputs_truth in train_loader:
+            inputs = inputs.to(device)
+            outputs_truth = outputs_truth.to(device)
             if image_transforms is not None:
                 inputs = image_transforms(inputs)
             # Zero gradients for every batch
@@ -299,8 +305,9 @@ def model_train(cli_args):
         total_val_loss = 0
         # Disable gradient computation and reduce memory consumption
         with torch.no_grad():
-            for data in validation_loader:
-                inputs, outputs_truth = data
+            for inputs, outputs_truth in validation_loader:
+                inputs = inputs.to(device)
+                outputs_truth = outputs_truth.to(device)
                 outputs = model(inputs)
                 loss = loss_function(outputs, outputs_truth)
                 total_val_loss += loss
@@ -313,8 +320,9 @@ def model_train(cli_args):
         if save_post_training_loss:
             total_post_train_loss = 0
             with torch.no_grad():
-                for data in train_loader:
-                    inputs, outputs_truth = data
+                for inputs, outputs_truth in train_loader:
+                    inputs = inputs.to(device)
+                    outputs_truth = outputs_truth.to(device)
                     outputs = model(inputs)
                     loss = loss_function(outputs, outputs_truth)
                     total_post_train_loss += loss
