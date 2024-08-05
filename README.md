@@ -28,7 +28,7 @@ A helpful cheatsheet with useful Conda commands: docs.conda.io/projects/conda/en
 
 ### Notes
 
-- [Bug] When installing on x86 Ubuntu, there is sometimes a bug with `pyFFTW` that prevents it from running.
+- [Bug] When installing on Ubuntu 22.04, there is sometimes a bug with `pyFFTW` that prevents it from running.
 When this happens, uninstall `pyFFTW` from Conda and install with pip:
 
         conda uninstall pyfftw
@@ -45,7 +45,7 @@ When this happens, uninstall `pyFFTW` from Conda and install with pip:
     - The NVIDIA Display Driver 550 must be download separately (nvidia.com/download/driverResults.aspx/230357/en-us/).
     - The CUDA Toolkit 12.4 does not need to be installed manually as `PyTorch` installs a CUDA runtime for itself.
 
-- If the environment files are not working to properly install things, then a new Conda environment can be created from scratch:
+- If the environment files are not working to properly install things, then a new Conda environment can be created from scratch with the following dependencies:
 
         # Run in new conda environment
         conda install astropy h5py hdf5 matplotlib numpy pathos pillow prettytable pyfftw scipy
