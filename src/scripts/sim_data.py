@@ -6,10 +6,7 @@ A datafile will be outputted for every worker.
 
 import numpy as np
 from pathos.multiprocessing import ProcessPool
-from utils.constants import (ARGS_F, CCD_INTENSITY, CCD_SAMPLING, DATA_F,
-                             FULL_INTENSITY, FULL_SAMPLING,
-                             RAW_SIMULATED_DATA_P, ZERNIKE_COEFFS,
-                             ZERNIKE_TERMS)
+from utils.constants import ARGS_F, DATA_F, RAW_SIMULATED_DATA_P
 from utils.hdf_read_and_write import HDFWriteModule
 from utils.json import json_write
 from utils.load_optical_train import load_optical_train
