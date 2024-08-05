@@ -41,10 +41,9 @@ When this happens, uninstall `pyFFTW` from Conda and install with pip:
 
 - Some environments have trouble with the correct version of the `libgfortran` dependency. When this happens, the dependency can be manually updated to `libgfortran>=3.0.0`.
 
-- The `PyTorch` environment with GPU support is configured for CUDA Toolkit 12.4.
-    - Display Driver 550 download: nvidia.com/download/driverResults.aspx/230357/en-us/
-    - CUDA Toolkit installation instructions: docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html
-    - Compatability between drivers and toolkits: docs.nvidia.com/deploy/cuda-compatibility/
+- The `PyTorch` environment with GPU support is configured with CUDA Toolkit 12.4.
+    - The NVIDIA Display Driver 550 must be download separately (nvidia.com/download/driverResults.aspx/230357/en-us/).
+    - The CUDA Toolkit 12.4 does not need to be installed manually as `PyTorch` installs a CUDA runtime for itself.
 
 ### PROPER
 
