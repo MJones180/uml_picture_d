@@ -41,9 +41,16 @@ When this happens, uninstall `pyFFTW` from Conda and install with pip:
 
 - Some environments have trouble with the correct version of the `libgfortran` dependency. When this happens, the dependency can be manually updated to `libgfortran>=3.0.0`.
 
-- The `PyTorch` environment with GPU support is configured with CUDA Toolkit 12.4.
+- The `PyTorch` environment with GPU support is configured with CUDA 12.4.
     - The NVIDIA Display Driver 550 must be download separately (nvidia.com/download/driverResults.aspx/230357/en-us/).
     - The CUDA Toolkit 12.4 does not need to be installed manually as `PyTorch` installs a CUDA runtime for itself.
+
+- If the environment files are not working to properly install things, then a new Conda environment can be created from scratch:
+
+        # Run in new conda environment
+        conda install astropy h5py hdf5 matplotlib numpy pathos pillow prettytable pyfftw scipy
+        pip install mpl-scatter-density
+        # Grab command to install PyTorch dependencies from pytorch.org/get-started/locally/
 
 ### PROPER
 
