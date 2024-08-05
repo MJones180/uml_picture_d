@@ -6,34 +6,47 @@ Michael Jones (Michael_Jones6@student.uml.edu)
 
 The following Conda command will create the environment and install the necessary dependencies:
 
+    # CPU only
     conda env create -f environment.yml 
+
+    # GPU [NVIDIA CUDA]
+    conda env create -f environment_cuda.yml 
 
 Then, to activate the environment:
 
     conda activate picture_d
 
-If the dependencies change at any point, the `environment.yml` can be updated via:
+If the dependencies change at any point, the environment file can be updated via:
 
+    # CPU env
     conda env export --no-builds | grep -v "^prefix: " > environment.yml
 
-A helpful cheatsheet with useful Conda commands: https://docs.conda.io/projects/conda/en/4.6.0/_downloads/52a95608c49671267e40c689e0bc00ca/conda-cheatsheet.pdf
+    # GPU env
+    conda env export --no-builds | grep -v "^prefix: " > environment_cuda.yml
+
+A helpful cheatsheet with useful Conda commands: docs.conda.io/projects/conda/en/4.6.0/_downloads/52a95608c49671267e40c689e0bc00ca/conda-cheatsheet.pdf
 
 ### Notes
 
-**Bug Note**: When installing on x86 Ubuntu, there was a bug with `pyFFTW` that prevented it from running.
+- [Bug] When installing on x86 Ubuntu, there is sometimes a bug with `pyFFTW` that prevents it from running.
 When this happens, uninstall `pyFFTW` from Conda and install with pip:
 
     conda uninstall pyfftw
     pip install pyfftw
 
-**Bug Note**: The following error may arise when calling scripts that use the `pathos` library (such as `sim_data`):
+- [Bug] The following error may arise when calling scripts that use the `pathos` library (such as `sim_data`):
 
     objc[...]: +[__NSCFConstantString initialize] may have been in progress in another thread when fork() was called.
     objc[...]: +[__NSCFConstantString initialize] may have been in progress in another thread when fork() was called. We cannot safely call it or ignore it in the fork() child process. Crashing instead. Set a breakpoint on objc_initializeAfterForkError to debug.
 
 To fix this, run `export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES`.
 
-**Dependency note**: when writing out an updated `environment.yml` file, it must be manually edited to edit the dependency `libgfortran>=3.0.0`.
+- Some environments have trouble with the correct version of the `libgfortran` dependency. When this happens, the dependency can be manually updated to `libgfortran>=3.0.0`.
+
+- The `PyTorch` environment with GPU support is configured for CUDA Toolkit 12.4.
+    - Display Driver 550 download: nvidia.com/download/driverResults.aspx/230357/en-us/
+    - CUDA Toolkit installation instructions: docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html
+    - Compatability between drivers and toolkits: docs.nvidia.com/deploy/cuda-compatibility/
 
 ### PROPER
 
