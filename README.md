@@ -31,13 +31,13 @@ A helpful cheatsheet with useful Conda commands: docs.conda.io/projects/conda/en
 - [Bug] When installing on x86 Ubuntu, there is sometimes a bug with `pyFFTW` that prevents it from running.
 When this happens, uninstall `pyFFTW` from Conda and install with pip:
 
-    conda uninstall pyfftw
-    pip install pyfftw
+        conda uninstall pyfftw
+        pip install pyfftw
 
 - [Bug] The following error may arise when calling scripts that use the `pathos` library (such as `sim_data`):
 
-    objc[...]: +[__NSCFConstantString initialize] may have been in progress in another thread when fork() was called.
-    objc[...]: +[__NSCFConstantString initialize] may have been in progress in another thread when fork() was called. We cannot safely call it or ignore it in the fork() child process. Crashing instead. Set a breakpoint on objc_initializeAfterForkError to debug.
+        objc[...]: +[__NSCFConstantString initialize] may have been in progress in another thread when fork() was called.
+        objc[...]: +[__NSCFConstantString initialize] may have been in progress in another thread when fork() was called. We cannot safely call it or ignore it in the fork() child process. Crashing instead. Set a breakpoint on objc_initializeAfterForkError to debug.
 
 To fix this, run `export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES`.
 
