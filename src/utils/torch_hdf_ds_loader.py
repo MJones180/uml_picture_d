@@ -40,9 +40,9 @@ class DSLoaderHDF(torch.utils.data.Dataset):
     def _load_dataset(self):
         if self.inputs is None:
             dataset = read_hdf(self.path)
-            # Inputs must be float32
+            # Make both inputs and outputs float32 instead of float64
             self.inputs = dataset[INPUTS][...].astype('float32')
-            self.outputs = dataset[OUTPUTS][...]
+            self.outputs = dataset[OUTPUTS][...].astype('float32')
 
     def __getitem__(self, index):
         self._load_dataset()
