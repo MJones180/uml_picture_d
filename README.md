@@ -34,12 +34,10 @@ When this happens, uninstall `pyFFTW` from Conda and install with pip:
         conda uninstall pyfftw
         pip install pyfftw
 
-- [Bug] The following error may arise when calling scripts that use the `pathos` library (such as `sim_data`):
+- [Bug] The error below may arise when calling scripts that use the `pathos` library (such as `sim_data`) and can be fixed by running `export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES`.
 
         objc[...]: +[__NSCFConstantString initialize] may have been in progress in another thread when fork() was called.
         objc[...]: +[__NSCFConstantString initialize] may have been in progress in another thread when fork() was called. We cannot safely call it or ignore it in the fork() child process. Crashing instead. Set a breakpoint on objc_initializeAfterForkError to debug.
-
-To fix this, run `export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES`.
 
 - Some environments have trouble with the correct version of the `libgfortran` dependency. When this happens, the dependency can be manually updated to `libgfortran>=3.0.0`.
 
@@ -51,7 +49,7 @@ To fix this, run `export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES`.
 ### PROPER
 
 Proper in Python 3 must also be installed.
-For this, install PROPER from https://proper-library.sourceforge.net/ and store the unzipped `proper` direcotry under `packages`.
+For this, install PROPER from https://proper-library.sourceforge.net/ and store the unzipped `proper` directory under `packages`.
 This will result in `packages/proper/` containing the necessary Python files.
 
 ## Calling Scripts
