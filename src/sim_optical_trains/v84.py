@@ -43,6 +43,8 @@ OPTICAL_TRAIN = [
             d_occulter_lyotcoll=0.511,
             fl_lyotcoll=0.511,
             d_lyotcoll_lyotstop=0.2966085,
+            # Could potentially be a performance boost
+            # use_torch=True,
         ),
     ],
     [
