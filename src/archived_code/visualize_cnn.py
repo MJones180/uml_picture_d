@@ -5,6 +5,10 @@ Turns out, visualizing the convolutions inside of a multi-regression CNN is
 difficult. Most papers discuss either visualizing classification based CNNs or
 single-regression based CNNs. Not sure how to go about providing better
 visualizations for these models.
+
+Commands to run this script:
+    python3 main_stnp.py visualize_cnn cnn_comp_multi_v2_4 last \
+        fixed_50nm_range_processed --inputs-need-norm --inputs-need-diff
 """
 
 import matplotlib.pyplot as plt
