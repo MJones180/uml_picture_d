@@ -202,6 +202,8 @@ def sim_data(cli_args):
         zernike_terms, col_count = _zernike_terms_list(idx_low, idx_high)
         return rows, perturb_low, perturb_high, zernike_terms, col_count
 
+    # Create a random number generator
+    rng = np.random.default_rng()
     # These variables must be defined: `zernike_terms`, `aberrations`
     if no_aberrations:
         print('Will not use any aberrations')
@@ -239,17 +241,16 @@ def sim_data(cli_args):
     elif rand_amount_per_zernike:
         (rows, perturb_low, perturb_high, zernike_terms,
          col_count) = _pert_range_setup(*rand_amount_per_zernike)
-        aberrations = np.random.uniform(perturb_low, perturb_high,
-                                        (rows, col_count))
+        aberrations = rng.uniform(perturb_low, perturb_high, (rows, col_count))
         print('Each row will consist of Zernike terms with random uniform '
               'RMS error')
     elif rand_amount_per_zernike_single:
         (rows, perturb_low, perturb_high, zernike_terms,
          col_count) = _pert_range_setup(*rand_amount_per_zernike_single)
         # One Zernike term per row
-        coeffs = np.random.uniform(perturb_low, perturb_high, rows)
+        coeffs = rng.uniform(perturb_low, perturb_high, rows)
         # Pick a random column for each term
-        rand_cols = np.random.randint(0, col_count, rows)
+        rand_cols = rng.integers(0, col_count, rows)
         aberrations = np.zeros((rows, col_count))
         aberrations[np.arange(rows), rand_cols] = coeffs
         print('Each row will consist of a random Zernike term with a random '
@@ -258,7 +259,7 @@ def sim_data(cli_args):
         (rows, perturb_low, perturb_high, zernike_terms,
          col_count) = _pert_range_setup(*rand_amount_per_zernike_single_each)
         # The random amount to perturb each set of Zernikes by
-        coeffs = np.random.uniform(perturb_low, perturb_high, rows)
+        coeffs = rng.uniform(perturb_low, perturb_high, rows)
         aberrations = []
         # Calculate the identity RMS error for each point
         for rms_val in coeffs:
