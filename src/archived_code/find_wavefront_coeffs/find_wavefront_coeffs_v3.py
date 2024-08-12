@@ -177,7 +177,7 @@ def find_wavefront_coeffs_v3(cli_args):
     minimization = minimize(
         minimize_func,
         # Initial coefficient guesses
-        np.random.uniform(*init_coeff_bounds, zernike_count),
+        np.random.default_rng().uniform(*init_coeff_bounds, zernike_count),
         jac=True,
         tol=1e-8,
         method='L-BFGS-B',
