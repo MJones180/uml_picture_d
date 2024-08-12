@@ -1,11 +1,12 @@
 """
-This script perturbs each coefficient in a wavefront to see how the propagated
-wavefront ends up changing.
+This script perturbs each coefficient in a wavefront by a fixed amount to see
+how the propagated wavefront ends up changing. Each coefficient is perturbed
+independently, so there are no coupled perturbations.
 
 Commands to run this script:
-    python3 main_stnp.py perturb_wavefront \
+    python3 main_stnp.py perturb_wavefront_v1 \
         no_aberrations all_10nm 1e-8 --save-plots --cores 4
-    python3 main_stnp.py perturb_wavefront \
+    python3 main_stnp.py perturb_wavefront_v1 \
         no_aberrations all_10nm 1e-8 --save-plots --cores 4 --take-diff
 """
 
@@ -23,12 +24,12 @@ from utils.proper_use_fftw import proper_use_fftw
 from utils.sim_prop_wf import multi_worker_sim_prop_many_wf
 
 
-def perturb_wavefront_parser(subparsers):
+def perturb_wavefront_v1_parser(subparsers):
     subparser = subparsers.add_parser(
-        'perturb_wavefront',
+        'perturb_wavefront_v1',
         help='perturb the coefficients of a wavefront to see how it changes',
     )
-    subparser.set_defaults(main=perturb_wavefront)
+    subparser.set_defaults(main=perturb_wavefront_v1)
     subparser.add_argument(
         'base_field_ds',
         help=('name of the dataset containing the base field, this should be '
@@ -76,8 +77,8 @@ def perturb_wavefront_parser(subparsers):
     )
 
 
-def perturb_wavefront(cli_args):
-    title('Find wavefront coeffs v3 script')
+def perturb_wavefront_v1(cli_args):
+    title('Perturb wavefront v1 script')
 
     step_ri('Loading in CLI args')
     base_field_ds = cli_args['base_field_ds']
