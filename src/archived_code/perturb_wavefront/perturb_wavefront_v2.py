@@ -1,7 +1,8 @@
 """
 Each coefficient is perturbed using a Gaussian distribution. Then, a histogram
 is plotted of the sum of the absolute differences between the target wavefront
-and the propagated perturbed wavefronts.
+and the propagated perturbed wavefronts. Additionally, representative wavefronts
+from each bin of the histogram will be plotted out.
 
 Commands to run this script:
     python3 main_stnp.py perturb_wavefront_v2 \
@@ -10,6 +11,7 @@ Commands to run this script:
 
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FormatStrFormatter
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 import numpy as np
 from pathos.multiprocessing import ProcessPool
 from utils.constants import (ARGS_F, CCD_INTENSITY, FULL_INTENSITY, RANDOM_P,
@@ -17,6 +19,7 @@ from utils.constants import (ARGS_F, CCD_INTENSITY, FULL_INTENSITY, RANDOM_P,
 from utils.json import json_load
 from utils.load_optical_train import load_optical_train
 from utils.load_raw_sim_data_chunks import load_raw_sim_data_chunks
+from utils.path import make_dir
 from utils.printing_and_logging import step_ri, title
 from utils.proper_use_fftw import proper_use_fftw
 from utils.sim_prop_wf import multi_worker_sim_prop_many_wf
@@ -149,23 +152,25 @@ def perturb_wavefront_v2(cli_args):
 
     # Perturb each coefficient based on a Gaussian distribution
     rng = np.random.default_rng()
-    perturb = rng.normal(0, std, size=(perturbation_rows, zernike_count))
-    perturb += base_zernike_coeffs
+    perturb_coeff = rng.normal(0, std, size=(perturbation_rows, zernike_count))
+    coeff_vectors = base_zernike_coeffs + perturb_coeff
     # Propagate each perturbed wavefront through the optical setup
-    perturb_fields = forward_model_prop(perturb)
-    print(perturb_fields.shape)
+    perturb_fields = forward_model_prop(coeff_vectors)
 
     # Close the pool to any new jobs and remove it
     pool.close()
     pool.clear()
 
+    plot_dir = f'{RANDOM_P}/{base_field_ds}_{target_ds}_row_{row_idx}_wf_pert/'
+    make_dir(plot_dir)
+
     # Take the difference between the perturbed and truth wavefronts
     wavefront_diff = target_wavefront - perturb_fields
     # Compute the sum of the absolute differences
-    wavefront_error = sum_of_abs(wavefront_diff, axes=(1, 2))
+    wavefront_errors = sum_of_abs(wavefront_diff, axes=(1, 2))
     fig, ax = plt.subplots()
     _, bins, bars = plt.hist(
-        wavefront_error,
+        wavefront_errors,
         bins=bin_count,
         rwidth=0.8,
         color='red',
@@ -181,9 +186,51 @@ def perturb_wavefront_v2(cli_args):
     ax.xaxis.set_major_formatter(FormatStrFormatter('%0.3f'))
     plt.title(f'Gaussian std={std} m Per Term, rows={perturbation_rows}')
     plt.xlabel('Sum of Absolute (Truth WF - Perturbed Propagated WF)')
-    fig.tight_layout()
     if save_plots:
-        plot_path = f'{RANDOM_P}/{base_field_ds}_{target_ds}_row_{row_idx}_pert'
+        fig.tight_layout()
+        plot_path = f'{plot_dir}/hist.png'
         plt.savefig(plot_path, dpi=300, bbox_inches='tight')
     else:
         plt.show()
+
+    # Plot out wavefronts from each of the bins
+    sorted_idxs = np.argsort(wavefront_errors)
+    wavefront_errors = wavefront_errors[sorted_idxs]
+    perturb_fields = perturb_fields[sorted_idxs]
+    perturb_coeff = perturb_coeff[sorted_idxs]
+    for idx in range(len(bins) - 1):
+        bin_low = bins[idx]
+        bin_high = bins[idx + 1]
+        valid_wavefronts = np.where((wavefront_errors >= bin_low)
+                                    & (wavefront_errors <= bin_high))[0]
+
+        def _plot_wf_comp(chosen_idx, classifier):
+            fig, ax = plt.subplots(1, 3, figsize=(12, 4))
+            coeff_diff = [
+                float(f'{(coeff * 1e9):0.3f}') for coeff in perturb_coeff[0]
+            ]
+            plt.suptitle(
+                f'Bin {idx + 1} {classifier}, '
+                f'Sum of Absolute={wavefront_errors[chosen_idx]:0.3f}\n'
+                f'Coeff Diff (nm)={coeff_diff}',
+                wrap=True,
+            )
+            ax[0].imshow(target_wavefront)
+            ax[0].set_title('Original Wavefront')
+            ax[1].imshow(perturb_fields[chosen_idx])
+            ax[1].set_title('Perturbed Wavefront')
+            im = ax[2].imshow(target_wavefront - perturb_fields[chosen_idx])
+            ax[2].set_title('Difference')
+            divider = make_axes_locatable(ax[2])
+            cax = divider.append_axes('right', size='5%', pad=0.05)
+            fig.colorbar(im, cax=cax, orientation='vertical')
+            if save_plots:
+                fig.tight_layout()
+                plot_path = f'{plot_dir}/wf_bin_{idx}_{classifier}.png'
+                plt.savefig(plot_path, dpi=300, bbox_inches='tight')
+            else:
+                plt.show()
+
+        if len(valid_wavefronts) > 0:
+            _plot_wf_comp(valid_wavefronts[0], 'Low')
+            _plot_wf_comp(valid_wavefronts[-1], 'High')
