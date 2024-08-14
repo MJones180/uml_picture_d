@@ -306,6 +306,7 @@ def sim_data(cli_args):
         use_only_aberration_map=use_only_aberration_map,
         sim_post_cb=batch_write_cb,
         worker_post_cb=write_cb,
+        do_not_return_data=True,
     )
 
     step_ri('Simulations completed')

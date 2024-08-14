@@ -153,6 +153,7 @@ def multi_worker_sim_prop_many_wf(
     enable_logs=True,
     sim_post_cb=None,
     worker_post_cb=None,
+    do_not_return_data=False,
 ):
     """
     Use multiple workers to propagate many wavefronts through the optical setup.
@@ -203,14 +204,19 @@ def multi_worker_sim_prop_many_wf(
         If a function is passed, then it will be called after a worker finishes
         all simulations with the parameters of:
             (worker_idx, simulation_data).
+    do_not_return_data : bool, optional
+        If True, then the data will not be returned and it should be instead
+        written out during the callback functions. The default is False. The
+        reason for this parameter is sometimes the `pool.map` can hang if too
+        much data is being passed.
 
     Returns
     -------
     A dictionary with all the data.
     """
 
-    # Data will be simulated and written out by this function (will be called
-    # independently by each worker)
+    # Data will be simulated by this function (will be called independently by
+    # each worker)
     def worker_sim_and_write(worker_idx, aberrations_chunk):
         sim_count = aberrations_chunk.shape[0]
         worker_str = f'Worker [{worker_idx}]'
@@ -260,6 +266,8 @@ def multi_worker_sim_prop_many_wf(
                 sim_post_cb(worker_idx, sim_idx, simulation_data)
         if worker_post_cb is not None:
             worker_post_cb(worker_idx, simulation_data)
+        if do_not_return_data:
+            return None
         return simulation_data
 
     if enable_logs:
@@ -272,6 +280,10 @@ def multi_worker_sim_prop_many_wf(
     aberrations_chunks = np.array_split(aberrations, core_count)
     if enable_logs:
         step_ri('Beginning to run simulations')
+    # There is a chance that if the data being returned is large, then this will
+    # hang after finishing the map. In cases like this, the data should be
+    # written out using a callback function and the `do_not_return_data`
+    # argument should be passed.
     results = pool.map(
         worker_sim_and_write,
         worker_indexes,
