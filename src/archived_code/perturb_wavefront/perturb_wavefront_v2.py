@@ -220,7 +220,7 @@ def perturb_wavefront_v2(cli_args):
             ax[0].set_title('Original Wavefront')
             ax[1].imshow(perturb_fields[chosen_idx])
             ax[1].set_title('Perturbed Wavefront')
-            im = ax[2].imshow(target_wavefront - perturb_fields[chosen_idx])
+            im = ax[2].imshow(wavefront_diff[chosen_idx])
             ax[2].set_title('Difference')
             divider = make_axes_locatable(ax[2])
             cax = divider.append_axes('right', size='5%', pad=0.05)
