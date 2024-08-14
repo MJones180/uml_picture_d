@@ -5,7 +5,7 @@ As a warning, the files may:
 
 - Contain no documentation
 - Have messy code
-- Have lots of duplicated code
+- Have lots of duplicated code (especially plots)
 - Make no sense
 - Not even run
 
