@@ -207,7 +207,8 @@ def perturb_wavefront_v2(cli_args):
         def _plot_wf_comp(chosen_idx, classifier):
             fig, ax = plt.subplots(1, 3, figsize=(12, 4))
             coeff_diff = [
-                float(f'{(coeff * 1e9):0.3f}') for coeff in perturb_coeff[0]
+                float(f'{(coeff * 1e9):0.3f}')
+                for coeff in perturb_coeff[chosen_idx]
             ]
             plt.suptitle(
                 f'Bin {idx + 1} {classifier}, '
