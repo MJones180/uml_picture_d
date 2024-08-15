@@ -144,7 +144,7 @@ def perturb_wavefront_v2(cli_args):
             ccd_sampling,
             zernike_terms,
             coeffs_vectors,
-            save_full_intensity=True,
+            save_full_intensity=use_full_field,
             grid_points=grid_points,
         )
         fields = results[FULL_INTENSITY if use_full_field else CCD_INTENSITY]
