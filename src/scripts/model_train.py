@@ -196,7 +196,7 @@ def model_train(cli_args):
     )
 
     step_ri('Grabbing the device')
-    device = torch_grab_device(cli_args['force_cpu'])
+    device = torch_grab_device(cli_args.get('force_cpu'))
 
     step_ri('Loading the network')
     network_name = cli_args['network_name']
