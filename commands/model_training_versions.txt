@@ -830,3 +830,34 @@ After model testing, it is useful to rank the model analyses:
         --inputs-need-norm --inputs-need-diff \
         --print-outputs --take-rss-model-outputs \
         --epoch-and-tag-range last cac_v2_ 1 7
+
+[V29] The `cac_v3` tag:
+
+    python3 main_stnp.py batch_model_train \
+        train_fixed_2000_and_random_large_v2 val_fixed_2000_and_random_large_v2 \
+        cac_v3_ 500 --max-threads 4 \
+        --networks cnn_v2_8 cnn_v2_9 cnn_v2_10 cnn_v2_11 cnn_v2_12 \
+        --losses mse --optimizers adam \
+        --lrs 1e-5 --batch-sizes 256 \
+        --overwrite-existing --only-best-epoch --early-stopping 15
+
+    python3 main.py batch_model_test \
+        fixed_50nm_range_processed --zernike-plots \
+        --inputs-need-norm --inputs-need-diff \
+        --epoch-and-tag-range last cac_v3_ 1 5
+
+    python3 main.py batch_model_test \
+        random_10nm_med_processed --scatter-plot 5 5 \
+        --inputs-need-norm --inputs-need-diff \
+        --epoch-and-tag-range last cac_v3_ 1 5
+
+    python3 main.py batch_model_test \
+        random_50nm_med_processed --scatter-plot 5 5 \
+        --inputs-need-norm --inputs-need-diff \
+        --epoch-and-tag-range last cac_v3_ 1 5
+
+    python3 main.py batch_model_test \
+        no_aberrations_processed \
+        --inputs-need-norm --inputs-need-diff \
+        --print-outputs --take-rss-model-outputs \
+        --epoch-and-tag-range last cac_v3_ 1 5
