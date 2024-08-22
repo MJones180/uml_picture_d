@@ -85,7 +85,7 @@ def model_test(cli_args):
     tag = cli_args['tag']
     epoch = cli_args['epoch']
 
-    model = Model(tag, epoch, force_cpu=cli_args['force_cpu'])
+    model = Model(tag, epoch, force_cpu=cli_args.get('force_cpu'))
     model_vars = model.extra_vars
     # Grab the epoch number so that the output directory has what epoch it is
     epoch = model.epoch
