@@ -74,12 +74,50 @@ class Model():
         # Set to evaluation mode
         self.model.eval()
         dec_print_indent()
+        # Max number of rows that can fit in memory at a time for a model call.
+        # A value of None means there have been no memory issues so far, so as
+        # many rows as needed can be passed.
+        self.max_rows_per_model_call = None
 
     def call_model(self, data):
-        with torch.no_grad():
-            data_dev = data.to(self.device)
-            model_outputs = self.model(data_dev).cpu().numpy()
-        return model_outputs
+        # Data is 1D (a single row), so make it 2D
+        if len(data.shape) == 1:
+            data = data[None, :]
+
+        # Split the data in to chunks
+        def _split_data():
+            if self.max_rows_per_model_call is None:
+                return (data)
+            return torch.split(data, self.max_rows_per_model_call)
+
+        # Run a given chunk of data on the model
+        def _run_model(data_chunk):
+            with torch.no_grad():
+                # Put the data on the correct device before calling the model
+                return self.model(data_chunk.to(self.device)).cpu()
+
+        # Memory may be an issue, especially if a GPU is being used. Therefore,
+        # the data may need to be split in to chunks before calling the model.
+        def _inference():
+            try:
+                result_chunks = [_run_model(chunk) for chunk in _split_data()]
+                return torch.cat(result_chunks).numpy()
+            except torch.OutOfMemoryError:
+                # If a memory error occurs, keep cutting the number of rows in
+                # half until the model can be run in memory. If even one row
+                # cannot run, then the script will terminate.
+                if self.max_rows_per_model_call is None:
+                    self.max_rows_per_model_call = data.shape[0] // 2
+                elif self.max_rows_per_model_call <= 1:
+                    terminate_with_message('Model cannot fit in memory, '
+                                           'even when using only one row')
+                else:
+                    self.max_rows_per_model_call //= 2
+                print('Received `torch.OutOfMemoryError`, decreasing max '
+                      f'number of rows to {self.max_rows_per_model_call}')
+                return _inference()
+
+        return _inference()
 
     def __call__(self, *args, **kwargs):
         return self.call_model(*args, **kwargs)
