@@ -87,7 +87,7 @@ class Model():
         # Split the data in to chunks
         def _split_data():
             if self.max_rows_per_model_call is None:
-                return (data)
+                return [data]
             return torch.split(data, self.max_rows_per_model_call)
 
         # Run a given chunk of data on the model
