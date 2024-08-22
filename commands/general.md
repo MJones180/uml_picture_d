@@ -111,6 +111,13 @@ Random aberrations for every term in each row:
         --append-no-aberrations-row \
         --cores 4
 
+    # -10 to 10 nm, 100,000 rows
+    python3 main_stnp.py sim_data random_10nm_large v84 600e-9 \
+        --output-write-batch 500 \
+        --rand-amount-per-zernike 2 24 " -10e-9" 10e-9 100000 \
+        --append-no-aberrations-row \
+        --cores 4
+
 Random aberration for only one term in each row ranging from -50 to 50 nm:
 
     python3 main_stnp.py sim_data random_50nm_single_med v84 600e-9 \
