@@ -90,6 +90,41 @@ Fixed aberrations on a grid for one term at a time in each row across all terms:
 
 Random aberrations for every term in each row:
 
+    # -10 to 10 nm, 25,000 rows
+    python3 main_stnp.py sim_data random_10nm_med v84 600e-9 \
+        --output-write-batch 500 \
+        --rand-amount-per-zernike 2 24 " -10e-9" 10e-9 25000 \
+        --append-no-aberrations-row \
+        --cores 4
+
+    # -10 to 10 nm, 100,000 rows
+    python3 main_stnp.py sim_data random_10nm_large v84 600e-9 \
+        --output-write-batch 500 \
+        --rand-amount-per-zernike 2 24 " -10e-9" 10e-9 100000 \
+        --append-no-aberrations-row \
+        --cores 4
+
+    # -20 to 20 nm, 100,000 rows
+    python3 main_stnp.py sim_data random_20nm_large v84 600e-9 \
+        --output-write-batch 500 \
+        --rand-amount-per-zernike 2 24 " -20e-9" 20e-9 100000 \
+        --append-no-aberrations-row \
+        --cores 4
+
+    # -30 to 30 nm, 100,000 rows
+    python3 main_stnp.py sim_data random_30nm_large v84 600e-9 \
+        --output-write-batch 500 \
+        --rand-amount-per-zernike 2 24 " -30e-9" 30e-9 100000 \
+        --append-no-aberrations-row \
+        --cores 4
+
+    # -40 to 40 nm, 100,000 rows
+    python3 main_stnp.py sim_data random_40nm_large v84 600e-9 \
+        --output-write-batch 500 \
+        --rand-amount-per-zernike 2 24 " -40e-9" 40e-9 100000 \
+        --append-no-aberrations-row \
+        --cores 4
+
     # -50 to 50 nm, 25,000 rows
     python3 main_stnp.py sim_data random_50nm_med v84 600e-9 \
         --output-write-batch 500 \
@@ -104,19 +139,6 @@ Random aberrations for every term in each row:
         --append-no-aberrations-row \
         --cores 4
 
-    # -10 to 10 nm, 25,000 rows
-    python3 main_stnp.py sim_data random_10nm_med v84 600e-9 \
-        --output-write-batch 500 \
-        --rand-amount-per-zernike 2 24 " -10e-9" 10e-9 25000 \
-        --append-no-aberrations-row \
-        --cores 4
-
-    # -10 to 10 nm, 100,000 rows
-    python3 main_stnp.py sim_data random_10nm_large v84 600e-9 \
-        --output-write-batch 500 \
-        --rand-amount-per-zernike 2 24 " -10e-9" 10e-9 100000 \
-        --append-no-aberrations-row \
-        --cores 4
 
 Random aberration for only one term in each row ranging from -50 to 50 nm:
 
@@ -292,6 +314,15 @@ Can be used for model training:
         75 25 0 \
         --norm-outputs globally --norm-range-ones \
         --use-field-diff no_aberrations \
+        --additional-raw-data-tags-train-only fixed_50nm_range_2000
+
+    python3 main.py preprocess_data_complete \
+        random_50nm_large \
+        train_fixed_2000_and_random_group_ranges val_fixed_2000_and_random_group_ranges empty \
+        75 25 0 \
+        --norm-outputs globally --norm-range-ones \
+        --use-field-diff no_aberrations \
+        --additional-raw-data-tags random_10nm_large random_20nm_large random_30nm_large random_40nm_large
         --additional-raw-data-tags-train-only fixed_50nm_range_2000
 
 Can be used for testing:
