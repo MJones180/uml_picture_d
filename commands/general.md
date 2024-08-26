@@ -336,6 +336,11 @@ Can be used for testing:
     # One row with no aberrations
     python3 main.py preprocess_data_bare no_aberrations no_aberrations_processed
 
+If the data does not finish simulating, then the tables will have unequal sizes.
+When this happens, each datafile's rows can be trimmed down:
+
+    python3 main.py hdf_file_ops --trim-rows-in-datafile-based-on-table ../data/raw_simulated/dataset_tag/0_data.h5 ccd_intensity zernike_coeffs
+
 ## Creating a Response Matrix
 
 Response matrix at 40 nm:
