@@ -6,7 +6,7 @@ import time
 import torch
 from utils.load_network import load_network
 from utils.printing_and_logging import (dec_print_indent, inc_print_indent,
-                                        step_ri, title)
+                                        step, step_ri, title)
 from utils.shared_argparser_args import shared_argparser_args
 from utils.torch_grab_device import torch_grab_device
 
@@ -81,4 +81,6 @@ def network_info(cli_args):
             with torch.no_grad():
                 model(input_data_dev).cpu().numpy()
         avg_time = (time.time() - start_time) / iterations
-        print('Average time for the nn to run one row: ', avg_time)
+        step('Average time for the nn to run one row')
+        print(f'Seconds (s): {avg_time:0.6f}')
+        print(f'Milliseconds (ms): {(avg_time * 1e3):0.3f}')
