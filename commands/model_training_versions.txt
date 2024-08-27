@@ -892,3 +892,34 @@ After model testing, it is useful to rank the model analyses:
         --inputs-need-norm --inputs-need-diff \
         --print-outputs --take-rss-model-outputs \
         --epoch-and-tag-range last data_groups_ 1 8
+
+[V31] The `data_groups_v2` tag:
+
+    python3 main_stnp.py batch_model_train \
+        train_fixed_2000_and_random_group_ranges val_fixed_2000_and_random_group_ranges \
+        data_groups_v2_ 1000 --max-threads 4 \
+        --networks cnn_v2_13 cnn_v2_14 cnn_v2_15 cnn_v2_16 \
+        --losses mse --optimizers adam \
+        --lrs 1e-5 --batch-sizes 256 \
+        --overwrite-existing --only-best-epoch --early-stopping 15
+
+    python3 main.py batch_model_test \
+        fixed_50nm_range_processed --zernike-plots \
+        --inputs-need-norm --inputs-need-diff \
+        --epoch-and-tag-range last data_groups_v2_ 1 4
+
+    python3 main.py batch_model_test \
+        random_10nm_med_processed --scatter-plot 5 5 \
+        --inputs-need-norm --inputs-need-diff \
+        --epoch-and-tag-range last data_groups_v2_ 1 4
+
+    python3 main.py batch_model_test \
+        random_50nm_med_processed --scatter-plot 5 5 \
+        --inputs-need-norm --inputs-need-diff \
+        --epoch-and-tag-range last data_groups_v2_ 1 4
+
+    python3 main.py batch_model_test \
+        no_aberrations_processed \
+        --inputs-need-norm --inputs-need-diff \
+        --print-outputs --take-rss-model-outputs \
+        --epoch-and-tag-range last data_groups_v2_ 1 4
