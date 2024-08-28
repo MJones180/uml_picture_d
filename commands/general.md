@@ -325,6 +325,15 @@ Can be used for model training:
         --additional-raw-data-tags random_10nm_large random_20nm_large random_30nm_large random_40nm_large \
         --additional-raw-data-tags-train-only fixed_50nm_range_2000
 
+    python3 main.py preprocess_data_complete \
+        random_50nm_large \
+        train_fixed_2000_and_random_group_ranges_v2 val_fixed_2000_and_random_group_ranges_v2 empty \
+        85 15 0 \
+        --norm-outputs globally --norm-range-ones \
+        --use-field-diff no_aberrations \
+        --additional-raw-data-tags random_10nm_large random_20nm_large random_30nm_large random_40nm_large \
+        --additional-raw-data-tags-train-only fixed_50nm_range_2000
+
 Can be used for testing:
 
     # 10 nm
