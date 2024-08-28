@@ -148,6 +148,12 @@ Random aberration for only one term in each row ranging from -50 to 50 nm:
         --append-no-aberrations-row \
         --cores 4
 
+A base row with random aberrations between -50 and 50 nm for each term. Then, rows with Gaussian perturbations (1 nm std) about the base row.
+
+    python3 main_stnp.py sim_data rows_with_gaussian_pert v84 600e-9 \
+        --rand-amount-per-zernike-row-then-gaussian-pert 2 24 " -10e-9" 10e-9 25 1e-9 \
+        --save-plots --cores 4
+
 Random aberration ranging from -50 to 50 nm for only one term in each row and a row for each of the Zernike terms (can be used to create a response matrix):
 
     python3 main_stnp.py sim_data random_50nm_single_each_large v84 600e-9 \

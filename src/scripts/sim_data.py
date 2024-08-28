@@ -143,6 +143,18 @@ def sim_data_parser(subparsers):
               '(the terms must be sequential) | NOTE: for any negative '
               'values, write them as \" -number\"'),
     )
+    aberrations_group.add_argument(
+        '--rand-amount-per-zernike-row-then-gaussian-pert',
+        nargs=6,
+        metavar=('[zernike term low]', '[zernike term high]',
+                 '[rms error in meters low]', '[rms error in meters high]',
+                 '[pert_nrows]', '[std]'),
+        help=('will simulate 1 base row by injecting a random uniform RMS '
+              'error between the two bounds for each Zernike term (the terms '
+              'must be sequential), then will simulate `pert_nrows` with '
+              '`std` (in meters) normal error around the base row | NOTE: for '
+              'any negative values, write them as \" -number\"'),
+    )
 
 
 def sim_data(cli_args):
@@ -174,6 +186,8 @@ def sim_data(cli_args):
     rand_amount_per_zernike_single = cli_args['rand_amount_per_zernike_single']
     rand_amount_per_zernike_single_each = cli_args[
         'rand_amount_per_zernike_single_each']
+    rand_amount_per_zernike_row_then_gaussian_pert = cli_args[
+        'rand_amount_per_zernike_row_then_gaussian_pert']
 
     step_ri('Creating output directory')
     output_path = f'{RAW_SIMULATED_DATA_P}/{tag}'
@@ -268,6 +282,17 @@ def sim_data(cli_args):
         aberrations = np.vstack(aberrations)
         print('Each row will consist of a Zernike term with a random RMS '
               'error and a row for each Zernike term in the range')
+    elif rand_amount_per_zernike_row_then_gaussian_pert:
+        *initial_args, std = rand_amount_per_zernike_row_then_gaussian_pert
+        (rows, perturb_low, perturb_high, zernike_terms,
+         col_count) = _pert_range_setup(*initial_args)
+        std = float(std)
+        # Create the base row
+        base_row = rng.uniform(perturb_low, perturb_high, (1, col_count))
+        # Figure out the Gaussian perturbations about the base row
+        perturb_amounts = rng.normal(0, std, size=(rows, col_count))
+        perturbed_rows = base_row + perturb_amounts
+        aberrations = np.concatenate((base_row, perturbed_rows))
     else:
         terminate_with_message('No aberration procedure chosen')
     if zernike_terms.shape[0]:
