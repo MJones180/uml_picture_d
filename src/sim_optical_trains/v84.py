@@ -43,8 +43,9 @@ OPTICAL_TRAIN = [
             d_occulter_lyotcoll=0.511,
             fl_lyotcoll=0.511,
             d_lyotcoll_lyotstop=0.2966085,
-            # Could potentially be a performance boost
-            # use_torch=True,
+            # Uses just the VVC mask and does no MFT. Slightly less accurate.
+            # The value scales how big the center black dot is.
+            just_vvc_no_mft=1.75,
         ),
     ],
     [
