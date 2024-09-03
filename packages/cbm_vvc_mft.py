@@ -119,43 +119,12 @@ vvc = None
 vvc_args_gl = ()
 
 
-def cbm_vvc_mft(
-    wavefront,
-    charge,
-    spot_rad,
-    offset,
-    ramp_sign,
-    beam_ratio,
-    d_occulter_lyotcoll,
-    fl_lyotcoll,
-    d_lyotcoll_lyotstop,
-    # Use just the VVC mask and do no MFT. This will be much faster at the cost
-    # of accuracy. If this is used, then the value must be a float that scales
-    # how big the center black dot is. This param needs to be tailored for each
-    # set of VVC params to best align with sim results which include the MFT.
-    just_vvc_no_mft=False,
-):
-    # Get parameters
-    n = proper.prop_get_gridsize(wavefront)
-    sampling = proper.prop_get_sampling(wavefront)
-    if not just_vvc_no_mft:
-        pupil_diam_pix = n * beam_ratio
-        # Note: the only way i've found to improve contrast is to increase the
-        # simulation gridsize (n). Each factor of 2 in gridsize lowers the
-        # contrast floor by roughly an order of magnitude.
-        nvvc = n * 4
-    else:
-        nvvc = n
-
-    # =======================
-    # Phase ramp construction
-    # =======================
-
+def obtain_vvc(nvvc, charge, offset, ramp_sign):
     global vvc
     global vvc_args_gl
     # Reset the VVC and set the args that will be used to create it if this is
     # the first run or if the args have changed
-    vvc_args = (nvvc, offset, ramp_sign, charge)
+    vvc_args = (nvvc, charge, offset, ramp_sign)
     if vvc_args_gl != vvc_args:
         vvc_args_gl = vvc_args
         vvc = None
@@ -170,13 +139,50 @@ def cbm_vvc_mft(
         vvc = np.exp((offset + ramp_sign * charge * theta) * 1j)
         # Middle pixel will be NaN, so set to 0
         vvc[nvvc // 2, nvvc // 2] = 0
+    return vvc
 
-    if just_vvc_no_mft:
-        rad = just_vvc_no_mft * sampling
-        vvc *= proper.prop_ellipse(wavefront, rad, rad, 0, 0, DARK=True)
-        # Multiply input wavefront by vvc
-        proper.prop_multiply(wavefront, vvc)
-        return
+
+# This is an approximation of the complete `cbm_vvc_mft`. Instead of doing the
+# full MFT, this function just multiplies the wavefront by the VVC mask. This
+# function will be much faster at the cost of a minor loss in accuracy.
+# The `center_spot_scaling` parameter needs to be tailored for each set of VVC
+# args so that it best aligns with the results obtained by calling the complete
+# `cbm_vvc_mft` function.
+def cbm_vvc_approx(wavefront, charge, offset, ramp_sign, center_spot_scaling):
+    n = proper.prop_get_gridsize(wavefront)
+    sampling = proper.prop_get_sampling(wavefront)
+    vvc = obtain_vvc(n, charge, offset, ramp_sign)
+    rad = center_spot_scaling * sampling
+    center_dot = proper.prop_ellipse(wavefront, rad, rad, 0, 0, DARK=True)
+    # Multiply input wavefront by vvc with the center dot
+    proper.prop_multiply(wavefront, vvc * center_dot)
+
+
+def cbm_vvc_mft(
+    wavefront,
+    charge,
+    offset,
+    ramp_sign,
+    spot_rad,
+    beam_ratio,
+    d_occulter_lyotcoll,
+    fl_lyotcoll,
+    d_lyotcoll_lyotstop,
+):
+    # Get parameters
+    n = proper.prop_get_gridsize(wavefront)
+    sampling = proper.prop_get_sampling(wavefront)
+    pupil_diam_pix = n * beam_ratio
+    # Note: the only way i've found to improve contrast is to increase the
+    # simulation gridsize (n). Each factor of 2 in gridsize lowers the
+    # contrast floor by roughly an order of magnitude.
+    nvvc = n * 4
+
+    # =======================
+    # Phase ramp construction
+    # =======================
+
+    vvc = obtain_vvc(nvvc, charge, offset, ramp_sign)
 
     # ============================================================
     # Resample the psf at two different resolutions (inner,outer).

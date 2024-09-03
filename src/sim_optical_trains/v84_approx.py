@@ -1,4 +1,6 @@
-from cbm_vvc_mft import cbm_vvc_mft
+# A copy of V84 with the approximated VVC function (no MFT)
+
+from cbm_vvc_mft import cbm_vvc_approx
 import proper
 from utils.constants import VVC_CHARGE
 
@@ -33,16 +35,12 @@ OPTICAL_TRAIN = [
     ],
     [
         'VVC',
-        lambda wf: cbm_vvc_mft(
+        lambda wf: cbm_vvc_approx(
             wavefront=wf,
             charge=VVC_CHARGE,
             offset=0,
             ramp_sign=1,
-            spot_rad=10e-6,
-            beam_ratio=BEAM_RATIO,
-            d_occulter_lyotcoll=0.511,
-            fl_lyotcoll=0.511,
-            d_lyotcoll_lyotstop=0.2966085,
+            center_spot_scaling=1.75,
         ),
     ],
     [
