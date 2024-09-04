@@ -208,7 +208,7 @@ Random aberration ranging from -50 to 50 nm for only one term in each row and a 
 Just the Zernike wavefront without any propagation:
 
     # Fixed values at 40 nm
-    python3 main_stnp.py sim_data fixed_40nm_zernike_wf v84_unprop_wf 600e-9 \
+    python3 main_stnp.py sim_data fixed_40nm_zernike_wf no_prop 600e-9 \
         --output-write-batch 10 \
         --fixed-amount-per-zernike 2 24 40e-9 \
         --append-no-aberrations-row \
@@ -216,32 +216,32 @@ Just the Zernike wavefront without any propagation:
         --cores 4 --use-only-aberration-map
 
     # 10 nm on all terms at once
-    python3 main_stnp.py sim_data all_10nm_zernike_wf v84_unprop_wf 600e-9 \
+    python3 main_stnp.py sim_data all_10nm_zernike_wf no_prop 600e-9 \
         --fixed-amount-per-zernike-all 2 24 10e-9 \
         --save-full-intensity --use-only-aberration-map
 
     # Fixed grid from -50 to 50 nm with 21 points in between
-    python3 main_stnp.py sim_data fixed_50nm_range_zernike_wf v84_unprop_wf 600e-9 \
+    python3 main_stnp.py sim_data fixed_50nm_range_zernike_wf no_prop 600e-9 \
         --output-write-batch 50 \
         --fixed-amount-per-zernike-range 2 24 " -50e-9" 50e-9 21 \
         --cores 4 --use-only-aberration-map
 
     # Fixed grid from -50 to 50 nm with 201 points in between
-    python3 main_stnp.py sim_data fixed_50nm_range_201_zernike_wf v84_unprop_wf 600e-9 \
+    python3 main_stnp.py sim_data fixed_50nm_range_201_zernike_wf no_prop 600e-9 \
         --output-write-batch 1000 \
         --fixed-amount-per-zernike-range 2 24 " -50e-9" 50e-9 201 \
         --append-no-aberrations-row \
         --cores 4 --use-only-aberration-map
 
     # 25,000 rows between -10 and 10 nm
-    python3 main_stnp.py sim_data random_10nm_med_zernike_wf v84_unprop_wf 600e-9 \
+    python3 main_stnp.py sim_data random_10nm_med_zernike_wf no_prop 600e-9 \
         --output-write-batch 500 \
         --rand-amount-per-zernike 2 24 " -10e-9" 10e-9 25000 \
         --append-no-aberrations-row \
         --cores 4 --use-only-aberration-map
 
     # 25,000 rows between -50 and 50 nm
-    python3 main_stnp.py sim_data random_50nm_med_zernike_wf v84_unprop_wf 600e-9 \
+    python3 main_stnp.py sim_data random_50nm_med_zernike_wf no_prop 600e-9 \
         --output-write-batch 500 \
         --rand-amount-per-zernike 2 24 " -50e-9" 50e-9 25000 \
         --append-no-aberrations-row \
