@@ -253,7 +253,7 @@ This data can be used to generate the `zernike` plots:
 
     python3 main.py preprocess_data_bare fixed_50nm_range fixed_50nm_range_processed
 
-Can be used for model training:
+Can be used for model training/validation:
 
     python3 main.py preprocess_data_complete \
         random_50nm_med \
@@ -391,6 +391,14 @@ Can be used for model training:
         --use-field-diff no_aberrations \
         --additional-raw-data-tags random_10nm_large_approx random_20nm_large_approx random_30nm_large_approx random_40nm_large_approx \
         --additional-raw-data-tags-train-only fixed_50nm_range_2000_approx
+
+    python3 main.py preprocess_data_complete \
+        random_50nm_large_approx \
+        train_random_group_ranges_approx val_random_group_ranges_approx empty \
+        85 15 0 \
+        --norm-outputs globally --norm-range-ones \
+        --use-field-diff no_aberrations \
+        --additional-raw-data-tags random_10nm_large_approx random_20nm_large_approx random_30nm_large_approx random_40nm_large_approx
 
 Can be used for testing:
 
