@@ -70,7 +70,12 @@ class Model():
         self.network = load_network(self.network_name)
         self.model = self.network().to(self.device)
         # Now, the weights can be set
-        self.model.load_state_dict(torch.load(model_path, weights_only=False))
+        self.model.load_state_dict(
+            torch.load(
+                model_path,
+                weights_only=False,
+                map_location=torch.device(self.device),
+            ))
         # Set to evaluation mode
         self.model.eval()
         dec_print_indent()
