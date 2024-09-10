@@ -1,6 +1,7 @@
 from scripts.batch_model_test import batch_model_test_parser
 from scripts.batch_model_train import batch_model_train_parser
 from scripts.create_response_matrix import create_response_matrix_parser
+from scripts.create_torchscript_model import create_torchscript_model_parser
 from scripts.dataset_info import dataset_info_parser
 from scripts.hdf_file_ops import hdf_file_ops_parser
 from scripts.interactive_model_test_plots import inter_model_test_plots_parser
@@ -19,6 +20,7 @@ script_parsers = [
     batch_model_test_parser,
     batch_model_train_parser,
     create_response_matrix_parser,
+    create_torchscript_model_parser,
     dataset_info_parser,
     hdf_file_ops_parser,
     inter_model_test_plots_parser,
