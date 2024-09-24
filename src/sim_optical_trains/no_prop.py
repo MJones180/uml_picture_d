@@ -1,3 +1,7 @@
+"""
+This file is for a 32x32 pixel CCD.
+"""
+
 # Diameter of the initial beam
 INIT_BEAM_D = 1
 

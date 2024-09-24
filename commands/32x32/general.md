@@ -480,6 +480,6 @@ Averaged response matrix:
 
 ## Model Training and Testing
 
-Commands for model training and testing can be found in the `model_training_version_32x32.txt` file.
-This is a separate file to reduce clutter.
-The format is `txt` to reduce lag when opening.
+Commands for model training and testing can be found in the `model_training_version.txt` file.
+This is in a separate file to reduce clutter.
+The file has the format of `txt` to reduce lag when opening.

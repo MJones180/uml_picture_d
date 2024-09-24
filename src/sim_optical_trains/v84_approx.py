@@ -1,4 +1,7 @@
-# A copy of V84 with the approximated VVC function (no MFT)
+"""
+This file is for V84 with a 32x32 pixel CCD.
+This is a copy of `v84.py` with the approximated VVC function (no MFT).
+"""
 
 from cbm_vvc_mft import cbm_vvc_approx
 import proper
