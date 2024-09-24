@@ -1,5 +1,8 @@
-Model Training and Testing
---------------------------
+Model Training and Testing 32x32
+--------------------------------
+
+The models in this file are for an input size of 32x32.
+These were the original models trained, so most of the initial models are all quite bad.
 
 Model training is listed from oldest to newest (newest at the bottom).
 
