@@ -45,8 +45,8 @@ NORM_RANGE_ONES = 'norm_range_ones'
 # Random HDF table names
 
 BASE_INT_FIELD = 'base_intensity_field'
-# Both of the camera constants are stilled referred to by `ccd` for backwards
-# compatability with older files
+# Both of the camera constants are still referred to by `ccd` for backwards
+# compatability with older datafiles
 CAMERA_INTENSITY = 'ccd_intensity'
 CAMERA_SAMPLING = 'ccd_sampling'
 FULL_INTENSITY = 'full_intensity'
