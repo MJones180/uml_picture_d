@@ -1,5 +1,5 @@
 """
-This file is for V84 with a 32x32 pixel CCD.
+This file is for V84 with a 32x32 pixel CCD and a sampling of 7.4 microns.
 This is a copy of `v84.py` with the approximated VVC function (no MFT).
 """
 

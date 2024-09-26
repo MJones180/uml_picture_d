@@ -1,5 +1,5 @@
 """
-This file is for V84 with a 32x32 pixel CCD.
+This file is for V84 with a 32x32 pixel CCD and a sampling of 7.4 microns.
 """
 
 from cbm_vvc_mft import cbm_vvc_mft
