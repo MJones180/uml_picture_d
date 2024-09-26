@@ -12,7 +12,7 @@ performed, it will be based on the training normalization values.
 """
 
 import numpy as np
-from utils.constants import (ARGS_F, BASE_INT_FIELD, CCD_SAMPLING, DATA_F,
+from utils.constants import (ARGS_F, BASE_INT_FIELD, CAMERA_SAMPLING, DATA_F,
                              EXTRA_VARS_F, INPUTS, INPUT_MIN_X,
                              INPUT_MAX_MIN_DIFF, NORM_RANGE_ONES, OUTPUTS,
                              OUTPUT_MIN_X, OUTPUT_MAX_MIN_DIFF, PROC_DATA_P,
@@ -105,7 +105,7 @@ def preprocess_data_complete(cli_args):
 
     step_ri('Loading in data chunks')
     (input_data, output_data, zernike_terms,
-     ccd_sampling) = load_raw_sim_data_chunks(cli_args['raw_data_tag'])
+     camera_sampling) = load_raw_sim_data_chunks(cli_args['raw_data_tag'])
     print(f'Input shape: {input_data.shape}')
     print(f'Output shape: {output_data.shape}')
     print(f'Zernike terms: {zernike_terms}')
@@ -265,7 +265,7 @@ def preprocess_data_complete(cli_args):
     step_ri('Creating new datasets')
     # Extra tables of information taken from the raw datafile
     extra_vars = {
-        CCD_SAMPLING: ccd_sampling,
+        CAMERA_SAMPLING: camera_sampling,
         ZERNIKE_TERMS: zernike_terms,
         **norm_values,
     }

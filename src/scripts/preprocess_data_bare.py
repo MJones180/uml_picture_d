@@ -12,7 +12,7 @@ the `sim_data` script:
 Note: some code is shared with the `preprocess_data_complete` script (hardcoded)
 """
 
-from utils.constants import (ARGS_F, CCD_SAMPLING, DATA_F, EXTRA_VARS_F,
+from utils.constants import (ARGS_F, CAMERA_SAMPLING, DATA_F, EXTRA_VARS_F,
                              INPUTS, OUTPUTS, PROC_DATA_P, ZERNIKE_TERMS)
 from utils.hdf_read_and_write import HDFWriteModule
 from utils.json import json_write
@@ -43,7 +43,7 @@ def preprocess_data_bare(cli_args):
     step_ri('Loading in data chunks')
     raw_data_tag = cli_args['raw_data_tag']
     (input_data, output_data, zernike_terms,
-     ccd_sampling) = load_raw_sim_data_chunks(raw_data_tag)
+     camera_sampling) = load_raw_sim_data_chunks(raw_data_tag)
     print(f'Input shape: {input_data.shape}')
     print(f'Output shape: {output_data.shape}')
     print(f'Zernike terms: {zernike_terms}')
@@ -56,7 +56,7 @@ def preprocess_data_bare(cli_args):
     step_ri('Creating new dataset')
     # Extra tables of information taken from the raw datafile
     extra_vars = {
-        CCD_SAMPLING: ccd_sampling,
+        CAMERA_SAMPLING: camera_sampling,
         ZERNIKE_TERMS: zernike_terms,
     }
 

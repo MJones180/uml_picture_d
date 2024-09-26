@@ -49,7 +49,7 @@ def find_wavefront_coeffs_v1_parser(subparsers):
     subparser.add_argument(
         '--use-full-field',
         action='store_true',
-        help='use the full field instead of the CCD field',
+        help='use the full field instead of the camera field',
     )
     subparser.add_argument(
         '--remove-outside-for-circle',

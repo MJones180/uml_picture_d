@@ -24,9 +24,9 @@ def downsample_data(data, sampling, final_sampling, final_pixels):
     # Total grid size
     grid_size = sampling * grid_points
     # Total grid size of the output
-    ccd_grid_size = final_sampling * final_pixels
+    final_grid_size = final_sampling * final_pixels
     # How much bigger our current grid is than the output grid
-    scale_factor = grid_size / ccd_grid_size
+    scale_factor = grid_size / final_grid_size
     # Instead of jumping right to performing the crops and resizings, we
     # perform an intermediary step with a crop first so that we do not
     # need to allocate so much memory (it is also faster).

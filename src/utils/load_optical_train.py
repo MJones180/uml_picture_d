@@ -11,4 +11,4 @@ def load_optical_train(name):
                                f'found within the `{SIM_OPTICAL_TRAINS}` '
                                'folder.')
     return (module.INIT_BEAM_D, module.BEAM_RATIO, module.OPTICAL_TRAIN,
-            module.CCD_PIXELS, module.CCD_SAMPLING)
+            module.CAMERA_PIXELS, module.CAMERA_SAMPLING)

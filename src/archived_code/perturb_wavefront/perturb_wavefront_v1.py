@@ -14,8 +14,8 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import numpy as np
 from pathos.multiprocessing import ProcessPool
-from utils.constants import (ARGS_F, CCD_INTENSITY, FULL_INTENSITY, RANDOM_P,
-                             RAW_SIMULATED_DATA_P)
+from utils.constants import (ARGS_F, CAMERA_INTENSITY, FULL_INTENSITY,
+                             RANDOM_P, RAW_SIMULATED_DATA_P)
 from utils.json import json_load
 from utils.load_optical_train import load_optical_train
 from utils.load_raw_sim_data_chunks import load_raw_sim_data_chunks
@@ -56,7 +56,7 @@ def perturb_wavefront_v1_parser(subparsers):
     subparser.add_argument(
         '--use-full-field',
         action='store_true',
-        help='use the full field instead of the CCD field',
+        help='use the full field instead of the camera field',
     )
     subparser.add_argument(
         '--take-diff',
@@ -106,8 +106,8 @@ def perturb_wavefront_v1(cli_args):
     grid_points = int(bf_cli_args['grid_points'])
 
     step_ri('Loading in the optical train')
-    (init_beam_d, beam_ratio, optical_train, ccd_pixels,
-     ccd_sampling) = load_optical_train(train_name)
+    (init_beam_d, beam_ratio, optical_train, camera_pixels,
+     camera_sampling) = load_optical_train(train_name)
 
     step_ri('Loading in the target dataset')
     target_ds_data = load_raw_sim_data_chunks(target_ds, use_full_field)
@@ -115,7 +115,7 @@ def perturb_wavefront_v1(cli_args):
     zernike_count = len(zernike_terms)
     target_wavefront = target_ds_data[0][row_idx]
     base_zernike_coeffs = target_ds_data[1][row_idx]
-    # This will either be full or CCD sampling
+    # This will either be full or camera sampling
     plot_sampling = target_ds_data[3]
     # Sometimes the plot sampling ends up being a list with one element
     if not isinstance(plot_sampling, float):
@@ -131,14 +131,15 @@ def perturb_wavefront_v1(cli_args):
             ref_wl,
             beam_ratio,
             optical_train,
-            ccd_pixels,
-            ccd_sampling,
+            camera_pixels,
+            camera_sampling,
             zernike_terms,
             coeffs_vectors,
             save_full_intensity=True,
             grid_points=grid_points,
         )
-        fields = results[FULL_INTENSITY if use_full_field else CCD_INTENSITY]
+        fields = results[
+            FULL_INTENSITY if use_full_field else CAMERA_INTENSITY]
         return fields
 
     # Create a vector where each coefficient is perturbed

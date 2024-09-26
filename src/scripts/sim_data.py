@@ -56,7 +56,7 @@ def sim_data_parser(subparsers):
     subparser.add_argument(
         '--save-full-intensity',
         action='store_true',
-        help='save the full intensity and not just the rebinned CCD version',
+        help='save the full intensity and not just the rebinned camera version',
     )
     subparser.add_argument(
         '--cores',
@@ -197,8 +197,8 @@ def sim_data(cli_args):
     json_write(f'{output_path}/{ARGS_F}', cli_args)
 
     step_ri('Loading in the optical train')
-    (init_beam_d, beam_ratio, optical_train, ccd_pixels,
-     ccd_sampling) = load_optical_train(train_name)
+    (init_beam_d, beam_ratio, optical_train, camera_pixels,
+     camera_sampling) = load_optical_train(train_name)
 
     step_ri('Figuring out aberrations')
 
@@ -321,8 +321,8 @@ def sim_data(cli_args):
         ref_wl,
         beam_ratio,
         optical_train,
-        ccd_pixels,
-        ccd_sampling,
+        camera_pixels,
+        camera_sampling,
         zernike_terms,
         aberrations,
         save_full_intensity=save_full_intensity,

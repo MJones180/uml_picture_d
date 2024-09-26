@@ -1,6 +1,6 @@
 import numpy as np
 import proper
-from utils.constants import (CCD_INTENSITY, CCD_SAMPLING, FULL_INTENSITY,
+from utils.constants import (CAMERA_INTENSITY, CAMERA_SAMPLING, FULL_INTENSITY,
                              FULL_SAMPLING, ZERNIKE_COEFFS, ZERNIKE_TERMS)
 from utils.downsample_data import downsample_data, resize_pixel_grid
 from utils.path import get_abs_path, make_dir
@@ -13,8 +13,8 @@ def sim_prop_wf(
     ref_wl,
     beam_ratio,
     optical_train,
-    ccd_pixels,
-    ccd_sampling,
+    camera_pixels,
+    camera_sampling,
     zernike_terms,
     aberration_values,
     grid_points=1024,
@@ -35,10 +35,10 @@ def sim_prop_wf(
         Ratio of the beam to the grid.
     optical_train : list
         The optical train that the wavefront will pass through.
-    ccd_pixels : int
-        Number of pixels on the resampled CCD.
-    ccd_sampling : float
-        Sampling of the resampled CCD.
+    camera_pixels : int
+        Number of pixels on the resampled camera.
+    camera_sampling : float
+        Sampling of the resampled camera.
     zernike_terms : list[int]
         Noll Zernike terms that will have aberrations.
     aberration_values : list[float]
@@ -57,7 +57,7 @@ def sim_prop_wf(
     Returns
     -------
     [np.array, np.array, float] where the values consist of the resampled
-    CCD intensity wavefront, full intensity wavefront, and full sampling.
+    camera intensity wavefront, full intensity wavefront, and full sampling.
     """
 
     if disable_proper_logs:
@@ -76,11 +76,11 @@ def sim_prop_wf(
         if plot_idx == 0:
             make_dir(linear_path)
             make_dir(log_path)
-        # If it is a NP array, then it is the final intensity on the CCD,
+        # If it is a NP array, then it is the final intensity on the camera,
         # otherwise it is a PROPER wavefront object
         if isinstance(wf_or_intensity, np.ndarray):
             intensity = wf_or_intensity
-            plot_sampling = ccd_sampling
+            plot_sampling = camera_sampling
         else:
             intensity = proper.prop_get_amplitude(wf_or_intensity)**2
             plot_sampling = proper.prop_get_sampling(wf_or_intensity)
@@ -110,10 +110,10 @@ def sim_prop_wf(
         # the wavefront through the optical setup.
         wavefront_intensity = aberration_map * aperture_mask
         _plot_intensity(wavefront_intensity, 'Aberration Map')
-        # For the CCD, we will just resize the grid so that the number
+        # For the camera, we will just resize the grid so that the number
         # of pixels matches. No need to do any resampling.
-        wf_int_ds = resize_pixel_grid(wavefront_intensity, ccd_pixels)
-        sampling = ccd_sampling
+        wf_int_ds = resize_pixel_grid(wavefront_intensity, camera_pixels)
+        sampling = camera_sampling
     else:
         # Loop through the train
         for step in optical_train:
@@ -125,12 +125,12 @@ def sim_prop_wf(
                 step(wavefront)
         # The final wavefront intensity and sampling of its grid
         (wavefront_intensity, sampling) = proper.prop_end(wavefront)
-        # Downsample to the CCD
+        # Downsample to the camera
         wf_int_ds = downsample_data(wavefront_intensity, sampling,
-                                    ccd_sampling, ccd_pixels)
-    # Plot the downsampled CCD intensity
-    _plot_intensity(wf_int_ds, 'CCD Resampled')
-    # Returns CCD intensity wf, full intensity wf, and full sampling.
+                                    camera_sampling, camera_pixels)
+    # Plot the downsampled camera intensity
+    _plot_intensity(wf_int_ds, 'Camera Resampled')
+    # Returns camera intensity wf, full intensity wf, and full sampling.
     return [wf_int_ds, wavefront_intensity, sampling]
 
 
@@ -141,8 +141,8 @@ def multi_worker_sim_prop_many_wf(
     ref_wl,
     beam_ratio,
     optical_train,
-    ccd_pixels,
-    ccd_sampling,
+    camera_pixels,
+    camera_sampling,
     zernike_terms,
     aberrations,
     save_full_intensity=False,
@@ -172,10 +172,10 @@ def multi_worker_sim_prop_many_wf(
         Ratio of the beam to the grid.
     optical_train : list
         The optical train that the wavefront will pass through.
-    ccd_pixels : int
-        Number of pixels on the resampled CCD.
-    ccd_sampling : float
-        Sampling of the resampled CCD.
+    camera_pixels : int
+        Number of pixels on the resampled camera.
+    camera_sampling : float
+        Sampling of the resampled camera.
     zernike_terms : list[int]
         Noll Zernike terms that will have aberrations.
     aberrations : np.array
@@ -232,8 +232,8 @@ def multi_worker_sim_prop_many_wf(
             ZERNIKE_TERMS: zernike_terms,
             # The rms error in meters associated with each of the zernike terms
             ZERNIKE_COEFFS: aberrations_chunk,
-            CCD_INTENSITY: [],
-            CCD_SAMPLING: ccd_sampling,
+            CAMERA_INTENSITY: [],
+            CAMERA_SAMPLING: camera_sampling,
         }
         if save_full_intensity:
             simulation_data[FULL_INTENSITY] = []
@@ -244,13 +244,13 @@ def multi_worker_sim_prop_many_wf(
             plot_path_complete = None
             if plot_path is not None:
                 plot_path_complete = f'{plot_path}/w_{worker_idx}_sim_{sim_idx}'
-            ccd_wf, full_wf, full_sampling = sim_prop_wf(
+            camera_wf, full_wf, full_sampling = sim_prop_wf(
                 init_beam_d,
                 ref_wl,
                 beam_ratio,
                 optical_train,
-                ccd_pixels,
-                ccd_sampling,
+                camera_pixels,
+                camera_sampling,
                 zernike_terms,
                 aberrations_chunk[sim_idx],
                 grid_points=grid_points,
@@ -258,7 +258,7 @@ def multi_worker_sim_prop_many_wf(
                 use_only_aberration_map=use_only_aberration_map,
                 disable_proper_logs=disable_proper_logs,
             )
-            simulation_data[CCD_INTENSITY].append(ccd_wf)
+            simulation_data[CAMERA_INTENSITY].append(camera_wf)
             if save_full_intensity:
                 simulation_data[FULL_INTENSITY].append(full_wf)
                 simulation_data[FULL_SAMPLING].append(full_sampling)
@@ -294,7 +294,7 @@ def multi_worker_sim_prop_many_wf(
     for result_dict in results[1:]:
         if result_dict is None:
             continue
-        merge_keys = [ZERNIKE_COEFFS, CCD_INTENSITY]
+        merge_keys = [ZERNIKE_COEFFS, CAMERA_INTENSITY]
         if save_full_intensity:
             merge_keys.extend([FULL_INTENSITY, FULL_SAMPLING])
         for key in merge_keys:

@@ -1,5 +1,5 @@
 """
-This file is for V84 with a 32x32 pixel CCD and a sampling of 7.4 microns.
+This file is for V84 with a 32x32 pixel camera and a sampling of 7.4 microns.
 This is a copy of `v84.py` with the approximated VVC function (no MFT).
 """
 
@@ -19,9 +19,9 @@ lyot_stop_hole_r = INIT_BEAM_D * 0.9 / 2
 # = INIT_BEAM_D / lyot_stop_outer_d * 0.95
 BEAM_RATIO = 0.1683
 
-# Number of pixels and sampling size for the final CCD
-CCD_PIXELS = 32
-CCD_SAMPLING = 7.4e-6
+# Number of pixels and sampling size for the final camera
+CAMERA_PIXELS = 32
+CAMERA_SAMPLING = 7.4e-6
 
 # All distances are in meters. Assume the beam starts at HODM 1. Treat the
 # DMs as if they are not there.
@@ -76,7 +76,7 @@ OPTICAL_TRAIN = [
     # Final lens
     lambda wf: proper.prop_lens(wf, 0.25),
     [
-        'CCD [From final lens]',
+        'Camera [From final lens]',
         # lambda wf: proper.prop_propagate(wf, 0.247396),
         lambda wf: proper.prop_propagate(wf, 0.24835),
     ],

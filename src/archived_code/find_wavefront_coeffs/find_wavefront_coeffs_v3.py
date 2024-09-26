@@ -17,8 +17,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from pathos.multiprocessing import ProcessPool
 from time import time
-from utils.constants import (ARGS_F, CCD_INTENSITY, RANDOM_P, FULL_INTENSITY,
-                             RAW_SIMULATED_DATA_P)
+from utils.constants import (ARGS_F, CAMERA_INTENSITY, RANDOM_P,
+                             FULL_INTENSITY, RAW_SIMULATED_DATA_P)
 from utils.json import json_load
 from utils.load_optical_train import load_optical_train
 from utils.load_raw_sim_data_chunks import load_raw_sim_data_chunks
@@ -62,7 +62,7 @@ def find_wavefront_coeffs_v3_parser(subparsers):
     subparser.add_argument(
         '--use-full-field',
         action='store_true',
-        help='use the full field instead of the CCD field',
+        help='use the full field instead of the camera field',
     )
     subparser.add_argument(
         '--save-plots',
@@ -109,8 +109,8 @@ def find_wavefront_coeffs_v3(cli_args):
     grid_points = int(bf_cli_args['grid_points'])
 
     step_ri('Loading in the optical train')
-    (init_beam_d, beam_ratio, optical_train, ccd_pixels,
-     ccd_sampling) = load_optical_train(train_name)
+    (init_beam_d, beam_ratio, optical_train, camera_pixels,
+     camera_sampling) = load_optical_train(train_name)
 
     step_ri('Loading in the test dataset')
     test_ds_data = load_raw_sim_data_chunks(test_ds, use_full_field)
@@ -138,15 +138,16 @@ def find_wavefront_coeffs_v3(cli_args):
             ref_wl,
             beam_ratio,
             optical_train,
-            ccd_pixels,
-            ccd_sampling,
+            camera_pixels,
+            camera_sampling,
             zernike_terms,
             coeffs_vectors_nm,
             save_full_intensity=True,
             grid_points=grid_points,
             enable_logs=False,
         )
-        fields = results[FULL_INTENSITY if use_full_field else CCD_INTENSITY]
+        fields = results[
+            FULL_INTENSITY if use_full_field else CAMERA_INTENSITY]
         print(f'\tCall time: {time() - start_time}')
         return fields - base_field
 

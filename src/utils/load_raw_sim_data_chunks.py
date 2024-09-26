@@ -1,6 +1,6 @@
 from glob import glob
 import numpy as np
-from utils.constants import (CCD_INTENSITY, CCD_SAMPLING, DATA_F,
+from utils.constants import (CAMERA_INTENSITY, CAMERA_SAMPLING, DATA_F,
                              FULL_INTENSITY, FULL_SAMPLING,
                              RAW_SIMULATED_DATA_P, ZERNIKE_COEFFS,
                              ZERNIKE_TERMS)
@@ -20,8 +20,8 @@ def load_raw_sim_data_chunks(raw_data_tag, full_intensity=False):
     ])
     input_data = []
     output_data = []
-    intensity_tag = FULL_INTENSITY if full_intensity else CCD_INTENSITY
-    sampling_tag = FULL_SAMPLING if full_intensity else CCD_SAMPLING
+    intensity_tag = FULL_INTENSITY if full_intensity else CAMERA_INTENSITY
+    sampling_tag = FULL_SAMPLING if full_intensity else CAMERA_SAMPLING
     print(f'Tag: {raw_data_tag}')
     inc_print_indent()
     for idx, chunk_val in enumerate(chunk_vals):
