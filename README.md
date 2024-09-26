@@ -117,8 +117,8 @@ Each optical train must have the following variables:
 - `INIT_BEAM_D`: Diameter of the initial beam in meters.
 - `BEAM_RATIO`: Ratio of space that the beam takes up on the grid.
 - `OPTICAL_TRAIN`: A list specifying the steps of the train. Each `proper` call must be wrapped in a lambda that takes the `wf` oject. Additionally, a nested list can be passed if that step should have the option to be plotted. An example list would be `[ lambda wf: proper.prop_circular_aperture(wf, 1), [ 'Entrance', lambda wf: proper.prop_define_entrance(wf) ] ]`.
-- `CCD_PIXELS`: Number of pixels on the output grid that represents the CCD.
-- `CCD_SAMPLING`: The sampling for each pixel (grid point) on the CCD.
+- `CAMERA_PIXELS`: Number of pixels on the output grid that represents the camera.
+- `CAMERA_SAMPLING`: The sampling for each pixel (grid point) on the camera.
 
 ## Optical Setup
 
