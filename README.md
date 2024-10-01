@@ -67,6 +67,11 @@ Navigate to the `src` folder and call the `main.py` file, all scripts are availa
 In the event that one of the scripts requires single-threaded NumPy, then call `main_stnp.py` instead.
 For example, due to Pathos multiprocessing, the `sim_data` script should be called via `main_stnp.py`.
 
+Alternatively, if a script should only be run using `n` cores, then the `taskset` command can be used in Linux.
+As an example, to use only three cores:
+
+    taskset --cpu-list 1,2,3 python3 main.py
+
 ## Data
 
 ### Simulate Data
