@@ -189,7 +189,8 @@ Docstrings throughout the code are mostly formatted using `numpydoc` (https://nu
 - The `src/single_core_numpy.py` code (imported by `main_scnp.py`) sets the max number of threads.
   However, this is really setting the max number of cores.
   On a linux system, if `lscpu` is typed, then the total number of CPUs is given by `cores per socket * threads per core`.
-  If the flags in `src/single_core_numpy.py` are not defined, then they each default to the total number of CPUs.
+  The total number of CPUs is also referred to as the number of processors (this number can also be obtained by running `nproc`).
+  If the flags in `src/single_core_numpy.py` are not defined, then they each default to the total number of processors.
   For a CPU with 16 cores and 2 threads per core, this would mean the flags are each set to 32 by default.
 
 ## Future Updates
