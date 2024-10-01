@@ -1,5 +1,5 @@
 # Have NumPy run on a single core.
-import single_core_numpy.py  # noqa: F401
+import single_core_numpy  # noqa: F401
 from main import main
 
 # main_scnp = main - single core NumPy
