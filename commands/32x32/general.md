@@ -37,18 +37,18 @@ A native PyTorch model can be converted to TorchScript by doing the following co
 
 A single row with no aberrations (used to compute the difference during preprocessing):
 
-    python3 main_stnp.py sim_data no_aberrations v84 600e-9 --no-aberrations
+    python3 main_scnp.py sim_data no_aberrations v84 600e-9 --no-aberrations
 
 A single row with aberrations on every term:
 
-    python3 main_stnp.py sim_data all_10nm v84 600e-9 \
+    python3 main_scnp.py sim_data all_10nm v84 600e-9 \
         --fixed-amount-per-zernike-all 2 24 10e-9 \
         --save-full-intensity
 
 Data at a fixed RMS error (can be used to create a response matrix):
 
     # 10 nm
-    python3 main_stnp.py sim_data fixed_10nm v84 600e-9 \
+    python3 main_scnp.py sim_data fixed_10nm v84 600e-9 \
         --output-write-batch 10 \
         --fixed-amount-per-zernike 2 24 10e-9 \
         --append-no-aberrations-row \
@@ -56,7 +56,7 @@ Data at a fixed RMS error (can be used to create a response matrix):
         --cores 4
 
     # 40 nm
-    python3 main_stnp.py sim_data fixed_40nm v84 600e-9 \
+    python3 main_scnp.py sim_data fixed_40nm v84 600e-9 \
         --output-write-batch 10 \
         --fixed-amount-per-zernike 2 24 40e-9 \
         --append-no-aberrations-row \
@@ -66,34 +66,34 @@ Data at a fixed RMS error (can be used to create a response matrix):
 Fixed aberrations on a grid for one term at a time in each row across all terms:
 
     # -50 to 50 nm in 10 nm increments
-    python3 main_stnp.py sim_data fixed_50nm_range v84 600e-9 \
+    python3 main_scnp.py sim_data fixed_50nm_range v84 600e-9 \
         --output-write-batch 50 \
         --fixed-amount-per-zernike-range 2 24 " -50e-9" 50e-9 21 \
         --cores 4
 
     # -50 to 50 nm with 2000 points in between
-    python3 main_stnp.py sim_data fixed_50nm_range_2000 v84 600e-9 \
+    python3 main_scnp.py sim_data fixed_50nm_range_2000 v84 600e-9 \
         --output-write-batch 1000 \
         --fixed-amount-per-zernike-range 2 24 " -50e-9" 50e-9 2000 \
         --append-no-aberrations-row \
         --cores 4
 
     # -50 to 50 nm with 2000 points in between using the approximated VVC simulations
-    python3 main_stnp.py sim_data fixed_50nm_range_2000_approx v84_approx 600e-9 \
+    python3 main_scnp.py sim_data fixed_50nm_range_2000_approx v84_approx 600e-9 \
         --output-write-batch 1000 \
         --fixed-amount-per-zernike-range 2 24 " -50e-9" 50e-9 2000 \
         --append-no-aberrations-row \
         --cores 4
 
     # -10 to 10 nm with 401 points in between
-    python3 main_stnp.py sim_data fixed_10nm_range_401 v84 600e-9 \
+    python3 main_scnp.py sim_data fixed_10nm_range_401 v84 600e-9 \
         --output-write-batch 1000 \
         --fixed-amount-per-zernike-range 2 24 " -10e-9" 10e-9 401 \
         --append-no-aberrations-row \
         --cores 4
 
     # -1 to 1 nm with 301 points in between
-    python3 main_stnp.py sim_data fixed_1nm_range_301 v84 600e-9 \
+    python3 main_scnp.py sim_data fixed_1nm_range_301 v84 600e-9 \
         --output-write-batch 1000 \
         --fixed-amount-per-zernike-range 2 24 " -1e-9" 1e-9 301 \
         --append-no-aberrations-row \
@@ -102,49 +102,49 @@ Fixed aberrations on a grid for one term at a time in each row across all terms:
 Random aberrations for every term in each row:
 
     # -10 to 10 nm, 25,000 rows
-    python3 main_stnp.py sim_data random_10nm_med v84 600e-9 \
+    python3 main_scnp.py sim_data random_10nm_med v84 600e-9 \
         --output-write-batch 500 \
         --rand-amount-per-zernike 2 24 " -10e-9" 10e-9 25000 \
         --append-no-aberrations-row \
         --cores 4
 
     # -10 to 10 nm, 100,000 rows
-    python3 main_stnp.py sim_data random_10nm_large v84 600e-9 \
+    python3 main_scnp.py sim_data random_10nm_large v84 600e-9 \
         --output-write-batch 500 \
         --rand-amount-per-zernike 2 24 " -10e-9" 10e-9 100000 \
         --append-no-aberrations-row \
         --cores 4
 
     # -20 to 20 nm, 100,000 rows
-    python3 main_stnp.py sim_data random_20nm_large v84 600e-9 \
+    python3 main_scnp.py sim_data random_20nm_large v84 600e-9 \
         --output-write-batch 500 \
         --rand-amount-per-zernike 2 24 " -20e-9" 20e-9 100000 \
         --append-no-aberrations-row \
         --cores 4
 
     # -30 to 30 nm, 100,000 rows
-    python3 main_stnp.py sim_data random_30nm_large v84 600e-9 \
+    python3 main_scnp.py sim_data random_30nm_large v84 600e-9 \
         --output-write-batch 500 \
         --rand-amount-per-zernike 2 24 " -30e-9" 30e-9 100000 \
         --append-no-aberrations-row \
         --cores 4
 
     # -40 to 40 nm, 100,000 rows
-    python3 main_stnp.py sim_data random_40nm_large v84 600e-9 \
+    python3 main_scnp.py sim_data random_40nm_large v84 600e-9 \
         --output-write-batch 500 \
         --rand-amount-per-zernike 2 24 " -40e-9" 40e-9 100000 \
         --append-no-aberrations-row \
         --cores 4
 
     # -50 to 50 nm, 25,000 rows
-    python3 main_stnp.py sim_data random_50nm_med v84 600e-9 \
+    python3 main_scnp.py sim_data random_50nm_med v84 600e-9 \
         --output-write-batch 500 \
         --rand-amount-per-zernike 2 24 " -50e-9" 50e-9 25000 \
         --append-no-aberrations-row \
         --cores 4
 
     # -50 to 50 nm, 100,000 rows
-    python3 main_stnp.py sim_data random_50nm_large v84 600e-9 \
+    python3 main_scnp.py sim_data random_50nm_large v84 600e-9 \
         --output-write-batch 500 \
         --rand-amount-per-zernike 2 24 " -50e-9" 50e-9 100000\
         --append-no-aberrations-row \
@@ -153,35 +153,35 @@ Random aberrations for every term in each row:
 Random aberrations for every term in each row generated using the approximated VVC simulations:
 
     # -10 to 10 nm, 100,000 rows
-    python3 main_stnp.py sim_data random_10nm_large_approx v84_approx 600e-9 \
+    python3 main_scnp.py sim_data random_10nm_large_approx v84_approx 600e-9 \
         --output-write-batch 500 \
         --rand-amount-per-zernike 2 24 " -10e-9" 10e-9 100000 \
         --append-no-aberrations-row \
         --cores 4
 
     # -20 to 20 nm, 100,000 rows
-    python3 main_stnp.py sim_data random_20nm_large_approx v84_approx 600e-9 \
+    python3 main_scnp.py sim_data random_20nm_large_approx v84_approx 600e-9 \
         --output-write-batch 500 \
         --rand-amount-per-zernike 2 24 " -20e-9" 20e-9 100000 \
         --append-no-aberrations-row \
         --cores 4
 
     # -30 to 30 nm, 100,000 rows
-    python3 main_stnp.py sim_data random_30nm_large_approx v84_approx 600e-9 \
+    python3 main_scnp.py sim_data random_30nm_large_approx v84_approx 600e-9 \
         --output-write-batch 500 \
         --rand-amount-per-zernike 2 24 " -30e-9" 30e-9 100000 \
         --append-no-aberrations-row \
         --cores 4
 
     # -40 to 40 nm, 100,000 rows
-    python3 main_stnp.py sim_data random_40nm_large_approx v84_approx 600e-9 \
+    python3 main_scnp.py sim_data random_40nm_large_approx v84_approx 600e-9 \
         --output-write-batch 500 \
         --rand-amount-per-zernike 2 24 " -40e-9" 40e-9 100000 \
         --append-no-aberrations-row \
         --cores 4
 
     # -50 to 50 nm, 100,000 rows
-    python3 main_stnp.py sim_data random_50nm_large_approx v84_approx 600e-9 \
+    python3 main_scnp.py sim_data random_50nm_large_approx v84_approx 600e-9 \
         --output-write-batch 500 \
         --rand-amount-per-zernike 2 24 " -50e-9" 50e-9 100000\
         --append-no-aberrations-row \
@@ -189,7 +189,7 @@ Random aberrations for every term in each row generated using the approximated V
 
 Random aberration for only one term in each row ranging from -50 to 50 nm:
 
-    python3 main_stnp.py sim_data random_50nm_single_med v84 600e-9 \
+    python3 main_scnp.py sim_data random_50nm_single_med v84 600e-9 \
         --output-write-batch 500 \
         --rand-amount-per-zernike-single 2 24 " -50e-9" 50e-9 25000 \
         --append-no-aberrations-row \
@@ -197,13 +197,13 @@ Random aberration for only one term in each row ranging from -50 to 50 nm:
 
 A base row with random aberrations between -50 and 50 nm for each term. Then, rows with Gaussian perturbations (1 nm std) about the base row.
 
-    python3 main_stnp.py sim_data rows_with_gaussian_pert v84 600e-9 \
+    python3 main_scnp.py sim_data rows_with_gaussian_pert v84 600e-9 \
         --rand-amount-per-zernike-row-then-gaussian-pert 2 24 " -10e-9" 10e-9 25 1e-9 \
         --save-plots --cores 4
 
 Random aberration ranging from -50 to 50 nm for only one term in each row and a row for each of the Zernike terms (can be used to create a response matrix):
 
-    python3 main_stnp.py sim_data random_50nm_single_each_large v84 600e-9 \
+    python3 main_scnp.py sim_data random_50nm_single_each_large v84 600e-9 \
         --output-write-batch 1000 \
         --rand-amount-per-zernike-single-each 2 24 " -50e-9" 50e-9 5000 \
         --append-no-aberrations-row \
@@ -212,7 +212,7 @@ Random aberration ranging from -50 to 50 nm for only one term in each row and a 
 Just the Zernike wavefront without any propagation:
 
     # Fixed values at 40 nm
-    python3 main_stnp.py sim_data fixed_40nm_zernike_wf no_prop 600e-9 \
+    python3 main_scnp.py sim_data fixed_40nm_zernike_wf no_prop 600e-9 \
         --output-write-batch 10 \
         --fixed-amount-per-zernike 2 24 40e-9 \
         --append-no-aberrations-row \
@@ -220,32 +220,32 @@ Just the Zernike wavefront without any propagation:
         --cores 4 --use-only-aberration-map
 
     # 10 nm on all terms at once
-    python3 main_stnp.py sim_data all_10nm_zernike_wf no_prop 600e-9 \
+    python3 main_scnp.py sim_data all_10nm_zernike_wf no_prop 600e-9 \
         --fixed-amount-per-zernike-all 2 24 10e-9 \
         --save-full-intensity --use-only-aberration-map
 
     # Fixed grid from -50 to 50 nm with 21 points in between
-    python3 main_stnp.py sim_data fixed_50nm_range_zernike_wf no_prop 600e-9 \
+    python3 main_scnp.py sim_data fixed_50nm_range_zernike_wf no_prop 600e-9 \
         --output-write-batch 50 \
         --fixed-amount-per-zernike-range 2 24 " -50e-9" 50e-9 21 \
         --cores 4 --use-only-aberration-map
 
     # Fixed grid from -50 to 50 nm with 201 points in between
-    python3 main_stnp.py sim_data fixed_50nm_range_201_zernike_wf no_prop 600e-9 \
+    python3 main_scnp.py sim_data fixed_50nm_range_201_zernike_wf no_prop 600e-9 \
         --output-write-batch 1000 \
         --fixed-amount-per-zernike-range 2 24 " -50e-9" 50e-9 201 \
         --append-no-aberrations-row \
         --cores 4 --use-only-aberration-map
 
     # 25,000 rows between -10 and 10 nm
-    python3 main_stnp.py sim_data random_10nm_med_zernike_wf no_prop 600e-9 \
+    python3 main_scnp.py sim_data random_10nm_med_zernike_wf no_prop 600e-9 \
         --output-write-batch 500 \
         --rand-amount-per-zernike 2 24 " -10e-9" 10e-9 25000 \
         --append-no-aberrations-row \
         --cores 4 --use-only-aberration-map
 
     # 25,000 rows between -50 and 50 nm
-    python3 main_stnp.py sim_data random_50nm_med_zernike_wf no_prop 600e-9 \
+    python3 main_scnp.py sim_data random_50nm_med_zernike_wf no_prop 600e-9 \
         --output-write-batch 500 \
         --rand-amount-per-zernike 2 24 " -50e-9" 50e-9 25000 \
         --append-no-aberrations-row \

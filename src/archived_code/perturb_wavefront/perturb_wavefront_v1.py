@@ -4,9 +4,9 @@ how the propagated wavefront ends up changing. Each coefficient is perturbed
 independently, so there are no coupled perturbations.
 
 Commands to run this script:
-    python3 main_stnp.py perturb_wavefront_v1 \
+    python3 main_scnp.py perturb_wavefront_v1 \
         no_aberrations all_10nm 1e-8 --save-plots --cores 4
-    python3 main_stnp.py perturb_wavefront_v1 \
+    python3 main_scnp.py perturb_wavefront_v1 \
         no_aberrations all_10nm 1e-8 --save-plots --cores 4 --take-diff
 """
 

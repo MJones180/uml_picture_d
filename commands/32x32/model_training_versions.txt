@@ -17,7 +17,7 @@ After model testing, it is useful to rank the model analyses:
 
 [V1] The `ran50nm_gl_lg_diff_` tag:
 
-    python3 main_stnp.py batch_model_train \
+    python3 main_scnp.py batch_model_train \
         train_ran50nm_gl_lg_diff val_ran50nm_gl_lg_diff \
         ran50nm_gl_lg_diff_ 500 --max-threads 4 \
         --networks dfc1 dfc2 sc1 btbc1 btbc2 \
@@ -36,7 +36,7 @@ After model testing, it is useful to rank the model analyses:
 
 [V2] The `com50nm_gl_diff_` tag:
 
-    python3 main_stnp.py batch_model_train \
+    python3 main_scnp.py batch_model_train \
         train_com50nm_gl_diff val_com50nm_gl_diff \
         com50nm_gl_diff_ 500 --max-threads 4 \
         --networks dfc1 dfc2 dfc3 btbc2 btbc3 \
@@ -55,7 +55,7 @@ After model testing, it is useful to rank the model analyses:
 
 [V3] The `com50nm_gl_diff_v2_` tag (updated networks and hyperparameters):
 
-    python3 main_stnp.py batch_model_train \
+    python3 main_scnp.py batch_model_train \
         train_com50nm_gl_diff val_com50nm_gl_diff \
         com50nm_gl_diff_v2_ 500 --max-threads 4 \
         --networks dfc2v2 dfc3v2 \
@@ -79,7 +79,7 @@ After model testing, it is useful to rank the model analyses:
 
 [V4] The `ran50nm_single_diff_` tag:
 
-    python3 main_stnp.py batch_model_train \
+    python3 main_scnp.py batch_model_train \
         train_ran50nm_single_diff val_ran50nm_single_diff  \
         ran50nm_single_diff_ 500 --max-threads 4 \
         --networks dfc2 dfc2v3 dfc3 dfc3v3 btbc4 \
@@ -103,7 +103,7 @@ After model testing, it is useful to rank the model analyses:
 
 [V5] The `ran50nm_single_diff_v2` tag:
 
-    python3 main_stnp.py batch_model_train \
+    python3 main_scnp.py batch_model_train \
         train_ran50nm_single_diff val_ran50nm_single_diff  \
         ran50nm_single_diff_v2_ 500 --max-threads 4 \
         --networks dfc1n dfc2n \
@@ -123,7 +123,7 @@ After model testing, it is useful to rank the model analyses:
 
 [V6] The `nn_rm_comparison` tag:
 
-    python3 main_stnp.py batch_model_train \
+    python3 main_scnp.py batch_model_train \
         train_ran50nm_se_diff val_ran50nm_se_diff \
         nn_rm_comparison_ 500 --max-threads 4 \
         --networks dfc1n dfc2n dfc3n \
@@ -148,7 +148,7 @@ After model testing, it is useful to rank the model analyses:
 
 [V7] The `nn_rm_comparison_o` tag:
 
-    python3 main_stnp.py batch_model_train \
+    python3 main_scnp.py batch_model_train \
         train_val_ran50nm_se_diff_all train_val_ran50nm_se_diff_all \
         nn_rm_comparison_o_ 20 --max-threads 4 \
         --networks dfc1n dfc2n dfc3n \
@@ -173,7 +173,7 @@ After model testing, it is useful to rank the model analyses:
 
 [V8] The `nn_rm_comparison_fixed` tag:
 
-    python3 main_stnp.py batch_model_train \
+    python3 main_scnp.py batch_model_train \
         train_val_fixed_50nm_diff train_val_fixed_50nm_diff \
         nn_rm_comparison_fixed_ 50 --max-threads 4 \
         --networks dfc1n dfc2n dfc3n \
@@ -204,7 +204,7 @@ After model testing, it is useful to rank the model analyses:
 
 [V9] The `nn_rm_comparison_fixed_v2` tag:
 
-    python3 main_stnp.py batch_model_train \
+    python3 main_scnp.py batch_model_train \
         train_val_fixed_50nm_diff_v2 train_val_fixed_50nm_diff_v2 \
         nn_rm_comparison_fixed_v2_ 25 --max-threads 4 \
         --networks dfc1n dfc2n dfc3n \
@@ -235,7 +235,7 @@ After model testing, it is useful to rank the model analyses:
 
 [V10] The `nn_50nm_fixed_1nm_supersampled` tag:
 
-    python3 main_stnp.py batch_model_train \
+    python3 main_scnp.py batch_model_train \
         train_val_fixed_50nm_diff_1nm_supersampled \
         train_val_fixed_50nm_diff_1nm_supersampled \
         nn_50nm_fixed_1nm_supersampled_ 25 --max-threads 4 \
@@ -267,7 +267,7 @@ After model testing, it is useful to rank the model analyses:
 
 [V11] The `nn_50nm_fixed_1nm_supersampled_nro` tag:
 
-    python3 main_stnp.py batch_model_train \
+    python3 main_scnp.py batch_model_train \
         train_val_fixed_50nm_diff_1nm_supersampled_ones_range \
         train_val_fixed_50nm_diff_1nm_supersampled_ones_range \
         nn_50nm_fixed_1nm_supersampled_nro_ 50 --max-threads 4 \
@@ -309,7 +309,7 @@ After model testing, it is useful to rank the model analyses:
 
 [V12] The `nn_rm_comparison_fixed_nro` tag:
 
-    python3 main_stnp.py batch_model_train \
+    python3 main_scnp.py batch_model_train \
         train_val_fixed_50nm_diff_ones_range \
         train_val_fixed_50nm_diff_ones_range \
         nn_rm_comparison_fixed_nro_ 50 --max-threads 4 \
@@ -351,7 +351,7 @@ After model testing, it is useful to rank the model analyses:
 
 [V13] The `overfit_bs1_norm_comp` tag:
 
-    python3 main_stnp.py model_train \
+    python3 main_scnp.py model_train \
         overfit_bs1_norm_comp_1 \
         train_val_fixed_50nm_diff_ones_range train_val_fixed_50nm_diff_ones_range \
         dfc2n mse adam 6e-5 50 --batch-size 1 \
@@ -374,7 +374,7 @@ After model testing, it is useful to rank the model analyses:
 
 [V14] The `nn_architecture_comp` tag:
 
-    python3 main_stnp.py batch_model_train \
+    python3 main_scnp.py batch_model_train \
         train_val_fixed_50nm_diff_ones_range train_val_fixed_50nm_diff_ones_range \
         nn_architecture_comp_ 50 --max-threads 4 \
         --networks dfcd1 dfcs1 cnn1 cnn1bn dfc2n dfc2nbn \
@@ -405,7 +405,7 @@ After model testing, it is useful to rank the model analyses:
 
 [V15] The `nn_architecture_comp_v2` tag:
 
-    python3 main_stnp.py batch_model_train \
+    python3 main_scnp.py batch_model_train \
         train_val_fixed_50nm_diff_ones_range train_val_fixed_50nm_diff_ones_range \
         nn_architecture_comp_v2_ 50 --max-threads 4 \
         --networks dfcs1 dfcs2 dfcs3 dfcs4 \
@@ -436,7 +436,7 @@ After model testing, it is useful to rank the model analyses:
 
 [V16] The `nn_architecture_comp_v3` tag:
 
-    python3 main_stnp.py batch_model_train \
+    python3 main_scnp.py batch_model_train \
         train_val_fixed_50nm_diff_ones_range train_val_fixed_50nm_diff_ones_range \
         nn_architecture_comp_v3_ 50 --max-threads 4 \
         --networks dfcs1 \
@@ -467,7 +467,7 @@ After model testing, it is useful to rank the model analyses:
 
 [V17] The `dfcs1_comp_ss` tag:
 
-    python3 main_stnp.py batch_model_train \
+    python3 main_scnp.py batch_model_train \
         train_val_fixed_50nm_diff_1nm_supersampled_ones_range \
         train_val_fixed_50nm_diff_1nm_supersampled_ones_range \
         dfcs1_comp_ss_ 50 --max-threads 4 \
@@ -499,7 +499,7 @@ After model testing, it is useful to rank the model analyses:
 
 [V18] The `cnn_comp` tag:
 
-    python3 main_stnp.py batch_model_train \
+    python3 main_scnp.py batch_model_train \
         train_fixed_50nm_ones_range val_fixed_50nm_ones_range \
         cnn_comp_ 75 --max-threads 4 \
         --networks cnn1 cnn3 cnn4 \
@@ -530,7 +530,7 @@ After model testing, it is useful to rank the model analyses:
 
 [V19] The `smaller_range_test` tag:
 
-    python3 main_stnp.py model_train \
+    python3 main_scnp.py model_train \
         smaller_range_test \
         train_val_fixed_10nm_diff_ones_range train_val_fixed_10nm_diff_ones_range \
         dfcs1 mse adam 1e-5 50 --batch-size 32 \
@@ -552,13 +552,13 @@ After model testing, it is useful to rank the model analyses:
 
 [V20] The `mae_test` tag:
 
-    python3 main_stnp.py model_train \
+    python3 main_scnp.py model_train \
         mae_test_1 \
         train_val_fixed_50nm_diff_ones_range train_val_fixed_50nm_diff_ones_range \
         dfcs1 mae adam 1e-5 100 --batch-size 32 \
         --max-threads 4 --overwrite-existing --epoch-save-steps 5
 
-    python3 main_stnp.py model_train \
+    python3 main_scnp.py model_train \
         mae_test_2 \
         train_val_fixed_50nm_diff_ones_range train_val_fixed_50nm_diff_ones_range \
         dfcs1 mae adam 1e-5 50 --batch-size 32 \
@@ -588,13 +588,13 @@ After model testing, it is useful to rank the model analyses:
 
 [V21] The `double_small` tag:
 
-    python3 main_stnp.py model_train \
+    python3 main_scnp.py model_train \
         double_small_1 \
         train_val_fixed_50nm_diff_ones_range train_val_fixed_50nm_diff_ones_range \
         dfcd2 mse adam 1e-5 50 --batch-size 32 \
         --max-threads 4 --overwrite-existing --epoch-save-steps 5
 
-    python3 main_stnp.py model_train \
+    python3 main_scnp.py model_train \
         double_small_2 \
         train_val_fixed_50nm_diff_ones_range train_val_fixed_50nm_diff_ones_range \
         dfcd2 mae adam 1e-5 50 --batch-size 32 \
@@ -624,7 +624,7 @@ After model testing, it is useful to rank the model analyses:
 
 [V22] The `dfc_comp` tag:
 
-    python3 main_stnp.py batch_model_train \
+    python3 main_scnp.py batch_model_train \
         train_fixed_50nm_ones_range val_fixed_50nm_ones_range \
         dfc_comp_ 75 --max-threads 4 \
         --networks dfcs1 dfcd2 dfcd3 \
@@ -655,7 +655,7 @@ After model testing, it is useful to rank the model analyses:
 
 [V23] The `val_against_ran10` tag:
 
-    python3 main_stnp.py batch_model_train \
+    python3 main_scnp.py batch_model_train \
         train_val_fixed_50nm_diff_ones_range random_10nm_med_processed  \
         val_against_ran10 75 --max-threads 4 \
         --networks dfcd2 \
@@ -681,7 +681,7 @@ After model testing, it is useful to rank the model analyses:
 
 [V24] The `cnn_comp_v2` tag:
 
-    python3 main_stnp.py batch_model_train \
+    python3 main_scnp.py batch_model_train \
         train_val_fixed_50nm_diff_ones_range random_10nm_med_processed \
         cnn_comp_v2_ 100 --max-threads 4 \
         --networks cnn4 cnn4bn \
@@ -712,7 +712,7 @@ After model testing, it is useful to rank the model analyses:
 
 [V25] The `multiple_terms_per_row` tag:
 
-    python3 main_stnp.py batch_model_train \
+    python3 main_scnp.py batch_model_train \
         train_fixed_2000_and_random_large val_fixed_2000_and_random_large \
         multiple_terms_per_row_ 200 --max-threads 4 \
         --networks dfcs1 cnn4 cnn4bn cnn5bn \
@@ -743,7 +743,7 @@ After model testing, it is useful to rank the model analyses:
 
 [V26] The `cnn_comp_multi` tag:
 
-    python3 main_stnp.py batch_model_train \
+    python3 main_scnp.py batch_model_train \
         train_fixed_2000_and_random_large_v2 val_fixed_2000_and_random_large_v2 \
         cnn_comp_multi_ 250 --max-threads 4 \
         --networks cnn4bn cnn6bn \
@@ -774,7 +774,7 @@ After model testing, it is useful to rank the model analyses:
 
 [V27] The `cnn_comp_multi_v2` tag:
 
-    python3 main_stnp.py batch_model_train \
+    python3 main_scnp.py batch_model_train \
         train_fixed_2000_and_random_large_v2 val_fixed_2000_and_random_large_v2 \
         cnn_comp_multi_v2_ 250 --max-threads 4 \
         --networks cnn7bn cnn8bn \
@@ -805,7 +805,7 @@ After model testing, it is useful to rank the model analyses:
 
 [V28] The `cac_v2` tag:
 
-    python3 main_stnp.py batch_model_train \
+    python3 main_scnp.py batch_model_train \
         train_fixed_2000_and_random_large_v2 val_fixed_2000_and_random_large_v2 \
         cac_v2_ 500 --max-threads 4 \
         --networks cnn_v2_1 cnn_v2_2 cnn_v2_3 cnn_v2_4 cnn_v2_5 cnn_v2_6 cnn_v2_7 \
@@ -836,7 +836,7 @@ After model testing, it is useful to rank the model analyses:
 
 [V29] The `cac_v3` tag:
 
-    python3 main_stnp.py batch_model_train \
+    python3 main_scnp.py batch_model_train \
         train_fixed_2000_and_random_large_v2 val_fixed_2000_and_random_large_v2 \
         cac_v3_ 500 --max-threads 4 \
         --networks cnn_v2_8 cnn_v2_9 cnn_v2_10 cnn_v2_11 cnn_v2_12 \
@@ -867,7 +867,7 @@ After model testing, it is useful to rank the model analyses:
 
 [V30] The `data_groups` tag:
 
-    python3 main_stnp.py batch_model_train \
+    python3 main_scnp.py batch_model_train \
         train_fixed_2000_and_random_group_ranges val_fixed_2000_and_random_group_ranges \
         data_groups_ 1000 --max-threads 4 \
         --networks cnn_v2_1 cnn_v2_5 cnn_v2_7 cnn_v2_8 cnn_v2_9 cnn_v2_10 cnn_v2_11 cnn_v2_12 \
@@ -898,7 +898,7 @@ After model testing, it is useful to rank the model analyses:
 
 [V31] The `data_groups_v2` tag:
 
-    python3 main_stnp.py batch_model_train \
+    python3 main_scnp.py batch_model_train \
         train_fixed_2000_and_random_group_ranges val_fixed_2000_and_random_group_ranges \
         data_groups_v2_ 1000 --max-threads 4 \
         --networks cnn_v2_13 cnn_v2_14 cnn_v2_15 cnn_v2_16 \
@@ -929,7 +929,7 @@ After model testing, it is useful to rank the model analyses:
 
 [V32] The `data_groups_v3` tag:
 
-    python3 main_stnp.py batch_model_train \
+    python3 main_scnp.py batch_model_train \
         train_fixed_2000_and_random_group_ranges_v2 val_fixed_2000_and_random_group_ranges_v2 \
         data_groups_v3_ 1000 --max-threads 4 \
         --networks cnn_v2_7 cnn_v2_11 cnn_v2_13 cnn_v2_16 cnn_v2_17 cnn_v2_18 cnn_v2_19 cnn_v2_20 \
@@ -960,7 +960,7 @@ After model testing, it is useful to rank the model analyses:
 
 [V33] The `data_groups_approx` tag:
 
-    python3 main_stnp.py batch_model_train \
+    python3 main_scnp.py batch_model_train \
         train_fixed_2000_and_random_group_ranges_approx val_fixed_2000_and_random_group_ranges_approx \
         data_groups_approx_ 1000 --max-threads 4 \
         --networks cnn_v2_17 cnn_v2_18 \
@@ -991,7 +991,7 @@ After model testing, it is useful to rank the model analyses:
 
 [V34] The `data_groups_approx_v2` tag:
 
-    python3 main_stnp.py batch_model_train \
+    python3 main_scnp.py batch_model_train \
         train_random_group_ranges_approx val_random_group_ranges_approx \
         data_groups_approx_v2_ 1000 --max-threads 4 \
         --networks cnn_v2_17 cnn_v2_18 \

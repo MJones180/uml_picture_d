@@ -4,9 +4,9 @@ are similar. Uses `np.isclose` for similarity checks, it defines tolerance as:
     absolute(a - b) <= (atol + rtol * absolute(b))
 
 Commands to run this script:
-    python3 main_stnp.py check_for_similar_rows \
+    python3 main_scnp.py check_for_similar_rows \
         rows_with_gaussian_pert 1e-5 1e-4 80 --save-similar-plots
-    python3 main_stnp.py check_for_similar_rows \
+    python3 main_scnp.py check_for_similar_rows \
         random_10nm_large 1e-5 1e-4 80 \
         --save-similar-plots --max-row-compare 2000
 """

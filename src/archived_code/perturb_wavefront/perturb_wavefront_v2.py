@@ -5,7 +5,7 @@ and the propagated perturbed wavefronts. Additionally, representative wavefronts
 from each bin of the histogram will be plotted out.
 
 Commands to run this script:
-    python3 main_stnp.py perturb_wavefront_v2 \
+    python3 main_scnp.py perturb_wavefront_v2 \
         no_aberrations all_10nm 1e-9 100 --save-plots --cores 4
 """
 

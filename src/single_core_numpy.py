@@ -1,5 +1,5 @@
 """
-Flags to make NumPy run on a single thread.
+Flags to make NumPy and its associated libraries run on a single core.
 """
 
 from os import environ

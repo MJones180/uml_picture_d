@@ -34,7 +34,7 @@ When this happens, uninstall `pyFFTW` from Conda and install with pip:
         conda uninstall pyfftw
         pip install pyfftw
 
-- [Bug] The error below may arise when calling scripts that use the `pathos` library (such as `sim_data`) and can be fixed by running `export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES` or by using `main_stnp.py` instead of `main.py`.
+- [Bug] The error below may arise when calling scripts that use the `pathos` library (such as `sim_data`) and can be fixed by running `export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES` or by using `main_scnp.py` instead of `main.py`.
 
         objc[...]: +[__NSCFConstantString initialize] may have been in progress in another thread when fork() was called.
         objc[...]: +[__NSCFConstantString initialize] may have been in progress in another thread when fork() was called. We cannot safely call it or ignore it in the fork() child process. Crashing instead. Set a breakpoint on objc_initializeAfterForkError to debug.
@@ -64,8 +64,8 @@ This will result in `packages/proper/` containing the necessary Python files.
 ## Calling Scripts
 
 Navigate to the `src` folder and call the `main.py` file, all scripts are available as sub-commands.
-In the event that one of the scripts requires single-threaded NumPy, then call `main_stnp.py` instead.
-For example, due to Pathos multiprocessing, the `sim_data` script should be called via `main_stnp.py`.
+In the event that one of the scripts requires single-threaded NumPy, then call `main_scnp.py` instead.
+For example, due to Pathos multiprocessing, the `sim_data` script should be called via `main_scnp.py`.
 
 Alternatively, if a script should only be run using `n` cores, then the `taskset` command can be used in Linux.
 As an example, to use only three cores:
