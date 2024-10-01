@@ -64,7 +64,7 @@ This will result in `packages/proper/` containing the necessary Python files.
 ## Calling Scripts
 
 Navigate to the `src` folder and call the `main.py` file, all scripts are available as sub-commands.
-In the event that one of the scripts requires single-threaded NumPy, then call `main_scnp.py` instead.
+In the event that one of the scripts requires NumPy on a single core, then call `main_scnp.py` instead.
 For example, due to Pathos multiprocessing, the `sim_data` script should be called via `main_scnp.py`.
 
 Alternatively, if a script should only be run using `n` cores, then the `taskset` command can be used in Linux.
@@ -113,7 +113,10 @@ To easily lookup a model by its tag, there exists a JSON file at `output/tag_loo
 
 All networks (the structure of a given model) must be stored in the `src/networks` folder.
 Each network must have the class name of `Network`.
-Additionally, each class must have a static function named `example_input` which returns an example array which could be fed in to the network.
+Additionally, each class must have a static function named `example_input` which returns an example array which can be fed in to the network.
+
+Old networks that are not being used anymore are placed in an archive folder located at `src/networks/archived`.
+To use these networks, they must first be moved back to the root of the `src/networks` folder.
 
 ## Optical Trains
 
@@ -176,6 +179,18 @@ The coefficient for each Zernike term represents the RMS wavefront error associa
 ## Docstrings
 
 Docstrings throughout the code are mostly formatted using `numpydoc` (https://numpydoc.readthedocs.io/en/latest/format.html).
+
+## Notes
+
+- When this repo started, the camera being used was a CCD.
+  Therefore, all of the variables originally referred to the output camera as being a CCD.
+  In order to be more general, all references to CCD were renamed to `camera`.
+  However, to maintain backwards compatability, some constants still have a value that contains `ccd` instead of `camera`.
+- The `src/single_core_numpy.py` code (imported by `main_scnp.py`) sets the max number of threads.
+  However, this is really setting the max number of cores.
+  On a linux system, if `lscpu` is typed, then the total number of CPUs is given by `cores per socket * threads per core`.
+  If the flags in `src/single_core_numpy.py` are not defined, then they each default to the total number of CPUs.
+  For a CPU with 16 cores and 2 threads per core, this would mean the flags are each set to 32 by default.
 
 ## Future Updates
 
