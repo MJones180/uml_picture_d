@@ -75,6 +75,7 @@ def network_info(cli_args):
         iterations = cli_args['benchmark']
         # Redefining the instance because the previous one has an added hook
         model = network().to(device)
+        print(f'Using a {device} device')
         step_ri(f'Running benchmark ({iterations} iterations)')
         start_time = time.time()
         for i in range(iterations):
