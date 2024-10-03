@@ -1,11 +1,20 @@
 """
 This script will convert a PyTorch model to a TorchScript model.
 TorchScript allows for the model to be run in C++ instead of Python.
+
+In addition to the model, the norm and base field data are also saved.
+The following assumptions are made: the model is trained on the difference (so
+a base field does exist), there is only one norm value used for all the inputs,
+and each output has its own norm value.
 """
 
+import numpy as np
 import torch
-from utils.constants import TRAINED_MODELS_P
+from utils.constants import (BASE_INT_FIELD, INPUT_MAX_MIN_DIFF, INPUT_MIN_X,
+                             OUTPUT_MAX_MIN_DIFF, OUTPUT_MIN_X,
+                             TRAINED_MODELS_P)
 from utils.model import Model
+from utils.path import make_dir
 from utils.printing_and_logging import step_ri, title
 from utils.shared_argparser_args import shared_argparser_args
 from utils.torch_hdf_ds_loader import DSLoaderHDF
@@ -57,6 +66,43 @@ def create_torchscript_model(cli_args):
     print(f'Average difference of {avg_diff} over {comp_rows} rows')
 
     step_ri('Saving traced model')
-    traced_model_path = f'{TRAINED_MODELS_P}/{tag}_epoch{epoch}.pt'
+    output_dir = f'{TRAINED_MODELS_P}/ts_{tag}'
+    make_dir(output_dir)
+    traced_model_path = f'{output_dir}/{tag}_epoch{epoch}.pt'
     print(f'Location: {traced_model_path}')
     traced_model.save(traced_model_path)
+
+    model_vars = model_obj.extra_vars
+
+    step_ri('Saving normalization data')
+    norm_data_path = f'{output_dir}/norm_data.txt'
+    print(f'Location: {norm_data_path}')
+    with open(norm_data_path, 'w') as out_file:
+
+        def _write_data(data):
+            np.savetxt(out_file, [data], fmt='%.8f')
+
+        for key in (INPUT_MAX_MIN_DIFF, INPUT_MIN_X):
+            _write_data(model_vars[key][()])
+        for key in (OUTPUT_MAX_MIN_DIFF, OUTPUT_MIN_X):
+            _write_data(model_vars[key][:])
+
+    step_ri('Saving base intensity field data')
+    base_field_path = f'{output_dir}/base_field.txt'
+    print(f'Location: {base_field_path}')
+    np.savetxt(base_field_path, model_vars[BASE_INT_FIELD][0], fmt='%.8f')
+
+    step_ri('Saving the info file')
+    readme_path = f'{output_dir}/README.txt'
+    print(f'Location: {readme_path}')
+    with open(readme_path, 'w') as out_file:
+        out_file.write(
+            f'{traced_model_path}:\n\tThe traced TorchScript model.\n'
+            f'{norm_data_path}:\n\tContains the normalization info for the '
+            'model. The lines in order are:\n'
+            '\t\tinput max min diff\n\t\tinput min x\n'
+            '\t\toutput max min diff\n\t\toutput min x\n'
+            '\tThere is one norm value for all the inputs and a norm value '
+            'for each of the output values.\n'
+            f'{base_field_path}:\n\tContains the base field that should be '
+            'subtracted off. This field of course has only one channel.')
