@@ -66,9 +66,9 @@ def create_torchscript_model(cli_args):
     print(f'Average difference of {avg_diff} over {comp_rows} rows')
 
     step_ri('Saving traced model')
-    output_dir = f'{TRAINED_MODELS_P}/ts_{tag}'
+    output_dir = f'{TRAINED_MODELS_P}/ts_{tag}_epoch{epoch}'
     make_dir(output_dir)
-    traced_model_path = f'{output_dir}/{tag}_epoch{epoch}.pt'
+    traced_model_path = f'{output_dir}/model.pt'
     print(f'Location: {traced_model_path}')
     traced_model.save(traced_model_path)
 
