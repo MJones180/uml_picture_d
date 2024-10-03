@@ -5,7 +5,8 @@ TorchScript allows for the model to be run in C++ instead of Python.
 In addition to the model, the norm and base field data are also saved.
 The following assumptions are made: the model is trained on the difference (so
 a base field does exist), there is only one norm value used for all the inputs,
-and each output has its own norm value.
+each output has its own norm value, and the data used for training was
+normalized between -1 and 1.
 """
 
 import numpy as np
