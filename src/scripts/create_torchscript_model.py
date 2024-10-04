@@ -80,7 +80,7 @@ def create_torchscript_model(cli_args):
     with open(norm_data_path, 'w') as out_file:
 
         def _write_data(data):
-            np.savetxt(out_file, [data], fmt='%.8f')
+            np.savetxt(out_file, [data], fmt='%.16f')
 
         for key in (INPUT_MAX_MIN_DIFF, INPUT_MIN_X):
             _write_data(model_vars[key][()])
@@ -90,7 +90,7 @@ def create_torchscript_model(cli_args):
     step_ri('Saving base intensity field data')
     base_field_path = f'{output_dir}/base_field.txt'
     print(f'Location: {base_field_path}')
-    np.savetxt(base_field_path, model_vars[BASE_INT_FIELD][0], fmt='%.8f')
+    np.savetxt(base_field_path, model_vars[BASE_INT_FIELD][0], fmt='%.16f')
 
     step_ri('Saving the info file')
     readme_path = f'{output_dir}/README.txt'
