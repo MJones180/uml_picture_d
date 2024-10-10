@@ -2,6 +2,10 @@ from pathlib import Path
 import shutil
 
 
+def copy_dir(from_path, to_path, overwrite=False):
+    shutil.copytree(from_path, to_path, dirs_exist_ok=overwrite)
+
+
 def copy_files(from_path, to_path):
     shutil.copy(from_path, to_path)
 

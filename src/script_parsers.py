@@ -12,6 +12,7 @@ from scripts.plot_model_loss import plot_model_loss_parser
 from scripts.preprocess_data_bare import preprocess_data_bare_parser
 from scripts.preprocess_data_complete import preprocess_data_complete_parser
 from scripts.prune_tag_lookup import prune_tag_lookup_parser
+from scripts.prune_trained_model import prune_trained_model_parser
 from scripts.rank_analysis_dir import rank_analysis_dir_parser
 from scripts.run_response_matrix import run_response_matrix_parser
 from scripts.sim_data import sim_data_parser
@@ -31,6 +32,7 @@ script_parsers = [
     preprocess_data_bare_parser,
     preprocess_data_complete_parser,
     prune_tag_lookup_parser,
+    prune_trained_model_parser,
     rank_analysis_dir_parser,
     run_response_matrix_parser,
     sim_data_parser,
