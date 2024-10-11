@@ -2,11 +2,11 @@
 This script outputs information on a given network (untrained model structure).
 """
 
-import time
 import torch
+from utils.benchmark_nn import benchmark_nn
 from utils.load_network import load_network
 from utils.printing_and_logging import (dec_print_indent, inc_print_indent,
-                                        step, step_ri, title)
+                                        step_ri, title)
 from utils.shared_argparser_args import shared_argparser_args
 from utils.torch_grab_device import torch_grab_device
 
@@ -72,16 +72,11 @@ def network_info(cli_args):
     network_inst(input_data_dev)
 
     if cli_args['benchmark'] is not None:
-        iterations = cli_args['benchmark']
         # Redefining the instance because the previous one has an added hook
         model = network().to(device)
-        step_ri(f'Running benchmark ({iterations} iterations)')
-        print(f'Using a {device} device')
-        start_time = time.time()
-        for i in range(iterations):
+
+        def call_wrapper():
             with torch.no_grad():
                 model(input_data_dev).cpu().numpy()
-        avg_time = (time.time() - start_time) / iterations
-        step('Average time for the nn to run one row')
-        print(f'Seconds (s): {avg_time:0.6f}')
-        print(f'Milliseconds (ms): {(avg_time * 1e3):0.3f}')
+
+        benchmark_nn(cli_args['benchmark'], call_wrapper)
