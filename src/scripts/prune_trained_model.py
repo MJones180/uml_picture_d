@@ -1,6 +1,8 @@
 """
-This script will prune a trained model to improve inference speeds.
+This script will prune a trained model.
 https://pytorch.org/tutorials/intermediate/pruning_tutorial.html
+
+Only weights from convolutional and linear layers are supported in this script.
 
 The pruned models that are saved will not be added to the `tag_lookup.json`.
 """
@@ -33,7 +35,16 @@ def prune_trained_model_parser(subparsers):
         nargs=2,
         metavar=('[convolutional percentage]', '[dense percentage]'),
         help=('percentage of weights to zero out for each convolutional and '
-              'dense layer'),
+              'dense layer - this is performed locally; 0 means no pruning '
+              'and 100 means all weights set to zero'),
+    )
+    prune_group.add_argument(
+        '--global-prune-weights',
+        nargs=2,
+        metavar=('[convolutional percentage]', '[dense percentage]'),
+        help=('percentage of weights to remove across all convolutional and '
+              'dense layers - this is performed globally; 0 means no pruning '
+              'and 100 means all weights set to zero'),
     )
 
 
@@ -59,31 +70,64 @@ def prune_trained_model(cli_args):
     step_ri('Saving all CLI args')
     json_write(f'{pruned_model_dir}/prune_{ARGS_F}', cli_args)
 
-    local_prune_weights = cli_args.get('local_prune_weights')
+    # This is done as a function since sometimes an existing reference to a
+    # layer after it has been changed is weird
+    def _obtain_layers(linear=False):
+        # Can only be linear or convolutional
+        layer_type = torch.nn.Linear if linear else torch.nn.Conv2d
+        return [
+            module for name, module in model.named_modules()
+            if isinstance(module, layer_type)
+        ]
+
+    def _parser_weight_amounts(arg):
+        arg_weights = cli_args.get(arg)
+        if arg_weights is not None:
+            return [int(x) / 100 for x in arg_weights]
+
+    local_prune_weights = _parser_weight_amounts('local_prune_weights')
     if local_prune_weights is not None:
         step_ri('Using local pruning of the weights')
         # Convert the weights to float ratios
-        convolution_amount, linear_amount = [
-            int(x) / 100 for x in local_prune_weights
-        ]
+        convolution_amount, linear_amount = local_prune_weights
         print(f'Convolutional amount: {convolution_amount}')
         print(f'Linear amount: {linear_amount}')
 
-        for name, module in model.named_modules():
-            if isinstance(module, torch.nn.Conv2d):
-                prune.l1_unstructured(
-                    module,
-                    name='weight',
-                    amount=convolution_amount,
-                )
+        def _prune_each_layer(linear=False):
+            amount = linear_amount if linear else convolution_amount
+            for module in _obtain_layers(linear):
+                prune.l1_unstructured(module, name='weight', amount=amount)
                 prune.remove(module, 'weight')
-            elif isinstance(module, torch.nn.Linear):
-                prune.l1_unstructured(
-                    module,
-                    name='weight',
-                    amount=linear_amount,
-                )
+
+        # Prune the convolutional layers
+        _prune_each_layer()
+        # Prune the linear layers
+        _prune_each_layer(True)
+
+    global_prune_weights = _parser_weight_amounts('global_prune_weights')
+    if global_prune_weights is not None:
+        step_ri('Using global pruning of the weights')
+        # Convert the weights to float ratios
+        convolution_amount, linear_amount = global_prune_weights
+        print(f'Convolutional amount: {convolution_amount}')
+        print(f'Linear amount: {linear_amount}')
+
+        def _prune_each_layer(linear=False):
+            amount = linear_amount if linear else convolution_amount
+            layers = [(layer, 'weight') for layer in _obtain_layers(linear)]
+            prune.global_unstructured(
+                layers,
+                pruning_method=prune.L1Unstructured,
+                amount=amount,
+            )
+            # Need to save the changes
+            for module in _obtain_layers(linear):
                 prune.remove(module, 'weight')
+
+        # Prune the convolutional layers
+        _prune_each_layer()
+        # Prune the linear layers
+        _prune_each_layer(True)
 
     step_ri('Saving the pruned model')
     torch.save(model.state_dict(), f'{pruned_model_dir}/epoch_{epoch}')
