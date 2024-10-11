@@ -74,6 +74,8 @@ def network_info(cli_args):
     if cli_args['benchmark'] is not None:
         # Redefining the instance because the previous one has an added hook
         model = network().to(device)
+        # Set to eval mode
+        model.eval()
 
         def call_wrapper():
             with torch.no_grad():
