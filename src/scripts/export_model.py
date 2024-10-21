@@ -1,0 +1,193 @@
+"""
+This script will export a PyTorch model to both a TorchScript model and an
+ONNX model. TorchScript allows for the model to be run in C++ instead of Python.
+ONNX allows for the model to be run in many different runtimes but with a boost
+to the inference speed.
+
+In addition to the model, the norm and base field data are also saved.
+The following assumptions are made:
+    - The model is trained on the difference (so a base field does exist)
+    - There is only one norm value used for all the inputs
+    - Each output has its own norm value
+    - The model expects one input array and outputs a single array
+
+Code for converting to ONNX and using ONNX Runtime taken from:
+    https://pytorch.org/tutorials/advanced/super_resolution_with_onnxruntime.html
+"""
+
+import numpy as np
+import onnxruntime
+import torch
+from utils.benchmark_nn import benchmark_nn
+from utils.constants import (BASE_INT_FIELD, INPUT_MAX_MIN_DIFF, INPUT_MIN_X,
+                             OUTPUT_MAX_MIN_DIFF, OUTPUT_MIN_X,
+                             TRAINED_MODELS_P)
+from utils.model import Model
+from utils.path import make_dir
+from utils.printing_and_logging import dec_print_indent, step, step_ri, title
+from utils.shared_argparser_args import shared_argparser_args
+from utils.torch_hdf_ds_loader import DSLoaderHDF
+
+
+def export_model_parser(subparsers):
+    subparser = subparsers.add_parser(
+        'export_model',
+        help='export a PyTorch model',
+    )
+    subparser.set_defaults(main=export_model)
+    shared_argparser_args(subparser, ['tag', 'epoch'])
+    subparser.add_argument(
+        'validation_ds',
+        help='name of the validation dataset, data should already be norm',
+    )
+    subparser.add_argument(
+        '--benchmark',
+        type=int,
+        help='benchmark exported models by running n rows (will use CPU only)',
+    )
+
+
+def export_model(cli_args):
+    title('Export model script')
+
+    tag = cli_args['tag']
+    epoch = cli_args['epoch']
+    # Ensure everything is loaded in on the CPU, things get funky otherwise
+    model_obj = Model(tag, epoch, force_cpu=True)
+    # Grab the epoch number so that the output directory has what epoch it is
+    epoch = model_obj.epoch
+    pytorch_model = model_obj.model
+    model_vars = model_obj.extra_vars
+
+    step_ri('Loading in the inputs from the validation dataset')
+    inputs = DSLoaderHDF(cli_args['validation_ds']).get_inputs_torch()
+    first_input_row = inputs[1][None, :, :, :]
+    # Just use the first 1k rows
+    inputs = inputs[:1000]
+
+    step_ri('Creating output directory')
+    output_dir = f'{TRAINED_MODELS_P}/exported_{tag}_epoch{epoch}'
+    make_dir(output_dir)
+
+    # =================
+    # TorchScript model
+    # =================
+
+    step_ri('Exporing TorchScript model')
+
+    step('Tracing model')
+    traced_model = torch.jit.trace(
+        pytorch_model,
+        # We can pass through many example inputs, but the model seems to do
+        # fine when only one sample is passed through.
+        example_inputs=first_input_row,
+    )
+    dec_print_indent()
+
+    step('Saving model')
+    ts_traced_model_path = f'{output_dir}/model.pt'
+    print(f'Location: {ts_traced_model_path}')
+    traced_model.save(ts_traced_model_path)
+    dec_print_indent()
+
+    step('Comparing to native PyTorch model')
+    # Run a comparison to see how the native PyTorch version compares to the
+    # traced TorchScript version.
+    row_count = inputs.shape[0]
+    pytorch_out = model_obj(inputs)
+    traced_out = traced_model(inputs).detach().numpy()
+    avg_diff = np.sum(np.abs(pytorch_out - traced_out)) / row_count
+    print(f'Average difference of {avg_diff:0.8f} per row')
+
+    # ==========
+    # ONNX model
+    # ==========
+
+    step_ri('Exporting ONNX model')
+
+    step('Saving model')
+    onnx_traced_model_path = f'{output_dir}/model.onnx'
+    print(f'Location: {onnx_traced_model_path}')
+    torch.onnx.export(
+        pytorch_model,
+        first_input_row,
+        onnx_traced_model_path,
+        # Name of the input array
+        input_names=['input'],
+    )
+    dec_print_indent()
+
+    step('Comparing to native PyTorch model')
+    # Load in the ONNX model and use only the CPU
+    onnx_model = onnxruntime.InferenceSession(
+        onnx_traced_model_path,
+        providers=['CPUExecutionProvider'],
+    )
+
+    def _run_onnx(row):
+        # To run the ONNX model, a dictionary of the inputs must be passed in.
+        # Additionally, it seems that only batch sizes of one are allowed.
+        return onnx_model.run(None, {'input': row.cpu().numpy()})
+
+    # Run the ONNX model on the comparison rows
+    onnx_out = np.array([_run_onnx(row[None, :, :, :]) for row in inputs])
+    # Remove the dimensions of size 1
+    onnx_out = np.squeeze(onnx_out)
+    avg_diff = np.sum(np.abs(pytorch_out - onnx_out)) / row_count
+    print(f'Average difference of {avg_diff:0.8f} per row')
+
+    # ====================
+    # Save auxiliary files
+    # ====================
+
+    step_ri('Saving auxiliary data')
+
+    step('Saving normalization data')
+    norm_data_path = f'{output_dir}/norm_data.txt'
+    print(f'Location: {norm_data_path}')
+    with open(norm_data_path, 'w') as out_file:
+
+        def _write_data(data):
+            np.savetxt(out_file, [data], fmt='%.16f')
+
+        for key in (INPUT_MAX_MIN_DIFF, INPUT_MIN_X):
+            _write_data(model_vars[key][()])
+        for key in (OUTPUT_MAX_MIN_DIFF, OUTPUT_MIN_X):
+            _write_data(model_vars[key][:])
+    dec_print_indent()
+
+    step('Saving base intensity field data')
+    base_field_path = f'{output_dir}/base_field.txt'
+    print(f'Location: {base_field_path}')
+    np.savetxt(base_field_path, model_vars[BASE_INT_FIELD][0], fmt='%.16f')
+    dec_print_indent()
+
+    step('Saving the info file')
+    readme_path = f'{output_dir}/README.txt'
+    print(f'Location: {readme_path}')
+    with open(readme_path, 'w') as out_file:
+        out_file.write(
+            f'{ts_traced_model_path}:\n\tThe traced TorchScript model.\n'
+            f'{onnx_traced_model_path}:\n\tThe ONNX model.\n'
+            f'{norm_data_path}:\n\tContains the normalization info for the '
+            'model. The lines in order are:\n'
+            '\t\tinput max min diff\n\t\tinput min x\n'
+            '\t\toutput max min diff\n\t\toutput min x\n'
+            '\tThere is one norm value for all the inputs and a norm value '
+            'for each of the output values.\n'
+            f'{base_field_path}:\n\tContains the base field that should be '
+            'subtracted off. This field of course has only one channel.')
+    dec_print_indent()
+
+    # =========
+    # Benchmark
+    # =========
+
+    step_ri('Benchmarking models')
+    input_data = model_obj.network.example_input()
+    iterations = cli_args['benchmark']
+    if iterations is not None:
+        benchmark_nn(iterations, lambda: model_obj(input_data), 'PyTorch')
+        benchmark_nn(iterations, lambda: traced_model(input_data),
+                     'TorchScript')
+        benchmark_nn(iterations, lambda: _run_onnx(first_input_row), 'ONNX')

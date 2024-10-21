@@ -2,8 +2,10 @@ import time
 from utils.printing_and_logging import step, step_ri
 
 
-def benchmark_nn(iterations, nn_call_wrapper):
-    step_ri(f'Running benchmark ({iterations} iterations)')
+def benchmark_nn(iterations, nn_call_wrapper, model=None):
+    title_str = f'[{model}] ' if model is not None else ''
+    title_str += f'Running benchmark ({iterations} iterations)'
+    step_ri(title_str)
     start_time = time.time()
     for i in range(iterations):
         nn_call_wrapper()

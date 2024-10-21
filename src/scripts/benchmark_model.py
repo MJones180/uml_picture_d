@@ -1,6 +1,7 @@
 """
 This script times how long it takes to run a trained model. The `network_info`
 script has the same functionality for an untrained model (just a network).
+The trained model must be a python PyTorch model.
 """
 
 from utils.benchmark_nn import benchmark_nn
@@ -34,7 +35,4 @@ def benchmark_model(cli_args):
 
     iterations = cli_args['benchmark']
 
-    def call_wrapper():
-        model(input_data)
-
-    benchmark_nn(iterations, call_wrapper)
+    benchmark_nn(iterations, lambda: model(input_data))
