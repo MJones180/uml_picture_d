@@ -52,7 +52,7 @@ When this happens, uninstall `pyFFTW` from Conda and install with pip:
         conda activate picture_d
         # Install the dependencies
         conda install astropy h5py hdf5 matplotlib numpy pathos pillow prettytable pyfftw scipy
-        pip install mpl-scatter-density
+        pip install mpl-scatter-density onnx onnxscript onnxruntime
         # Grab command to install PyTorch dependencies from pytorch.org/get-started/locally/
 
 ### PROPER
