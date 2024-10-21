@@ -76,7 +76,7 @@ def export_model(cli_args):
     step_ri('Exporing TorchScript model')
 
     step('Tracing model')
-    traced_model = torch.jit.trace(
+    ts_model = torch.jit.trace(
         pytorch_model,
         # We can pass through many example inputs, but the model seems to do
         # fine when only one sample is passed through.
@@ -85,18 +85,18 @@ def export_model(cli_args):
     dec_print_indent()
 
     step('Saving model')
-    ts_traced_model_path = f'{output_dir}/model.pt'
-    print(f'Location: {ts_traced_model_path}')
-    traced_model.save(ts_traced_model_path)
+    ts_model_path = f'{output_dir}/model.pt'
+    print(f'Location: {ts_model_path}')
+    ts_model.save(ts_model_path)
     dec_print_indent()
 
     step('Comparing to native PyTorch model')
     # Run a comparison to see how the native PyTorch version compares to the
     # traced TorchScript version.
     row_count = inputs.shape[0]
-    pytorch_out = model_obj(inputs)
-    traced_out = traced_model(inputs).detach().numpy()
-    avg_diff = np.sum(np.abs(pytorch_out - traced_out)) / row_count
+    pytorch_model_out = model_obj(inputs)
+    ts_model_out = ts_model(inputs).detach().numpy()
+    avg_diff = np.sum(np.abs(pytorch_model_out - ts_model_out)) / row_count
     print(f'Average difference of {avg_diff:0.8f} per row')
 
     # ==========
@@ -106,12 +106,12 @@ def export_model(cli_args):
     step_ri('Exporting ONNX model')
 
     step('Saving model')
-    onnx_traced_model_path = f'{output_dir}/model.onnx'
-    print(f'Location: {onnx_traced_model_path}')
+    onnx_model_path = f'{output_dir}/model.onnx'
+    print(f'Location: {onnx_model_path}')
     torch.onnx.export(
         pytorch_model,
         first_input_row,
-        onnx_traced_model_path,
+        onnx_model_path,
         # Name of the input array
         input_names=['input'],
     )
@@ -120,7 +120,7 @@ def export_model(cli_args):
     step('Comparing to native PyTorch model')
     # Load in the ONNX model and use only the CPU
     onnx_model = onnxruntime.InferenceSession(
-        onnx_traced_model_path,
+        onnx_model_path,
         providers=['CPUExecutionProvider'],
     )
 
@@ -130,10 +130,11 @@ def export_model(cli_args):
         return onnx_model.run(None, {'input': row.cpu().numpy()})
 
     # Run the ONNX model on the comparison rows
-    onnx_out = np.array([_run_onnx(row[None, :, :, :]) for row in inputs])
+    onnx_model_out = np.array(
+        [_run_onnx(row[None, :, :, :]) for row in inputs])
     # Remove the dimensions of size 1
-    onnx_out = np.squeeze(onnx_out)
-    avg_diff = np.sum(np.abs(pytorch_out - onnx_out)) / row_count
+    onnx_model_out = np.squeeze(onnx_model_out)
+    avg_diff = np.sum(np.abs(pytorch_model_out - onnx_model_out)) / row_count
     print(f'Average difference of {avg_diff:0.8f} per row')
 
     # ====================
@@ -167,8 +168,8 @@ def export_model(cli_args):
     print(f'Location: {readme_path}')
     with open(readme_path, 'w') as out_file:
         out_file.write(
-            f'{ts_traced_model_path}:\n\tThe traced TorchScript model.\n'
-            f'{onnx_traced_model_path}:\n\tThe ONNX model.\n'
+            f'{ts_model_path}:\n\tThe TorchScript model.\n'
+            f'{onnx_model_path}:\n\tThe ONNX model.\n'
             f'{norm_data_path}:\n\tContains the normalization info for the '
             'model. The lines in order are:\n'
             '\t\tinput max min diff\n\t\tinput min x\n'
@@ -188,6 +189,5 @@ def export_model(cli_args):
     iterations = cli_args['benchmark']
     if iterations is not None:
         benchmark_nn(iterations, lambda: model_obj(input_data), 'PyTorch')
-        benchmark_nn(iterations, lambda: traced_model(input_data),
-                     'TorchScript')
+        benchmark_nn(iterations, lambda: ts_model(input_data), 'TorchScript')
         benchmark_nn(iterations, lambda: _run_onnx(first_input_row), 'ONNX')
