@@ -29,9 +29,9 @@ Interactively view plots after `model_test` has been run:
     # Example on ran50nm_single_diff_v2_3 model, epoch 31 
     python3 main.py interactive_model_test_plots ran50nm_single_diff_v2_3 31 fixed_50nm_range_processed --scatter-plot 5 5 --zernike-plots 2 24
 
-A native PyTorch model can be converted to TorchScript by doing the following command (necessary for running code in C++):
+A native PyTorch model can be exported to TorchScript and ONNX by doing the following command:
 
-    python3 main.py create_torchscript_model data_groups_approx_v2_2 238 val_fixed_2000_and_random_group_ranges_approx
+    python3 main.py export_model data_groups_approx_2 last val_fixed_2000_and_random_group_ranges_approx --benchmark 5000
 
 ## Data Simulation
 
