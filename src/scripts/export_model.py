@@ -1,8 +1,8 @@
 """
 This script will export a PyTorch model to both a TorchScript model and an
 ONNX model. TorchScript allows for the model to be run in C++ instead of Python.
-ONNX allows for the model to be run in many different runtimes but with a boost
-to the inference speed.
+ONNX allows for the model to be run in many different runtimes (including C/C++)
+but with a boost to the inference speed.
 
 In addition to the model, the norm and base field data are also saved.
 The following assumptions are made:
