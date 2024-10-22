@@ -112,8 +112,9 @@ def export_model(cli_args):
         pytorch_model,
         first_input_row,
         onnx_model_path,
-        # Name of the input array
+        # Name of the input and output array
         input_names=['input'],
+        output_names=['output'],
     )
     dec_print_indent()
 
