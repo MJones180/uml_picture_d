@@ -130,7 +130,8 @@ Each optical train must have the following variables:
 
 ## Optical Setup
 
-The `diagram_reference` directory contains diagrams that can be referenced about the optical setup.
+The `diagrams` directory contains diagrams that can be referenced about the optical setup.
+For example, `diagrams/optical_design_v84.png` contains the optical setup for V84.
 
 The following terminology is used:
 - OAP: Off-axis parabola
