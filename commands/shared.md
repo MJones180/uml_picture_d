@@ -30,3 +30,9 @@ Interactively view plots after `model_test` has been run:
 A native PyTorch model can be exported to TorchScript and ONNX by doing the following command:
 
     python3 main.py export_model data_groups_approx_2 last val_fixed_2000_and_random_group_ranges_approx --benchmark 5000
+
+Generate a CSV with timesteps and Zernike coefficients to run a control loop on:
+
+    # 1 ms steps for a total of 2 seconds, terms 2 through 24, constant amplitude on term 3
+    python3 main.py gen_zernike_time_steps \
+        single_term_3_10 0.001 2000 2 24 --single-zernike-constant-value 3 1e-9
