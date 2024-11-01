@@ -11,14 +11,10 @@ the `testing_ds` was simulated with the `sim_data` script using the
 
 import numpy as np
 import torch
-from utils.constants import (ANALYSIS_P, BASE_INT_FIELD, EXTRA_VARS_F,
-                             INPUT_MAX_MIN_DIFF, INPUT_MIN_X, MAE, MSE,
-                             NORM_RANGE_ONES, OUTPUT_MAX_MIN_DIFF,
-                             OUTPUT_MIN_X, PROC_DATA_P, RESULTS_F,
-                             ZERNIKE_TERMS)
+from utils.constants import (ANALYSIS_P, EXTRA_VARS_F, MAE, MSE, PROC_DATA_P,
+                             RESULTS_F, ZERNIKE_TERMS)
 from utils.hdf_read_and_write import HDFWriteModule, read_hdf
 from utils.model import Model
-from utils.norm import min_max_denorm, min_max_norm
 from utils.path import delete_dir, get_abs_path, make_dir
 from utils.plots.plot_comparison_scatter_grid import plot_comparison_scatter_grid  # noqa
 from utils.plots.plot_zernike_cross_coupling_animation import plot_zernike_cross_coupling_animation  # noqa
@@ -86,7 +82,6 @@ def model_test(cli_args):
     epoch = cli_args['epoch']
 
     model = Model(tag, epoch, force_cpu=cli_args.get('force_cpu'))
-    model_vars = model.extra_vars
     # Grab the epoch number so that the output directory has what epoch it is
     epoch = model.epoch
 
@@ -110,34 +105,20 @@ def model_test(cli_args):
     # off before normalization occurs.
     if cli_args.get('inputs_need_diff'):
         step_ri('Taking the diff of the inputs')
-        if BASE_INT_FIELD not in list(model_vars):
+        if model.base_field is None:
             terminate_with_message('Base field not present in extra variables')
-        inputs = inputs - model_vars[BASE_INT_FIELD]
-
-    # Check if the data was normalized between -1 and 1
-    norm_range_ones = (model_vars[NORM_RANGE_ONES][()]
-                       if NORM_RANGE_ONES in model_vars else False)
+        inputs = inputs - model.base_field
 
     if cli_args.get('inputs_need_norm'):
         step_ri('Normalizing the inputs')
-        inputs = min_max_norm(
-            inputs,
-            model_vars[INPUT_MAX_MIN_DIFF],
-            model_vars[INPUT_MIN_X],
-            norm_range_ones,
-        )
+        inputs = model.norm_data(inputs)
 
     step_ri('Calling the model and obtaining its outputs')
     outputs_model = model(torch.from_numpy(inputs))
 
     step_ri('Denormalizing the outputs')
     # Denormalize the outputs
-    outputs_model = min_max_denorm(
-        outputs_model,
-        model_vars[OUTPUT_MAX_MIN_DIFF],
-        model_vars[OUTPUT_MIN_X],
-        norm_range_ones,
-    )
+    outputs_model = model.denorm_data(outputs_model)
     # Testing output data should already be denormalized
     outputs_truth = testing_dataset.get_outputs()
 

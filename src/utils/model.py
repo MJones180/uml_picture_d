@@ -1,9 +1,13 @@
 from glob import glob
 import torch
-from utils.constants import ARGS_F, EXTRA_VARS_F, TRAINED_MODELS_P
+from utils.constants import (ARGS_F, BASE_INT_FIELD, EXTRA_VARS_F,
+                             INPUT_MAX_MIN_DIFF, INPUT_MIN_X, NORM_RANGE_ONES,
+                             OUTPUT_MAX_MIN_DIFF, OUTPUT_MIN_X,
+                             TRAINED_MODELS_P)
 from utils.hdf_read_and_write import read_hdf
 from utils.json import json_load
 from utils.load_network import load_network
+from utils.norm import min_max_denorm, min_max_norm
 from utils.path import path_exists
 from utils.printing_and_logging import dec_print_indent, step
 from utils.terminate_with_message import terminate_with_message
@@ -61,6 +65,12 @@ class Model():
 
         _print('Loading in the extra variables')
         self.extra_vars = read_hdf(f'{dir_path}/{EXTRA_VARS_F}')
+        # True if the data was normalized between [-1, 1] instead of [0, 1].
+        self.norm_range_ones = (self.extra_vars[NORM_RANGE_ONES][()] if
+                                NORM_RANGE_ONES in self.extra_vars else False)
+        # The base field that will need to be subtracted off. If the field does
+        # not exist, then this will just be set to None.
+        self.base_field = self.extra_vars.get(BASE_INT_FIELD)
 
         self.network_name = self.training_args['network_name']
         _print(f'Loading in the network (`{self.network_name}`) '
@@ -83,6 +93,22 @@ class Model():
         # A value of None means there have been no memory issues so far, so as
         # many rows as needed can be passed.
         self.max_rows_per_model_call = None
+
+    def norm_data(self, input_data):
+        return min_max_norm(
+            input_data,
+            self.extra_vars[INPUT_MAX_MIN_DIFF],
+            self.extra_vars[INPUT_MIN_X],
+            self.norm_range_ones,
+        )
+
+    def denorm_data(self, output_data):
+        return min_max_denorm(
+            output_data,
+            self.extra_vars[OUTPUT_MAX_MIN_DIFF],
+            self.extra_vars[OUTPUT_MIN_X],
+            self.norm_range_ones,
+        )
 
     def call_model(self, data):
         # Data is 1D (a single row), so make it 2D
