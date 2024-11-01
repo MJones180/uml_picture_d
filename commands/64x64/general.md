@@ -1,7 +1,5 @@
 # Commands Lookup
 
-## Random Commands
-
 ## Data Simulation
 
 A single row with no aberrations (used to compute the difference during preprocessing):
