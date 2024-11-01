@@ -7,6 +7,7 @@ RAW_SIMULATED_DATA_P = f'{DATA_P}/raw_simulated'
 
 OUTPUT_P = '../output'
 ANALYSIS_P = f'{OUTPUT_P}/analysis'
+CONTROL_LOOP_STEPS_P = f'{OUTPUT_P}/control_loop_steps'
 RANDOM_P = f'{OUTPUT_P}/random'
 RESPONSE_MATRICES_P = f'{OUTPUT_P}/response_matrices'
 TRAINED_MODELS_P = f'{OUTPUT_P}/trained_models'
