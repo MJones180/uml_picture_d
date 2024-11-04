@@ -197,6 +197,7 @@ def control_loop_run(cli_args):
     plot_control_loop_zernikes(
         zernike_terms,
         model_output_history,
+        step_file,
         model_str,
         (K_p, K_i, K_d),
         cumulative_time,

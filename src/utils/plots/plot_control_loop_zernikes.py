@@ -7,7 +7,8 @@ from utils.idl_rainbow_cmap import idl_rainbow_cmap
 def plot_control_loop_zernikes(
     zernike_terms,
     zernike_time_steps,
-    model_str,
+    step_file,
+    model_name,
     gain_values,
     total_time,
     plot_path,
@@ -23,7 +24,9 @@ def plot_control_loop_zernikes(
     zernike_time_steps : np.array
         The Zernike coefficients outputted from the model at each time step.
         Should be a 2D array (timesteps, model outputs).
-    model_str : str
+    step_file : str
+        Name of the step file being used.
+    model_name : str
         Identifier of the model being used.
     gain_values : (float, float, float)
         The K_p, K_i, and K_d gain values.
@@ -40,8 +43,8 @@ def plot_control_loop_zernikes(
     # Set the figure size and add the title + axes labels
     fig, ax = plt.subplots(figsize=(12, 6))
     ax.set_title(
-        f'Control Loop\nTime Steps={total_steps}, Model={model_str}, '
-        f'K_p={gain_values[0]}, K_i={gain_values[1]}, K_d={gain_values[2]}')
+        f'Control Loop\nStep File={step_file}, Time Steps={total_steps}, '
+        f'Model={model_name}, K_PID={gain_values}')
     ax.set_xlabel('Time [s]')
     ax.set_ylabel('Coefficient [nm RMS]')
 
