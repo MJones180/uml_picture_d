@@ -136,8 +136,8 @@ def control_loop_run(cli_args):
         terminate_with_message('Neural network or response matrix required')
 
     step_ri('Preparing to run control loop')
+    print('Initializing corrections to all zero')
     corrections = np.zeros(zerinke_count)
-    print(f'Initial corrections: {corrections}')
     # We need the cumulative sum for each Zernike term to compute integral grain
     running_zernike_sum = np.zeros(zerinke_count)
     # We need the last set of model outputs to compute the derivative gain
@@ -149,7 +149,7 @@ def control_loop_run(cli_args):
         # Aberrations should be the sum of the step signal and the correction
         aberrations = zernike_coeffs + corrections
         # Simulate the camera image that represents these Zernike coeffs
-        camera_wf, _, _ = sim_prop_wf(
+        camera_image, _, _ = sim_prop_wf(
             init_beam_d,
             ref_wl,
             beam_ratio,
@@ -160,8 +160,9 @@ def control_loop_run(cli_args):
             aberrations,
             grid_points,
         )
-        # The coeffs that our model outputs
-        model_output = call_model(camera_wf)
+        # We need to add an extra dimension to the input image that represents
+        # the batch size. This will output the coefficients.
+        model_output = call_model(camera_image[None, :, :, :])
         # Calculate the PID gains
         K_p_term = K_p * model_output
         running_zernike_sum += model_output
