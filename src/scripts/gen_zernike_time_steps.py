@@ -50,6 +50,11 @@ def gen_zernike_time_steps_parser(subparsers):
         metavar=('[zernike term]', '[rms error in meters]'),
         help='add a constant amplitude on a single Zernike term',
     )
+    gen_method_group.add_argument(
+        '--all-zernikes-constant-value',
+        metavar='[rms error in meters]',
+        help='add a constant amplitude on all Zernike terms',
+    )
 
 
 def gen_zernike_time_steps(cli_args):
@@ -62,6 +67,7 @@ def gen_zernike_time_steps(cli_args):
     zernike_low = cli_args['zernike_low']
     zernike_high = cli_args['zernike_high']
     single_zernike_constant_value = cli_args['single_zernike_constant_value']
+    all_zernikes_constant_value = cli_args['all_zernikes_constant_value']
 
     step_ri('Config information')
     print(f'Timesteps: {timesteps}')
@@ -100,6 +106,13 @@ def gen_zernike_time_steps(cli_args):
         idx = base_column_count + int(zernike_term) - zernike_low
         term_values = np.full(timesteps, float(rms_error))
         output_data[:, idx] = term_values
+    elif all_zernikes_constant_value:
+        step_ri('Using all Zernike terms with a constant RMS error')
+        rms_error = all_zernikes_constant_value
+        print(f'Zernike term: {zernike_term}, RMS error: {rms_error} (m)')
+        term_values = np.full(timesteps, float(rms_error))
+        for idx in range(base_column_count, total_column_count):
+            output_data[:, idx] = term_values
     else:
         terminate_with_message('No method for generating the data chosen')
 
