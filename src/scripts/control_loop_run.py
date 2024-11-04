@@ -122,7 +122,7 @@ def control_loop_run(cli_args):
         step_ri('Loading in the neural network')
         tag, epoch = neural_network
         model = Model(tag, epoch, force_cpu=cli_args.get('force_cpu'))
-        model_str = f'nn_{tag}_{epoch}'
+        model_str = f'NN_{tag}_{epoch}'
 
         def call_model(inputs):
             # Subtract off the base field so that we have the delta field
@@ -138,7 +138,7 @@ def control_loop_run(cli_args):
     elif response_matrix:
         step_ri('Loading in the response matrix')
         response_matrix_obj = ResponseMatrix(response_matrix)
-        model_str = f'rm_{response_matrix}'
+        model_str = f'RM_{response_matrix}'
 
         def call_model(inputs):
             # A 1D array should be passed in
