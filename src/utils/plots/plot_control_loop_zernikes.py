@@ -35,7 +35,7 @@ def plot_control_loop_zernikes(
     total_steps = len(zernike_time_steps)
 
     # Set the figure size and add the title + axes labels
-    fig, ax = plt.subplots(figsize=(15, 8))
+    fig, ax = plt.subplots(figsize=(12, 6))
     ax.set_title(f'Control Loop (steps={total_steps}, model={model_str})')
     ax.set_xlabel('Time [s]')
     ax.set_ylabel('Coefficient [nm RMS]')
@@ -50,7 +50,7 @@ def plot_control_loop_zernikes(
 
     # Set the x labels to time
     x_tick_pos = np.linspace(0, total_steps, 7)
-    x_tick_labels = np.linspace(0, total_time, 7)
+    x_tick_labels = [f'{val:0.4f}' for val in np.linspace(0, total_time, 7)]
     ax.set_xticks(x_tick_pos, x_tick_labels)
 
     # Display the legend to the right middle of the plot
