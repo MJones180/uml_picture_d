@@ -8,9 +8,10 @@ The step file should be generated with the `gen_zernike_time_steps` script.
 """
 
 import numpy as np
-from utils.constants import CONTROL_LOOP_STEPS_P
+from utils.constants import CONTROL_LOOP_STEPS_P, RANDOM_P
 from utils.load_optical_train import load_optical_train
 from utils.model import Model
+from utils.plot.plot_control_loop_zernikes import plot_control_loop_zernikes
 from utils.printing_and_logging import step_ri, title
 from utils.response_matrix import ResponseMatrix
 from utils.sim_prop_wf import sim_prop_wf
@@ -121,6 +122,7 @@ def control_loop_run(cli_args):
         step_ri('Loading in the neural network')
         tag, epoch = neural_network
         model = Model(tag, epoch, force_cpu=cli_args.get('force_cpu'))
+        model_str = f'{tag}_{epoch}'
 
         def call_model(inputs):
             # Subtract off the base field so that we have the delta field
@@ -136,6 +138,7 @@ def control_loop_run(cli_args):
     elif response_matrix:
         step_ri('Loading in the response matrix')
         response_matrix_obj = ResponseMatrix(response_matrix)
+        model_str = response_matrix
 
         def call_model(inputs):
             # A 1D array should be passed in
@@ -148,8 +151,8 @@ def control_loop_run(cli_args):
     corrections = np.zeros(zerinke_count)
     # We need the cumulative sum for each Zernike term to compute integral grain
     running_zernike_sum = np.zeros(zerinke_count)
-    # We need the last set of model outputs to compute the derivative gain
-    last_model_output = np.zeros(zerinke_count)
+    # Keep track of the model ouputs over time so they can be plotted at the end
+    model_output_history = []
 
     step_ri('Running the control loop')
     for step in step_data:
@@ -171,13 +174,29 @@ def control_loop_run(cli_args):
         )
         # This will output the model's coefficients (nn or response matrix)
         model_output = call_model(camera_image)
-        # Calculate the PID gains
-        K_p_term = K_p * model_output
+        model_output_history.append(model_output)
+        # The new set of corrections are the corrections from the last time step
+        # in addition to the PID gains. Therefore, we can just add on each gain
+        # term as we go.
+        corrections += K_p * model_output  # K_p term
+        # Yes, the running sum could be calculated each time from the
+        # `model_output_history`, but this seems quite a bit more efficient
         running_zernike_sum += model_output
-        K_i_term = K_i * running_zernike_sum
-        dzdt = (model_output - last_model_output) / delta_time
-        last_model_output = model_output
-        K_d_term = K_d * dzdt
-        # The new set of corrections are the corrections from the last time
-        # step in addition to the PID gains
-        corrections += K_p_term + K_i_term + K_d_term
+        corrections += K_i * running_zernike_sum  # K_i term
+        # Do not calculate the time derivative if this is the first step
+        if len(model_output_history) > 1:
+            dzdt = (model_output - model_output_history[-2]) / delta_time
+            corrections += K_d * dzdt  # K_d term
+    # Now, we can plot our model outputs over time
+    model_output_history = np.array(model_output_history)
+    print('Finished running the control loop')
+
+    step_ri('Generating plots')
+    plot_path = f'{RANDOM_P}/{step_file}_{model_str}.png'
+    print(f'Saving plot to {plot_path}')
+    plot_control_loop_zernikes(
+        zernike_terms,
+        model_output_history,
+        model_str,
+        plot_path,
+    )
