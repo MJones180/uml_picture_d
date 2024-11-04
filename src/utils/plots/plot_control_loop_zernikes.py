@@ -42,12 +42,35 @@ def plot_control_loop_zernikes(
 
     # The colors that will be plotted for each line
     colors = idl_rainbow_cmap()(np.linspace(0, 1, len(zernike_terms)))
-
+    # The x points for the scatter plots
+    x_points = np.arange(total_steps)
     # Plot each Zernike terms coefficients over time
     for term_idx, term in enumerate(zernike_terms):
-        ax.plot(zernike_time_steps[:, term_idx],
-                label=f'Z{term} {ZERNIKE_NAME_LOOKUP[term]}',
-                color=colors[term_idx])
+        term_data = zernike_time_steps[:, term_idx]
+        # Plot the lines on the bottom layer
+        ax.plot(
+            term_data,
+            label=f'Z{term} {ZERNIKE_NAME_LOOKUP[term]}',
+            color=colors[term_idx],
+            zorder=0,
+        )
+        # Next, plot the dots at each of the points
+        ax.scatter(
+            x_points,
+            term_data,
+            s=30,
+            color=colors[term_idx],
+            zorder=1,
+        )
+        # Lastly, plot the Zernike Noll index on top
+        ax.scatter(
+            x_points,
+            term_data,
+            s=20,
+            color='white',
+            zorder=2,
+            marker=f"${term}$",
+        )
 
     # Set the x labels to time
     x_tick_pos = np.linspace(0, total_steps, 7)
