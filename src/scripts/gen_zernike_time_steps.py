@@ -109,7 +109,7 @@ def gen_zernike_time_steps(cli_args):
     elif all_zernikes_constant_value:
         step_ri('Using all Zernike terms with a constant RMS error')
         rms_error = all_zernikes_constant_value
-        print(f'Zernike term: {zernike_term}, RMS error: {rms_error} (m)')
+        print(f'RMS error: {rms_error} (m)')
         term_values = np.full(timesteps, float(rms_error))
         for idx in range(base_column_count, total_column_count):
             output_data[:, idx] = term_values
