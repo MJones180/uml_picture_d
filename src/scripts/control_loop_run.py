@@ -192,12 +192,13 @@ def control_loop_run(cli_args):
     print('Finished running the control loop')
 
     step_ri('Generating plots')
-    plot_path = f'{RANDOM_P}/{step_file}_{model_str}.png'
+    plot_path = f'{RANDOM_P}/{step_file}_{model_str}_{K_p}_{K_i}_{K_d}.png'
     print(f'Saving plot to {plot_path}')
     plot_control_loop_zernikes(
         zernike_terms,
         model_output_history,
         model_str,
+        (K_p, K_i, K_d),
         cumulative_time,
         plot_path,
     )
