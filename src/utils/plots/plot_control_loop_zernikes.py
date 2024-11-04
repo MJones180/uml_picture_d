@@ -43,6 +43,7 @@ def plot_control_loop_zernikes(
     # The colors that will be plotted for each line
     colors = idl_rainbow_cmap()(np.linspace(0, 1, len(zernike_terms)))
 
+    # Plot each Zernike terms coefficients over time
     for term_idx, term in enumerate(zernike_terms):
         ax.plot(zernike_time_steps[:, term_idx],
                 label=f'Z{term} {ZERNIKE_NAME_LOOKUP[term]}',
