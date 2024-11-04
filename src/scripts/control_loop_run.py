@@ -123,15 +123,23 @@ def control_loop_run(cli_args):
         model = Model(tag, epoch, force_cpu=cli_args.get('force_cpu'))
 
         def call_model(inputs):
+            # Subtract off the base field so that we have the delta field
+            # intensity and then normalize the data
             preprocessed_inputs = model.norm_data(inputs - model.base_field)
-            return model.denorm_data(model(preprocessed_inputs))
+            # We need to add an extra dimension to represents the batch size
+            preprocessed_inputs = preprocessed_inputs[None, :, :, :]
+            # Since we are only passing in one row, we only need to grab the
+            # first row from the batch size dimension
+            output = model(preprocessed_inputs)[0]
+            # Denormalize the data
+            return model.denorm_data(output)
     elif response_matrix:
         step_ri('Loading in the response matrix')
         response_matrix_obj = ResponseMatrix(response_matrix)
 
         def call_model(inputs):
-            inputs_flattened = inputs.reshape(inputs.shape[0], -1)
-            return response_matrix_obj(total_int_field=inputs_flattened)
+            # A 1D array should be passed in
+            return response_matrix_obj(total_int_field=inputs.reshape(-1))
     else:
         terminate_with_message('Neural network or response matrix required')
 
@@ -146,6 +154,7 @@ def control_loop_run(cli_args):
     step_ri('Running the control loop')
     for step in step_data:
         row_idx, cumulative_time, delta_time, *zernike_coeffs = step
+        print(f'Step: {int(row_idx + 1)}/{total_steps}')
         # Aberrations should be the sum of the step signal and the correction
         aberrations = zernike_coeffs + corrections
         # Simulate the camera image that represents these Zernike coeffs
@@ -160,9 +169,8 @@ def control_loop_run(cli_args):
             aberrations,
             grid_points,
         )
-        # We need to add an extra dimension to the input image that represents
-        # the batch size. This will output the coefficients.
-        model_output = call_model(camera_image[None, :, :, :])
+        # This will output the model's coefficients (nn or response matrix)
+        model_output = call_model(camera_image)
         # Calculate the PID gains
         K_p_term = K_p * model_output
         running_zernike_sum += model_output
