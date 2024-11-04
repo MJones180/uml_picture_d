@@ -11,7 +11,7 @@ import numpy as np
 from utils.constants import CONTROL_LOOP_STEPS_P, RANDOM_P
 from utils.load_optical_train import load_optical_train
 from utils.model import Model
-from utils.plot.plot_control_loop_zernikes import plot_control_loop_zernikes
+from utils.plots.plot_control_loop_zernikes import plot_control_loop_zernikes
 from utils.printing_and_logging import step_ri, title
 from utils.response_matrix import ResponseMatrix
 from utils.sim_prop_wf import sim_prop_wf
@@ -198,5 +198,6 @@ def control_loop_run(cli_args):
         zernike_terms,
         model_output_history,
         model_str,
+        cumulative_time,
         plot_path,
     )

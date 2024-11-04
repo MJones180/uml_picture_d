@@ -8,6 +8,7 @@ def plot_control_loop_zernikes(
     zernike_terms,
     zernike_time_steps,
     model_str,
+    total_time,
     plot_path,
 ):
     """
@@ -23,10 +24,14 @@ def plot_control_loop_zernikes(
         Should be a 2D array (timesteps, model outputs).
     model_str : str
         Identifier of the model being used.
+    total_time : float
+        Total time that the control loop ran over in seconds (assumes the time
+        started at 0).
     plot_path : str
         Path to save the plot at.
     """
 
+    # Total number of time steps
     total_steps = len(zernike_time_steps)
 
     # Set the figure size and add the title + axes labels
@@ -42,6 +47,11 @@ def plot_control_loop_zernikes(
         ax.plot(zernike_time_steps[:, term_idx],
                 label=f'Z{term} {ZERNIKE_NAME_LOOKUP[term]}',
                 color=colors[term_idx])
+
+    # Set the x labels to time
+    x_tick_pos = np.linspace(0, total_steps, 7)
+    x_tick_labels = np.linspace(0, total_time, 7)
+    ax.set_xticks(x_tick_pos, x_tick_labels)
 
     # Display the legend to the right middle of the plot
     ax.legend(loc='center left', bbox_to_anchor=(1.01, 0.5))
