@@ -138,11 +138,10 @@ def control_loop_run(cli_args):
     step_ri('Preparing to run control loop')
     corrections = np.zeros(zerinke_count)
     print(f'Initial corrections: {corrections}')
-    # We need to keep track of the sum for each Zernike term to compute the
-    # integral gain
+    # We need the cumulative sum for each Zernike term to compute integral grain
     running_zernike_sum = np.zeros(zerinke_count)
     # We need the last set of model outputs to compute the derivative gain
-    last_model_zernike_output = np.zeros(zerinke_count)
+    last_model_output = np.zeros(zerinke_count)
 
     step_ri('Running the control loop')
     for step in step_data:
@@ -161,15 +160,15 @@ def control_loop_run(cli_args):
             aberrations,
             grid_points,
         )
-        # The Zernike coeffs that our model outputs
-        model_zernike_output = call_model(camera_wf)
+        # The coeffs that our model outputs
+        model_output = call_model(camera_wf)
         # Calculate the PID gains
-        K_p_term = K_p * model_zernike_output
-        running_zernike_sum += model_zernike_output
+        K_p_term = K_p * model_output
+        running_zernike_sum += model_output
         K_i_term = K_i * running_zernike_sum
-        dzdt = (model_zernike_output - last_model_zernike_output) / delta_time
-        last_model_zernike_output = model_zernike_output
+        dzdt = (model_output - last_model_output) / delta_time
+        last_model_output = model_output
         K_d_term = K_d * dzdt
         # The new set of corrections are the corrections from the last time
         # step in addition to the PID gains
-        corrections = corrections + K_p_term + K_i_term + K_d_term
+        corrections += K_p_term + K_i_term + K_d_term

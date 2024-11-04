@@ -114,7 +114,7 @@ def model_test(cli_args):
         inputs = model.norm_data(inputs)
 
     step_ri('Calling the model and obtaining its outputs')
-    outputs_model = model(torch.from_numpy(inputs))
+    outputs_model = model(inputs)
 
     step_ri('Denormalizing the outputs')
     # Denormalize the outputs

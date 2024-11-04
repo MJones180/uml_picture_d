@@ -1,4 +1,5 @@
 from glob import glob
+import numpy as np
 import torch
 from utils.constants import (ARGS_F, BASE_INT_FIELD, EXTRA_VARS_F,
                              INPUT_MAX_MIN_DIFF, INPUT_MIN_X, NORM_RANGE_ONES,
@@ -111,6 +112,10 @@ class Model():
         )
 
     def call_model(self, data):
+        # Convert from NumPy to Torch if needed
+        if isinstance(data, np.ndarray):
+            data = torch.from_numpy(data)
+
         # Data is 1D (a single row), so make it 2D
         if len(data.shape) == 1:
             data = data[None, :]
