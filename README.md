@@ -2,6 +2,10 @@
 
 Michael Jones (Michael_Jones6@student.uml.edu)
 
+This repository was originally created for the LLOWFS NN, so a lot of the code has been tailored towards that (such as networks and optical trains).
+However, this repository can be used to simulate optical train data, develop neural network models, and run simulated control loops.
+Therefore, if scripts do not clearly state what project they are for, it is safe to assume they are for the LLOWFS NN.
+
 ## Installation
 
 The following Conda command will create the environment and install the necessary dependencies:
