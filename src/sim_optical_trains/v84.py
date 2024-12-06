@@ -1,5 +1,7 @@
 """
 This file is for V84 with a 32x32 pixel camera and a sampling of 7.4 microns.
+Diagrams of this optical layout can be found in the `diagrams` folder under the
+`optical_design_v84.png` and `simplified_optical_design_v84.png` files.
 """
 
 from cbm_vvc_mft import cbm_vvc_mft
