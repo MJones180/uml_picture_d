@@ -76,8 +76,8 @@ def plot_comparison_scatter_grid(
             )
             if plot_density:
                 density = axs_cell.scatter_density(
-                    pred_col,
                     truth_col,
+                    pred_col,
                     cmap=density_cmap,
                 )
                 divider = make_axes_locatable(axs_cell)
