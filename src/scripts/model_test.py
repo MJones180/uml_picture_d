@@ -10,14 +10,12 @@ the `testing_ds` was simulated with the `sim_data` script using the
 """
 
 import numpy as np
-import torch
 from utils.constants import (ANALYSIS_P, EXTRA_VARS_F, MAE, MSE, PROC_DATA_P,
                              RESULTS_F, ZERNIKE_TERMS)
 from utils.hdf_read_and_write import HDFWriteModule, read_hdf
 from utils.model import Model
 from utils.path import delete_dir, get_abs_path, make_dir
 from utils.plots.plot_comparison_scatter_grid import plot_comparison_scatter_grid  # noqa
-from utils.plots.plot_comparison_scatter_grid_v2 import plot_comparison_scatter_grid_v2  # noqa
 from utils.plots.plot_zernike_cross_coupling_animation import plot_zernike_cross_coupling_animation  # noqa
 from utils.plots.plot_zernike_cross_coupling_mat_animation import plot_zernike_cross_coupling_mat_animation  # noqa
 from utils.plots.plot_zernike_response import plot_zernike_response
@@ -159,29 +157,19 @@ def model_test(cli_args):
     if scatter_plot is not None:
         step_ri('Generating scatter plot')
         n_rows, n_cols = [int(arg) for arg in scatter_plot]
-        # plot_comparison_scatter_grid(
-        #     outputs_model,
-        #     outputs_truth,
-        #     n_rows,
-        #     n_cols,
-        #     plot_title,
-        #     plot_identifier,
-        #     f'{analysis_path}/scatter.png',
-        # )
-        # step_ri('Generating density scatter plot')
-        # plot_comparison_scatter_grid(
-        #     outputs_model,
-        #     outputs_truth,
-        #     n_rows,
-        #     n_cols,
-        #     plot_title,
-        #     plot_identifier,
-        #     f'{analysis_path}/density_scatter.png',
-        #     plot_density=True,
-        # )
-
         step_ri('Generating density scatter plot')
-        plot_comparison_scatter_grid_v2(
+        plot_comparison_scatter_grid(
+            outputs_model,
+            outputs_truth,
+            n_rows,
+            n_cols,
+            plot_title,
+            plot_identifier,
+            2,
+            f'{analysis_path}/scatter_v2.png',
+            filter_value=7e-8,
+        )
+        plot_comparison_scatter_grid(
             outputs_model,
             outputs_truth,
             n_rows,
