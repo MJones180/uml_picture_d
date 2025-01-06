@@ -43,3 +43,31 @@ def plot_intensity_field(
     colorbar_label = 'log10(intensity)' if use_log else 'intensity'
     plt.colorbar(label=colorbar_label)
     plt.savefig(plot_path, dpi=300)
+
+
+# ==============================================================================
+# To avoid cluttering up the code with too many arguments that will rarely be
+# used, I added the block of code below that can be uncommented when needed.
+# It saves just the pixel data (no axes, title, colorbar, etc.).
+# ==============================================================================
+# def plot_intensity_field(
+#     intensity,
+#     plot_sampling,
+#     title,
+#     plot_path,
+#     use_log=False,
+# ):
+#     # Reset the plot
+#     plt.clf()
+#     if use_log:
+#         # Ignore divide by zero errors here if they occurr
+#         with np.errstate(divide='ignore'):
+#             intensity = np.log10(intensity)
+#         vmin = -8
+#         intensity[intensity == -np.inf] = vmin
+#         plt.imshow(intensity, vmin=vmin, vmax=0, cmap=log_cmap)
+#     else:
+#         plt.imshow(intensity, cmap='Greys_r')
+#     plt.axis('off')
+#     plt.savefig(plot_path, dpi=300, bbox_inches='tight', pad_inches=0)
+# ==============================================================================
