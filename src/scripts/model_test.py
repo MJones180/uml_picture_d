@@ -52,9 +52,12 @@ def model_test_parser(subparsers):
     )
     subparser.add_argument(
         '--scatter-plot',
-        nargs=2,
-        metavar=('[n_rows]', '[n_cols]'),
-        help='generate a scatter plot',
+        nargs=5,
+        metavar=('[n_rows]', '[n_cols]', '[starting_zernike]',
+                 '[filter_value]', '[plot_density]'),
+        help=('generate a scatter plot; takes the args: number of rows, '
+              'number of cols, first Zernike the model outputs, filter value '
+              'range, points per pixel to use for the density plot'),
     )
     subparser.add_argument(
         '--zernike-plots',
@@ -155,9 +158,14 @@ def model_test(cli_args):
 
     scatter_plot = cli_args.get('scatter_plot')
     if scatter_plot is not None:
-        step_ri('Generating scatter plot')
-        n_rows, n_cols = [int(arg) for arg in scatter_plot]
-        step_ri('Generating density scatter plot')
+        step_ri('Generating scatter plot and density scatter plot')
+        filter_value = float(scatter_plot.pop(3))
+        (n_rows, n_cols, starting_zernike,
+         plot_density) = [int(arg) for arg in scatter_plot]
+        print(f'Using {n_rows} rows and {n_cols} cols.')
+        print(f'Starting Zernike: {starting_zernike}.')
+        print(f'Filtering between: [-{filter_value},{filter_value}].')
+        print(f'Point per pixel for density plot: {plot_density}.')
         plot_comparison_scatter_grid(
             outputs_model,
             outputs_truth,
@@ -165,9 +173,9 @@ def model_test(cli_args):
             n_cols,
             plot_title,
             plot_identifier,
-            2,
-            f'{analysis_path}/scatter_v2.png',
-            filter_value=7e-8,
+            starting_zernike,
+            f'{analysis_path}/scatter.png',
+            filter_value=filter_value,
         )
         plot_comparison_scatter_grid(
             outputs_model,
@@ -176,10 +184,10 @@ def model_test(cli_args):
             n_cols,
             plot_title,
             plot_identifier,
-            2,
-            f'{analysis_path}/density_scatter_v2.png',
-            plot_density=15,
-            filter_value=7e-8,
+            starting_zernike,
+            f'{analysis_path}/density_scatter.png',
+            plot_density=plot_density,
+            filter_value=filter_value,
         )
 
     if cli_args.get('zernike_plots'):

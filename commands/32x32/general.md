@@ -406,44 +406,44 @@ Averaged response matrix:
 `fixed_40nm` response matrix:
 
     python3 main.py run_response_matrix fixed_40nm \
-        fixed_50nm_range_processed --scatter-plot 5 5 --zernike-plots
+        fixed_50nm_range_processed --scatter-plot 4 6 2 1e-7 15 --zernike-plots
 
     python3 main.py run_response_matrix fixed_40nm \
-        random_10nm_med_processed --scatter-plot 5 5
+        random_10nm_med_processed --scatter-plot 4 6 2 1e-7 15
 
     python3 main.py run_response_matrix fixed_40nm \
-        test_ran50nm_gl_lg_diff --scatter-plot 5 5 \
+        test_ran50nm_gl_lg_diff --scatter-plot 4 6 2 1e-7 15 \
         --inputs-need-denorm --inputs-are-diff
 
     python3 main.py run_response_matrix fixed_40nm \
-        test_com50nm_gl_diff --scatter-plot 5 5 \
+        test_com50nm_gl_diff --scatter-plot 4 6 2 1e-7 15 \
         --inputs-need-denorm --inputs-are-diff
 
     python3 main.py run_response_matrix fixed_40nm \
-        test_ran50nm_single_diff --scatter-plot 5 5 \
+        test_ran50nm_single_diff --scatter-plot 4 6 2 1e-7 15 \
         --inputs-need-denorm --inputs-are-diff
 
 `random_50nm_single_each_large` response matrix:
 
     python3 main.py run_response_matrix random_50nm_single_each_large \
-        fixed_50nm_range_processed --scatter-plot 5 5 --zernike-plots
+        fixed_50nm_range_processed --scatter-plot 4 6 2 1e-7 15 --zernike-plots
 
     python3 main.py run_response_matrix random_50nm_single_each_large \
-        random_10nm_med_processed --scatter-plot 5 5
+        random_10nm_med_processed --scatter-plot 4 6 2 1e-7 15
 
     python3 main.py run_response_matrix random_50nm_single_each_large \
-       random_50nm_med_processed --scatter-plot 5 5
+       random_50nm_med_processed --scatter-plot 4 6 2 1e-7 15
 
 `fixed_50nm_range_2000` response matrix:
 
     python3 main.py run_response_matrix fixed_50nm_range_2000 \
-        fixed_50nm_range_processed --scatter-plot 5 5 --zernike-plots
+        fixed_50nm_range_processed --scatter-plot 4 6 2 1e-7 15 --zernike-plots
 
     python3 main.py run_response_matrix fixed_50nm_range_2000 \
-        random_10nm_med_processed --scatter-plot 5 5
+        random_10nm_med_processed --scatter-plot 4 6 2 1e-7 15
 
     python3 main.py run_response_matrix fixed_50nm_range_2000 \
-       random_50nm_med_processed --scatter-plot 5 5
+       random_50nm_med_processed --scatter-plot 4 6 2 1e-7 15
 
 ## Model Training and Testing
 

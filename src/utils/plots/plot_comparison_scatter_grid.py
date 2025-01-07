@@ -99,10 +99,9 @@ def plot_comparison_scatter_grid(
              f'Filtered out {rows_filtered_out} '
              f'rows using bounds [-{filter_value}, {filter_value}].')
     plt.suptitle(title, size=30)
+    # The limits should be the global min and max values
     xlim = np.amin(truth_data), np.amax(truth_data)
     ylim = np.amin(model_data), np.amax(model_data)
-    if plot_density:
-        density_cmap = idl_rainbow_cmap()
     current_col = 0
     for plot_row in range(n_rows):
         for plot_col in range(n_cols):
@@ -144,15 +143,15 @@ def plot_comparison_scatter_grid(
                 density = axs_cell.scatter_density(
                     truth_col,
                     model_col,
-                    cmap=density_cmap,
+                    cmap=idl_rainbow_cmap(),
                     vmin=0,
                     vmax=plot_density,
                 )
                 # Only show the colorbar for subplots in the right-most column
                 if plot_col == n_cols - 1:
-                    divider = make_axes_locatable(axs_cell)
-                    caxd = divider.append_axes('right', size='5%', pad=0.05)
-                    cbar = fig.colorbar(density, cax=caxd)
+                    div = make_axes_locatable(axs_cell)
+                    cax = div.append_axes('right', size='5%', pad=0.05)
+                    cbar = fig.colorbar(density, cax=cax)
                     cbar.set_label('Points Per Pixel', size=20)
                     cbar.ax.tick_params(labelsize=15)
             else:
@@ -169,6 +168,7 @@ def plot_comparison_scatter_grid(
             if plot_col == 0:
                 axs_cell.set_ylabel('Model Outputs')
                 axs_cell.yaxis.label.set_fontsize(20)
+            # Increase the font size for ticks
             for item in (axs_cell.get_xticklabels() +
                          axs_cell.get_yticklabels() + [
                              axs_cell.xaxis.get_offset_text(),

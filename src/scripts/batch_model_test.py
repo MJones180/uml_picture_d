@@ -37,9 +37,12 @@ def batch_model_test_parser(subparsers):
     )
     subparser.add_argument(
         '--scatter-plot',
-        nargs=2,
-        metavar=('[n_rows]', '[n_cols]'),
-        help='generate scatter plots',
+        nargs=5,
+        metavar=('[n_rows]', '[n_cols]', '[starting_zernike]',
+                 '[filter_value]', '[plot_density]'),
+        help=('generate a scatter plot; takes the args: number of rows, '
+              'number of cols, first Zernike the model outputs, filter value '
+              'range, points per pixel to use for the density plot'),
     )
     subparser.add_argument(
         '--zernike-plots',
