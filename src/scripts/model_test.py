@@ -159,9 +159,10 @@ def model_test(cli_args):
     scatter_plot = cli_args.get('scatter_plot')
     if scatter_plot is not None:
         step_ri('Generating scatter plot and density scatter plot')
-        filter_value = float(scatter_plot.pop(3))
-        (n_rows, n_cols, starting_zernike,
-         plot_density) = [int(arg) for arg in scatter_plot]
+        (n_rows, n_cols, starting_zernike, plot_density) = [
+            int(arg) for arg in [*scatter_plot[:3], scatter_plot[4]]
+        ]
+        filter_value = float(scatter_plot[3])
         print(f'Using {n_rows} rows and {n_cols} cols.')
         print(f'Starting Zernike: {starting_zernike}.')
         print(f'Filtering between: [-{filter_value},{filter_value}].')
