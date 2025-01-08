@@ -191,6 +191,16 @@ def control_loop_run(cli_args):
     model_output_history = np.array(model_output_history)
     print('Finished running the control loop')
 
+    step_ri('Saving model output history')
+    history_path = f'{RANDOM_P}/{step_file}_{model_str}_{K_p}_{K_i}_{K_d}.csv'
+    print(f'Saving history to {history_path}')
+    np.savetxt(
+        history_path,
+        model_output_history,
+        delimiter=',',
+        fmt='%.12f',
+    )
+
     step_ri('Generating plots')
     plot_path = f'{RANDOM_P}/{step_file}_{model_str}_{K_p}_{K_i}_{K_d}.png'
     print(f'Saving plot to {plot_path}')

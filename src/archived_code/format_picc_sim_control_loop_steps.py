@@ -41,5 +41,5 @@ np.savetxt(
     output_data,
     delimiter=',',
     header=column_names,
-    fmt='%.12f',
+    fmt='%.15f',
 )
