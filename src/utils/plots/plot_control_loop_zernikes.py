@@ -11,6 +11,7 @@ def plot_control_loop_zernikes(
     model_name,
     gain_values,
     total_time,
+    plot_scatter_dots,
     plot_path,
 ):
     """
@@ -33,6 +34,8 @@ def plot_control_loop_zernikes(
     total_time : float
         Total time that the control loop ran over in seconds (assumes the time
         started at 0).
+    plot_scatter_dots : bool
+        Plot the Zernike number on top of each datapoint.
     plot_path : str
         Path to save the plot at.
     """
@@ -62,23 +65,24 @@ def plot_control_loop_zernikes(
             color=colors[term_idx],
             zorder=0,
         )
-        # Next, plot the dots at each of the points
-        ax.scatter(
-            x_points,
-            term_data,
-            s=30,
-            color=colors[term_idx],
-            zorder=1,
-        )
-        # Lastly, plot the Zernike Noll index on top
-        ax.scatter(
-            x_points,
-            term_data,
-            s=20,
-            color='white',
-            zorder=2,
-            marker=f"${term}$",
-        )
+        if plot_scatter_dots:
+            # Next, plot the dots at each of the points
+            ax.scatter(
+                x_points,
+                term_data,
+                s=30,
+                color=colors[term_idx],
+                zorder=1,
+            )
+            # Lastly, plot the Zernike Noll index on top
+            ax.scatter(
+                x_points,
+                term_data,
+                s=20,
+                color='white',
+                zorder=2,
+                marker=f"${term}$",
+            )
 
     # Set the x labels to time
     x_tick_pos = np.linspace(0, total_steps, 7)

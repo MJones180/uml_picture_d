@@ -202,6 +202,18 @@ def control_loop_run(cli_args):
     )
 
     step_ri('Generating plots')
+    plot_path = f'{RANDOM_P}/{step_file}_{model_str}_{K_p}_{K_i}_{K_d}_numb.png'
+    print(f'Saving plot to {plot_path}')
+    plot_control_loop_zernikes(
+        zernike_terms,
+        model_output_history,
+        step_file,
+        model_str,
+        (K_p, K_i, K_d),
+        cumulative_time,
+        True,
+        plot_path,
+    )
     plot_path = f'{RANDOM_P}/{step_file}_{model_str}_{K_p}_{K_i}_{K_d}.png'
     print(f'Saving plot to {plot_path}')
     plot_control_loop_zernikes(
@@ -211,5 +223,6 @@ def control_loop_run(cli_args):
         model_str,
         (K_p, K_i, K_d),
         cumulative_time,
+        False,
         plot_path,
     )
