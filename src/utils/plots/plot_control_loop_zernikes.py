@@ -8,8 +8,7 @@ def plot_control_loop_zernikes(
     zernike_terms,
     zernike_time_steps,
     step_file,
-    model_name,
-    gain_values,
+    title_info,
     total_time,
     plot_scatter_dots,
     plot_path,
@@ -27,10 +26,8 @@ def plot_control_loop_zernikes(
         Should be a 2D array (timesteps, model outputs).
     step_file : str
         Name of the step file being used.
-    model_name : str
-        Identifier of the model being used.
-    gain_values : (float, float, float)
-        The K_p, K_i, and K_d gain values.
+    title_info : str
+        Additional info on the run displayed as the second line of the title.
     total_time : float
         Total time that the control loop ran over in seconds (assumes the time
         started at 0).
@@ -45,9 +42,9 @@ def plot_control_loop_zernikes(
 
     # Set the figure size and add the title + axes labels
     fig, ax = plt.subplots(figsize=(12, 6))
-    ax.set_title(
-        f'Control Loop\nStep File={step_file}, Time Steps={total_steps}, '
-        f'Model={model_name}, K_PID={gain_values}')
+
+    ax.set_title(f'Control Loop, Step File={step_file}, '
+                 f'Timesteps={total_steps}\n{title_info}')
     ax.set_xlabel('Time [s]')
     ax.set_ylabel('Coefficient [nm RMS]')
 
@@ -64,6 +61,7 @@ def plot_control_loop_zernikes(
             label=f'Z{term} {ZERNIKE_NAME_LOOKUP[term]}',
             color=colors[term_idx],
             zorder=0,
+            linewidth=1,
         )
         if plot_scatter_dots:
             # Next, plot the dots at each of the points
