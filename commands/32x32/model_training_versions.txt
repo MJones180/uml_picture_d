@@ -1115,29 +1115,31 @@ After model testing, it is useful to rank the model analyses:
 
 [V38] The `best_model_smaller_aberrations_v1` tag:
 
-    python3 main_scnp.py model_train \
-        best_model_smaller_aberrations_v1 \
-        train_fixed_2000_and_random_group_ranges_approx_v2 \
-        val_fixed_2000_and_random_group_ranges_approx_v2 \
-        best32_1_smaller_2 mse adam 1e-5 1000 --batch-size 256 \
+    python3 main_scnp.py batch_model_train \
+        train_fixed_2000_and_random_group_ranges_approx_v2 val_fixed_2000_and_random_group_ranges_approx_v2 \
+        best_model_smaller_aberrations_v1_ 1000 --max-threads 4 \
+        --networks best32_1_smaller_2 best32_1_smaller_7 \
+        --losses mse mae --optimizers adam \
+        --lrs 1e-5 --batch-sizes 256 \
         --overwrite-existing --only-best-epoch --early-stopping 15
 
-    python3 main.py model_test \
-        best_model_smaller_aberrations_v1 last \
+    python3 main.py batch_model_test \
         fixed_50nm_range_processed --zernike-plots \
-        --inputs-need-norm --inputs-need-diff
+        --inputs-need-norm --inputs-need-diff \
+        --epoch-and-tag-range last best_model_smaller_aberrations_v1_ 1 4
 
-    python3 main.py model_test \
-        best_model_smaller_aberrations_v1 last \
+    python3 main.py batch_model_test \
         random_10nm_med_processed --scatter-plot 4 6 2 1e-7 15 \
-        --inputs-need-norm --inputs-need-diff
+        --inputs-need-norm --inputs-need-diff \
+        --epoch-and-tag-range last best_model_smaller_aberrations_v1_ 1 4
 
-    python3 main.py model_test \
-        best_model_smaller_aberrations_v1 last \
+    python3 main.py batch_model_test \
         random_50nm_med_processed --scatter-plot 4 6 2 1e-7 15 \
-        --inputs-need-norm --inputs-need-diff
+        --inputs-need-norm --inputs-need-diff \
+        --epoch-and-tag-range last best_model_smaller_aberrations_v1_ 1 4
 
-    python3 main.py model_test \
-        best_model_smaller_aberrations_v1 last \
-        no_aberrations_processed --print-outputs --take-rss-model-outputs \
-        --inputs-need-norm --inputs-need-diff
+    python3 main.py batch_model_test \
+        no_aberrations_processed \
+        --inputs-need-norm --inputs-need-diff \
+        --print-outputs --take-rss-model-outputs \
+        --epoch-and-tag-range last best_model_smaller_aberrations_v1_ 1 4
