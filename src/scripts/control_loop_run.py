@@ -13,6 +13,7 @@ from utils.load_optical_train import load_optical_train
 from utils.model import Model
 from utils.path import make_dir
 from utils.plots.plot_control_loop_zernikes import plot_control_loop_zernikes
+from utils.plots.plot_control_loop_zernikes_psd import plot_control_loop_zernikes_psd  # noqa: E501
 from utils.printing_and_logging import step_ri, title
 from utils.response_matrix import ResponseMatrix
 from utils.sim_prop_wf import sim_prop_wf
@@ -213,13 +214,14 @@ def control_loop_run(cli_args):
         base_path = f'{output_path}/{hist_type}_error_history'
         # Write out the history CSV
         history_path = f'{base_path}.csv'
-        print(f'Saving {hist_type} error history to {history_path}')
+        print(f'Saving {hist_type} error history.')
         np.savetxt(history_path, history_data, delimiter=',', fmt='%.12f')
         # Generate the plot
         plot_path = f'{base_path}.png'
-        print(f'Saving {hist_type} error plot to {plot_path}')
+        plot_path_psd = f'{base_path}_psd.png'
         title_info = (f'Model={model_str}, K_PID={(K_p, K_i, K_d)}, '
                       f'{hist_type} error ({additional_info})')
+        print(f'Saving {hist_type} error plots.')
         plot_control_loop_zernikes(
             zernike_terms,
             history_data,
@@ -229,12 +231,20 @@ def control_loop_run(cli_args):
             plot_with_zernike_numbers,
             plot_path,
         )
+        plot_control_loop_zernikes_psd(
+            zernike_terms,
+            history_data,
+            step_file,
+            title_info,
+            delta_time,
+            plot_path_psd,
+        )
 
     _write_hist_and_plots(true_error_history, 'true', 'input aberrations')
     _write_hist_and_plots(meas_error_history, 'meas', 'model outputs')
 
     plot_path = f'{output_path}/input_signal.png'
-    print(f'Saving input signal plot to {plot_path}')
+    print('Saving input signal plot.')
     plot_control_loop_zernikes(
         zernike_terms,
         step_data[:, 3:],
