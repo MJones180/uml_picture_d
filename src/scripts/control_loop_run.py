@@ -189,15 +189,16 @@ def control_loop_run(cli_args):
         # The new set of corrections are the corrections from the last time step
         # in addition to the PID gains. Therefore, we can just add on each gain
         # term as we go.
-        corrections += K_p * model_output  # K_p term
+        corrections += K_p * model_output  # proportional term
         # Yes, the running sum could be calculated each time from the
         # `meas_error_history`, but this seems quite a bit more efficient
-        running_zernike_sum += model_output
-        corrections += K_i * running_zernike_sum  # K_i term
+        # running_zernike_sum += model_output
+        running_zernike_sum += model_output * delta_time
+        corrections += K_i * running_zernike_sum  # integral term
         # Do not calculate the time derivative if this is the first step
         if len(meas_error_history) > 1:
             dzdt = (model_output - meas_error_history[-2]) / delta_time
-            corrections += K_d * dzdt  # K_d term
+            corrections += K_d * dzdt  # derivative term
     # Now, we can plot our history over time
     true_error_history = np.array(true_error_history)
     meas_error_history = np.array(meas_error_history)
