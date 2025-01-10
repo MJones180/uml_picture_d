@@ -110,6 +110,13 @@ def batch_model_train_parser(subparsers):
               'over again'),
     )
     subparser.add_argument(
+        '--init-weights',
+        nargs=2,
+        metavar=('[pretrained model tag]', '[pretrained model epoch]'),
+        help=('init the weights from a pretrained model, the network '
+              'structure must be the same'),
+    )
+    subparser.add_argument(
         '--starting-tag-idx',
         type=int,
         default=1,
@@ -130,6 +137,7 @@ def batch_model_train(cli_args):
     early_stopping = cli_args['early_stopping']
     max_threads = cli_args['max_threads']
     save_post_training_loss = cli_args['save_post_training_loss']
+    init_weights = cli_args['init_weights']
 
     # This arg will be appeneded with each index
     base_tag = cli_args['base_tag']
@@ -170,6 +178,7 @@ def batch_model_train(cli_args):
                             'early_stopping': early_stopping,
                             'max_threads': max_threads,
                             'save_post_training_loss': save_post_training_loss,
+                            'init_weights ': init_weights,
                         })
                         current_idx += 1
     total_combos = len(combinations)
