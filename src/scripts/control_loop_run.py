@@ -186,13 +186,10 @@ def control_loop_run(cli_args):
         # This will output the model's coefficients (nn or response matrix)
         model_output = call_model(camera_image)
         meas_error_history.append(model_output)
-        # The new set of corrections are the corrections from the last time step
-        # in addition to the PID gains. Therefore, we can just add on each gain
-        # term as we go.
+        # The new set of corrections are in addition to the corrections from the
+        # last time step, so we can just add each term as we go.
         corrections += K_p * model_output  # proportional term
-        # Yes, the running sum could be calculated each time from the
-        # `meas_error_history`, but this seems quite a bit more efficient
-        # running_zernike_sum += model_output
+        # Update the running sum to compute the integral term.
         running_zernike_sum += model_output * delta_time
         corrections += K_i * running_zernike_sum  # integral term
         # Do not calculate the time derivative if this is the first step
