@@ -178,7 +178,7 @@ def batch_model_train(cli_args):
                             'early_stopping': early_stopping,
                             'max_threads': max_threads,
                             'save_post_training_loss': save_post_training_loss,
-                            'init_weights ': init_weights,
+                            'init_weights': init_weights,
                         })
                         current_idx += 1
     total_combos = len(combinations)
