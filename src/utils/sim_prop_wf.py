@@ -1,5 +1,6 @@
 import numpy as np
 import proper
+from utils.add_wf_aberrations import add_wf_aberrations
 from utils.constants import (CAMERA_INTENSITY, CAMERA_SAMPLING, FULL_INTENSITY,
                              FULL_SAMPLING, ZERNIKE_COEFFS, ZERNIKE_TERMS)
 from utils.downsample_data import downsample_data, resize_pixel_grid
@@ -100,8 +101,8 @@ def sim_prop_wf(
     # Set this as the entrance to the train
     proper.prop_define_entrance(wavefront)
     # Add in the aberrations to the wavefront
-    aberration_map = proper.prop_zernikes(wavefront, zernike_terms,
-                                          aberration_values)
+    aberration_map = add_wf_aberrations(wavefront, zernike_terms,
+                                        aberration_values)
     _plot_intensity(wavefront, 'Entrance')
     if use_only_aberration_map:
         # Pixels where the circle is
