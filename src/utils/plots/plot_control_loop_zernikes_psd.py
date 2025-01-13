@@ -23,7 +23,7 @@ def plot_control_loop_zernikes_psd(
         Noll Zernike terms.
     zernike_time_steps : np.array
         The Zernike coefficients outputted from the model at each time step.
-        Should be a 2D array (timesteps, model outputs).
+        Should be a 2D array (timesteps, model outputs). Values should be in nm.
     step_file : str
         Name of the step file being used.
     title_info : str
@@ -46,7 +46,7 @@ def plot_control_loop_zernikes_psd(
     colors = idl_rainbow_cmap()(np.linspace(0, 1, len(zernike_terms)))
     # Plot each Zernike terms coefficients over time
     for term_idx, term in enumerate(zernike_terms):
-        term_data = zernike_time_steps[:, term_idx]
+        term_data = zernike_time_steps[:, term_idx] * 1e9
         ax.psd(
             term_data,
             Fs=(1 / delta_time),

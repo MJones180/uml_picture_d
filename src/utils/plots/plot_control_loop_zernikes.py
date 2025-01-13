@@ -23,7 +23,7 @@ def plot_control_loop_zernikes(
         Noll Zernike terms.
     zernike_time_steps : np.array
         The Zernike coefficients outputted from the model at each time step.
-        Should be a 2D array (timesteps, model outputs).
+        Should be a 2D array (timesteps, model outputs). Values should be in nm.
     step_file : str
         Name of the step file being used.
     title_info : str
@@ -54,7 +54,7 @@ def plot_control_loop_zernikes(
     x_points = np.arange(total_steps)
     # Plot each Zernike terms coefficients over time
     for term_idx, term in enumerate(zernike_terms):
-        term_data = zernike_time_steps[:, term_idx]
+        term_data = zernike_time_steps[:, term_idx] * 1e9
         # Plot the lines on the bottom layer
         ax.plot(
             term_data,
