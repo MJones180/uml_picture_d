@@ -70,7 +70,8 @@ This will result in `packages/proper/` containing the necessary Python files.
 The following two lines should be commented out for faster simulation speeds:
     - Line 90 of `prop_propagate.py`
     - Line 166 of `prop_lens.py`
-- When making calls to the VVC in an optical train, the `cbm_vvc_approx` function (does not do MFT) is generally much faster than the `cbm_vvc_mft` function (does MFT).
+- When making calls to the VVC in an optical train, the `cbm_vvc_approx` function is much faster than the `cbm_vvc_mft` function.
+The `cbm_vvc_approx` does not do MFT, but the propagated wavefront ends up being about the same.
 
 ## Calling Scripts
 
