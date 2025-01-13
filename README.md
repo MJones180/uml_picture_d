@@ -65,6 +65,12 @@ Proper in Python 3 must also be installed.
 For this, install PROPER from https://proper-library.sourceforge.net/ and store the unzipped `proper` directory under `packages`.
 This will result in `packages/proper/` containing the necessary Python files.
 
+**Important speed note**: the PROPER package in Python makes two calls to `gc.collect()`, but this is unnecessary.
+The following two lines should be commented out for faster simulation speeds:
+
+- Line 90 of `prop_propagate.py`
+- Line 166 of `prop_lens.py`
+
 ## Calling Scripts
 
 Navigate to the `src` folder and call the `main.py` file, all scripts are available as sub-commands.
