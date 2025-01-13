@@ -10,8 +10,9 @@ MAX_ZERNIKE_TERM = 28
 
 def add_wf_aberrations(wavefront, zernike_terms, aberration_values):
     """
-    Add aberrations to a PROPER wavefront. This is code is very fast is the
-    Zernike terms are in the range of 2-28.
+    Add aberrations to a PROPER wavefront. This code is very fast if the
+    Zernike terms are in the range of 2-28 because then the
+    `proper.prop_zernikes` function does not need to be called.
 
     Parameters
     ----------
