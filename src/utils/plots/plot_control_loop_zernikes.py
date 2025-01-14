@@ -6,7 +6,7 @@ from utils.idl_rainbow_cmap import idl_rainbow_cmap
 
 def plot_control_loop_zernikes(
     zernike_terms,
-    zernike_time_steps,
+    zernike_coeffs,
     title,
     total_time,
     plot_path,
@@ -21,9 +21,9 @@ def plot_control_loop_zernikes(
     ----------
     zernike_terms : list
         Noll Zernike terms.
-    zernike_time_steps : np.array
-        The Zernike coefficients outputted from the model at each time step,
-        should be in meters. Should be a 2D array (timesteps, model outputs).
+    zernike_coeffs : np.array
+        The Zernike coefficients from each time step in meters.
+        Should be a 2D array (timesteps, model outputs).
     title : str
         The title to display.
     total_time : float
@@ -36,7 +36,7 @@ def plot_control_loop_zernikes(
     """
 
     # Total number of time steps
-    total_steps = len(zernike_time_steps)
+    total_steps = len(zernike_coeffs)
 
     # Set the figure size and add the title + axes labels
     fig, ax = plt.subplots(figsize=(12, 6))
@@ -47,7 +47,8 @@ def plot_control_loop_zernikes(
 
     # Plot each Zernike coefficient term
     for term_idx, term in enumerate(zernike_terms):
-        term_data = zernike_time_steps[:, term_idx] * 1e9
+        # The data for the Zernike term in nm
+        term_data = zernike_coeffs[:, term_idx] * 1e9
         label = f'Z{term} {ZERNIKE_NAME_LOOKUP[term]}'
         color = colors[term_idx]
         # Choose whether to do a PSD or time series plot
@@ -55,7 +56,7 @@ def plot_control_loop_zernikes(
             delta_time = total_time / (total_steps - 1)
             ax.psd(term_data, Fs=(1 / delta_time), label=label, color=color)
         else:
-            ax.plot(term_data, label=label, color=color, linewidth=1)
+            ax.plot(term_data, label=label, color=color)
 
     # Update the axis information
     if plot_psd:

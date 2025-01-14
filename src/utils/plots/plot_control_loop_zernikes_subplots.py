@@ -5,13 +5,15 @@ from utils.terminate_with_message import terminate_with_message
 
 def plot_control_loop_zernikes_subplots(
     zernike_terms,
-    zernike_time_steps,
+    zernike_coeffs,
     title,
     total_time,
     n_rows,
     n_cols,
     plot_path,
     plot_psd=False,
+    extra_zernike_coeffs=None,
+    legend_labels=None,
 ):
     """
     Generates a grid of subplots where each subplot shows the outputted Zernikes
@@ -23,9 +25,9 @@ def plot_control_loop_zernikes_subplots(
     ----------
     zernike_terms : list
         Noll Zernike terms.
-    zernike_time_steps : np.array
-        The Zernike coefficients outputted from the model at each time step,
-        should be in meters. Should be a 2D array (timesteps, model outputs).
+    zernike_coeffs : np.array
+        The Zernike coefficients from each time step in meters.
+        Should be a 2D array (timesteps, model outputs).
     title : str
         The title to display.
     total_time : float
@@ -39,13 +41,18 @@ def plot_control_loop_zernikes_subplots(
         Path to save the plot at.
     plot_psd : bool
         Plot the PSD instead of the time series.
+    extra_zernike_coeffs : np.array
+        A second set of Zernike coefficients to plot for each subplot. Should be
+        the same format as the `zernike_coeffs` argument.
+    legend_labels : list
+        List of labels to display on the legend.
     """
 
     # =============================
     # Ensure there are enough cells
     # =============================
 
-    total_steps, col_count = zernike_time_steps.shape
+    total_steps, col_count = zernike_coeffs.shape
     if n_rows * n_cols < col_count:
         terminate_with_message('Not enough rows and columns for the data.')
 
@@ -73,8 +80,10 @@ def plot_control_loop_zernikes_subplots(
             if current_col >= col_count:
                 fig.delaxes(axs[plot_row, plot_col])
                 continue
-            # Grab the data for the current cell
-            time_step_data = zernike_time_steps[:, current_col] * 1e9
+            # Data for the current cell in nm
+            cell_data = zernike_coeffs[:, current_col] * 1e9
+            if extra_zernike_coeffs is not None:
+                extra_cell_data = extra_zernike_coeffs[:, current_col] * 1e9
             axs_cell = axs[plot_row, plot_col]
             # Add the Zernike number to the top left of the plot
             # https://stackoverflow.com/a/50091489
@@ -91,12 +100,21 @@ def plot_control_loop_zernikes_subplots(
                 va='top',
                 fontsize=20,
             )
-            # Choose whether to do a PSD or time series plot
+            # Choose whether to do a PSD or time series plot. The labels for
+            # these do not matter, they will get overwritten at the end.
             if plot_psd:
                 delta_time = total_time / (total_steps - 1)
-                axs_cell.psd(time_step_data, Fs=(1 / delta_time))
+                sampling_freq = 1 / delta_time
+                axs_cell.psd(cell_data, Fs=sampling_freq, label='A')
+                if extra_zernike_coeffs is not None:
+                    axs_cell.psd(extra_cell_data, Fs=sampling_freq, label='B')
             else:
-                axs_cell.plot(time_step_data, linewidth=1)
+                axs_cell.plot(cell_data, label='A')
+                if extra_zernike_coeffs is not None:
+                    axs_cell.plot(extra_cell_data, label='B')
+            # Hide labels so they do not appear on every plot
+            axs_cell.set_xlabel('')
+            axs_cell.set_ylabel('')
             # Only display x labels for the last row
             if plot_row == n_rows - 1:
                 if not plot_psd:
@@ -104,14 +122,13 @@ def plot_control_loop_zernikes_subplots(
                     pos = np.linspace(0, total_steps, 5)
                     labs = [f'{v:0.2f}' for v in np.linspace(0, total_time, 5)]
                     axs_cell.set_xticks(pos, labs)
-                    axs_cell.set_xlabel('Time [s]')
+                label = 'Frequency' if plot_psd else 'Time [s]'
+                axs_cell.set_xlabel(label)
                 axs_cell.xaxis.label.set_fontsize(20)
             # Only display y labels for the first column
             if plot_col == 0:
-                if plot_psd:
-                    axs_cell.set_ylabel('PSD [nm RMS/Hz]')
-                else:
-                    axs_cell.set_ylabel('Coeff [nm RMS]')
+                label = 'PSD [nm RMS/Hz]' if plot_psd else 'Coeff [nm RMS]'
+                axs_cell.set_ylabel(label)
                 axs_cell.yaxis.label.set_fontsize(20)
             # Increase the font size for ticks
             for item in (axs_cell.get_xticklabels() +
@@ -121,6 +138,12 @@ def plot_control_loop_zernikes_subplots(
                          ]):
                 item.set_fontsize(15)
             current_col += 1
+
+    # Add the legend only if the labels were passed
+    if legend_labels is not None:
+        lines, labels = axs_cell.get_legend_handles_labels()
+        fig.legend(lines, legend_labels, loc='lower right', fontsize=25)
+
     # Fixes padding around subplots, `h_pad` decreases vertical spacing between
     # rows and `rect` makes room for the suptitle
     fig.tight_layout(h_pad=0, rect=[0, 0, 1, 0.99])

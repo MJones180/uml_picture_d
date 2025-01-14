@@ -257,16 +257,17 @@ def control_loop_run(cli_args):
 
     step_ri('Generating the plots')
 
+    # Title that will be displayed on the plots
     base_title = (f'Control Loop, Step File={step_file}, '
                   f'Timesteps={total_steps}\n')
+    base_title_ext = base_title + (
+        f'Model={model_str}, K_PID={(K_p, K_i, K_d)}, ')
     # Determine the number of rows and columns for the subplot plots
     n_rows = n_cols = int(np.ceil(np.sqrt(len(zernike_terms))))
 
     def _create_plots(history_data, hist_type, additional_info):
         print(f'Saving {hist_type} error plots (x4).')
-        plot_title = base_title + (
-            f'Model={model_str}, K_PID={(K_p, K_i, K_d)}, '
-            f'{hist_type} error ({additional_info})')
+        plot_title = base_title_ext + f'{hist_type} error ({additional_info})'
         plot_file = f'{hist_type}_error.png'
 
         def _zernike_same_plot(output_dir, plot_psd):
@@ -299,3 +300,31 @@ def control_loop_run(cli_args):
     plot_control_loop_zernikes_subplots(zernike_terms, input_signal_data,
                                         plot_title, cumulative_time, n_rows,
                                         n_cols, plot_path)
+
+    print('Saving input signal vs meas error plots (x2).')
+
+    def _zernike_subplots(output_dir, plot_psd):
+        plot_title = base_title_ext + 'input signal vs meas error'
+        plot_path = f'{output_dir}/input_vs_meas.png'
+        plot_control_loop_zernikes_subplots(zernike_terms, input_signal_data,
+                                            plot_title, cumulative_time,
+                                            n_rows, n_cols, plot_path,
+                                            plot_psd, meas_error_history,
+                                            ['Input Signal', 'Meas Error'])
+
+    _zernike_subplots(output_path_ts_sub, False)
+    _zernike_subplots(output_path_psd_sub, True)
+
+    print('Saving true error vs meas error plots (x2).')
+
+    def _zernike_subplots(output_dir, plot_psd):
+        plot_title = base_title_ext + 'true error vs meas error'
+        plot_path = f'{output_dir}/true_vs_meas.png'
+        plot_control_loop_zernikes_subplots(zernike_terms, true_error_history,
+                                            plot_title, cumulative_time,
+                                            n_rows, n_cols, plot_path,
+                                            plot_psd, meas_error_history,
+                                            ['True Error', 'Meas Error'])
+
+    _zernike_subplots(output_path_ts_sub, False)
+    _zernike_subplots(output_path_psd_sub, True)
