@@ -13,7 +13,7 @@ from utils.load_optical_train import load_optical_train
 from utils.model import Model
 from utils.path import make_dir
 from utils.plots.plot_control_loop_zernikes import plot_control_loop_zernikes
-from utils.plots.plot_control_loop_zernikes_psd import plot_control_loop_zernikes_psd  # noqa: E501
+from utils.plots.plot_control_loop_zernikes_subplots import plot_control_loop_zernikes_subplots  # noqa: E501
 from utils.printing_and_logging import step_ri, title
 from utils.response_matrix import ResponseMatrix
 from utils.sim_prop_wf import sim_prop_wf
@@ -60,12 +60,6 @@ def control_loop_run_parser(subparsers):
         default=1024,
         help='number of grid points for the image simulations',
     )
-    subparser.add_argument(
-        '--plot-with-zernike-numbers',
-        action='store_true',
-        help=('add extra scatter points containing the Zernike term numbers '
-              'on top of each point for the plots'),
-    )
     model_group = subparser.add_mutually_exclusive_group()
     model_group.add_argument(
         '--neural-network',
@@ -83,6 +77,10 @@ def control_loop_run_parser(subparsers):
 def control_loop_run(cli_args):
     title('Control loop run script')
 
+    # ====================
+    # Load in the CLI args
+    # ====================
+
     step_ri('Loading CLI args')
     step_file = cli_args['step_file']
     K_p = cli_args['K_p']
@@ -91,9 +89,12 @@ def control_loop_run(cli_args):
     train_name = cli_args['train_name']
     ref_wl = cli_args['ref_wl']
     grid_points = cli_args['grid_points']
-    plot_with_zernike_numbers = cli_args['plot_with_zernike_numbers']
     neural_network = cli_args['neural_network']
     response_matrix = cli_args['response_matrix']
+
+    # ==============================
+    # Load in the control loop steps
+    # ==============================
 
     step_ri('Loading in the control loop steps')
     step_file_path = f'{CONTROL_LOOP_STEPS_P}/{step_file}.csv'
@@ -112,6 +113,10 @@ def control_loop_run(cli_args):
     zerinke_count = len(zernike_terms)
     print(f'Zernike terms: {zernike_terms}')
 
+    # ======================
+    # Verify the gain values
+    # ======================
+
     def _verify_gain(name, var):
         print(f'{name}: {var}')
         if not (-1 <= var <= 0):
@@ -122,9 +127,17 @@ def control_loop_run(cli_args):
     _verify_gain('K_i', K_i)
     _verify_gain('K_d', K_d)
 
+    # =========================
+    # Load in the optical train
+    # =========================
+
     step_ri('Loading in the optical train')
     (init_beam_d, beam_ratio, optical_train, camera_pixels,
      camera_sampling) = load_optical_train(train_name)
+
+    # =================
+    # Load in the model
+    # =================
 
     # Load in the model
     if neural_network:
@@ -154,6 +167,10 @@ def control_loop_run(cli_args):
             return response_matrix_obj(total_int_field=inputs.reshape(-1))
     else:
         terminate_with_message('Neural network or response matrix required')
+
+    # ====================
+    # Run the control loop
+    # ====================
 
     step_ri('Preparing to run control loop')
     print('Initializing corrections to all zero')
@@ -201,54 +218,84 @@ def control_loop_run(cli_args):
     meas_error_history = np.array(meas_error_history)
     print('Finished running the control loop')
 
-    step_ri('Creating the output directory')
-    output_path = f'{RANDOM_P}/{step_file}_{model_str}_{K_p}_{K_i}_{K_d}'
-    print(f'Output path: {output_path}')
-    make_dir(output_path)
+    # ======================
+    # Create the output dirs
+    # ======================
 
-    step_ri('Saving history and generating plots')
+    step_ri('Creating the output directories')
 
-    def _write_hist_and_plots(history_data, hist_type, additional_info):
-        base_path = f'{output_path}/{hist_type}_error_history'
-        # Write out the history CSV
-        history_path = f'{base_path}.csv'
+    def _make_dir(base, folder):
+        path = f'{base}/{folder}'
+        make_dir(path)
+        return path
+
+    out_dir = _make_dir(RANDOM_P, f'{step_file}_{model_str}_{K_p}_{K_i}_{K_d}')
+    output_path_hist_data = _make_dir(out_dir, 'history_data')
+    output_path_ts_same = _make_dir(out_dir, 'time_series_plots/same_plot')
+    output_path_ts_sub = _make_dir(out_dir, 'time_series_plots/subplots')
+    output_path_psd_same = _make_dir(out_dir, 'psd_plots/same_plot')
+    output_path_psd_sub = _make_dir(out_dir, 'psd_plots/subplots')
+
+    # =====================
+    # Write out the history
+    # =====================
+
+    step_ri('Writing out the history')
+
+    # Write out the history CSV
+    def _write_hist(history_data, hist_type):
         print(f'Saving {hist_type} error history.')
+        history_path = f'{output_path_hist_data}/{hist_type}_error.csv'
         np.savetxt(history_path, history_data, delimiter=',', fmt='%.12f')
-        # Generate the plot
-        plot_path = f'{base_path}.png'
-        plot_path_psd = f'{base_path}_psd.png'
-        title_info = (f'Model={model_str}, K_PID={(K_p, K_i, K_d)}, '
-                      f'{hist_type} error ({additional_info})')
-        print(f'Saving {hist_type} error plots.')
-        plot_control_loop_zernikes(
-            zernike_terms,
-            history_data,
-            step_file,
-            title_info,
-            cumulative_time,
-            plot_with_zernike_numbers,
-            plot_path,
-        )
-        plot_control_loop_zernikes_psd(
-            zernike_terms,
-            history_data,
-            step_file,
-            title_info,
-            delta_time,
-            plot_path_psd,
-        )
 
-    _write_hist_and_plots(true_error_history, 'true', 'input aberrations')
-    _write_hist_and_plots(meas_error_history, 'meas', 'model outputs')
+    _write_hist(true_error_history, 'true')
+    _write_hist(meas_error_history, 'meas')
 
-    plot_path = f'{output_path}/input_signal.png'
-    print('Saving input signal plot.')
-    plot_control_loop_zernikes(
-        zernike_terms,
-        step_data[:, 3:],
-        step_file,
-        'Input Signal',
-        cumulative_time,
-        plot_with_zernike_numbers,
-        plot_path,
-    )
+    # ==================
+    # Generate the plots
+    # ==================
+
+    step_ri('Generating the plots')
+
+    base_title = (f'Control Loop, Step File={step_file}, '
+                  f'Timesteps={total_steps}\n')
+    # Determine the number of rows and columns for the subplot plots
+    n_rows = n_cols = int(np.ceil(np.sqrt(len(zernike_terms))))
+
+    def _create_plots(history_data, hist_type, additional_info):
+        print(f'Saving {hist_type} error plots (x4).')
+        plot_title = base_title + (
+            f'Model={model_str}, K_PID={(K_p, K_i, K_d)}, '
+            f'{hist_type} error ({additional_info})')
+        plot_file = f'{hist_type}_error.png'
+
+        def _zernike_same_plot(output_dir, plot_psd):
+            plot_path = f'{output_dir}/{plot_file}'
+            plot_control_loop_zernikes(zernike_terms, history_data, plot_title,
+                                       cumulative_time, plot_path, plot_psd)
+
+        def _zernike_subplots(output_dir, plot_psd):
+            plot_path = f'{output_dir}/{plot_file}'
+            plot_control_loop_zernikes_subplots(zernike_terms, history_data,
+                                                plot_title, cumulative_time,
+                                                n_rows, n_cols, plot_path,
+                                                plot_psd)
+
+        _zernike_same_plot(output_path_ts_same, False)  # Time series
+        _zernike_same_plot(output_path_psd_same, True)  # PSD
+        _zernike_subplots(output_path_ts_sub, False)  # Time series
+        _zernike_subplots(output_path_psd_sub, True)  # PSD
+
+    _create_plots(true_error_history, 'true', 'input aberrations')
+    _create_plots(meas_error_history, 'meas', 'model outputs')
+
+    print('Saving input signal plots (x2).')
+    input_signal_data = step_data[:, 3:]
+    plot_title = f'{base_title}Input Signal'
+    plot_path = f'{output_path_ts_same}/input_signal.png'
+    plot_control_loop_zernikes(zernike_terms, input_signal_data, plot_title,
+                               cumulative_time, plot_path)
+    plot_path = f'{output_path_ts_sub}/input_signal.png'
+    plot_control_loop_zernikes_subplots(zernike_terms, input_signal_data,
+                                        plot_title, cumulative_time, n_rows,
+                                        n_cols, plot_path)

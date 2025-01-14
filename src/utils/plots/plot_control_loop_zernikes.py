@@ -7,34 +7,32 @@ from utils.idl_rainbow_cmap import idl_rainbow_cmap
 def plot_control_loop_zernikes(
     zernike_terms,
     zernike_time_steps,
-    step_file,
-    title_info,
+    title,
     total_time,
-    plot_scatter_dots,
     plot_path,
+    plot_psd=False,
 ):
     """
-    Generates and saves a plot showing the Zernike coefficients over time from
-    a control loop run.
+    Generates and saves a plot of all the Zernike coefficients plotted overtop
+    of each other. The plot shows either the time series or PSD of the Zernike
+    coefficients from a control loop run.
 
     Parameters
     ----------
     zernike_terms : list
         Noll Zernike terms.
     zernike_time_steps : np.array
-        The Zernike coefficients outputted from the model at each time step.
-        Should be a 2D array (timesteps, model outputs). Values should be in nm.
-    step_file : str
-        Name of the step file being used.
-    title_info : str
-        Additional info on the run displayed as the second line of the title.
+        The Zernike coefficients outputted from the model at each time step,
+        should be in meters. Should be a 2D array (timesteps, model outputs).
+    title : str
+        The title to display.
     total_time : float
         Total time that the control loop ran over in seconds (assumes the time
         started at 0).
-    plot_scatter_dots : bool
-        Plot the Zernike number on top of each datapoint.
     plot_path : str
         Path to save the plot at.
+    plot_psd : bool
+        Plot the PSD instead of the time series.
     """
 
     # Total number of time steps
@@ -42,50 +40,33 @@ def plot_control_loop_zernikes(
 
     # Set the figure size and add the title + axes labels
     fig, ax = plt.subplots(figsize=(12, 6))
-
-    ax.set_title(f'Control Loop, Step File={step_file}, '
-                 f'Timesteps={total_steps}\n{title_info}')
-    ax.set_xlabel('Time [s]')
-    ax.set_ylabel('Coefficient [nm RMS]')
+    ax.set_title(title)
 
     # The colors that will be plotted for each line
     colors = idl_rainbow_cmap()(np.linspace(0, 1, len(zernike_terms)))
-    # The x points for the scatter plots
-    x_points = np.arange(total_steps)
-    # Plot each Zernike terms coefficients over time
+
+    # Plot each Zernike coefficient term
     for term_idx, term in enumerate(zernike_terms):
         term_data = zernike_time_steps[:, term_idx] * 1e9
-        # Plot the lines on the bottom layer
-        ax.plot(
-            term_data,
-            label=f'Z{term} {ZERNIKE_NAME_LOOKUP[term]}',
-            color=colors[term_idx],
-            zorder=0,
-            linewidth=1,
-        )
-        if plot_scatter_dots:
-            # Next, plot the dots at each of the points
-            ax.scatter(
-                x_points,
-                term_data,
-                s=30,
-                color=colors[term_idx],
-                zorder=1,
-            )
-            # Lastly, plot the Zernike Noll index on top
-            ax.scatter(
-                x_points,
-                term_data,
-                s=20,
-                color='white',
-                zorder=2,
-                marker=f"${term}$",
-            )
+        label = f'Z{term} {ZERNIKE_NAME_LOOKUP[term]}'
+        color = colors[term_idx]
+        # Choose whether to do a PSD or time series plot
+        if plot_psd:
+            delta_time = total_time / (total_steps - 1)
+            ax.psd(term_data, Fs=(1 / delta_time), label=label, color=color)
+        else:
+            ax.plot(term_data, label=label, color=color, linewidth=1)
 
-    # Set the x labels to time
-    x_tick_pos = np.linspace(0, total_steps, 7)
-    x_tick_labels = [f'{val:0.4f}' for val in np.linspace(0, total_time, 7)]
-    ax.set_xticks(x_tick_pos, x_tick_labels)
+    # Update the axis information
+    if plot_psd:
+        ax.set_ylabel('PSD [nm RMS/Hz]')
+    else:
+        ax.set_xlabel('Time [s]')
+        ax.set_ylabel('Coefficient [nm RMS]')
+        # Set the x labels to time
+        x_tick_pos = np.linspace(0, total_steps, 7)
+        x_tick_labels = [f'{v:0.4f}' for v in np.linspace(0, total_time, 7)]
+        ax.set_xticks(x_tick_pos, x_tick_labels)
 
     # Display the legend to the right middle of the plot
     ax.legend(loc='center left', bbox_to_anchor=(1.01, 0.5))
