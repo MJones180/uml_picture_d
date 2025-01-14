@@ -119,6 +119,13 @@ Random aberrations for every term in each row:
 
 Random aberrations for every term in each row generated using the approximated VVC simulations:
 
+    # -1 to 1 nm, 100,000 rows
+    python3 main_scnp.py sim_data random_1nm_large_approx v84_approx 600e-9 \
+        --output-write-batch 500 \
+        --rand-amount-per-zernike 2 24 " -1e-9" 1e-9 100000 \
+        --append-no-aberrations-row \
+        --cores 4
+
     # -2 to 2 nm, 100,000 rows
     python3 main_scnp.py sim_data random_2nm_large_approx v84_approx 600e-9 \
         --output-write-batch 500 \
@@ -385,6 +392,15 @@ Can be used for model training/validation:
         --norm-outputs globally --norm-range-ones \
         --use-field-diff no_aberrations \
         --additional-raw-data-tags random_2nm_large_approx random_10nm_large_approx random_20nm_large_approx random_30nm_large_approx random_40nm_large_approx \
+        --additional-raw-data-tags-train-only fixed_50nm_range_2000_approx
+
+    python3 main.py preprocess_data_complete \
+        random_50nm_large_approx \
+        train_fixed_2000_and_random_group_ranges_approx_v3 val_fixed_2000_and_random_group_ranges_approx_v3 empty \
+        85 15 0 \
+        --norm-outputs globally --norm-range-ones \
+        --use-field-diff no_aberrations \
+        --additional-raw-data-tags random_1nm_large_approx random_2nm_large_approx random_10nm_large_approx random_20nm_large_approx random_30nm_large_approx random_40nm_large_approx \
         --additional-raw-data-tags-train-only fixed_50nm_range_2000_approx
 
 Can be used for testing:
