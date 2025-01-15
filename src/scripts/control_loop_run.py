@@ -9,15 +9,11 @@ The step file should be generated with the `gen_zernike_time_steps` script.
 
 import numpy as np
 from utils.constants import CONTROL_LOOP_STEPS_P, RANDOM_P
-from utils.load_optical_train import load_optical_train
-from utils.model import Model
+from utils.iterate_simulated_control_loop import iterate_simulated_control_loop
 from utils.path import make_dir
 from utils.plots.plot_control_loop_zernikes import plot_control_loop_zernikes
 from utils.plots.plot_control_loop_zernikes_subplots import plot_control_loop_zernikes_subplots  # noqa: E501
 from utils.printing_and_logging import step_ri, title
-from utils.response_matrix import ResponseMatrix
-from utils.sim_prop_wf import sim_prop_wf
-from utils.terminate_with_message import terminate_with_message
 
 
 def control_loop_run_parser(subparsers):
@@ -110,114 +106,26 @@ def control_loop_run(cli_args):
     zernike_terms = header_line[3:]
     # Parse off the space and `Z` character
     zernike_terms = [int(term[2:]) for term in zernike_terms]
-    zerinke_count = len(zernike_terms)
     print(f'Zernike terms: {zernike_terms}')
-
-    # ======================
-    # Verify the gain values
-    # ======================
-
-    def _verify_gain(name, var):
-        print(f'{name}: {var}')
-        if not (-1 <= var <= 0):
-            terminate_with_message(f'{name} must be between -1 and 0')
-
-    step_ri('Verifying gain values')
-    _verify_gain('K_p', K_p)
-    _verify_gain('K_i', K_i)
-    _verify_gain('K_d', K_d)
-
-    # =========================
-    # Load in the optical train
-    # =========================
-
-    step_ri('Loading in the optical train')
-    (init_beam_d, beam_ratio, optical_train, camera_pixels,
-     camera_sampling) = load_optical_train(train_name)
-
-    # =================
-    # Load in the model
-    # =================
-
-    # Load in the model
-    if neural_network:
-        step_ri('Loading in the neural network')
-        tag, epoch = neural_network
-        model = Model(tag, epoch, force_cpu=cli_args.get('force_cpu'))
-        model_str = f'NN_{tag}_{epoch}'
-
-        def call_model(inputs):
-            # Subtract off the base field so that we have the delta field
-            # intensity and then normalize the data
-            preprocessed_inputs = model.norm_data(
-                model.subtract_basefield(inputs))
-            # We need to add an extra dimension to represents the batch size
-            preprocessed_inputs = preprocessed_inputs[None, :, :, :]
-            # Since we are only passing in one row, we only need to grab the
-            # first row from the batch size dimension
-            output = model(preprocessed_inputs)[0]
-            # Denormalize the data
-            return model.denorm_data(output)
-    elif response_matrix:
-        step_ri('Loading in the response matrix')
-        response_matrix_obj = ResponseMatrix(response_matrix)
-        model_str = f'RM_{response_matrix}'
-
-        def call_model(inputs):
-            # A 1D array should be passed in
-            return response_matrix_obj(total_int_field=inputs.reshape(-1))
-    else:
-        terminate_with_message('Neural network or response matrix required')
 
     # ====================
     # Run the control loop
     # ====================
 
-    step_ri('Preparing to run control loop')
-    print('Initializing corrections to all zero')
-    corrections = np.zeros(zerinke_count)
-    # We need the cumulative sum for each Zernike term to compute integral grain
-    running_zernike_sum = np.zeros(zerinke_count)
-    # Keep track of the history for plotting and writing out
-    true_error_history = []
-    meas_error_history = []
-
-    step_ri('Running the control loop')
-    for step in step_data:
-        row_idx, cumulative_time, delta_time, *zernike_coeffs = step
-        print(f'Step: {int(row_idx + 1)}/{total_steps}')
-        # Aberrations should be the sum of the signal and the correction
-        aberrations = zernike_coeffs + corrections
-        true_error_history.append(aberrations)
-        # Simulate the camera image that represents these Zernike coeffs
-        camera_image, _, _ = sim_prop_wf(
-            init_beam_d,
-            ref_wl,
-            beam_ratio,
-            optical_train,
-            camera_pixels,
-            camera_sampling,
-            zernike_terms,
-            aberrations,
-            grid_points,
-        )
-        # This will output the model's coefficients (nn or response matrix)
-        model_output = call_model(camera_image)
-        meas_error_history.append(model_output)
-        # The new set of corrections are in addition to the corrections from the
-        # last time step, so we can just add each term as we go.
-        corrections += K_p * model_output  # proportional term
-        # Update the running sum to compute the integral term.
-        running_zernike_sum += model_output * delta_time
-        corrections += K_i * running_zernike_sum  # integral term
-        # Do not calculate the time derivative if this is the first step
-        if len(meas_error_history) > 1:
-            dzdt = (model_output - meas_error_history[-2]) / delta_time
-            corrections += K_d * dzdt  # derivative term
-    # Now, we can plot our history over time
-    true_error_history = np.array(true_error_history)
-    meas_error_history = np.array(meas_error_history)
-    print('Finished running the control loop')
+    (cumulative_time, true_error_history,
+     meas_error_history) = iterate_simulated_control_loop(
+         step_data,
+         zernike_terms,
+         K_p,
+         K_i,
+         K_d,
+         train_name,
+         ref_wl,
+         grid_points=grid_points,
+         print_logs=True,
+         use_nn=neural_network,
+         use_rm=response_matrix,
+     )
 
     # ======================
     # Create the output dirs
@@ -230,6 +138,14 @@ def control_loop_run(cli_args):
         make_dir(path)
         return path
 
+    # Set the model string
+    if neural_network:
+        tag, epoch = neural_network
+        model_str = f'NN_{tag}_{epoch}'
+    elif response_matrix:
+        model_str = f'RM_{response_matrix}'
+
+    # All of the output directories
     out_dir = _make_dir(RANDOM_P, f'{step_file}_{model_str}_{K_p}_{K_i}_{K_d}')
     output_path_hist_data = _make_dir(out_dir, 'history_data')
     output_path_ts_same = _make_dir(out_dir, 'time_series_plots/same_plot')
