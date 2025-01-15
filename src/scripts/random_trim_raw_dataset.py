@@ -83,10 +83,10 @@ def random_trim_raw_dataset(cli_args):
     step_ri('Writing new datafile')
     print(f'Path: {out_path}')
     HDFWriteModule(out_path).create_and_write_hdf_simple({
-        'camera_intensity': camera_intensity,
-        'camera_sampling': camera_sampling,
-        'zernike_coeffs': zernike_coeffs,
-        'zernike_terms': zernike_terms,
+        CAMERA_INTENSITY: camera_intensity,
+        CAMERA_SAMPLING: camera_sampling,
+        ZERNIKE_COEFFS: zernike_coeffs,
+        ZERNIKE_TERMS: zernike_terms,
     })
 
     # Load in the args file
