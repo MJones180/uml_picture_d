@@ -57,7 +57,8 @@ def model_test_parser(subparsers):
                  '[filter_value]', '[plot_density]'),
         help=('generate a scatter plot; takes the args: number of rows, '
               'number of cols, first Zernike the model outputs, filter value '
-              'range, points per pixel to use for the density plot'),
+              '(0 for no filtering, otherwise filtering with shared axes), '
+              'points per pixel to use for the density plot'),
     )
     subparser.add_argument(
         '--zernike-plots',
@@ -165,7 +166,8 @@ def model_test(cli_args):
         filter_value = float(scatter_plot[3])
         print(f'Using {n_rows} rows and {n_cols} cols.')
         print(f'Starting Zernike: {starting_zernike}.')
-        print(f'Filtering between: [-{filter_value},{filter_value}].')
+        if filter_value:
+            print(f'Filtering between: [-{filter_value},{filter_value}].')
         print(f'Point per pixel for density plot: {plot_density}.')
         plot_comparison_scatter_grid(
             outputs_model,
@@ -175,8 +177,8 @@ def model_test(cli_args):
             plot_title,
             plot_identifier,
             starting_zernike,
+            filter_value,
             f'{analysis_path}/scatter.png',
-            filter_value=filter_value,
         )
         plot_comparison_scatter_grid(
             outputs_model,
@@ -186,9 +188,9 @@ def model_test(cli_args):
             plot_title,
             plot_identifier,
             starting_zernike,
+            filter_value,
             f'{analysis_path}/density_scatter.png',
             plot_density=plot_density,
-            filter_value=filter_value,
         )
 
     if cli_args.get('zernike_plots'):

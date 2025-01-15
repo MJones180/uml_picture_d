@@ -14,9 +14,9 @@ def plot_comparison_scatter_grid(
     title_vs,
     identifier,
     starting_zernike,
+    filter_value,
     plot_path=None,
     plot_density=0,
-    filter_value=None,
     interactive_view=False,
 ):
     """
@@ -39,14 +39,15 @@ def plot_comparison_scatter_grid(
         Identifier of the model being compared against.
     starting_zernike : int
         The first Zernike being compared against.
+    filter_value : float
+        If set to 0, then all subplots will have their own axes limits and no
+        filtering will be done. Otherwise, will filter out all values not in the
+        range of [-filter_value, filter_value].
     plot_path : str
         The path to output the plot.
     plot_density : int
         If not zero, a plot density scatter will be used. The number passed
         represents the upper bound on the colorbar.
-    filter_value : float
-        If not None, will filter out all values not in the range of
-        [-filter_value, filter_value].
     interactive_view : bool
         Display the plot in interactive mode, False by default.
     """
@@ -63,16 +64,17 @@ def plot_comparison_scatter_grid(
     # Filter the data
     # ===============
 
+    point_per_plot = total_row_count
     if filter_value:
         gte = model_data >= -filter_value
         lte = model_data <= filter_value
         filter_mask = np.all(gte & lte, axis=1)
         model_data = model_data[filter_mask]
         truth_data = truth_data[filter_mask]
-        filtered_row_count = model_data.shape[0]
+        point_per_plot = model_data.shape[0]
         print(f'Before filtering: {total_row_count} rows')
-        print(f'After filtering: {filtered_row_count} rows')
-        rows_filtered_out = total_row_count - filtered_row_count
+        print(f'After filtering: {point_per_plot} rows')
+        rows_filtered_out = total_row_count - point_per_plot
         print(f'Filtered out {rows_filtered_out} rows')
 
     # ==================
@@ -82,26 +84,27 @@ def plot_comparison_scatter_grid(
     subplot_args = {'figsize': (n_cols * 5, n_rows * 5)}
     if plot_density:
         subplot_args['subplot_kw'] = {'projection': 'scatter_density'}
-    fig, axs = plt.subplots(
-        n_rows,
-        n_cols,
-        sharex=True,
-        sharey=True,
-        **subplot_args,
-    )
+    if filter_value:
+        subplot_args['sharex'] = True
+        subplot_args['sharey'] = True
+    fig, axs = plt.subplots(n_rows, n_cols, **subplot_args)
 
     # ===============
     # Do the plotting
     # ===============
 
     title = (f'Truth vs {title_vs} [{identifier}]\n'
-             f'Total points per subplot: {filtered_row_count}. '
-             f'Filtered out {rows_filtered_out} '
-             f'rows using bounds [-{filter_value}, {filter_value}].')
+             f'Total points per subplot: {point_per_plot}. ')
+    if filter_value:
+        title += (f'Filtered out {rows_filtered_out} '
+                  f'rows using bounds [-{filter_value}, {filter_value}].')
+
     plt.suptitle(title, size=30)
-    # The limits should be the global min and max values
-    xlim = np.amin(truth_data), np.amax(truth_data)
-    ylim = np.amin(model_data), np.amax(model_data)
+    # The limits should be the global min and max values if filtered, otherwise
+    # it changes for each subplot
+    if filter_value:
+        xlim = np.amin(truth_data), np.amax(truth_data)
+        ylim = np.amin(model_data), np.amax(model_data)
     current_col = 0
     for plot_row in range(n_rows):
         for plot_col in range(n_cols):
@@ -113,6 +116,9 @@ def plot_comparison_scatter_grid(
             model_col = model_data[:, current_col]
             truth_col = truth_data[:, current_col]
             axs_cell = axs[plot_row, plot_col]
+            if filter_value == 0:
+                xlim = np.amin(truth_col), np.amax(truth_col)
+                ylim = np.amin(model_col), np.amax(model_col)
             # Add the Zernike number to the top left of the plot
             # https://stackoverflow.com/a/50091489
             axs_cell.annotate(
@@ -157,7 +163,7 @@ def plot_comparison_scatter_grid(
             else:
                 # Plot the scatter of all the points
                 axs_cell.scatter(truth_col, model_col, 0.25)
-            # Ensure all subplots have the same limits
+            # Set the limits on each subplot
             axs_cell.set_xlim(*xlim)
             axs_cell.set_ylim(*ylim)
             # Only display x labels for the last row
