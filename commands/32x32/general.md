@@ -168,6 +168,26 @@ Random aberrations for every term in each row generated using the approximated V
         --append-no-aberrations-row \
         --cores 4
 
+If 100k rows of all the previous datasets were already simulated, then we can instantly create ones with less rows:
+
+    python3 main.py random_trim_raw_dataset random_2nm_large_approx random_2nm_small_approx 20000
+    python3 main.py random_trim_raw_dataset random_2nm_large_approx random_2nm_med_approx 50000
+
+    python3 main.py random_trim_raw_dataset random_10nm_large_approx random_10nm_small_approx 20000
+    python3 main.py random_trim_raw_dataset random_10nm_large_approx random_10nm_med_approx 50000
+
+    python3 main.py random_trim_raw_dataset random_20nm_large_approx random_20nm_small_approx 20000
+    python3 main.py random_trim_raw_dataset random_20nm_large_approx random_20nm_med_approx 50000
+
+    python3 main.py random_trim_raw_dataset random_30nm_large_approx random_30nm_small_approx 20000
+    python3 main.py random_trim_raw_dataset random_30nm_large_approx random_30nm_med_approx 50000
+
+    python3 main.py random_trim_raw_dataset random_40nm_large_approx random_40nm_small_approx 20000
+    python3 main.py random_trim_raw_dataset random_40nm_large_approx random_40nm_med_approx 50000
+
+    python3 main.py random_trim_raw_dataset random_50nm_large_approx random_50nm_small_approx 20000
+    python3 main.py random_trim_raw_dataset random_50nm_large_approx random_50nm_med_approx 50000
+
 Random aberration for only one term in each row ranging from -50 to 50 nm:
 
     python3 main_scnp.py sim_data random_50nm_single_med v84 600e-9 \
@@ -401,6 +421,24 @@ Can be used for model training/validation:
         --norm-outputs globally --norm-range-ones \
         --use-field-diff no_aberrations \
         --additional-raw-data-tags random_1nm_large_approx random_2nm_large_approx random_10nm_large_approx random_20nm_large_approx random_30nm_large_approx random_40nm_large_approx \
+        --additional-raw-data-tags-train-only fixed_50nm_range_2000_approx
+
+    python3 main.py preprocess_data_complete \
+        random_50nm_small_approx \
+        train_fixed_2000_and_random_group_ranges_approx_v2_small val_fixed_2000_and_random_group_ranges_approx_v2_small empty \
+        85 15 0 \
+        --norm-outputs globally --norm-range-ones \
+        --use-field-diff no_aberrations \
+        --additional-raw-data-tags random_2nm_small_approx random_10nm_small_approx random_20nm_small_approx random_30nm_small_approx random_40nm_small_approx \
+        --additional-raw-data-tags-train-only fixed_50nm_range_2000_approx
+
+    python3 main.py preprocess_data_complete \
+        random_50nm_med_approx \
+        train_fixed_2000_and_random_group_ranges_approx_v2_med val_fixed_2000_and_random_group_ranges_approx_v2_med empty \
+        85 15 0 \
+        --norm-outputs globally --norm-range-ones \
+        --use-field-diff no_aberrations \
+        --additional-raw-data-tags random_2nm_med_approx random_10nm_med_approx random_20nm_med_approx random_30nm_med_approx random_40nm_med_approx \
         --additional-raw-data-tags-train-only fixed_50nm_range_2000_approx
 
 Can be used for testing:
