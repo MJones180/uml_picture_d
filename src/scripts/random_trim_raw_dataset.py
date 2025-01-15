@@ -33,6 +33,11 @@ def random_trim_raw_dataset_parser(subparsers):
         type=int,
         help='number of rows in the new dataset',
     )
+    subparser.add_argument(
+        '--keep-no-aberration-rows',
+        action='store_true',
+        help='keep rows that contain no aberrations',
+    )
 
 
 def random_trim_raw_dataset(cli_args):
@@ -41,6 +46,7 @@ def random_trim_raw_dataset(cli_args):
     original_tag = cli_args['original_tag']
     new_tag = cli_args['new_tag']
     row_count = cli_args['row_count']
+    keep_no_aberration_rows = cli_args['keep_no_aberration_rows']
 
     # The tables that need to be merged together from all the datafiles
     camera_intensity = []
@@ -69,6 +75,10 @@ def random_trim_raw_dataset(cli_args):
     step_ri('Randomly picking the rows')
     rng = np.random.default_rng()
     idxs = rng.choice(camera_intensity.shape[0], row_count, replace=False)
+    if keep_no_aberration_rows:
+        print('Also keeping the rows with no aberrations')
+        no_aber_idxs = np.all(zernike_coeffs == 0, axis=1)
+        idxs = np.concatenate((idxs, no_aber_idxs), axis=0)
     # Trim down the rows in the datasets
     camera_intensity = camera_intensity[idxs]
     zernike_coeffs = zernike_coeffs[idxs]
