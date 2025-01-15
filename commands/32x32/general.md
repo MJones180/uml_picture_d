@@ -188,6 +188,32 @@ If 100k rows of all the previous datasets were already simulated, then we can in
     python3 main.py random_trim_raw_dataset random_50nm_large_approx random_50nm_small_approx 20000
     python3 main.py random_trim_raw_dataset random_50nm_large_approx random_50nm_med_approx 50000
 
+Random aberrations where different groups have different ranges:
+
+    # 100,000 rows, 500 nm for Z2-3, 20 nm for Z4-8, 10 nm for Z9-24
+    python3 main_scnp.py sim_data random_group_500_20_10 v84_approx 600e-9 \
+        --output-write-batch 500 --append-no-aberrations-row \
+        --rand-amount-per-zernike-groups 100000 2 3 " -500e-9" 500e-9 4 8 " -20e-9" 20e-9 9 24 " -10e-9" 10e-9 \
+        --cores 4
+
+    # 100,000 rows, 50 nm for Z2-3, 10 nm for Z4-8, 5 nm for Z9-24
+    python3 main_scnp.py sim_data random_group_50_10_5 v84_approx 600e-9 \
+        --output-write-batch 500 --append-no-aberrations-row \
+        --rand-amount-per-zernike-groups 100000 2 3 " -50e-9" 50e-9 4 8 " -10e-9" 10e-9 9 24 " -5e-9" 5e-9 \
+        --cores 4
+
+    # 100,000 rows, 15 nm for Z2-3, 5 nm for Z4-8, 2 nm for Z9-24
+    python3 main_scnp.py sim_data random_group_15_5_2 v84_approx 600e-9 \
+        --output-write-batch 500 --append-no-aberrations-row \
+        --rand-amount-per-zernike-groups 100000 2 3 " -15e-9" 15e-9 4 8 " -5e-9" 5e-9 9 24 " -2e-9" 2e-9 \
+        --cores 4
+
+    # 100,000 rows, 10 nm for Z2-3, 2 nm for Z4-8, 1 nm for Z9-24
+    python3 main_scnp.py sim_data random_group_10_2_1 v84_approx 600e-9 \
+        --output-write-batch 500 --append-no-aberrations-row \
+        --rand-amount-per-zernike-groups 100000 2 3 " -10e-9" 10e-9 4 8 " -2e-9" 2e-9 9 24 " -1e-9" 1e-9 \
+        --cores 4
+
 Random aberration for only one term in each row ranging from -50 to 50 nm:
 
     python3 main_scnp.py sim_data random_50nm_single_med v84 600e-9 \
@@ -439,6 +465,17 @@ Can be used for model training/validation:
         --norm-outputs globally --norm-range-ones \
         --use-field-diff no_aberrations \
         --additional-raw-data-tags random_2nm_med_approx random_10nm_med_approx random_20nm_med_approx random_30nm_med_approx random_40nm_med_approx \
+        --additional-raw-data-tags-train-only fixed_50nm_range_2000_approx
+
+    python3 main.py preprocess_data_complete \
+        random_group_500_20_10 \
+        train_fixed_2000_and_random_weighted_group_ranges \
+        val_fixed_2000_and_random_weighted_group_ranges \
+        test_fixed_2000_and_random_weighted_group_ranges \
+        80 15 5 \
+        --norm-outputs globally --norm-range-ones \
+        --use-field-diff no_aberrations \
+        --additional-raw-data-tags random_group_50_10_5 random_group_15_5_2 random_group_10_2_1 random_2nm_large_approx \
         --additional-raw-data-tags-train-only fixed_50nm_range_2000_approx
 
 Can be used for testing:
