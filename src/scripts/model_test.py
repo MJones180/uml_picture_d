@@ -108,9 +108,7 @@ def model_test(cli_args):
     # off before normalization occurs.
     if cli_args.get('inputs_need_diff'):
         step_ri('Taking the diff of the inputs')
-        if model.base_field is None:
-            terminate_with_message('Base field not present in extra variables')
-        inputs = inputs - model.base_field
+        inputs = model.subtract_basefield(inputs)
 
     if cli_args.get('inputs_need_norm'):
         step_ri('Normalizing the inputs')

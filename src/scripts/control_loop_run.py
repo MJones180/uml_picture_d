@@ -149,7 +149,8 @@ def control_loop_run(cli_args):
         def call_model(inputs):
             # Subtract off the base field so that we have the delta field
             # intensity and then normalize the data
-            preprocessed_inputs = model.norm_data(inputs - model.base_field)
+            preprocessed_inputs = model.norm_data(
+                model.subtract_basefield(inputs))
             # We need to add an extra dimension to represents the batch size
             preprocessed_inputs = preprocessed_inputs[None, :, :, :]
             # Since we are only passing in one row, we only need to grab the

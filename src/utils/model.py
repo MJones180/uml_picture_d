@@ -95,6 +95,11 @@ class Model():
         # many rows as needed can be passed.
         self.max_rows_per_model_call = None
 
+    def subtract_basefield(self, input_data):
+        if self.base_field is None:
+            terminate_with_message('Base field not present in extra variables')
+        return input_data - self.base_field
+
     def norm_data(self, input_data):
         return min_max_norm(
             input_data,
