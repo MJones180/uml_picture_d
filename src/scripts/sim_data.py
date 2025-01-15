@@ -278,19 +278,22 @@ def sim_data(cli_args):
         # Verify there are the correct number of arguments
         if len(group_args) % 4 != 0:
             terminate_with_message('Each group must have four arguments')
+        # The data that needs to be aggregated for each group
         zernike_terms = []
         aberrations = []
+        col_count = 0
         for group_idx in range(len(group_args) // 4):
             print(f'Group: {group_idx}')
             groups_args = group_args[group_idx * 4:(group_idx + 1) * 4]
-            group_zernikes, col_count = _zernike_terms_list(*groups_args[:2])
+            group_zernikes, cols = _zernike_terms_list(*groups_args[:2])
             zernike_terms.extend(group_zernikes)
-            print(f'    Zernike terms ({col_count}): {group_zernikes}')
+            col_count += cols
+            print(f'    Zernike terms ({cols}): {group_zernikes}')
             perturb_low = float(groups_args[2])
             perturb_high = float(groups_args[3])
             print(f'    Perturbation range: {perturb_low} to {perturb_high}')
             aberrations.append(
-                rng.uniform(perturb_low, perturb_high, (rows, col_count)))
+                rng.uniform(perturb_low, perturb_high, (rows, cols)))
         # Convert the datatype back to native int
         zernike_terms = np.array([int(v) for v in zernike_terms])
         # Join together all the aberrations
