@@ -242,12 +242,13 @@ def preprocess_data_complete(cli_args):
     norm_outputs = cli_args.get('norm_outputs')
     if norm_outputs == 'individually':
         print('Individually normalizing outputs of training data')
-        train_outputs, max_min_diff, min_x = find_min_max_norm(
-            train_outputs, nro)
+        train_outputs, max_min_diff, min_x = find_min_max_norm(train_outputs,
+                                                               ones_range=nro)
     elif norm_outputs == 'globally':
         print('Globally normalizing outputs of training data')
-        train_outputs, max_min_diff, min_x = find_min_max_norm(
-            train_outputs, True, nro)
+        train_outputs, max_min_diff, min_x = find_min_max_norm(train_outputs,
+                                                               globally=True,
+                                                               ones_range=nro)
         # For the output normalization, it is easier if there is a norm value
         # for every single element
         min_x = np.repeat(min_x, train_outputs.shape[1])
