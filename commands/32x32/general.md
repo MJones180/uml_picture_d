@@ -480,6 +480,17 @@ Can be used for model training/validation:
 
     python3 main.py preprocess_data_complete \
         random_group_500_20_10 \
+        train_fixed_2000_and_random_weighted_group_ranges_v2 \
+        val_fixed_2000_and_random_weighted_group_ranges_v2 \
+        test_fixed_2000_and_random_weighted_group_ranges_v2 \
+        80 15 5 \
+        --norm-outputs globally --norm-range-ones \
+        --use-field-diff no_aberrations \
+        --additional-raw-data-tags random_group_50_10_5 random_group_15_5_2 random_group_10_2_1 random_2nm_large_approx random_10nm_large_approx \
+        --additional-raw-data-tags-train-only fixed_50nm_range_2000_approx
+
+    python3 main.py preprocess_data_complete \
+        random_group_500_20_10 \
         train_fixed_2000_and_random_weighted_group_ranges_local \
         val_fixed_2000_and_random_weighted_group_ranges_local \
         test_fixed_2000_and_random_weighted_group_ranges_local \
@@ -490,6 +501,9 @@ Can be used for model training/validation:
         --additional-raw-data-tags-train-only fixed_50nm_range_2000_approx
 
 Can be used for testing:
+
+    # 1 nm
+    python3 main.py preprocess_data_bare random_1nm_large_approx random_1nm_large_processed
 
     # 10 nm
     python3 main.py preprocess_data_bare random_10nm_med random_10nm_med_processed

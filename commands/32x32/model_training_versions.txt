@@ -1348,8 +1348,14 @@ After model testing, it is useful to rank the model analyses:
         --scatter-plot 4 6 2 1e-7 15 --inputs-need-norm --inputs-need-diff
 
     python3 main.py model_test \
-        weighted_aberration_ranges last test_fixed_2000_and_random_weighted_group_ranges \
-        --scatter-plot 4 6 2 0 15 --inputs-need-norm --inputs-need-diff
+        weighted_aberration_ranges last random_1nm_large_processed \
+        --scatter-plot 4 6 2 1e-8 30 \
+        --inputs-need-norm --inputs-need-diff --force-cpu
+
+    python3 main.py model_test \
+        weighted_aberration_ranges last \
+        test_fixed_2000_and_random_weighted_group_ranges \
+        --scatter-plot 4 6 2 0 15
 
 [V45] The `weighted_aberration_ranges_local` tag:
 
@@ -1377,5 +1383,46 @@ After model testing, it is useful to rank the model analyses:
         --scatter-plot 4 6 2 1e-7 15 --inputs-need-norm --inputs-need-diff
 
     python3 main.py model_test \
-        weighted_aberration_ranges_local last test_fixed_2000_and_random_weighted_group_ranges_local \
-        --scatter-plot 4 6 2 0 15 --inputs-need-norm --inputs-need-diff
+        weighted_aberration_ranges_local last random_1nm_large_processed \
+        --scatter-plot 4 6 2 1e-8 30 \
+        --inputs-need-norm --inputs-need-diff --force-cpu
+
+    python3 main.py model_test \
+        weighted_aberration_ranges_local last \
+        test_fixed_2000_and_random_weighted_group_ranges_local \
+        --scatter-plot 4 6 2 0 15
+
+[V46] The `weighted_aberration_ranges_v2` tag:
+
+    python3 main_scnp.py model_train \
+        weighted_aberration_ranges_v2_round_one \
+        train_fixed_2000_and_random_weighted_group_ranges_v2 \
+        val_fixed_2000_and_random_weighted_group_ranges_v2 \
+        best32_1_smaller_10 mae adam 1e-5 1000 --batch-size 256 \
+        --overwrite-existing --only-best-epoch --early-stopping 15
+
+    python3 main_scnp.py model_train \
+        weighted_aberration_ranges_v2 \
+        train_fixed_2000_and_random_weighted_group_ranges_v2 \
+        val_fixed_2000_and_random_weighted_group_ranges_v2 \
+        best32_1_smaller_10 mae adam 1e-8 200 --batch-size 128 \
+        --overwrite-existing --only-best-epoch --early-stopping 15 \
+        --init-weights weighted_aberration_ranges_v2_round_one last
+
+    python3 main.py model_test \
+        weighted_aberration_ranges_v2 last fixed_50nm_range_processed \
+        --zernike-plots --inputs-need-norm --inputs-need-diff
+
+    python3 main.py model_test \
+        weighted_aberration_ranges_v2 last random_10nm_med_processed \
+        --scatter-plot 4 6 2 1e-7 15 --inputs-need-norm --inputs-need-diff
+
+    python3 main.py model_test \
+        weighted_aberration_ranges_v2 last random_1nm_large_processed \
+        --scatter-plot 4 6 2 1e-8 30 \
+        --inputs-need-norm --inputs-need-diff --force-cpu
+
+    python3 main.py model_test \
+        weighted_aberration_ranges_v2 last \
+        test_fixed_2000_and_random_weighted_group_ranges_v2 \
+        --scatter-plot 4 6 2 0 15
