@@ -25,6 +25,7 @@ def iterate_simulated_control_loop(
     print_logs=False,
     use_nn=None,
     use_rm=None,
+    early_stopping=None,
 ):
     """
     Iterate over a simulated control loop using either a neural network or
@@ -59,6 +60,11 @@ def iterate_simulated_control_loop(
     use_rm : str, optional
         Tag of the response matrix to use.
         Can only use this or the `use_nn` argument.
+    early_stopping : float, optional
+        Iterations can stop early if all Zernike coefficients fall within the
+        range of [-threshold, threshold]. The value passed in defines the
+        threshold. The default value of `None` means early stopping is disabled
+        and all control loop steps will be performed.
 
     Returns
     -------
@@ -155,6 +161,12 @@ def iterate_simulated_control_loop(
             print(f'Step: {int(row_idx + 1)}/{total_steps}')
         # Aberrations should be the sum of the signal and the correction
         aberrations = zernike_coeffs + corrections
+        # Potentially stop iterations early if enabled
+        if early_stopping and np.all(np.abs(aberrations) <= early_stopping):
+            if print_logs:
+                print('Ending iterations early due to all coefficients being '
+                      f'between [-{early_stopping}, {early_stopping}]')
+            break
         true_error_history.append(aberrations)
         # Simulate the camera image that represents these Zernike coeffs
         camera_image, _, _ = sim_prop_wf(
