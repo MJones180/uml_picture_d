@@ -252,10 +252,10 @@ def control_loop_dataset_capture(cli_args):
     out_path = f'{RANDOM_P}/{data_tag}_{model_str}_{K_p}_{K_i}_{K_d}.txt'
     print(f'Writing to {out_path}')
     with open(out_path, 'w') as output:
-        output.writelines([
+        output.write('\n'.join([
             f'Data tag: {data_tag}',
             f'Model: {model_str}',
             f'K_(P,I,D): {K_p}, {K_i}, {K_d}',
             f'Capture threshold: {capture_threshold}',
             f'Captured: {total_captured}/{nrows} ({percentage:0.2f}%)',
-        ])
+        ]))
