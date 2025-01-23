@@ -1,7 +1,7 @@
 from glob import glob
 import numpy as np
-from utils.constants import (CAMERA_INTENSITY, CAMERA_SAMPLING, DATA_F,
-                             FULL_INTENSITY, FULL_SAMPLING,
+from utils.constants import (ABERRATIONS_F, CAMERA_INTENSITY, CAMERA_SAMPLING,
+                             DATA_F, FULL_INTENSITY, FULL_SAMPLING,
                              RAW_SIMULATED_DATA_P, ZERNIKE_COEFFS,
                              ZERNIKE_TERMS)
 from utils.hdf_read_and_write import read_hdf
@@ -40,3 +40,14 @@ def load_raw_sim_data_chunks(raw_data_tag, full_intensity=False):
     input_data = np.array(input_data)
     output_data = np.array(output_data)
     return input_data, output_data, zernike_terms, sampling
+
+
+def load_raw_sim_data_aberrations_file(raw_data_tag):
+    file_path = f'{RAW_SIMULATED_DATA_P}/{raw_data_tag}/{ABERRATIONS_F}'
+    # Load in the aberration coefficients
+    aberrations = np.loadtxt(file_path, delimiter=',')
+    # Grab the Zernike terms that correspond to each coefficient
+    with open(file_path) as file:
+        header_line = file.readline()[1:-1].split(',')
+    zernike_terms = [int(term) for term in header_line]
+    return aberrations, zernike_terms
