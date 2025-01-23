@@ -64,6 +64,11 @@ def sim_data_parser(subparsers):
         help='save a text file containing just the aberrations',
     )
     subparser.add_argument(
+        '--save-aberrations-csv-quit',
+        action='store_true',
+        help='save a text file containing just the aberrations and then quit',
+    )
+    subparser.add_argument(
         '--cores',
         default=1,
         type=int,
@@ -195,6 +200,7 @@ def sim_data(cli_args):
     save_plots = cli_args['save_plots']
     save_full_intensity = cli_args['save_full_intensity']
     save_aberrations_csv = cli_args['save_aberrations_csv']
+    save_aberrations_csv_quit = cli_args['save_aberrations_csv_quit']
     append_no_aberrations_row = cli_args['append_no_aberrations_row']
     use_only_aberration_map = cli_args['use_only_aberration_map']
     no_aberrations = cli_args['no_aberrations']
@@ -352,7 +358,7 @@ def sim_data(cli_args):
     nrows = aberrations.shape[0]
     print(f'Total rows being simulated: {nrows}')
 
-    if save_aberrations_csv:
+    if save_aberrations_csv or save_aberrations_csv_quit:
         step_ri('Saving the aberrations')
         aber_path = f'{output_path}/{ABERRATIONS_F}'
         header = ', '.join([str(v) for v in zernike_terms])
@@ -364,6 +370,8 @@ def sim_data(cli_args):
             header=header,
         )
         print(f'Saved to {aber_path}')
+        if save_aberrations_csv_quit:
+            quit()
 
     def write_cb(worker_idx, simulation_data):
         print(f'Worker [{worker_idx}] writing out data')
