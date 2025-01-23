@@ -64,7 +64,7 @@ Control loop step files:
     python3 main.py control_loop_run \
         all_terms_10 -0.6 -0.2 0 v84_approx 600e-9 --response-matrix fixed_40nm_positive_and_negative
 
-Many control loops on static wavefronts:
+Many control loops on static wavefronts to see how well the model can capture:
 
     python3 main_scnp.py control_loop_dataset_capture \
         random_group_500_20_10_just_aberrations 20 1e-3 2e-10 \
