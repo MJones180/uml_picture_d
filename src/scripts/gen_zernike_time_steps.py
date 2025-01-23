@@ -4,6 +4,15 @@ This can then be plugged into the `control_loop_run` script.
 
 Note: the CSV files generated with this script have a max precision of
 12 decimal places.
+
+This file works well for simulating a single control loop and running it with
+the `control_loop_run` script. However, if many, static aberration control loop
+steps need to be run, then it may be eaasier to create an aberrations file with
+the `sim_data` script and then run those using the
+`control_loop_dataset_capture` script.
+
+While this script currently only has options to generate static aberrations,
+it does have the ability to generate ones as complex as needed.
 """
 
 import numpy as np
@@ -91,7 +100,9 @@ def gen_zernike_time_steps(cli_args):
     output_data = np.zeros((timesteps, total_column_count))
     timestep_values = np.arange(timesteps)
     delta_time_values = np.full(timesteps, delta_time)
-    cumulative_time_values = np.cumsum(delta_time_values)
+    # Have the time start at 0
+    cumulative_time_values = np.concatenate(
+        ([0], np.cumsum(delta_time_values[1:])))
     # Index column
     output_data[:, 0] = timestep_values
     # Cumulative time column

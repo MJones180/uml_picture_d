@@ -1,6 +1,7 @@
 from scripts.batch_model_test import batch_model_test_parser
 from scripts.batch_model_train import batch_model_train_parser
 from scripts.benchmark_model import benchmark_model_parser
+from scripts.control_loop_dataset_capture import control_loop_ds_capture_parser
 from scripts.control_loop_run import control_loop_run_parser
 from scripts.create_response_matrix import create_response_matrix_parser
 from scripts.dataset_info import dataset_info_parser
@@ -25,6 +26,7 @@ script_parsers = [
     batch_model_test_parser,
     batch_model_train_parser,
     benchmark_model_parser,
+    control_loop_ds_capture_parser,
     control_loop_run_parser,
     create_response_matrix_parser,
     dataset_info_parser,
