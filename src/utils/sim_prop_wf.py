@@ -218,7 +218,7 @@ def multi_worker_sim_prop_many_wf(
 
     # Data will be simulated by this function (will be called independently by
     # each worker)
-    def worker_sim_and_write(worker_idx, aberrations_chunk):
+    def worker_prop_wfs(worker_idx, aberrations_chunk):
         sim_count = aberrations_chunk.shape[0]
         worker_str = f'Worker [{worker_idx}]'
         if sim_count == 0:
@@ -286,7 +286,7 @@ def multi_worker_sim_prop_many_wf(
     # written out using a callback function and the `do_not_return_data`
     # argument should be passed.
     results = pool.map(
-        worker_sim_and_write,
+        worker_prop_wfs,
         worker_indexes,
         aberrations_chunks,
     )
