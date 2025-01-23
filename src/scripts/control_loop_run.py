@@ -112,7 +112,7 @@ def control_loop_run(cli_args):
     # Run the control loop
     # ====================
 
-    (cumulative_time, true_error_history,
+    (_, cumulative_time, true_error_history,
      meas_error_history) = iterate_simulated_control_loop(
          step_data,
          zernike_terms,
@@ -122,7 +122,7 @@ def control_loop_run(cli_args):
          train_name,
          ref_wl,
          grid_points=grid_points,
-         print_logs=True,
+         enable_logs=True,
          use_nn=neural_network,
          use_rm=response_matrix,
      )

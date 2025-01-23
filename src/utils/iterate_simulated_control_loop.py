@@ -22,7 +22,7 @@ def iterate_simulated_control_loop(
     train_name,
     ref_wl,
     grid_points=1024,
-    print_logs=False,
+    enable_logs=False,
     use_nn=None,
     use_rm=None,
     early_stopping=None,
@@ -51,8 +51,8 @@ def iterate_simulated_control_loop(
         Reference wavelength in meters for the simulations.
     grid_points : int, optional
         Number of grid points for wavefront simulations, defaults to 1024.
-    print_logs : bool, optional
-        Whether to display control loop logs.
+    enable_logs : bool, optional
+        If True, then progress logs will be printed out, default is False.
     use_nn : list[str, str], optional
         List containing the tag and epoch of the neural network to use.
         The neural network must be trained with a base field subtracted off.
@@ -68,10 +68,10 @@ def iterate_simulated_control_loop(
 
     Returns
     -------
-    [float, np.array, np.array]
-        The total cumulative time iterated over, the true error
-        (input signal + corrections) history, and the measured
-        error (model outputs) history.
+    [int, float, np.array, np.array]
+        The step index, the total cumulative time iterated over,
+        the true error (input signal + corrections) history,
+        and the measured error (model outputs) history.
     """
 
     # ======================
@@ -79,12 +79,12 @@ def iterate_simulated_control_loop(
     # ======================
 
     def _verify_gain(name, var):
-        if print_logs:
+        if enable_logs:
             print(f'{name}: {var}')
         if not (-1 <= var <= 0):
             terminate_with_message(f'{name} must be between -1 and 0')
 
-    if print_logs:
+    if enable_logs:
         step_ri('Verifying gain values')
     _verify_gain('K_p', K_p)
     _verify_gain('K_i', K_i)
@@ -95,7 +95,7 @@ def iterate_simulated_control_loop(
     # ======================
 
     if train_name not in loaded_optical_trains:
-        if print_logs:
+        if enable_logs:
             step_ri('Loading in the optical train')
         loaded_optical_trains[train_name] = load_optical_train(train_name)
     (init_beam_d, beam_ratio, optical_train, camera_pixels,
@@ -108,7 +108,7 @@ def iterate_simulated_control_loop(
     if use_nn:
         nn_key = (use_nn[0], use_nn[1])
         if nn_key not in loaded_neural_networks:
-            if print_logs:
+            if enable_logs:
                 step_ri('Loading in the neural network')
             loaded_neural_networks[nn_key] = Model(*use_nn)
         model = loaded_neural_networks[nn_key]
@@ -128,7 +128,7 @@ def iterate_simulated_control_loop(
 
     elif use_rm:
         if use_rm not in loaded_response_matrices:
-            if print_logs:
+            if enable_logs:
                 step_ri('Loading in the response matrix')
             loaded_response_matrices[use_rm] = ResponseMatrix(use_rm)
         response_matrix_obj = loaded_response_matrices[use_rm]
@@ -153,17 +153,17 @@ def iterate_simulated_control_loop(
     meas_error_history = []
     # The total number of steps
     total_steps = control_loop_steps.shape[0]
-    if print_logs:
+    if enable_logs:
         step_ri('Running the control loop')
     for step in control_loop_steps:
         row_idx, cumulative_time, delta_time, *zernike_coeffs = step
-        if print_logs:
+        if enable_logs:
             print(f'Step: {int(row_idx + 1)}/{total_steps}')
         # Aberrations should be the sum of the signal and the correction
         aberrations = zernike_coeffs + corrections
         # Potentially stop iterations early if enabled
         if early_stopping and np.all(np.abs(aberrations) <= early_stopping):
-            if print_logs:
+            if enable_logs:
                 print('Ending iterations early due to all coefficients being '
                       f'between [-{early_stopping}, {early_stopping}]')
             break
@@ -193,8 +193,8 @@ def iterate_simulated_control_loop(
         if len(meas_error_history) > 1:
             dzdt = (model_output - meas_error_history[-2]) / delta_time
             corrections += K_d * dzdt  # derivative term
-    if print_logs:
+    if enable_logs:
         print('Finished running the control loop')
 
-    return (cumulative_time, np.array(true_error_history),
+    return (row_idx, cumulative_time, np.array(true_error_history),
             np.array(meas_error_history))
