@@ -26,6 +26,7 @@ def iterate_simulated_control_loop(
     use_nn=None,
     use_rm=None,
     early_stopping=None,
+    force_nn_cpu=True,
 ):
     """
     Iterate over a simulated control loop using either a neural network or
@@ -67,6 +68,8 @@ def iterate_simulated_control_loop(
         and all control loop steps will be performed. The Zernike coefficients
         from both the true error and measured error must both be within the
         threshold to end early.
+    force_nn_cpu : bool, optional
+        Force the use of a CPU when using a neural network. Default is True.
 
     Returns
     -------
@@ -112,7 +115,11 @@ def iterate_simulated_control_loop(
         if nn_key not in loaded_neural_networks:
             if enable_logs:
                 step_ri('Loading in the neural network')
-            loaded_neural_networks[nn_key] = Model(*use_nn)
+            loaded_neural_networks[nn_key] = Model(
+                *use_nn,
+                suppress_logs=not enable_logs,
+                force_cpu=force_nn_cpu,
+            )
         model = loaded_neural_networks[nn_key]
 
         def call_model(inputs):
