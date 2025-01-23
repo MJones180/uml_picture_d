@@ -10,6 +10,7 @@ in conjunction with the `gen_zernike_time_steps` script.
 
 import numpy as np
 from pathos.multiprocessing import ProcessPool
+from utils.constants import RANDOM_P
 from utils.iterate_simulated_control_loop import iterate_simulated_control_loop
 from utils.load_raw_sim_data import load_raw_sim_data_aberrations_file
 from utils.printing_and_logging import step_ri, title
@@ -36,7 +37,7 @@ def control_loop_ds_capture_parser(subparsers):
         help='time between timesteps',
     )
     subparser.add_argument(
-        'convergence_threshold',
+        'capture_threshold',
         type=float,
         help=('value that all Zernike coefficients must be below for the '
               'wavefront to be considered captured'),
@@ -102,7 +103,7 @@ def control_loop_dataset_capture(cli_args):
     data_tag = cli_args['data_tag']
     max_steps = cli_args['max_steps']
     delta_time = cli_args['delta_time']
-    convergence_threshold = cli_args['convergence_threshold']
+    capture_threshold = cli_args['capture_threshold']
     K_p = cli_args['K_p']
     K_i = cli_args['K_i']
     K_d = cli_args['K_d']
@@ -183,13 +184,12 @@ def control_loop_dataset_capture(cli_args):
                  enable_logs=False,
                  use_nn=neural_network,
                  use_rm=response_matrix,
-                 early_stopping=convergence_threshold,
+                 early_stopping=capture_threshold,
              )
-
             # Both the true and meas error must both converge
             converge_vals = [*true_error_history[-1], *meas_error_history[-1]]
             # A bool on whether the control loop converged or not
-            converged = np.all(np.abs(converge_vals) <= convergence_threshold)
+            converged = np.all(np.abs(converge_vals) <= capture_threshold)
             control_loop_convergence.append((end_idx, converged))
         return control_loop_convergence
 
@@ -236,5 +236,26 @@ def control_loop_dataset_capture(cli_args):
     convergence = [bool(converged) for end_idx, converged in merged_results]
     total_captured = np.sum(convergence)
     percentage = (total_captured / nrows) * 100
-    print(f'Threshold of {convergence_threshold}.')
+    print(f'Threshold of {capture_threshold}.')
     print(f'Captured: {total_captured}/{nrows} ({percentage:0.2f}%).')
+
+    # =====================
+    # Write out the results
+    # =====================
+
+    step_ri('Writing out the results')
+    if neural_network:
+        tag, epoch = neural_network
+        model_str = f'NN_{tag}_{epoch}'
+    elif response_matrix:
+        model_str = f'RM_{response_matrix}'
+    out_path = f'{RANDOM_P}/{data_tag}_{model_str}_{K_p}_{K_i}_{K_d}.txt'
+    print(f'Writing to {out_path}')
+    with open(out_path, 'w') as output:
+        output.writelines([
+            f'Data tag: {data_tag}',
+            f'Model: {model_str}',
+            f'K_(P,I,D): {K_p}, {K_i}, {K_d}',
+            f'Capture threshold: {capture_threshold}',
+            f'Captured: {total_captured}/{nrows} ({percentage:0.2f}%)',
+        ])
