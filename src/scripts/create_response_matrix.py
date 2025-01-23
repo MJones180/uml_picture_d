@@ -23,7 +23,7 @@ from utils.constants import (BASE_INT_FIELD, PERTURBATION_AMOUNT,
                              RESPONSE_MATRICES_P, RESPONSE_MATRIX_INV,
                              ZERNIKE_TERMS)
 from utils.hdf_read_and_write import HDFWriteModule
-from utils.load_raw_sim_data_chunks import load_raw_sim_data_chunks
+from utils.load_raw_sim_data import load_raw_sim_data_chunks
 from utils.printing_and_logging import step_ri, title
 from utils.terminate_with_message import terminate_with_message
 

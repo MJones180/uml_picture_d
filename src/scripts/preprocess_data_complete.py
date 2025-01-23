@@ -19,7 +19,7 @@ from utils.constants import (ARGS_F, BASE_INT_FIELD, CAMERA_SAMPLING, DATA_F,
                              ZERNIKE_TERMS)
 from utils.hdf_read_and_write import HDFWriteModule
 from utils.json import json_write
-from utils.load_raw_sim_data_chunks import load_raw_sim_data_chunks
+from utils.load_raw_sim_data import load_raw_sim_data_chunks
 from utils.norm import find_min_max_norm, min_max_norm
 from utils.path import make_dir
 from utils.printing_and_logging import step_ri, title

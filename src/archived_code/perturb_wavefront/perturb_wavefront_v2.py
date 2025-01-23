@@ -18,7 +18,7 @@ from utils.constants import (ARGS_F, CAMERA_INTENSITY, FULL_INTENSITY,
                              RANDOM_P, RAW_SIMULATED_DATA_P)
 from utils.json import json_load
 from utils.load_optical_train import load_optical_train
-from utils.load_raw_sim_data_chunks import load_raw_sim_data_chunks
+from utils.load_raw_sim_data import load_raw_sim_data_chunks
 from utils.path import make_dir
 from utils.printing_and_logging import step_ri, title
 from utils.proper_use_fftw import proper_use_fftw

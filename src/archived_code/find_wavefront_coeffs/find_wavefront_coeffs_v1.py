@@ -18,7 +18,7 @@ Commands to run this script:
 import matplotlib.pyplot as plt
 import numpy as np
 from utils.constants import RANDOM_P
-from utils.load_raw_sim_data_chunks import load_raw_sim_data_chunks
+from utils.load_raw_sim_data import load_raw_sim_data_chunks
 from utils.printing_and_logging import step_ri, title
 from utils.terminate_with_message import terminate_with_message
 

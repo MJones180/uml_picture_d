@@ -16,7 +16,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 import numpy as np
 from prettytable import PrettyTable
 from utils.constants import RANDOM_P
-from utils.load_raw_sim_data_chunks import load_raw_sim_data_chunks
+from utils.load_raw_sim_data import load_raw_sim_data_chunks
 from utils.path import make_dir
 from utils.printing_and_logging import dec_print_indent, step_ri, title
 

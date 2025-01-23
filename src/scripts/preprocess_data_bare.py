@@ -16,7 +16,7 @@ from utils.constants import (ARGS_F, CAMERA_SAMPLING, DATA_F, EXTRA_VARS_F,
                              INPUTS, OUTPUTS, PROC_DATA_P, ZERNIKE_TERMS)
 from utils.hdf_read_and_write import HDFWriteModule
 from utils.json import json_write
-from utils.load_raw_sim_data_chunks import load_raw_sim_data_chunks
+from utils.load_raw_sim_data import load_raw_sim_data_chunks
 from utils.path import make_dir
 from utils.printing_and_logging import step_ri, title
 
