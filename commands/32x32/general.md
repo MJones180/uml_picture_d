@@ -12,7 +12,7 @@ A single row with aberrations on every term:
         --fixed-amount-per-zernike-all 2 24 10e-9 \
         --save-full-intensity
 
-The `--save-aberrations-csv` arg can be passed and an additional CSV file will be written out containing the aberrations. This can be handy if just the aberration values are needed, then the script can be ended early.
+The `--save-aberrations-csv` or `--save-aberrations-csv-quit` args can be passed and an additional CSV file will be written out containing the aberrations. This can be handy if just the aberration values are needed, then the script can be ended early.
 
     python3 main.py sim_data test v84 600e-9 \
         --fixed-amount-per-zernike-all 2 24 10e-9 \
@@ -231,6 +231,12 @@ Random aberrations where different groups have different ranges:
         --output-write-batch 500 --append-no-aberrations-row \
         --rand-amount-per-zernike-groups 100000 2 3 " -5e-10" 5e-10 4 8 " -2.5e-10" 2.5e-10 9 24 " -2e-10" 2e-10 \
         --cores 4
+
+Just the aberrations for groups with different ranges:
+
+    python3 main_scnp.py sim_data random_group_500_20_10_just_aberrations v84_approx 600e-9 \
+        --rand-amount-per-zernike-groups 200 2 3 " -500e-9" 500e-9 4 8 " -20e-9" 20e-9 9 24 " -10e-9" 10e-9 \
+        --save-aberrations-csv-quit
 
 Random aberration for only one term in each row ranging from -50 to 50 nm:
 

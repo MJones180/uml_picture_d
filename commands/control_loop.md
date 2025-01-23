@@ -24,8 +24,9 @@
 
 ## Perform Control Loop Run
 
-Neural Network:
+Control loop step files:
 
+    # Old best neural network model
     python3 main.py control_loop_run \
         single_term_3_10 -0.6 -0.2 0 v84_approx 600e-9 --neural-network inference_speedup_v1_2 last
     python3 main.py control_loop_run \
@@ -35,8 +36,11 @@ Neural Network:
     python3 main.py control_loop_run \
         all_terms_50 -0.6 -0.2 0 v84_approx 600e-9 --neural-network inference_speedup_v1_2 last
 
-Response Matrix:
+    # New best neural network model, much better on small aberrations
+    python3 main.py control_loop_run \
+        all_terms_10 -0.6 -0.2 0 v84_approx 600e-9 --neural-network weighted_aberration_ranges_local_v4 last
 
+    # Most simple response matrix
     python3 main.py control_loop_run \
         single_term_3_10 -0.6 -0.2 0 v84_approx 600e-9 --response-matrix fixed_40nm
     python3 main.py control_loop_run \
@@ -46,6 +50,7 @@ Response Matrix:
     python3 main.py control_loop_run \
         all_terms_50 -0.6 -0.2 0 v84_approx 600e-9 --response-matrix fixed_40nm
 
+    # Most advanced response matrix
     python3 main.py control_loop_run \
         single_term_3_10 -0.6 -0.2 0 v84_approx 600e-9 --response-matrix fixed_50nm_range_2000
     python3 main.py control_loop_run \
@@ -54,3 +59,19 @@ Response Matrix:
         all_terms_10 -0.6 -0.2 0 v84_approx 600e-9 --response-matrix fixed_50nm_range_2000
     python3 main.py control_loop_run \
         all_terms_50 -0.6 -0.2 0 v84_approx 600e-9 --response-matrix fixed_50nm_range_2000
+
+    # PICTURE-C response matrix
+    python3 main.py control_loop_run \
+        all_terms_10 -0.6 -0.2 0 v84_approx 600e-9 --response-matrix fixed_40nm_positive_and_negative
+
+Many control loops on static wavefronts:
+
+    python3 main_scnp.py control_loop_dataset_capture \
+        random_group_500_20_10_just_aberrations 20 1e-3 2e-10 \
+        -0.6 -0.2 0.0 v84_approx 600e-9 --neural-network weighted_aberration_ranges_local_v4 last \
+        --cores 7
+
+    python3 main_scnp.py control_loop_dataset_capture \
+        random_group_500_20_10_just_aberrations 20 1e-3 2e-10 \
+        -0.6 -0.2 0.0 v84_approx 600e-9 --response-matrix fixed_40nm_positive_and_negative \
+        --cores 7
