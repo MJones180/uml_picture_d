@@ -64,7 +64,9 @@ def iterate_simulated_control_loop(
         Iterations can stop early if all Zernike coefficients fall within the
         range of [-threshold, threshold]. The value passed in defines the
         threshold. The default value of `None` means early stopping is disabled
-        and all control loop steps will be performed.
+        and all control loop steps will be performed. The Zernike coefficients
+        from both the true error and measured error must both be within the
+        threshold to end early.
 
     Returns
     -------
@@ -161,12 +163,6 @@ def iterate_simulated_control_loop(
             print(f'Step: {int(row_idx + 1)}/{total_steps}')
         # Aberrations should be the sum of the signal and the correction
         aberrations = zernike_coeffs + corrections
-        # Potentially stop iterations early if enabled
-        if early_stopping and np.all(np.abs(aberrations) <= early_stopping):
-            if enable_logs:
-                print('Ending iterations early due to all coefficients being '
-                      f'between [-{early_stopping}, {early_stopping}]')
-            break
         true_error_history.append(aberrations)
         # Simulate the camera image that represents these Zernike coeffs
         camera_image, _, _ = sim_prop_wf(
@@ -193,6 +189,14 @@ def iterate_simulated_control_loop(
         if len(meas_error_history) > 1:
             dzdt = (model_output - meas_error_history[-2]) / delta_time
             corrections += K_d * dzdt  # derivative term
+        # Stop iterations early if early stopping is enabled and both the true
+        # and measured error are below the threshold
+        if early_stopping:
+            if np.all(np.abs([*aberrations, *model_output]) <= early_stopping):
+                if enable_logs:
+                    print('Ending iterations early due to all coeffs being '
+                          f'between [-{early_stopping}, {early_stopping}]')
+                break
     if enable_logs:
         print('Finished running the control loop')
 
