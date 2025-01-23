@@ -6,7 +6,7 @@ A datafile will be outputted for every worker.
 
 import numpy as np
 from pathos.multiprocessing import ProcessPool
-from utils.constants import ARGS_F, DATA_F, RAW_SIMULATED_DATA_P
+from utils.constants import ABERRATIONS_F, ARGS_F, DATA_F, RAW_SIMULATED_DATA_P
 from utils.hdf_read_and_write import HDFWriteModule
 from utils.json import json_write
 from utils.load_optical_train import load_optical_train
@@ -57,6 +57,11 @@ def sim_data_parser(subparsers):
         '--save-full-intensity',
         action='store_true',
         help='save the full intensity and not just the rebinned camera version',
+    )
+    subparser.add_argument(
+        '--save-aberrations-csv',
+        action='store_true',
+        help='save a text file containing just the aberrations',
     )
     subparser.add_argument(
         '--cores',
@@ -189,6 +194,7 @@ def sim_data(cli_args):
     grid_points = cli_args['grid_points']
     save_plots = cli_args['save_plots']
     save_full_intensity = cli_args['save_full_intensity']
+    save_aberrations_csv = cli_args['save_aberrations_csv']
     append_no_aberrations_row = cli_args['append_no_aberrations_row']
     use_only_aberration_map = cli_args['use_only_aberration_map']
     no_aberrations = cli_args['no_aberrations']
@@ -345,6 +351,19 @@ def sim_data(cli_args):
         aberrations = np.vstack((aberrations, np.zeros(col_count)))
     nrows = aberrations.shape[0]
     print(f'Total rows being simulated: {nrows}')
+
+    if save_aberrations_csv:
+        step_ri('Saving the aberrations')
+        aber_path = f'{output_path}/{ABERRATIONS_F}'
+        header = ', '.join([str(v) for v in zernike_terms])
+        np.savetxt(
+            aber_path,
+            aberrations,
+            delimiter=',',
+            fmt='%.12f',
+            header=header,
+        )
+        print(f'Saved to {aber_path}')
 
     def write_cb(worker_idx, simulation_data):
         print(f'Worker [{worker_idx}] writing out data')

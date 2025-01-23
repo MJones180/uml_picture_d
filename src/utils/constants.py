@@ -14,6 +14,7 @@ TRAINED_MODELS_P = f'{OUTPUT_P}/trained_models'
 
 PACKAGES_P = '../packages'
 
+ABERRATIONS_F = 'aberrations.csv'
 ARGS_F = 'args.json'
 EPOCH_LOSS_F = 'epoch_loss.csv'
 EXTRA_VARS_F = 'extra_variables.h5'
