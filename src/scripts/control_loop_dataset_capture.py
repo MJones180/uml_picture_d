@@ -234,6 +234,7 @@ def control_loop_dataset_capture(cli_args):
 
     step_ri('Convergence results')
     convergence = [bool(converged) for end_idx, converged in merged_results]
-    total_converged = np.sum(convergence)
+    total_captured = np.sum(convergence)
+    percentage = (total_captured / nrows) * 100
     print(f'Threshold of {convergence_threshold}.')
-    print(f'Converged: {total_converged}/{len(convergence)}.')
+    print(f'Captured: {total_captured}/{nrows} ({percentage:0.2f}%).')
