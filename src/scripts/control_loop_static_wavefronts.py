@@ -9,8 +9,8 @@ in conjunction with the `gen_zernike_time_steps` script.
 
 import numpy as np
 from pathos.multiprocessing import ProcessPool
-from utils.constants import (ARGS_F, DATA_F, MEAS_ERROR_HISTORY, RANDOM_P,
-                             TRUE_ERROR_HISTORY)
+from utils.constants import (ARGS_F, CONTROL_LOOP_RESULTS_P, DATA_F,
+                             MEAS_ERROR_HISTORY, TRUE_ERROR_HISTORY)
 from utils.hdf_read_and_write import HDFWriteModule
 from utils.iterate_simulated_control_loop import iterate_simulated_control_loop
 from utils.json import json_write
@@ -159,7 +159,8 @@ def control_loop_static_wavefronts(cli_args):
         model_str = f'NN_{tag}_{epoch}'
     elif response_matrix:
         model_str = f'RM_{response_matrix}'
-    out_dir = f'{RANDOM_P}/{data_tag}_{model_str}_{K_p}_{K_i}_{K_d}'
+    out_dir = (f'{CONTROL_LOOP_RESULTS_P}/'
+               f'{data_tag}_{model_str}_{K_p}_{K_i}_{K_d}')
     print(f'Path: {out_dir}')
     make_dir(out_dir)
 

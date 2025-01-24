@@ -8,7 +8,7 @@ The step file should be generated with the `gen_zernike_time_steps` script.
 """
 
 import numpy as np
-from utils.constants import CONTROL_LOOP_STEPS_P, RANDOM_P
+from utils.constants import CONTROL_LOOP_RESULTS_P, CONTROL_LOOP_STEPS_P
 from utils.iterate_simulated_control_loop import iterate_simulated_control_loop
 from utils.path import make_dir
 from utils.plots.plot_control_loop_zernikes import plot_control_loop_zernikes
@@ -146,7 +146,8 @@ def control_loop_run(cli_args):
         model_str = f'RM_{response_matrix}'
 
     # All of the output directories
-    out_dir = _make_dir(RANDOM_P, f'{step_file}_{model_str}_{K_p}_{K_i}_{K_d}')
+    out_dir = _make_dir(CONTROL_LOOP_RESULTS_P,
+                        f'{step_file}_{model_str}_{K_p}_{K_i}_{K_d}')
     output_path_hist_data = _make_dir(out_dir, 'history_data')
     output_path_ts_same = _make_dir(out_dir, 'time_series_plots/same_plot')
     output_path_ts_sub = _make_dir(out_dir, 'time_series_plots/subplots')
