@@ -79,4 +79,4 @@ Control loops on static wavefronts:
 To analyze the number of rows that converged after running the static wavefronts:
 
     python3 main.py analyze_static_wavefront_convergence \
-        random_group_500_20_10_just_aberrations_NN_weighted_aberration_ranges_local_v4_last_-0.5_0.0_0.0 2e-10
+        random_group_500_20_10_just_aberrations_NN_weighted_aberration_ranges_local_v4_last_10_-0.5_0.0_0.0 2e-10

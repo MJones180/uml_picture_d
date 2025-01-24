@@ -160,7 +160,7 @@ def control_loop_static_wavefronts(cli_args):
     elif response_matrix:
         model_str = f'RM_{response_matrix}'
     out_dir = (f'{CONTROL_LOOP_RESULTS_P}/'
-               f'{data_tag}_{model_str}_{K_p}_{K_i}_{K_d}')
+               f'{data_tag}_{model_str}_{steps}_{K_p}_{K_i}_{K_d}')
     print(f'Path: {out_dir}')
     make_dir(out_dir)
 
