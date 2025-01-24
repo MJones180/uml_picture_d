@@ -1,3 +1,4 @@
+from scripts.analyze_static_wavefront_convergence import analyze_static_wavefront_convergence_parser  # noqa
 from scripts.batch_model_test import batch_model_test_parser
 from scripts.batch_model_train import batch_model_train_parser
 from scripts.benchmark_model import benchmark_model_parser
@@ -23,6 +24,7 @@ from scripts.run_response_matrix import run_response_matrix_parser
 from scripts.sim_data import sim_data_parser
 
 script_parsers = [
+    analyze_static_wavefront_convergence_parser,
     batch_model_test_parser,
     batch_model_train_parser,
     benchmark_model_parser,
