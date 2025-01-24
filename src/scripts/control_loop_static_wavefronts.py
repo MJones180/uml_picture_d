@@ -1,7 +1,6 @@
 """
-Run many aberration rows from a dataset's aberration file and see if they
-converge within a certain number of timesteps. The aberration file must be
-created with the `--save-aberrations-csv` arg in the `sim_data` script.
+Run many aberration rows from a dataset's aberration file. The aberration file
+must be created with the `--save-aberrations-csv` arg in the `sim_data` script.
 
 This script only works on static aberrations - they cannot change at each
 timestep. If this feature is needed, then use the `control_loop_run` script
@@ -10,37 +9,35 @@ in conjunction with the `gen_zernike_time_steps` script.
 
 import numpy as np
 from pathos.multiprocessing import ProcessPool
-from utils.constants import RANDOM_P
+from utils.constants import (ARGS_F, DATA_F, MEAS_ERROR_HISTORY, RANDOM_P,
+                             TRUE_ERROR_HISTORY)
+from utils.hdf_read_and_write import HDFWriteModule
 from utils.iterate_simulated_control_loop import iterate_simulated_control_loop
+from utils.json import json_write
 from utils.load_raw_sim_data import load_raw_sim_data_aberrations_file
+from utils.path import make_dir
 from utils.printing_and_logging import step_ri, title
 
 
-def control_loop_ds_capture_parser(subparsers):
+def control_loop_static_wf_parser(subparsers):
     subparser = subparsers.add_parser(
-        'control_loop_dataset_capture',
-        help='run a control loop on each row of a dataset to test capture',
+        'control_loop_static_wavefronts',
+        help='run a control loop on each row (static aberrations) of a dataset',
     )
-    subparser.set_defaults(main=control_loop_dataset_capture)
+    subparser.set_defaults(main=control_loop_static_wavefronts)
     subparser.add_argument(
         'data_tag',
         help='tag of the raw dataset containing the aberrations file',
     )
     subparser.add_argument(
-        'max_steps',
+        'steps',
         type=int,
-        help='the max number of steps in each control loop',
+        help='the number of steps in each control loop',
     )
     subparser.add_argument(
         'delta_time',
         type=float,
         help='time between timesteps',
-    )
-    subparser.add_argument(
-        'capture_threshold',
-        type=float,
-        help=('value that all Zernike coefficients must be below for the '
-              'wavefront to be considered captured'),
     )
     subparser.add_argument(
         'K_p',
@@ -65,6 +62,12 @@ def control_loop_ds_capture_parser(subparsers):
         'ref_wl',
         type=float,
         help='reference wavelength in meters for the image simulations',
+    )
+    subparser.add_argument(
+        '--output-write-batch',
+        type=int,
+        default=50,
+        help='number of control loops to run before writing out per worker',
     )
     subparser.add_argument(
         '--cores',
@@ -92,8 +95,8 @@ def control_loop_ds_capture_parser(subparsers):
     )
 
 
-def control_loop_dataset_capture(cli_args):
-    title('Control loop dataset capture script')
+def control_loop_static_wavefronts(cli_args):
+    title('Control loop static wavefronts script')
 
     # ====================
     # Load in the CLI args
@@ -101,14 +104,14 @@ def control_loop_dataset_capture(cli_args):
 
     step_ri('Loading CLI args')
     data_tag = cli_args['data_tag']
-    max_steps = cli_args['max_steps']
+    steps = cli_args['steps']
     delta_time = cli_args['delta_time']
-    capture_threshold = cli_args['capture_threshold']
     K_p = cli_args['K_p']
     K_i = cli_args['K_i']
     K_d = cli_args['K_d']
     train_name = cli_args['train_name']
     ref_wl = cli_args['ref_wl']
+    output_write_batch = cli_args['output_write_batch']
     cores = cli_args['cores']
     grid_points = cli_args['grid_points']
     neural_network = cli_args['neural_network']
@@ -137,13 +140,35 @@ def control_loop_dataset_capture(cli_args):
     # ==============================
 
     step_ri('Setting up the shared columns')
-    idx_col = np.arange(max_steps)
-    delta_time_col = np.full(max_steps, delta_time)
+    idx_col = np.arange(steps)
+    delta_time_col = np.full(steps, delta_time)
     cumulative_time_col = np.concatenate(([0], np.cumsum(delta_time_col[1:])))
     # Turn all of the row vectors into 2D column vectors
     idx_col = idx_col[:, None]
     delta_time_col = delta_time_col[:, None]
     cumulative_time_col = cumulative_time_col[:, None]
+
+    # =====================
+    # Create the output dir
+    # =====================
+
+    step_ri('Creating the output directory')
+    # Set the model string
+    if neural_network:
+        tag, epoch = neural_network
+        model_str = f'NN_{tag}_{epoch}'
+    elif response_matrix:
+        model_str = f'RM_{response_matrix}'
+    out_dir = f'{RANDOM_P}/{data_tag}_{model_str}_{K_p}_{K_i}_{K_d}'
+    print(f'Path: {out_dir}')
+    make_dir(out_dir)
+
+    # ====================
+    # Writing out the args
+    # ====================
+
+    step_ri('Saving all CLI args')
+    json_write(f'{out_dir}/{ARGS_F}', cli_args)
 
     # ==============================================
     # Worker code to iterate over many control loops
@@ -158,20 +183,25 @@ def control_loop_dataset_capture(cli_args):
             print(f'{worker_str} not assigned any control loops')
             return
         print(f'{worker_str} assigned {count} control loop(s)')
-        # An array consisting of the tuples (end_idx, converged) where
-        # `converged` is True if the control loop did converge
-        control_loop_convergence = []
+        # Store the history so that it can be written out
+        histories = {TRUE_ERROR_HISTORY: [], MEAS_ERROR_HISTORY: []}
+
+        def write_history():
+            print(f'Worker [{worker_idx}] writing out histories')
+            out_file = f'{out_dir}/{worker_idx}_{DATA_F}'
+            HDFWriteModule(out_file).create_and_write_hdf_simple(histories)
+
         for idx in range(count):
             print(f'[{worker_idx}] Control Loop, {idx + 1}/{count}')
             # Need to create a copy of the aberrations for each time step
-            coeff_steps = np.tile(aberration_chunk[idx][:, None], max_steps).T
+            coeff_steps = np.tile(aberration_chunk[idx][:, None], steps).T
             # Columns: row index, cumulative time, delta time, *zernike coeffs
             control_loop_steps = np.concatenate(
                 (idx_col, cumulative_time_col, delta_time_col, coeff_steps),
                 axis=1,
             )
             # Iterate over the control loop steps
-            (end_idx, _, true_error_history,
+            (_, _, true_error_history,
              meas_error_history) = iterate_simulated_control_loop(
                  control_loop_steps,
                  zernike_terms,
@@ -184,14 +214,14 @@ def control_loop_dataset_capture(cli_args):
                  enable_logs=False,
                  use_nn=neural_network,
                  use_rm=response_matrix,
-                 early_stopping=capture_threshold,
              )
-            # Both the true and meas error must both converge
-            converge_vals = [*true_error_history[-1], *meas_error_history[-1]]
-            # A bool on whether the control loop converged or not
-            converged = np.all(np.abs(converge_vals) <= capture_threshold)
-            control_loop_convergence.append((end_idx, converged))
-        return control_loop_convergence
+            histories[TRUE_ERROR_HISTORY].append(true_error_history)
+            histories[MEAS_ERROR_HISTORY].append(meas_error_history)
+            # See if it is time to do another write
+            if (idx + 1) % output_write_batch == 0:
+                write_history()
+        # Do one final write out
+        write_history()
 
     # =================================================
     # Split the aberrations into chunks for each worker
@@ -209,53 +239,5 @@ def control_loop_dataset_capture(cli_args):
     # =====================
 
     step_ri('Beginning to run control loops')
-    results = pool.map(
-        worker_iterate_control_loops,
-        worker_indexes,
-        aberration_chunks,
-    )
+    pool.map(worker_iterate_control_loops, worker_indexes, aberration_chunks)
     print('Finished running the control loops')
-
-    # ======================================
-    # Merge the worker results back together
-    # ======================================
-
-    step_ri('Merging results back together from workers')
-    # Each worker has a list of tuples, so we want one big list of tuples
-    merged_results = results[0]
-    for result_tuple in results[1:]:
-        if result_tuple is None:
-            continue
-        merged_results.extend(result_tuple)
-
-    # =================
-    # Print the results
-    # =================
-
-    step_ri('Convergence results')
-    convergence = [bool(converged) for end_idx, converged in merged_results]
-    total_captured = np.sum(convergence)
-    percentage = (total_captured / nrows) * 100
-    print(f'Threshold of {capture_threshold}.')
-    print(f'Captured: {total_captured}/{nrows} ({percentage:0.2f}%).')
-
-    # =====================
-    # Write out the results
-    # =====================
-
-    step_ri('Writing out the results')
-    if neural_network:
-        tag, epoch = neural_network
-        model_str = f'NN_{tag}_{epoch}'
-    elif response_matrix:
-        model_str = f'RM_{response_matrix}'
-    out_path = f'{RANDOM_P}/{data_tag}_{model_str}_{K_p}_{K_i}_{K_d}.txt'
-    print(f'Writing to {out_path}')
-    with open(out_path, 'w') as output:
-        output.write('\n'.join([
-            f'Data tag: {data_tag}',
-            f'Model: {model_str}',
-            f'K_(P,I,D): {K_p}, {K_i}, {K_d}',
-            f'Capture threshold: {capture_threshold}',
-            f'Captured: {total_captured}/{nrows} ({percentage:0.2f}%)',
-        ]))

@@ -7,12 +7,12 @@ Note: the CSV files generated with this script have a max precision of
 
 This file works well for simulating a single control loop and running it with
 the `control_loop_run` script. However, if many, static aberration control loop
-steps need to be run, then it may be eaasier to create an aberrations file with
+steps need to be run, then it may be easier to create an aberrations file with
 the `sim_data` script and then run those using the
-`control_loop_dataset_capture` script.
+`control_loop_static_wavefronts` script.
 
 While this script currently only has options to generate static aberrations,
-it does have the ability to generate ones as complex as needed.
+it does have the potential to create ones as complex as needed.
 """
 
 import numpy as np

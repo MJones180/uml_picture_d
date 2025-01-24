@@ -12,11 +12,11 @@ A single row with aberrations on every term:
         --fixed-amount-per-zernike-all 2 24 10e-9 \
         --save-full-intensity
 
-The `--save-aberrations-csv` or `--save-aberrations-csv-quit` args can be passed and an additional CSV file will be written out containing the aberrations. This can be handy if just the aberration values are needed, then the script can be ended early.
+The `--save-aberrations-csv` or `--save-aberrations-csv-quit` args can be passed and an additional CSV file will be written out containing the aberrations. This can be handy if just the aberration values are needed, then the script can terminate.
 
-    python3 main.py sim_data test v84 600e-9 \
+    python3 main.py sim_data just_aberrations_all_10nm v84 600e-9 \
         --fixed-amount-per-zernike-all 2 24 10e-9 \
-        --save-aberrations-csv
+        --save-aberrations-csv-quit
 
 Data at a fixed RMS error (can be used to create a response matrix):
 
