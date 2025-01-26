@@ -13,15 +13,19 @@ import numpy as np
 ITERATIONS = 20
 WAVEFRONTS_PER_BAR = 5000
 GAIN_VALUES = (-0.5, 0, 0)
+THRESHOLD = 1e-9
 RANGES = (500, 20, 10)
 SCALE_FACTORS = [1, 0.5, 0.25, 0.125, 0.0625]
-# Scaling 1: (500, 20, 10)
-# Scaling 0.5: (250, 10, 5)
-# Scaling 0.25: (125, 5, 2.5)
-# Scaling 0.125: (62.5, 2.5, 1.25)
-# Scaling 0.0625: (31.25, 1.25, 0.625)
-Y_NN = [4950, 4995, 4999, 5000, 5000]  # Dud values need to be updated
-Y_RM = [1, 10, 500, 1000, 5000]  # Dud values need to be updated
+# SCALING,  Z2-3, Z4-8, Z9-24
+#       1,   500,   20,    10
+#     0.5,   250,   10,     5
+#    0.25,   125,    5,   2.5
+#   0.125,  62.5,  2.5,  1.25
+#  0.0625, 31.25, 1.25, 0.625
+# NN model: weighted_aberration_ranges_local_v4_last
+Y_NN = [5000, 5000, 5000, 5000, 5000]
+# RM model: fixed_40nm_positive_and_negative
+Y_RM = [273, 1251, 4452, 5000, 5000]
 
 # ==============================================================================
 
@@ -76,7 +80,8 @@ ax.set_xlabel(
     'Scaling Factor ($k$)\nAberration Ranges Are Uniformly Random Between: '
     r'$k\cdot\;[-x_Z, x_Z]$ nm RMS error where $x_{2-3}=$' + str(RANGES[0]) +
     '$, x_{4-8}=$' + str(RANGES[1]) + '$, x_{9-24}=$' + str(RANGES[2]))
-ax.set_ylabel('Static Wavefronts Converged')
+ax.set_ylabel('Static Wavefronts Converged\nThreshold: '
+              f'[-{THRESHOLD}, {THRESHOLD}]')
 
 # https://stackoverflow.com/a/43439132
 plt.legend(
