@@ -12,20 +12,27 @@ import numpy as np
 
 ITERATIONS = 20
 WAVEFRONTS_PER_BAR = 5000
-GAIN_VALUES = (-0.5, 0, 0)
-THRESHOLD = 1e-9
 RANGES = (500, 20, 10)
+GAIN_VALUES = (-0.5, 0, 0)
+
 SCALE_FACTORS = [1, 0.5, 0.25, 0.125, 0.0625]
-# SCALING,  Z2-3, Z4-8, Z9-24
-#       1,   500,   20,    10
-#     0.5,   250,   10,     5
-#    0.25,   125,    5,   2.5
-#   0.125,  62.5,  2.5,  1.25
-#  0.0625, 31.25, 1.25, 0.625
-# NN model: weighted_aberration_ranges_local_v4_last
+# SCALING   Z2-3  Z4-8  Z9-24
+#       1    500    20     10
+#     0.5    250    10      5
+#    0.25    125     5    2.5
+#   0.125   62.5   2.5   1.25
+#  0.0625  31.25  1.25  0.625
+
+# The Y_NN model: weighted_aberration_ranges_local_v4_last
+# The Y_RM model: fixed_40nm_positive_and_negative
+
+THRESHOLD = 1e-9
 Y_NN = [5000, 5000, 5000, 5000, 5000]
-# RM model: fixed_40nm_positive_and_negative
 Y_RM = [273, 1251, 4452, 5000, 5000]
+
+# THRESHOLD = 5e-11
+# Y_NN = [4812, 4999, 5000, 5000, 5000]
+# Y_RM = [0, 0, 0, 0, 0]
 
 # ==============================================================================
 
