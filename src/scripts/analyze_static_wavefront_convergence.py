@@ -10,6 +10,7 @@ from utils.constants import (CONTROL_LOOP_RESULTS_P, DATA_F,
                              MEAS_ERROR_HISTORY, TRUE_ERROR_HISTORY)
 from utils.hdf_read_and_write import read_hdf
 from utils.printing_and_logging import step_ri, title
+from utils.terminate_with_message import terminate_with_message
 
 
 def analyze_static_wavefront_convergence_parser(subparsers):
@@ -27,7 +28,14 @@ def analyze_static_wavefront_convergence_parser(subparsers):
         'convergence_threshold',
         type=float,
         help=('all Zernike coefficients must be in the range [-threshold, '
-              'threshold] to be considered converged'))
+              'threshold] to be considered converged'),
+    )
+    subparser.add_argument(
+        '--error-target',
+        default='both',
+        help=('target error to determine wavefront convergence: `true`, '
+              '`meas`, or `both`'),
+    )
 
 
 def analyze_static_wavefront_convergence(cli_args):
@@ -73,10 +81,22 @@ def analyze_static_wavefront_convergence(cli_args):
         # loop itself to be considered converged
         return np.all(mask, axis=1)
 
-    # The true and measured error must both be converged for the control loop
-    # to be considered converged
-    rows_converged = (_history_converged(true_error_history)
-                      & _history_converged(meas_error_history))
+    # Create a mask of the converged rows
+    true_converged_mask = _history_converged(true_error_history)
+    meas_converged_mask = _history_converged(meas_error_history)
+
+    # Determine the error target to use
+    error_target = cli_args['error_target'].lower()
+    print(f'Error target: {error_target}')
+    if error_target == 'both':
+        rows_converged = true_converged_mask & meas_converged_mask
+    elif error_target == 'true':
+        rows_converged = true_converged_mask
+    elif error_target == 'meas':
+        rows_converged = meas_converged_mask
+    else:
+        terminate_with_message('Error target must be one of `true`, `meas` '
+                               'or `both`')
 
     # =================
     # Print the results
