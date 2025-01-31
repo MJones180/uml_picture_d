@@ -78,7 +78,7 @@ ax.set_xticklabels([None, *SCALE_FACTORS])
 
 # Set the titles and axis labels
 plt.title(
-    f'Convergence for {ITERATIONS} Iteration Control Loops '
+    f'Captures for {ITERATIONS} Iteration Control Loops '
     'on Static Aberration Wavefronts\nGain Values $K_{P,I,D}$ = ' +
     str(GAIN_VALUES),
     pad=30,
@@ -87,7 +87,7 @@ ax.set_xlabel(
     'Scaling Factor ($k$)\nAberration Ranges Are Uniformly Random Between: '
     r'$k\cdot\;[-x_Z, x_Z]$ nm RMS error where $x_{2-3}=$' + str(RANGES[0]) +
     '$, x_{4-8}=$' + str(RANGES[1]) + '$, x_{9-24}=$' + str(RANGES[2]))
-ax.set_ylabel('Static Wavefronts Converged\nThreshold: '
+ax.set_ylabel('Static Wavefronts Captured\nThreshold: '
               f'[-{THRESHOLD}, {THRESHOLD}]')
 
 # https://stackoverflow.com/a/43439132
