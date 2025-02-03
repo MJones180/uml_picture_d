@@ -18,8 +18,8 @@ GAIN_VALUES = (-0.5, 0, 0)
 # NN: weighted_aberration_ranges_local_v4_last
 # RM: fixed_40nm_positive_and_negative
 # SCALING   Z2-3  Z4-8  Z9-24 |   NN    RM
-#  4        2000    80     40 |  395     ?
-#  3.5      1750    70     35 |    ?     ?
+#  4        2000    80     40 |  395     2
+#  3.5      1750    70     35 | 1014     5
 #  3        1500    60     30 | 2076    14
 #  2.5      1250    50     25 | 3626    37
 #  2        1000    40     20 | 4886    66
