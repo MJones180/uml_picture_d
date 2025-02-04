@@ -19,7 +19,7 @@ given image by `Z = M_inv @ ΔI`.
 """
 
 import numpy as np
-from utils.constants import (BASE_INT_FIELD, PERTURBATION_AMOUNT,
+from utils.constants import (BASE_INT_FIELD, PERTURBATION_AMOUNTS,
                              RESPONSE_MATRICES_P, RESPONSE_MATRIX_INV,
                              ZERNIKE_TERMS)
 from utils.hdf_read_and_write import HDFWriteModule
@@ -105,6 +105,7 @@ def create_response_matrix(cli_args):
     # faster than the vectorized version.
     M_matrix = np.zeros_like(chunked_pert_fields[0])
     fields_and_amounts = zip(chunked_pert_fields, chunked_pert_amounts)
+    perturbation_chunk_amounts = []
     for pert_fields, pert_amounts in fields_and_amounts:
         # This is the delta intensity field portion
         field_changes = pert_fields - base_field[:, None]
@@ -114,6 +115,8 @@ def create_response_matrix(cli_args):
             terminate_with_message('All perturbation amounts must be the same '
                                    'for a set of Zernike terms')
         perturbation_amount = pert_amounts_diag[0]
+        # Keep track of the perturbation for each chunk
+        perturbation_chunk_amounts.append(perturbation_amount)
         # Verify that all off-diagonal elements are zero, so set all main
         # diagonal elements to zero to make the check easier
         pert_amounts[np.diag_indices(pert_amounts.shape[0])] = 0
@@ -151,6 +154,6 @@ def create_response_matrix(cli_args):
     HDFWriteModule(output_path).create_and_write_hdf_simple({
         BASE_INT_FIELD: base_field,
         RESPONSE_MATRIX_INV: M_matrix_inv,
-        PERTURBATION_AMOUNT: perturbation_amount,
+        PERTURBATION_AMOUNTS: perturbation_chunk_amounts,
         ZERNIKE_TERMS: zernike_terms,
     })

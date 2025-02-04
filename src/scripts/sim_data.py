@@ -101,6 +101,15 @@ def sim_data_parser(subparsers):
               'Zernike term (the terms must be sequential)'),
     )
     aberrations_group.add_argument(
+        '--fixed-amount-per-zernike-pm',
+        nargs=3,
+        metavar=('[zernike term low]', '[zernike term high]',
+                 '[rms error in meters]'),
+        help=('will simulate `([zernike term high] - [zernike term low])` '
+              'rows by injecting a fixed RMS error for each Zernike term (the '
+              'terms must be sequential) for both the +/- RMS errors'),
+    )
+    aberrations_group.add_argument(
         '--fixed-amount-per-zernike-all',
         nargs=3,
         metavar=('[zernike term low]', '[zernike term high]',
@@ -205,6 +214,7 @@ def sim_data(cli_args):
     use_only_aberration_map = cli_args['use_only_aberration_map']
     no_aberrations = cli_args['no_aberrations']
     fixed_amount_per_zernike = cli_args['fixed_amount_per_zernike']
+    fixed_amount_per_zernike_pm = cli_args['fixed_amount_per_zernike_pm']
     fixed_amount_per_zernike_all = cli_args['fixed_amount_per_zernike_all']
     fixed_amount_per_zernike_range = cli_args['fixed_amount_per_zernike_range']
     rand_amount_per_zernike = cli_args['rand_amount_per_zernike']
@@ -258,6 +268,16 @@ def sim_data(cli_args):
         aberrations = np.identity(col_count) * float(perturb)
         print('Each row will consist of a Zernike term with an RMS error of '
               f'{perturb} meters')
+    elif fixed_amount_per_zernike_pm:
+        idx_low, idx_high, perturb = fixed_amount_per_zernike_pm
+        zernike_terms, col_count = _zernike_terms_list(idx_low, idx_high)
+        # For this we just need an identity matrix to represent perturbing
+        # each Zernike term independently for both the +/- perturbations
+        m_aberrations = np.identity(col_count) * -float(perturb)
+        p_aberrations = np.identity(col_count) * float(perturb)
+        aberrations = np.concatenate((m_aberrations, p_aberrations), axis=0)
+        print('Each Zernike term will have two rows with the RMS errors of  '
+              f'{perturb} and -{perturb} meters')
     elif fixed_amount_per_zernike_all:
         idx_low, idx_high, perturb = fixed_amount_per_zernike_all
         zernike_terms, col_count = _zernike_terms_list(idx_low, idx_high)

@@ -36,6 +36,15 @@ Data at a fixed RMS error (can be used to create a response matrix):
         --save-full-intensity \
         --cores 4
 
+Data used to create the +/- 40 nm RMS error response matrix:
+
+    python3 main_scnp.py sim_data fixed_pm_40nm v84 600e-9 \
+        --output-write-batch 10 \
+        --fixed-amount-per-zernike-pm 2 24 40e-9 \
+        --append-no-aberrations-row \
+        --save-full-intensity \
+        --cores 4
+
 Fixed aberrations on a grid for one term at a time in each row across all terms:
 
     # -50 to 50 nm in 10 nm increments
@@ -585,6 +594,9 @@ Response matrix at 40 nm:
 Averaged response matrix:
 
     python3 main.py create_response_matrix \
+        --simulated-data-tag-average fixed_pm_40nm
+
+    python3 main.py create_response_matrix \
         --simulated-data-tag-average random_50nm_single_each_large
 
     python3 main.py create_response_matrix \
@@ -611,6 +623,11 @@ Averaged response matrix:
     python3 main.py run_response_matrix fixed_40nm \
         test_ran50nm_single_diff --scatter-plot 4 6 2 1e-7 15 \
         --inputs-need-denorm --inputs-are-diff
+
+`fixed_pm_40nm` response matrix:
+
+    python3 main.py run_response_matrix fixed_pm_40nm \
+        fixed_50nm_range_processed --scatter-plot 4 6 2 1e-7 15 --zernike-plots
 
 `random_50nm_single_each_large` response matrix:
 

@@ -1,4 +1,4 @@
-from utils.constants import (BASE_INT_FIELD, PERTURBATION_AMOUNT,
+from utils.constants import (BASE_INT_FIELD, PERTURBATION_AMOUNTS,
                              RESPONSE_MATRIX_INV, RESPONSE_MATRICES_P,
                              ZERNIKE_TERMS)
 from utils.hdf_read_and_write import read_hdf
@@ -22,7 +22,7 @@ class ResponseMatrix():
         data = read_hdf(f'{RESPONSE_MATRICES_P}/{tag}.h5')
         self.base_int_field = data[BASE_INT_FIELD][:]
         self.resp_mat_inv = data[RESPONSE_MATRIX_INV][:]
-        self.pert_amount = data[PERTURBATION_AMOUNT][()]
+        self.pert_amounts = data[PERTURBATION_AMOUNTS][:]
         self.zernike_terms = data[ZERNIKE_TERMS][:]
 
         dec_print_indent()
