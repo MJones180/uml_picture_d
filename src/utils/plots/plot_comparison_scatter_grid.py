@@ -141,9 +141,10 @@ def plot_comparison_scatter_grid(
                 xlim,
                 linestyle='-',
                 linewidth=1,
-                color='#FFFFFF' if plot_density else '#FFB200',
+                color='#FFFFFF' if plot_density else '#000000',
                 scalex=False,
                 scaley=False,
+                zorder=-1,
             )
             if plot_density:
                 density = axs_cell.scatter_density(
@@ -162,7 +163,7 @@ def plot_comparison_scatter_grid(
                     cbar.ax.tick_params(labelsize=15)
             else:
                 # Plot the scatter of all the points
-                axs_cell.scatter(truth_col, model_col, 0.25)
+                axs_cell.scatter(truth_col, model_col, 0.25, alpha=.1)
             # Set the limits on each subplot
             axs_cell.set_xlim(*xlim)
             axs_cell.set_ylim(*ylim)
