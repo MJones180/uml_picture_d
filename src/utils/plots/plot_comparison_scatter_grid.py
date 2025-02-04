@@ -144,7 +144,7 @@ def plot_comparison_scatter_grid(
                 color='#FFFFFF' if plot_density else '#000000',
                 scalex=False,
                 scaley=False,
-                zorder=-1,
+                zorder=1 if plot_density else -1,
             )
             if plot_density:
                 density = axs_cell.scatter_density(
