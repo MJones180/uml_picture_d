@@ -2,8 +2,10 @@
 
 Michael Jones (Michael_Jones6@student.uml.edu)
 
-This repository was originally created for the LLOWFS NN, so a lot of the code has been tailored towards that (such as networks and optical trains).
-However, this repository can be used to simulate optical train data, develop neural network models, and run simulated control loops.
+Code was originally written for the reflective Lyot-stop low order wavefront sensor (LLOWFS) neural network (NN) on PICTURE-D.
+There is plenty of other code written for PICTURE-D, but this repository contains just the code that I have written.
+Since this repository was originally created for the LLOWFS NN, a lot of the code has been tailored towards it (such as networks and optical trains).
+However, this repository can be used to simulate arbitrary optical train data, develop neural network models, and run simulated control loops.
 Therefore, if scripts do not clearly state what project they are for, it is safe to assume they are for the LLOWFS NN.
 
 ## Installation
