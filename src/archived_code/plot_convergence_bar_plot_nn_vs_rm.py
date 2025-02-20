@@ -71,8 +71,8 @@ def _display_bars(y_values, offset, color, label):
 
 
 # Display the bars for both the NN and RM
-_display_bars(Y_NN, -0.2, '#FFAD99', 'Neural Network')
-_display_bars(Y_RM, 0.2, '#99C2FF', 'Respone Matrix')
+_display_bars(Y_NN, -0.2, '#FFAD99', 'Convolutional Neural Network')
+_display_bars(Y_RM, 0.2, '#99C2FF', 'Response Matrix')
 
 # Set the limits on the y axis along with the correct ticks
 ax.set_ylim([0, WAVEFRONTS_PER_BAR * 1.035])
