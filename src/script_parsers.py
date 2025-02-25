@@ -7,6 +7,7 @@ from scripts.control_loop_static_wavefronts import control_loop_static_wf_parser
 from scripts.create_response_matrix import create_response_matrix_parser
 from scripts.dataset_info import dataset_info_parser
 from scripts.export_model import export_model_parser
+from scripts.export_zernike_inputs_to_binary import export_zernike_inputs_to_binary_parser  # noqa
 from scripts.gen_zernike_time_steps import gen_zernike_time_steps_parser
 from scripts.hdf_file_ops import hdf_file_ops_parser
 from scripts.interactive_model_test_plots import inter_model_test_plots_parser
@@ -33,6 +34,7 @@ script_parsers = [
     create_response_matrix_parser,
     dataset_info_parser,
     export_model_parser,
+    export_zernike_inputs_to_binary_parser,
     gen_zernike_time_steps_parser,
     hdf_file_ops_parser,
     inter_model_test_plots_parser,
