@@ -1,8 +1,8 @@
 """
 Will export aberration rows in CSV format to binary so that they can be run on
 the PICTURE-D instrument to obtain real data. The CSV data must be created with
-the `--save-aberrations-csv` arg in the `sim_data` script, it will have the file
-name of the `ABERRATIONS_F` constant.
+the `--save-aberrations-csv` arg in the `sim_data` script and have the file name
+of the `ABERRATIONS_F` constant.
 """
 
 import numpy as np
@@ -34,6 +34,11 @@ def export_zernike_inputs_to_binary_parser(subparsers):
         '--simulated-data-tags',
         nargs='+',
         help='tags of the simulated datasets',
+    )
+    subparser.add_argument(
+        '--output-chunk-size',
+        type=int,
+        help='number of rows per chunk to break the output binary files into',
     )
 
 
@@ -69,10 +74,24 @@ def export_zernike_inputs_to_binary(cli_args):
     make_dir(out_path)
 
     step_ri('Writing out CLI args')
-    # Write out the CLI args that this script was called with
     json_write(f'{out_path}/{ARGS_F}', cli_args)
 
     step_ri('Writing out binary data')
-    with open(f'{out_path}/{BINARY_DATA_F}', 'wb') as file:
-        for row in all_aberrations:
-            file.write(row.tobytes())
+    current_idx = 0
+
+    def _write_binary_data(data):
+        nonlocal current_idx
+        path = f'{out_path}/{current_idx}_{BINARY_DATA_F}'
+        current_idx += 1
+        print(f'Writing out {len(data)} rows to {path}')
+        with open(path, 'wb') as file:
+            file.write(data.tobytes())
+
+    chunk_size = cli_args['output_chunk_size']
+    if chunk_size:
+        print(f'Will create chunks of {chunk_size} rows')
+        while all_aberrations.shape[0] > chunk_size:
+            data_chunk = all_aberrations[:chunk_size]
+            all_aberrations = all_aberrations[chunk_size:]
+            _write_binary_data(data_chunk)
+    _write_binary_data(all_aberrations)
