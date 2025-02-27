@@ -12,13 +12,13 @@ performed, it will be based on the training normalization values.
 """
 
 import numpy as np
-from utils.constants import (ARGS_F, BASE_INT_FIELD, CAMERA_SAMPLING, DATA_F,
+from utils.cli_args import save_cli_args
+from utils.constants import (BASE_INT_FIELD, CAMERA_SAMPLING, DATA_F,
                              EXTRA_VARS_F, INPUTS, INPUT_MIN_X,
                              INPUT_MAX_MIN_DIFF, NORM_RANGE_ONES, OUTPUTS,
                              OUTPUT_MIN_X, OUTPUT_MAX_MIN_DIFF, PROC_DATA_P,
                              ZERNIKE_TERMS)
 from utils.hdf_read_and_write import HDFWriteModule
-from utils.json import json_write
 from utils.load_raw_sim_data import load_raw_sim_data_chunks
 from utils.norm import find_min_max_norm, min_max_norm
 from utils.path import make_dir
@@ -280,7 +280,7 @@ def preprocess_data_complete(cli_args):
         print(f'Making {out_path}')
         make_dir(out_path)
         # Write out the CLI args that this script was called with
-        json_write(f'{out_path}/{ARGS_F}', cli_args)
+        save_cli_args(out_path, cli_args, 'preprocess_data_complete')
         # Add a file with other necessary variables (includes norm values)
         HDFWriteModule(f'{out_path}/{EXTRA_VARS_F}'
                        ).create_and_write_hdf_simple(extra_vars)

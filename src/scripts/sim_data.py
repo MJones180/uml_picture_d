@@ -6,9 +6,9 @@ A datafile will be outputted for every worker.
 
 import numpy as np
 from pathos.multiprocessing import ProcessPool
-from utils.constants import ABERRATIONS_F, ARGS_F, DATA_F, RAW_SIMULATED_DATA_P
+from utils.cli_args import save_cli_args
+from utils.constants import ABERRATIONS_F, DATA_F, RAW_SIMULATED_DATA_P
 from utils.hdf_read_and_write import HDFWriteModule
-from utils.json import json_write
 from utils.load_optical_train import load_optical_train
 from utils.path import make_dir
 from utils.printing_and_logging import step_ri, title
@@ -230,7 +230,7 @@ def sim_data(cli_args):
     make_dir(output_path)
 
     step_ri('Saving all CLI args')
-    json_write(f'{output_path}/{ARGS_F}', cli_args)
+    save_cli_args(output_path, cli_args, 'sim_data')
 
     step_ri('Loading in the optical train')
     (init_beam_d, beam_ratio, optical_train, camera_pixels,

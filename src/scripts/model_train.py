@@ -10,9 +10,10 @@ The training and validation dataset must have their inputs pre-normalized.
 from time import time
 import torch
 from torchvision.transforms import v2
-from utils.constants import (ARGS_F, EPOCH_LOSS_F, EXTRA_VARS_F,
-                             LOSS_FUNCTIONS, OPTIMIZERS, OUTPUT_P, PROC_DATA_P,
-                             TAG_LOOKUP_F, TRAINED_MODELS_P)
+from utils.cli_args import save_cli_args
+from utils.constants import (EPOCH_LOSS_F, EXTRA_VARS_F, LOSS_FUNCTIONS,
+                             OPTIMIZERS, OUTPUT_P, PROC_DATA_P, TAG_LOOKUP_F,
+                             TRAINED_MODELS_P)
 from utils.json import json_load, json_write
 from utils.load_network import load_network
 from utils.model import Model
@@ -172,7 +173,7 @@ def model_train(cli_args):
                f'{output_model_path}/{EXTRA_VARS_F}')
 
     step_ri('Saving all CLI args')
-    json_write(f'{output_model_path}/{ARGS_F}', cli_args)
+    save_cli_args(output_model_path, cli_args, 'model_train')
 
     step_ri('Creating the torch `DataLoader` for training and validation')
     batch_size = cli_args['batch_size']

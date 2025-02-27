@@ -9,11 +9,11 @@ in conjunction with the `gen_zernike_time_steps` script.
 
 import numpy as np
 from pathos.multiprocessing import ProcessPool
-from utils.constants import (ARGS_F, CONTROL_LOOP_RESULTS_P, DATA_F,
+from utils.cli_args import save_cli_args
+from utils.constants import (CONTROL_LOOP_RESULTS_P, DATA_F,
                              MEAS_ERROR_HISTORY, TRUE_ERROR_HISTORY)
 from utils.hdf_read_and_write import HDFWriteModule
 from utils.iterate_simulated_control_loop import iterate_simulated_control_loop
-from utils.json import json_write
 from utils.load_raw_sim_data import load_raw_sim_data_aberrations_file
 from utils.path import make_dir
 from utils.printing_and_logging import step_ri, title
@@ -169,7 +169,7 @@ def control_loop_static_wavefronts(cli_args):
     # ====================
 
     step_ri('Saving all CLI args')
-    json_write(f'{out_dir}/{ARGS_F}', cli_args)
+    save_cli_args(out_dir, cli_args, 'control_loop_static_wavefronts')
 
     # ==============================================
     # Worker code to iterate over many control loops

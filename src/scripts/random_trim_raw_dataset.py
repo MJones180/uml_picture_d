@@ -5,11 +5,11 @@ Used to shrink down the number of rows in a large dataset.
 
 from glob import glob
 import numpy as np
-from utils.constants import (ARGS_F, CAMERA_INTENSITY, CAMERA_SAMPLING, DATA_F,
+from utils.cli_args import load_cli_args, save_cli_args
+from utils.constants import (CAMERA_INTENSITY, CAMERA_SAMPLING, DATA_F,
                              RAW_SIMULATED_DATA_P, ZERNIKE_COEFFS,
                              ZERNIKE_TERMS)
 from utils.hdf_read_and_write import HDFWriteModule, read_hdf
-from utils.json import json_load, json_write
 from utils.path import make_dir
 from utils.printing_and_logging import step_ri, title
 
@@ -101,7 +101,7 @@ def random_trim_raw_dataset(cli_args):
 
     # Load in the args file
     step_ri('Writing to the tag lookup')
-    args_data = json_load(f'{in_dir}/{ARGS_F}')
+    args_data = load_cli_args(in_dir)
     # Add in which datafile the rows are being taken from
     args_data['trimmed_from_tag'] = original_tag
-    json_write(f'{out_dir}/{ARGS_F}', args_data)
+    save_cli_args(out_dir, cli_args, 'random_trim_raw_dataset')
