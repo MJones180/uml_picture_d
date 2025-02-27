@@ -1,5 +1,6 @@
 """
 This file is for V84 with a 32x32 pixel camera and a sampling of 7.4 microns.
+This optical train goes from HODM 1 to the LLOWFS camera, but ignores the DMs.
 Diagrams of this optical layout can be found in the `diagrams` folder under the
 `optical_design_v84.png` and `simplified_optical_design_v84.png` files.
 """
