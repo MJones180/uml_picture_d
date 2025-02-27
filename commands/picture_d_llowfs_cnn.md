@@ -70,7 +70,7 @@ Generate all the input aberration CSV files:
 Export all the input aberration CSV files to binary:
 
     python3 main.py export_zernike_inputs_to_binary picture_d_aberrations \
-        --append-no-aberrations-row \
+        --append-no-aberrations-row --put-in-nm --put-in-single-precision \
         --simulated-data-tags picture_d_aberrations_group_1 picture_d_aberrations_group_2 \
                               picture_d_aberrations_group_3 picture_d_aberrations_group_4 \
                               picture_d_aberrations_group_5 picture_d_aberrations_group_6 \

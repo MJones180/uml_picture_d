@@ -2,7 +2,8 @@
 Will export aberration rows in CSV format to binary so that they can be run on
 the PICTURE-D instrument to obtain real data. The CSV data must be created with
 the `--save-aberrations-csv` arg in the `sim_data` script and have the file name
-of the `ABERRATIONS_F` constant.
+of the `ABERRATIONS_F` constant. The outputted files will be in binary with the
+Zernike coefficients in (n or nm) RMS error.
 """
 
 import numpy as np
@@ -29,6 +30,16 @@ def export_zernike_inputs_to_binary_parser(subparsers):
         '--append-no-aberrations-row',
         action='store_true',
         help='add a row with no aberrations',
+    )
+    subparser.add_argument(
+        '--put-in-nm',
+        action='store_true',
+        help='put in nm RMS error instead of m RMS error',
+    )
+    subparser.add_argument(
+        '--put-in-single-precision',
+        action='store_true',
+        help='put in single precision instead of double precision',
     )
     subparser.add_argument(
         '--simulated-data-tags',
@@ -66,6 +77,16 @@ def export_zernike_inputs_to_binary(cli_args):
     all_aberrations = np.array(all_aberrations)
     print(f'Aberrations shape: {all_aberrations.shape}')
     print(f'Zernike terms: {zernike_terms}')
+
+    if cli_args['put_in_nm']:
+        step_ri('Putting data in nm RMS error')
+        print('Going from m RMS error to nm RMS error (*1e9)')
+        all_aberrations *= 1e9
+
+    if cli_args['put_in_single_precision']:
+        step_ri('Putting data in single precision')
+        print('Going from double (64 bit) to single (32 bit) precision')
+        all_aberrations = all_aberrations.astype(np.float32)
 
     step_ri('Creating the output directory')
     output_binary_tag = cli_args['binary_data_tag']
