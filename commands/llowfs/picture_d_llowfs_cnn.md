@@ -1,5 +1,5 @@
 These are all the commands needed to obtain real data on the PICTURE-D instrument and to train the associated CNN.
-Most of the commands are adapted from the ones meant for simulated data which are taken from the `32x32/general.md` and `32x32/model_training_versions.txt` files.
+Most of the commands are adapted from the ones meant for simulated data which are taken from the `general.md` and `model_training_versions.txt` files.
 The CNN created is based off the simulated [V49] `weighted_aberration_ranges_local_v4` model.
 
 Generate all the input aberration CSV files:
