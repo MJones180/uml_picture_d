@@ -1,12 +1,8 @@
 """
 This file is for V84 with a 32x32 pixel camera and a sampling of 7.4 microns.
 This optical train goes from HODM 1 to the science camera.
-A diagram of this optical layout can be found in the `diagrams` folder under the
-`optical_design_v84.png` file.
-
-
-
-This is a copy of `v84.py` with the approximated VVC function (no MFT).
+A diagram of PICTURE-D can be found in the `diagrams` folder under the
+`optical_design_v84.png` file. The VVC function is used without MFT.
 """
 
 from cbm_vvc_mft import cbm_vvc_approx
@@ -17,24 +13,52 @@ from utils.constants import VVC_CHARGE
 INIT_BEAM_D = 9e-3
 
 # Lyot stop
-lyot_stop_outer_d = 50.8e-3
-lyot_stop_outer_r = lyot_stop_outer_d / 2
 lyot_stop_hole_r = INIT_BEAM_D * 0.9 / 2
 
 # Ratio of the beam to the grid
-# = INIT_BEAM_D / lyot_stop_outer_d * 0.95
-BEAM_RATIO = 0.1683
+BEAM_RATIO = 0.5
 
 # Number of pixels and sampling size for the final camera
-CAMERA_PIXELS = 32
+CAMERA_PIXELS = 100
 CAMERA_SAMPLING = 7.4e-6
+
+# Number of actuators and spacing between them on the DM
+DM_ACTUATOR_COUNT = 34
+DM_ACTUATOR_COUNT_HALF = DM_ACTUATOR_COUNT / 2
+DM_ACTUATOR_SPACING = 0.003  # 3 mm
 
 # All distances are in meters. Assume the beam starts at HODM 1. Treat the
 # DMs as if they are not there.
 OPTICAL_TRAIN = [
     [
-        'Prop to OAP3 [From HODM 1]',
-        lambda wf: proper.prop_propagate(wf, 0.7251065),
+        'HODM 1',
+        # The real DM is circular, this one is square
+        lambda wf, actuator_heights: proper.prop_dm(
+            wf,
+            actuator_heights,
+            DM_ACTUATOR_COUNT_HALF,
+            DM_ACTUATOR_COUNT_HALF,
+            DM_ACTUATOR_SPACING,
+        ),
+    ],
+    [
+        'Prop to HODM 2 [From HODM 1]',
+        lambda wf: proper.prop_propagate(wf, 0.40894),
+    ],
+    [
+        'HODM 2',
+        # The real DM is circular, this one is square
+        lambda wf, actuator_heights: proper.prop_dm(
+            wf,
+            actuator_heights,
+            DM_ACTUATOR_COUNT_HALF,
+            DM_ACTUATOR_COUNT_HALF,
+            DM_ACTUATOR_SPACING,
+        ),
+    ],
+    [
+        'Prop to OAP 3 [From HODM 2]',
+        lambda wf: proper.prop_propagate(wf, 0.319024),
     ],
     # OAP3
     lambda wf: proper.prop_lens(wf, 0.511),
@@ -60,30 +84,48 @@ OPTICAL_TRAIN = [
     lambda wf: proper.prop_lens(wf, 0.511),
     [
         'Prop to Lyot Stop [From OAP4]',
-        lambda wf: proper.prop_propagate(wf, 0.2966085),
+        lambda wf: proper.prop_propagate(wf, 0.3101),
     ],
-    lambda wf: proper.prop_elliptical_aperture(
-        wf,
-        lyot_stop_outer_r,
-        lyot_stop_outer_r,
-    ),
     [
         'Lyot Stop',
-        lambda wf: proper.prop_elliptical_obscuration(
+        lambda wf: proper.prop_elliptical_aperture(
             wf,
             lyot_stop_hole_r,
             lyot_stop_hole_r,
         ),
     ],
     [
-        'Final Lens [From Lyot Stop]',
-        lambda wf: proper.prop_propagate(wf, 0.1016),
+        'Prop to Spatial Filter Lens [From Lyot Stop]',
+        lambda wf: proper.prop_propagate(wf, 0.038),
+    ],
+    # Lens before spatial filter
+    lambda wf: proper.prop_lens(wf, 0.124968),
+    [
+        'Prop to Spatial Filter [From Spatial Filter Lens]',
+        lambda wf: proper.prop_propagate(wf, 0.124968),
+    ],
+    [
+        'Spatial Filter',
+        lambda wf: proper.prop_elliptical_aperture(
+            wf,
+            0.0127,
+            0.0127,
+        ),
+    ],
+    [
+        'Prop to Spatial Filter Lens [From Spatial Filter]',
+        lambda wf: proper.prop_propagate(wf, 0.124968),
+    ],
+    # Lens after spatial filter
+    lambda wf: proper.prop_lens(wf, 0.124968),
+    [
+        'Final Lens [From Spatial Filter Lens]',
+        lambda wf: proper.prop_propagate(wf, 0.0772668),
     ],
     # Final lens
-    lambda wf: proper.prop_lens(wf, 0.25),
+    lambda wf: proper.prop_lens(wf, 0.2),
     [
         'Camera [From final lens]',
-        # lambda wf: proper.prop_propagate(wf, 0.247396),
-        lambda wf: proper.prop_propagate(wf, 0.24835),
+        lambda wf: proper.prop_propagate(wf, 0.1824736),
     ],
 ]
