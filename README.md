@@ -64,6 +64,10 @@ Proper in Python 3 must also be installed.
 For this, install PROPER from https://proper-library.sourceforge.net/ and store the unzipped `proper` directory under `packages`.
 This will result in `packages/proper/` containing the necessary Python files.
 
+**Important deprecation notes**:
+- The PROPER package sets `dtype` values to `np.int` which was deprecated as of NumPy 1.20. Therefore, types of `np.int` must be replaced with the built-in `int`.
+    - Lines 214 and 215 of `prop_dm.py` must be changed from `dtype = np.int` to `dtype = int`.
+
 **Important speed notes**:
 - The PROPER package in Python makes two calls to `gc.collect()`, but this is unnecessary.
 The following two lines should be commented out for faster simulation speeds:

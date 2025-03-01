@@ -18,6 +18,7 @@ def sim_prop_wf(
     camera_sampling,
     zernike_terms,
     aberration_values,
+    extra_params={},
     grid_points=1024,
     plot_path=None,
     use_only_aberration_map=False,
@@ -42,8 +43,13 @@ def sim_prop_wf(
         Sampling of the resampled camera.
     zernike_terms : list[int]
         Noll Zernike terms that will have aberrations.
+        These aberrations will be applied at the entrance.
     aberration_values : list[float]
         Aberration amount in meters to add to each Zernike term.
+    extra_params : dict, optional
+        Some optical train steps may require additional parameters. This
+        dictionary will be passed to any optical train steps that accept
+        two arguments.
     grid_points : int, optional
         Number of grid points, defaults to 1024.
     plot_path : str, optional
@@ -119,11 +125,14 @@ def sim_prop_wf(
         # Loop through the train
         for step in optical_train:
             # Nested list means step is eligible for plotting
-            if type(step) is list:
-                step[1](wavefront)
-                _plot_intensity(wavefront, step[0])
+            plot_title, func = step if type(step) is list else (None, step)
+            # https://stackoverflow.com/a/10865355
+            if func.__code__.co_argcount == 2:
+                func(wavefront, extra_params)
             else:
-                step(wavefront)
+                func(wavefront)
+            if plot_title is not None:
+                _plot_intensity(wavefront, plot_title)
         # The final wavefront intensity and sampling of its grid
         (wavefront_intensity, sampling) = proper.prop_end(wavefront)
         # Downsample to the camera
@@ -146,6 +155,7 @@ def multi_worker_sim_prop_many_wf(
     camera_sampling,
     zernike_terms,
     aberrations,
+    extra_params={},
     save_full_intensity=False,
     grid_points=1024,
     plot_path=None,
@@ -181,6 +191,10 @@ def multi_worker_sim_prop_many_wf(
         Noll Zernike terms that will have aberrations.
     aberrations : np.array
         The aberrations for each simulation.
+    extra_params : dict, optional
+        Some optical train steps may require additional parameters. This
+        dictionary will be passed to any optical train steps that accept
+        two arguments.
     save_full_intensity, bool, optional
         If True, will save the full intensity field and return it, but this will
         take up much more memory, default is False.
@@ -218,7 +232,7 @@ def multi_worker_sim_prop_many_wf(
 
     # Data will be simulated by this function (will be called independently by
     # each worker)
-    def worker_prop_wfs(worker_idx, aberrations_chunk):
+    def worker_prop_wfs(worker_idx, aberrations_chunk, extra_params_chunk):
         sim_count = aberrations_chunk.shape[0]
         worker_str = f'Worker [{worker_idx}]'
         if sim_count == 0:
@@ -245,6 +259,11 @@ def multi_worker_sim_prop_many_wf(
             plot_path_complete = None
             if plot_path is not None:
                 plot_path_complete = f'{plot_path}/w_{worker_idx}_sim_{sim_idx}'
+            # Grab the extra params that correspond to the current simulation
+            extra_params_local = {
+                key: array[sim_idx]
+                for key, array in extra_params_chunk.items()
+            }
             camera_wf, full_wf, full_sampling = sim_prop_wf(
                 init_beam_d,
                 ref_wl,
@@ -254,6 +273,7 @@ def multi_worker_sim_prop_many_wf(
                 camera_sampling,
                 zernike_terms,
                 aberrations_chunk[sim_idx],
+                extra_params=extra_params_local,
                 grid_points=grid_points,
                 plot_path=plot_path_complete,
                 use_only_aberration_map=use_only_aberration_map,
@@ -279,6 +299,18 @@ def multi_worker_sim_prop_many_wf(
     worker_indexes = np.arange(core_count)
     # Split the rows into chunks to pass to each worker
     aberrations_chunks = np.array_split(aberrations, core_count)
+    # Since this is a dictionary, the inner arrays must first be split into
+    # chunks. Then, new dictionaries can be created with the chunked arrays.
+    extra_params_split_arrays = {
+        key: np.array_split(array, core_count)
+        for key, array in extra_params.items()
+    }
+    extra_params_chunks = [{
+        key: array_chunks[idx]
+        for key, array_chunks in extra_params_split_arrays.items()
+    } for idx in range(core_count)]
+    # This dictionary is no longer needed
+    del extra_params_split_arrays
     if enable_logs:
         step_ri('Beginning to run simulations')
     # There is a chance that if the data being returned is large, then this will
@@ -289,6 +321,7 @@ def multi_worker_sim_prop_many_wf(
         worker_prop_wfs,
         worker_indexes,
         aberrations_chunks,
+        extra_params_chunks,
     )
     # Merge together all the worker results
     merged_results = results[0]
