@@ -91,6 +91,7 @@ OPTIMIZERS = {
 # ==============================================================================
 # PROPER simulation code constants
 
+DM_ACTUATOR_HEIGHTS = 'dm_actuator_heights'
 # Vector Vortex Coronagraph charge
 VVC_CHARGE = 6
 

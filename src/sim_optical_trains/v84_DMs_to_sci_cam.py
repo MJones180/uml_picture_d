@@ -7,7 +7,7 @@ A diagram of PICTURE-D can be found in the `diagrams` folder under the
 
 from cbm_vvc_mft import cbm_vvc_approx
 import proper
-from utils.constants import VVC_CHARGE
+from utils.constants import DM_ACTUATOR_HEIGHTS, VVC_CHARGE
 
 # Diameter of the initial beam
 INIT_BEAM_D = 9e-3
@@ -27,15 +27,14 @@ DM_ACTUATOR_COUNT = 34
 DM_ACTUATOR_COUNT_HALF = DM_ACTUATOR_COUNT / 2
 DM_ACTUATOR_SPACING = 0.003  # 3 mm
 
-# All distances are in meters. Assume the beam starts at HODM 1. Treat the
-# DMs as if they are not there.
+# All distances are in meters. Assume the beam starts at HODM 1.
 OPTICAL_TRAIN = [
     [
         'HODM 1',
         # The real DM is circular, this one is square
-        lambda wf, actuator_heights: proper.prop_dm(
+        lambda wf, extra_params: proper.prop_dm(
             wf,
-            actuator_heights,
+            extra_params[DM_ACTUATOR_HEIGHTS][0],
             DM_ACTUATOR_COUNT_HALF,
             DM_ACTUATOR_COUNT_HALF,
             DM_ACTUATOR_SPACING,
@@ -48,9 +47,9 @@ OPTICAL_TRAIN = [
     [
         'HODM 2',
         # The real DM is circular, this one is square
-        lambda wf, actuator_heights: proper.prop_dm(
+        lambda wf, extra_params: proper.prop_dm(
             wf,
-            actuator_heights,
+            extra_params[DM_ACTUATOR_HEIGHTS][1],
             DM_ACTUATOR_COUNT_HALF,
             DM_ACTUATOR_COUNT_HALF,
             DM_ACTUATOR_SPACING,
@@ -94,33 +93,13 @@ OPTICAL_TRAIN = [
             lyot_stop_hole_r,
         ),
     ],
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # ~~~~~ The spatial filter is being   ~~~~~
+    # ~~~~~ ignored in this optical train ~~~~~
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     [
-        'Prop to Spatial Filter Lens [From Lyot Stop]',
-        lambda wf: proper.prop_propagate(wf, 0.038),
-    ],
-    # Lens before spatial filter
-    lambda wf: proper.prop_lens(wf, 0.124968),
-    [
-        'Prop to Spatial Filter [From Spatial Filter Lens]',
-        lambda wf: proper.prop_propagate(wf, 0.124968),
-    ],
-    [
-        'Spatial Filter',
-        lambda wf: proper.prop_elliptical_aperture(
-            wf,
-            0.0127,
-            0.0127,
-        ),
-    ],
-    [
-        'Prop to Spatial Filter Lens [From Spatial Filter]',
-        lambda wf: proper.prop_propagate(wf, 0.124968),
-    ],
-    # Lens after spatial filter
-    lambda wf: proper.prop_lens(wf, 0.124968),
-    [
-        'Final Lens [From Spatial Filter Lens]',
-        lambda wf: proper.prop_propagate(wf, 0.0772668),
+        'Prop to Final Lens [From Lyot Stop]',
+        lambda wf: proper.prop_propagate(wf, 0.3652028),
     ],
     # Final lens
     lambda wf: proper.prop_lens(wf, 0.2),
