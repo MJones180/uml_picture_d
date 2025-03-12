@@ -85,6 +85,7 @@ def sim_data_parser(subparsers):
         action='store_true',
         help='do not propagate a wavefront and just store the aberration map',
     )
+
     aberrations_group = subparser.add_mutually_exclusive_group()
     aberrations_group.add_argument(
         '--no-aberrations',
@@ -92,13 +93,22 @@ def sim_data_parser(subparsers):
         help='will simulate one row with no aberrations',
     )
     aberrations_group.add_argument(
+        '--fixed-amount-per-zernike-all',
+        nargs=3,
+        metavar=('[zernike term low]', '[zernike term high]',
+                 '[rms error in meters]'),
+        help=('will simulate 1 row by injecting a fixed RMS error on all '
+              'Zernike terms (the terms must be sequential)'),
+    )
+    aberrations_group.add_argument(
         '--fixed-amount-per-zernike',
         nargs=3,
         metavar=('[zernike term low]', '[zernike term high]',
                  '[rms error in meters]'),
         help=('will simulate `([zernike term high] - [zernike term low])` '
-              'rows by injecting a fixed RMS error for each '
-              'Zernike term (the terms must be sequential)'),
+              'rows by injecting a fixed RMS error for each Zernike term '
+              'where each wavefront contains only one Zernike at a time '
+              '(the terms must be sequential)'),
     )
     aberrations_group.add_argument(
         '--fixed-amount-per-zernike-pm',
@@ -106,16 +116,9 @@ def sim_data_parser(subparsers):
         metavar=('[zernike term low]', '[zernike term high]',
                  '[rms error in meters]'),
         help=('will simulate `([zernike term high] - [zernike term low])` '
-              'rows by injecting a fixed RMS error for each Zernike term (the '
-              'terms must be sequential) for both the +/- RMS errors'),
-    )
-    aberrations_group.add_argument(
-        '--fixed-amount-per-zernike-all',
-        nargs=3,
-        metavar=('[zernike term low]', '[zernike term high]',
-                 '[rms error in meters]'),
-        help=('will simulate 1 row by injecting a fixed RMS error for each '
-              'Zernike term (the terms must be sequential)'),
+              'rows by injecting a fixed RMS error for each Zernike term '
+              'where each wavefront contains only one Zernike at a time '
+              '(the terms must be sequential) for both the +/- RMS errors'),
     )
     aberrations_group.add_argument(
         '--fixed-amount-per-zernike-range',
@@ -125,7 +128,8 @@ def sim_data_parser(subparsers):
                  '[rms error points]'),
         help=('will simulate `([zernike term high] - [zernike term low]) * '
               '[rms error points]` rows by injecting a fixed RMS error in the '
-              'RMS range for each Zernike term (the terms must be sequential) '
+              'RMS range for each Zernike term where each wavefront contains '
+              'only only Zernike at a time (the terms must be sequential) '
               '| NOTE: for any negative values, write them as \" -number\"'),
     )
     aberrations_group.add_argument(
@@ -213,9 +217,9 @@ def sim_data(cli_args):
     append_no_aberrations_row = cli_args['append_no_aberrations_row']
     use_only_aberration_map = cli_args['use_only_aberration_map']
     no_aberrations = cli_args['no_aberrations']
+    fixed_amount_per_zernike_all = cli_args['fixed_amount_per_zernike_all']
     fixed_amount_per_zernike = cli_args['fixed_amount_per_zernike']
     fixed_amount_per_zernike_pm = cli_args['fixed_amount_per_zernike_pm']
-    fixed_amount_per_zernike_all = cli_args['fixed_amount_per_zernike_all']
     fixed_amount_per_zernike_range = cli_args['fixed_amount_per_zernike_range']
     rand_amount_per_zernike = cli_args['rand_amount_per_zernike']
     rand_amount_per_zernike_groups = cli_args['rand_amount_per_zernike_groups']
@@ -260,6 +264,12 @@ def sim_data(cli_args):
         zernike_terms = np.array([1])
         # The aberrations must be a 2D array
         aberrations = np.array([[0]])
+    elif fixed_amount_per_zernike_all:
+        idx_low, idx_high, perturb = fixed_amount_per_zernike_all
+        zernike_terms, col_count = _zernike_terms_list(idx_low, idx_high)
+        aberrations = np.full((1, col_count), float(perturb))
+        print('A single row where each term will have an RMS error of '
+              f'{perturb} meters')
     elif fixed_amount_per_zernike:
         idx_low, idx_high, perturb = fixed_amount_per_zernike
         zernike_terms, col_count = _zernike_terms_list(idx_low, idx_high)
@@ -278,12 +288,6 @@ def sim_data(cli_args):
         aberrations = np.concatenate((m_aberrations, p_aberrations), axis=0)
         print('Each Zernike term will have two rows with the RMS errors of  '
               f'{perturb} and -{perturb} meters')
-    elif fixed_amount_per_zernike_all:
-        idx_low, idx_high, perturb = fixed_amount_per_zernike_all
-        zernike_terms, col_count = _zernike_terms_list(idx_low, idx_high)
-        aberrations = np.full((1, col_count), float(perturb))
-        print('A single row where each term will have an RMS error of '
-              f'{perturb} meters')
     elif fixed_amount_per_zernike_range:
         # This function is technically for the random perturbations, but the
         # code is the same, just the argument meanings are slightly different
