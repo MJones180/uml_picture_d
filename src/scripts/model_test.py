@@ -22,7 +22,7 @@ from utils.plots.plot_zernike_response import plot_zernike_response
 from utils.plots.plot_zernike_total_cross_coupling import plot_zernike_total_cross_coupling  # noqa
 from utils.printing_and_logging import step_ri, title
 from utils.shared_argparser_args import shared_argparser_args
-from utils.stats_and_error import mae, mse, rss
+from utils.stats_and_error import mae, mse
 from utils.terminate_with_message import terminate_with_message
 from utils.torch_hdf_ds_loader import DSLoaderHDF
 
@@ -69,11 +69,6 @@ def model_test_parser(subparsers):
         '--print-outputs',
         action='store_true',
         help='print out the truth and model outputs',
-    )
-    subparser.add_argument(
-        '--take-rss-model-outputs',
-        action='store_true',
-        help='print out the RSS of the model outputs',
     )
     shared_argparser_args(subparser, ['force_cpu'])
 
@@ -130,10 +125,11 @@ def model_test(cli_args):
         print(outputs_truth)
         print('Outputs model:')
         print(np.array2string(outputs_model, separator=', ', precision=3))
-
-    # This only makes sense if a test is being done on a row without aberrations
-    if cli_args.get('take_rss_model_outputs'):
-        print('Model outputs RSS: ', rss(outputs_model))
+        print('Outputs truth (nm):')
+        print(outputs_truth * 1e9)
+        print('Outputs model (nm):')
+        print(np.array2string(outputs_model * 1e9, separator=', ',
+                              precision=3))
 
     step_ri('Computing the MAE and MSE')
     mae_val = mae(outputs_truth, outputs_model)

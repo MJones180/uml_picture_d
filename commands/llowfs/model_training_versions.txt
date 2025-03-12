@@ -198,8 +198,7 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py batch_model_test \
         no_aberrations_processed \
-        --inputs-need-norm --inputs-need-diff \
-        --print-outputs --take-rss-model-outputs \
+        --inputs-need-norm --inputs-need-diff --print-outputs \
         --epoch-and-tag-range last nn_rm_comparison_fixed_ 1 3
 
 [V9] The `nn_rm_comparison_fixed_v2` tag:
@@ -229,8 +228,7 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py batch_model_test \
         no_aberrations_processed \
-        --inputs-need-norm --inputs-need-diff \
-        --print-outputs --take-rss-model-outputs \
+        --inputs-need-norm --inputs-need-diff --print-outputs \
         --epoch-and-tag-range last nn_rm_comparison_fixed_v2_ 1 3
 
 [V10] The `nn_50nm_fixed_1nm_supersampled` tag:
@@ -261,8 +259,7 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py batch_model_test \
         no_aberrations_processed \
-        --inputs-need-norm --inputs-need-diff \
-        --print-outputs --take-rss-model-outputs \
+        --inputs-need-norm --inputs-need-diff --print-outputs \
         --epoch-and-tag-range last nn_50nm_fixed_1nm_supersampled_ 1 3
 
 [V11] The `nn_50nm_fixed_1nm_supersampled_nro` tag:
@@ -303,8 +300,7 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py batch_model_test \
         no_aberrations_processed \
-        --inputs-need-norm --inputs-need-diff \
-        --print-outputs --take-rss-model-outputs \
+        --inputs-need-norm --inputs-need-diff --print-outputs \
         --epoch-and-tag-range last nn_50nm_fixed_1nm_supersampled_nro_ 1 3
 
 [V12] The `nn_rm_comparison_fixed_nro` tag:
@@ -345,8 +341,7 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py batch_model_test \
         no_aberrations_processed \
-        --inputs-need-norm --inputs-need-diff \
-        --print-outputs --take-rss-model-outputs \
+        --inputs-need-norm --inputs-need-diff --print-outputs \
         --epoch-and-tag-range last nn_rm_comparison_fixed_nro_ 1 3
 
 [V13] The `overfit_bs1_norm_comp` tag:
@@ -399,8 +394,7 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py batch_model_test \
         no_aberrations_processed \
-        --inputs-need-norm --inputs-need-diff \
-        --print-outputs --take-rss-model-outputs \
+        --inputs-need-norm --inputs-need-diff --print-outputs \
         --epoch-and-tag-range last nn_architecture_comp_ 1 6
 
 [V15] The `nn_architecture_comp_v2` tag:
@@ -430,8 +424,7 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py batch_model_test \
         no_aberrations_processed \
-        --inputs-need-norm --inputs-need-diff \
-        --print-outputs --take-rss-model-outputs \
+        --inputs-need-norm --inputs-need-diff --print-outputs  \
         --epoch-and-tag-range last nn_architecture_comp_v2_ 1 4
 
 [V16] The `nn_architecture_comp_v3` tag:
@@ -461,8 +454,7 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py batch_model_test \
         no_aberrations_processed \
-        --inputs-need-norm --inputs-need-diff \
-        --print-outputs --take-rss-model-outputs \
+        --inputs-need-norm --inputs-need-diff --print-outputs \
         --epoch-and-tag-range last nn_architecture_comp_v3_ 1 4
 
 [V17] The `dfcs1_comp_ss` tag:
@@ -493,8 +485,7 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py batch_model_test \
         no_aberrations_processed \
-        --inputs-need-norm --inputs-need-diff \
-        --print-outputs --take-rss-model-outputs \
+        --inputs-need-norm --inputs-need-diff --print-outputs \
         --epoch-and-tag-range last dfcs1_comp_ss_ 1 6
 
 [V18] The `cnn_comp` tag:
@@ -524,8 +515,7 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py batch_model_test \
         no_aberrations_processed \
-        --inputs-need-norm --inputs-need-diff \
-        --print-outputs --take-rss-model-outputs \
+        --inputs-need-norm --inputs-need-diff --print-outputs \
         --epoch-and-tag-range last cnn_comp_ 1 36
 
 [V19] The `smaller_range_test` tag:
@@ -548,7 +538,7 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py model_test \
         smaller_range_test last no_aberrations_processed --inputs-need-norm \
-        --inputs-need-diff --print-outputs --take-rss-model-outputs
+        --inputs-need-diff --print-outputs
 
 [V20] The `mae_test` tag:
 
@@ -582,8 +572,7 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py batch_model_test \
         no_aberrations_processed \
-        --inputs-need-norm --inputs-need-diff \
-        --print-outputs --take-rss-model-outputs \
+        --inputs-need-norm --inputs-need-diff --print-outputs \
         --epoch-and-tag-range last mae_test_ 1 2
 
 [V21] The `double_small` tag:
@@ -618,8 +607,7 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py batch_model_test \
         no_aberrations_processed \
-        --inputs-need-norm --inputs-need-diff \
-        --print-outputs --take-rss-model-outputs \
+        --inputs-need-norm --inputs-need-diff --print-outputs  \
         --epoch-and-tag-range last double_small_ 1 2
 
 [V22] The `dfc_comp` tag:
@@ -649,8 +637,7 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py batch_model_test \
         no_aberrations_processed \
-        --inputs-need-norm --inputs-need-diff \
-        --print-outputs --take-rss-model-outputs \
+        --inputs-need-norm --inputs-need-diff --print-outputs \
         --epoch-and-tag-range last dfc_comp_ 1 6
 
 [V23] The `val_against_ran10` tag:
@@ -675,8 +662,7 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py batch_model_test \
         no_aberrations_processed \
-        --inputs-need-norm --inputs-need-diff \
-        --print-outputs --take-rss-model-outputs \
+        --inputs-need-norm --inputs-need-diff --print-outputs \
         --epoch-and-tag-range last val_against_ran10 1 2
 
 [V24] The `cnn_comp_v2` tag:
@@ -706,8 +692,7 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py batch_model_test \
         no_aberrations_processed \
-        --inputs-need-norm --inputs-need-diff \
-        --print-outputs --take-rss-model-outputs \
+        --inputs-need-norm --inputs-need-diff --print-outputs \
         --epoch-and-tag-range last cnn_comp_v2_ 1 6
 
 [V25] The `multiple_terms_per_row` tag:
@@ -737,8 +722,7 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py batch_model_test \
         no_aberrations_processed \
-        --inputs-need-norm --inputs-need-diff \
-        --print-outputs --take-rss-model-outputs \
+        --inputs-need-norm --inputs-need-diff --print-outputs \
         --epoch-and-tag-range last multiple_terms_per_row_ 1 8
 
 [V26] The `cnn_comp_multi` tag:
@@ -768,8 +752,7 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py batch_model_test \
         no_aberrations_processed \
-        --inputs-need-norm --inputs-need-diff \
-        --print-outputs --take-rss-model-outputs \
+        --inputs-need-norm --inputs-need-diff --print-outputs \
         --epoch-and-tag-range last cnn_comp_multi_ 1 4
 
 [V27] The `cnn_comp_multi_v2` tag:
@@ -799,8 +782,7 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py batch_model_test \
         no_aberrations_processed \
-        --inputs-need-norm --inputs-need-diff \
-        --print-outputs --take-rss-model-outputs \
+        --inputs-need-norm --inputs-need-diff --print-outputs \
         --epoch-and-tag-range last cnn_comp_multi_v2_ 1 4
 
 [V28] The `cac_v2` tag:
@@ -830,8 +812,7 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py batch_model_test \
         no_aberrations_processed \
-        --inputs-need-norm --inputs-need-diff \
-        --print-outputs --take-rss-model-outputs \
+        --inputs-need-norm --inputs-need-diff --print-outputs \
         --epoch-and-tag-range last cac_v2_ 1 7
 
 [V29] The `cac_v3` tag:
@@ -861,8 +842,7 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py batch_model_test \
         no_aberrations_processed \
-        --inputs-need-norm --inputs-need-diff \
-        --print-outputs --take-rss-model-outputs \
+        --inputs-need-norm --inputs-need-diff --print-outputs \
         --epoch-and-tag-range last cac_v3_ 1 5
 
 [V30] The `data_groups` tag:
@@ -892,8 +872,7 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py batch_model_test \
         no_aberrations_processed \
-        --inputs-need-norm --inputs-need-diff \
-        --print-outputs --take-rss-model-outputs \
+        --inputs-need-norm --inputs-need-diff --print-outputs \
         --epoch-and-tag-range last data_groups_ 1 8
 
 [V31] The `data_groups_v2` tag:
@@ -923,8 +902,7 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py batch_model_test \
         no_aberrations_processed \
-        --inputs-need-norm --inputs-need-diff \
-        --print-outputs --take-rss-model-outputs \
+        --inputs-need-norm --inputs-need-diff --print-outputs \
         --epoch-and-tag-range last data_groups_v2_ 1 4
 
 [V32] The `data_groups_v3` tag:
@@ -954,8 +932,7 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py batch_model_test \
         no_aberrations_processed \
-        --inputs-need-norm --inputs-need-diff \
-        --print-outputs --take-rss-model-outputs \
+        --inputs-need-norm --inputs-need-diff --print-outputs \
         --epoch-and-tag-range last data_groups_v3_ 1 8
 
 [V33] The `data_groups_approx` tag:
@@ -985,8 +962,7 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py batch_model_test \
         no_aberrations_processed \
-        --inputs-need-norm --inputs-need-diff \
-        --print-outputs --take-rss-model-outputs \
+        --inputs-need-norm --inputs-need-diff --print-outputs \
         --epoch-and-tag-range last data_groups_approx_ 1 2
 
 [V34] The `data_groups_approx_v2` tag:
@@ -1016,8 +992,7 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py batch_model_test \
         no_aberrations_processed \
-        --inputs-need-norm --inputs-need-diff \
-        --print-outputs --take-rss-model-outputs \
+        --inputs-need-norm --inputs-need-diff --print-outputs \
         --epoch-and-tag-range last data_groups_approx_v2_ 1 2
 
 [V35] The `inference_speedup_v1` tag:
@@ -1047,8 +1022,7 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py batch_model_test \
         no_aberrations_processed \
-        --inputs-need-norm --inputs-need-diff \
-        --print-outputs --take-rss-model-outputs \
+        --inputs-need-norm --inputs-need-diff --print-outputs \
         --epoch-and-tag-range last inference_speedup_v1_ 1 4
 
 [V36] The `inference_speedup_v2` tag:
@@ -1078,8 +1052,7 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py batch_model_test \
         no_aberrations_processed \
-        --inputs-need-norm --inputs-need-diff \
-        --print-outputs --take-rss-model-outputs \
+        --inputs-need-norm --inputs-need-diff --print-outputs \
         --epoch-and-tag-range last inference_speedup_v2_ 1 3
 
 [V37] The `inference_speedup_v3` tag:
@@ -1109,8 +1082,7 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py batch_model_test \
         no_aberrations_processed \
-        --inputs-need-norm --inputs-need-diff \
-        --print-outputs --take-rss-model-outputs \
+        --inputs-need-norm --inputs-need-diff --print-outputs \
         --epoch-and-tag-range last inference_speedup_v3_ 1 2
 
 [V38] The `best_model_smaller_aberrations_v1` tag:
@@ -1140,8 +1112,7 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py batch_model_test \
         no_aberrations_processed \
-        --inputs-need-norm --inputs-need-diff \
-        --print-outputs --take-rss-model-outputs \
+        --inputs-need-norm --inputs-need-diff --print-outputs \
         --epoch-and-tag-range last best_model_smaller_aberrations_v1_ 1 4
 
 [V39] The `best_model_smaller_aberrations_v2` tag:
@@ -1171,8 +1142,7 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py batch_model_test \
         no_aberrations_processed \
-        --inputs-need-norm --inputs-need-diff \
-        --print-outputs --take-rss-model-outputs \
+        --inputs-need-norm --inputs-need-diff --print-outputs \
         --epoch-and-tag-range last best_model_smaller_aberrations_v2_ 1 2
 
 [V40] The `best_model_smaller_aberrations_v3` tag:
@@ -1203,8 +1173,7 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py batch_model_test \
         no_aberrations_processed \
-        --inputs-need-norm --inputs-need-diff \
-        --print-outputs --take-rss-model-outputs \
+        --inputs-need-norm --inputs-need-diff --print-outputs \
         --epoch-and-tag-range last best_model_smaller_aberrations_v3_ 1 10
 
 [V41] The `best_model_smaller_aberrations_v4` tag:
@@ -1233,7 +1202,7 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py model_test \
         best_model_smaller_aberrations_v4 last \
-        no_aberrations_processed --print-outputs --take-rss-model-outputs \
+        no_aberrations_processed --print-outputs \
         --inputs-need-norm --inputs-need-diff
 
 [V42] The `best_model_smaller_aberrations_v5` tag:
@@ -1271,8 +1240,7 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py batch_model_test \
         no_aberrations_processed \
-        --inputs-need-norm --inputs-need-diff \
-        --print-outputs --take-rss-model-outputs \
+        --inputs-need-norm --inputs-need-diff --print-outputs \
         --epoch-and-tag-range last best_model_smaller_aberrations_v5_ 1 2
 
 [V43] The `chunks_per_row_comparison` tag:
