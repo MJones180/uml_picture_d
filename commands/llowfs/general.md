@@ -6,11 +6,17 @@ A single row with no aberrations (used to compute the difference during preproce
 
     python3 main_scnp.py sim_data no_aberrations v84 600e-9 --no-aberrations
 
-A single row with aberrations on every term:
+A single row with aberrations (10 nm) on every term:
 
     python3 main_scnp.py sim_data all_10nm v84 600e-9 \
         --fixed-amount-per-zernike-all 2 24 10e-9 \
         --save-full-intensity
+
+A single row where different terms have different aberrations:
+
+    # 1 row, 500 nm for Z2-3, 20 nm for Z4-8, 10 nm for Z9-24
+    python3 main_scnp.py sim_data fixed_group_500_20_10 v84_approx 600e-9 \
+        --fixed-amount-per-zernike-all-groups 2 3 500e-9 4 8 20e-9 9 24 10e-9
 
 The `--save-aberrations-csv` or `--save-aberrations-csv-quit` args can be passed and an additional CSV file will be written out containing the aberrations. This can be handy if just the aberration values are needed, then the script can terminate.
 

@@ -101,6 +101,16 @@ def sim_data_parser(subparsers):
               'Zernike terms (the terms must be sequential)'),
     )
     aberrations_group.add_argument(
+        '--fixed-amount-per-zernike-all-groups',
+        nargs='+',
+        metavar='[zernike term low] [zernike term high] [rms error in meters]',
+        help=('will simulate 1 row by injecting a fixed RMS error on each '
+              'Zernike term | the aberration can be different for different '
+              'Zernike terms, the three arguments can be repeated as many '
+              'times as necessary to cover all the groupings, the Zernike '
+              'terms just have to be sequential and have no overlap'),
+    )
+    aberrations_group.add_argument(
         '--fixed-amount-per-zernike',
         nargs=3,
         metavar=('[zernike term low]', '[zernike term high]',
@@ -218,6 +228,8 @@ def sim_data(cli_args):
     use_only_aberration_map = cli_args['use_only_aberration_map']
     no_aberrations = cli_args['no_aberrations']
     fixed_amount_per_zernike_all = cli_args['fixed_amount_per_zernike_all']
+    fixed_amount_per_zernike_all_groups = cli_args[
+        'fixed_amount_per_zernike_all_groups']
     fixed_amount_per_zernike = cli_args['fixed_amount_per_zernike']
     fixed_amount_per_zernike_pm = cli_args['fixed_amount_per_zernike_pm']
     fixed_amount_per_zernike_range = cli_args['fixed_amount_per_zernike_range']
@@ -270,6 +282,30 @@ def sim_data(cli_args):
         aberrations = np.full((1, col_count), float(perturb))
         print('A single row where each term will have an RMS error of '
               f'{perturb} meters')
+    elif fixed_amount_per_zernike_all_groups:
+        all_groups = fixed_amount_per_zernike_all_groups
+        # Verify there are the correct number of arguments
+        if len(all_groups) % 3 != 0:
+            terminate_with_message('Each group must have three arguments')
+        # The data that needs to be aggregated for each group
+        zernike_terms = []
+        row_aberrations = []
+        col_count = 0
+        for group_idx in range(len(all_groups) // 3):
+            print(f'Group: {group_idx}')
+            groups_args = all_groups[group_idx * 3:(group_idx + 1) * 3]
+            group_zernikes, cols = _zernike_terms_list(*groups_args[:2])
+            zernike_terms.extend(group_zernikes)
+            col_count += cols
+            print(f'    Zernike terms ({cols}): {group_zernikes}')
+            aberration_amount = float(groups_args[2])
+            print(f'    Aberration amount: {aberration_amount}')
+            row_aberrations.extend(np.full(cols, aberration_amount))
+        # Convert the datatype back to native int
+        zernike_terms = np.array([int(v) for v in zernike_terms])
+        aberrations = np.array([row_aberrations])
+        print('A single row where each term can have a different '
+              'fixed RMS error')
     elif fixed_amount_per_zernike:
         idx_low, idx_high, perturb = fixed_amount_per_zernike
         zernike_terms, col_count = _zernike_terms_list(idx_low, idx_high)
