@@ -120,16 +120,22 @@ def model_test(cli_args):
 
     # Print the results to the console
     if cli_args.get('print_outputs'):
+        step_ri('Printing outputs')
+
+        def _print_outputs(vals):
+            print(np.array2string(vals, separator=', ', precision=3))
+
         step_ri('Results')
-        print('Outputs truth:')
+        print('Truth:')
         print(outputs_truth)
-        print('Outputs model:')
-        print(np.array2string(outputs_model, separator=', ', precision=3))
-        print('Outputs truth (nm):')
+        print('Model:')
+        _print_outputs(outputs_model)
+        print('Truth (nm):')
         print(outputs_truth * 1e9)
-        print('Outputs model (nm):')
-        print(np.array2string(outputs_model * 1e9, separator=', ',
-                              precision=3))
+        print('Model (nm):')
+        _print_outputs(outputs_model * 1e9)
+        print('Absolute difference (nm):')
+        _print_outputs(np.abs(outputs_truth - outputs_model) * 1e9)
 
     step_ri('Computing the MAE and MSE')
     mae_val = mae(outputs_truth, outputs_model)

@@ -71,6 +71,11 @@ def run_response_matrix_parser(subparsers):
         action='store_true',
         help='the inputs are the delta from the base field',
     )
+    subparser.add_argument(
+        '--print-outputs',
+        action='store_true',
+        help='print out the truth and response matrix outputs',
+    )
 
 
 def run_response_matrix(cli_args):
@@ -120,6 +125,25 @@ def run_response_matrix(cli_args):
     else:
         print('Passing in the total intensity field')
         outputs_resp_mat = response_matrix_obj(total_int_field=inputs_reshaped)
+
+    # Print the results to the console
+    if cli_args.get('print_outputs'):
+        step_ri('Printing outputs')
+
+        def _print_outputs(vals):
+            print(np.array2string(vals, separator=', ', precision=3))
+
+        step_ri('Results')
+        print('Truth:')
+        print(outputs_truth)
+        print('Model:')
+        _print_outputs(outputs_resp_mat)
+        print('Truth (nm):')
+        print(outputs_truth * 1e9)
+        print('Model (nm):')
+        _print_outputs(outputs_resp_mat * 1e9)
+        print('Absolute difference (nm):')
+        _print_outputs(np.abs(outputs_truth - outputs_resp_mat) * 1e9)
 
     step_ri('Computing the MAE and MSE')
     mae_val = mae(outputs_truth, outputs_resp_mat)
