@@ -7,7 +7,10 @@ A datafile will be outputted for every worker.
 import numpy as np
 from pathos.multiprocessing import ProcessPool
 from utils.cli_args import save_cli_args
-from utils.constants import ABERRATIONS_F, DATA_F, RAW_SIMULATED_DATA_P
+from utils.constants import (ABERRATIONS_F, DATA_F, PLOTTING_LINEAR_INT,
+                             PLOTTING_LINEAR_PHASE,
+                             PLOTTING_LINEAR_PHASE_NON0_INT, PLOTTING_LOG_INT,
+                             PLOTTING_PATH, RAW_SIMULATED_DATA_P)
 from utils.hdf_read_and_write import HDFWriteModule
 from utils.load_optical_train import load_optical_train
 from utils.path import make_dir
@@ -49,9 +52,13 @@ def sim_data_parser(subparsers):
     )
     subparser.add_argument(
         '--save-plots',
-        action='store_true',
-        help=('save plots at each step of the train, NOTE: should only do '
-              'this for a few rows since the plots take extra time and space'),
+        nargs=4,
+        metavar=('[linear intensity bool]', '[log intensity bool]',
+                 '[linear phase bool]',
+                 '[linear phase where int nonzero bool]'),
+        help=('save plots at each step of the train, the arguments are '
+              'bools on what should be plotted; NOTE: should only do this for '
+              'a few rows since the plots take extra time and space'),
     )
     subparser.add_argument(
         '--save-full-intensity',
@@ -442,6 +449,16 @@ def sim_data(cli_args):
         if (sim_idx + 1) % output_write_batch == 0:
             write_cb(worker_idx, simulation_data)
 
+    plotting = {}
+    if save_plots is not None:
+        plotting = {
+            PLOTTING_PATH: f'{output_path}/plots/',
+            PLOTTING_LINEAR_INT: save_plots[0].lower() == 'true',
+            PLOTTING_LOG_INT: save_plots[1].lower() == 'true',
+            PLOTTING_LINEAR_PHASE: save_plots[2].lower() == 'true',
+            PLOTTING_LINEAR_PHASE_NON0_INT: save_plots[3].lower() == 'true',
+        }
+
     # Run all the simulations and save the results
     multi_worker_sim_prop_many_wf(
         pool,
@@ -456,7 +473,7 @@ def sim_data(cli_args):
         aberrations,
         save_full_intensity=save_full_intensity,
         grid_points=grid_points,
-        plot_path=f'{output_path}/plots/' if save_plots else None,
+        plotting=plotting,
         use_only_aberration_map=use_only_aberration_map,
         sim_post_cb=batch_write_cb,
         worker_post_cb=write_cb,

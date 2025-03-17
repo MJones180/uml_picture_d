@@ -96,6 +96,15 @@ DM_ACTUATOR_HEIGHTS = 'dm_actuator_heights'
 VVC_CHARGE = 6
 
 # ==============================================================================
+# Simulation plotting commands
+
+PLOTTING_LINEAR_INT = 'linear_intensity'
+PLOTTING_LINEAR_PHASE = 'linear_phase'
+PLOTTING_LINEAR_PHASE_NON0_INT = 'linear_phase_nonzero_intensity'
+PLOTTING_LOG_INT = 'log_intensity'
+PLOTTING_PATH = 'path'
+
+# ==============================================================================
 # Zernike polynomial names
 
 ZERNIKE_NAME_LOOKUP = {

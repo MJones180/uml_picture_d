@@ -265,7 +265,7 @@ A base row with random aberrations between -50 and 50 nm for each term. Then, ro
 
     python3 main_scnp.py sim_data rows_with_gaussian_pert v84 600e-9 \
         --rand-amount-per-zernike-row-then-gaussian-pert 2 24 " -10e-9" 10e-9 25 1e-9 \
-        --save-plots --cores 4
+        --save-plots True True True True --cores 4
 
 Random aberration ranging from -50 to 50 nm for only one term in each row and a row for each of the Zernike terms (can be used to create a response matrix):
 

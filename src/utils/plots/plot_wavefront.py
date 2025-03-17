@@ -6,26 +6,27 @@ from utils.idl_rainbow_cmap import idl_rainbow_cmap
 log_cmap = idl_rainbow_cmap()
 
 
-def plot_intensity_field(
-    intensity,
+def plot_wavefront(
+    data,
+    colorbar_label,
     plot_sampling,
     title,
     plot_path,
     use_log=False,
 ):
-    plot_points = intensity.shape[0]
+    plot_points = data.shape[0]
     # Reset the plot
     plt.clf()
     plt.title(title)
     if use_log:
         # Ignore divide by zero errors here if they occurr
         with np.errstate(divide='ignore'):
-            intensity = np.log10(intensity)
+            data = np.log10(data)
         vmin = -8
-        intensity[intensity == -np.inf] = vmin
-        plt.imshow(intensity, vmin=vmin, vmax=0, cmap=log_cmap)
+        data[data == -np.inf] = vmin
+        plt.imshow(data, vmin=vmin, vmax=0, cmap=log_cmap)
     else:
-        plt.imshow(intensity, cmap='Greys_r')
+        plt.imshow(data, cmap='Greys_r')
     plt.xlabel('X [mm]')
     plt.ylabel('Y [mm]')
     tick_count = 7
@@ -40,7 +41,6 @@ def plot_intensity_field(
     plt.xticks(tick_locations, tick_labels)
     # The y ticks get plotted from top to bottom, so flip them
     plt.yticks(tick_locations, tick_labels[::-1])
-    colorbar_label = 'log10(intensity)' if use_log else 'intensity'
     plt.colorbar(label=colorbar_label)
     plt.savefig(plot_path, dpi=300)
 
@@ -50,8 +50,9 @@ def plot_intensity_field(
 # used, I added the block of code below that can be uncommented when needed.
 # It saves just the pixel data (no axes, title, colorbar, etc.).
 # ==============================================================================
-# def plot_intensity_field(
-#     intensity,
+# def plot_wavefront(
+#     data,
+#     colorbar_label,
 #     plot_sampling,
 #     title,
 #     plot_path,
@@ -62,12 +63,12 @@ def plot_intensity_field(
 #     if use_log:
 #         # Ignore divide by zero errors here if they occurr
 #         with np.errstate(divide='ignore'):
-#             intensity = np.log10(intensity)
+#             data = np.log10(data)
 #         vmin = -8
-#         intensity[intensity == -np.inf] = vmin
-#         plt.imshow(intensity, vmin=vmin, vmax=0, cmap=log_cmap)
+#         data[data == -np.inf] = vmin
+#         plt.imshow(data, vmin=vmin, vmax=0, cmap=log_cmap)
 #     else:
-#         plt.imshow(intensity, cmap='Greys_r')
+#         plt.imshow(data, cmap='Greys_r')
 #     plt.axis('off')
 #     plt.savefig(plot_path, dpi=300, bbox_inches='tight', pad_inches=0)
 # ==============================================================================
