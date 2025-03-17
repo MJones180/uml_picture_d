@@ -90,10 +90,11 @@ plt.title(
     'Input Signals\nGain Factors $K_{P,I,D}$ = ' + str(GAIN_VALUES),
     pad=30,
 )
-ax.set_xlabel(
-    'Scaling Factor ($k$)\nAberration Ranges Are Uniformly Random Between: '
-    r'$k\cdot\;[-x_Z, x_Z]$ nm RMS error, where $x_{2-3}=$' + str(RANGES[0]) +
-    '$, x_{4-8}=$' + str(RANGES[1]) + '$, x_{9-24}=$' + str(RANGES[2]))
+ax.set_xlabel('Input Aberration Scaling Factor ($k$)\n'
+              'Aberration Ranges Are Uniformly Random Between: '
+              r'$k\cdot\;[-x_Z, x_Z]$ nm RMS error, where $x_{2-3}=$' +
+              str(RANGES[0]) + '$, x_{4-8}=$' + str(RANGES[1]) +
+              '$, x_{9-24}=$' + str(RANGES[2]))
 ax.set_ylabel('Wavefronts Flattened\nTrue Error Threshold: '
               f'[-{THRESHOLD}, {THRESHOLD}]')
 
