@@ -100,6 +100,12 @@ def sim_data_parser(subparsers):
         help='will simulate one row with no aberrations',
     )
     aberrations_group.add_argument(
+        '--explicit',
+        nargs='+',
+        metavar='[starting Zernike] [*RMS error on Zernike terms]',
+        help='will simulate 1 row with explicit Zernike coefficient values',
+    )
+    aberrations_group.add_argument(
         '--fixed-amount-per-zernike-all',
         nargs=3,
         metavar=('[zernike term low]', '[zernike term high]',
@@ -234,6 +240,7 @@ def sim_data(cli_args):
     append_no_aberrations_row = cli_args['append_no_aberrations_row']
     use_only_aberration_map = cli_args['use_only_aberration_map']
     no_aberrations = cli_args['no_aberrations']
+    explicit = cli_args['explicit']
     fixed_amount_per_zernike_all = cli_args['fixed_amount_per_zernike_all']
     fixed_amount_per_zernike_all_groups = cli_args[
         'fixed_amount_per_zernike_all_groups']
@@ -283,6 +290,15 @@ def sim_data(cli_args):
         zernike_terms = np.array([1])
         # The aberrations must be a 2D array
         aberrations = np.array([[0]])
+    elif explicit:
+        idx_low = int(explicit[0])
+        coeffs = [float(coeff) for coeff in explicit[1:]]
+        zernike_terms, col_count = _zernike_terms_list(
+            idx_low,
+            idx_low + len(coeffs) - 1,
+        )
+        aberrations = np.array([float(coeff) for coeff in coeffs])[None]
+        print('A single row with explicitly given Zernike coefficients')
     elif fixed_amount_per_zernike_all:
         idx_low, idx_high, perturb = fixed_amount_per_zernike_all
         zernike_terms, col_count = _zernike_terms_list(idx_low, idx_high)
