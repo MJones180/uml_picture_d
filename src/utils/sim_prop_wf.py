@@ -287,7 +287,7 @@ def multi_worker_sim_prop_many_wf(
             simulation_data[FULL_INTENSITY] = []
             simulation_data[FULL_SAMPLING] = []
         plotting_dict = plotting.copy()
-        plot_path = plotting_dict.pop(PLOTTING_PATH)
+        plot_path = plotting_dict.pop(PLOTTING_PATH, None)
         for sim_idx in range(sim_count):
             if enable_logs:
                 print(f'[{worker_idx}] Simulation, {sim_idx + 1}/{sim_count}')
