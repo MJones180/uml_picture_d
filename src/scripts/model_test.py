@@ -126,16 +126,18 @@ def model_test(cli_args):
             print(np.array2string(vals, separator=', ', precision=3))
 
         step_ri('Results')
-        print('Truth:')
-        print(outputs_truth)
-        print('Model:')
-        _print_outputs(outputs_model)
         print('Truth (nm):')
         print(outputs_truth * 1e9)
         print('Model (nm):')
         _print_outputs(outputs_model * 1e9)
         print('Absolute difference (nm):')
-        _print_outputs(np.abs(outputs_truth - outputs_model) * 1e9)
+        abs_diff = np.abs(outputs_truth - outputs_model)
+        _print_outputs(abs_diff * 1e9)
+        print('Percent error:')
+        percent_errors = abs_diff / outputs_truth * 100
+        _print_outputs(percent_errors)
+        print('Average percent error:')
+        print(np.sum(percent_errors) / len(zernike_terms))
 
     step_ri('Computing the MAE and MSE')
     mae_val = mae(outputs_truth, outputs_model)
