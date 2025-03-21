@@ -1483,17 +1483,12 @@ After model testing, it is useful to rank the model analyses:
         --init-weights weighted_aberration_ranges_local_v4_round_one last
 
     python3 main.py model_test \
-        weighted_aberration_ranges_local_v4 last fixed_50nm_range_processed \
+        weighted_aberration_ranges_local_v4 last fixed_50nm_range_approx_processed \
         --zernike-plots --inputs-need-norm --inputs-need-diff
 
     python3 main.py model_test \
-        weighted_aberration_ranges_local_v4 last random_10nm_med_processed \
+        weighted_aberration_ranges_local_v4 last random_10nm_med_approx_processed \
         --scatter-plot 4 6 2 1e-7 15 --inputs-need-norm --inputs-need-diff
-
-    python3 main.py model_test \
-        weighted_aberration_ranges_local_v4 last random_1nm_large_processed \
-        --scatter-plot 4 6 2 1e-8 30 \
-        --inputs-need-norm --inputs-need-diff --force-cpu
 
     python3 main.py model_test \
         weighted_aberration_ranges_local_v4 last \

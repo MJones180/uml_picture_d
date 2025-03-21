@@ -44,7 +44,7 @@ Data at a fixed RMS error (can be used to create a response matrix):
 
 Data used to create the +/- 40 nm RMS error response matrix:
 
-    python3 main_scnp.py sim_data fixed_pm_40nm v84 600e-9 \
+    python3 main_scnp.py sim_data fixed_pm_40nm v84_approx 600e-9 \
         --output-write-batch 10 \
         --fixed-amount-per-zernike-pm 2 24 40e-9 \
         --append-no-aberrations-row \
@@ -55,6 +55,12 @@ Fixed aberrations on a grid for one term at a time in each row across all terms:
 
     # -50 to 50 nm in 10 nm increments
     python3 main_scnp.py sim_data fixed_50nm_range v84 600e-9 \
+        --output-write-batch 50 \
+        --fixed-amount-per-zernike-range 2 24 " -50e-9" 50e-9 21 \
+        --cores 4
+
+    # -50 to 50 nm in 10 nm increments
+    python3 main_scnp.py sim_data fixed_50nm_range_approx v84_approx 600e-9 \
         --output-write-batch 50 \
         --fixed-amount-per-zernike-range 2 24 " -50e-9" 50e-9 21 \
         --cores 4
@@ -151,6 +157,13 @@ Random aberrations for every term in each row generated using the approximated V
     python3 main_scnp.py sim_data random_2nm_large_approx v84_approx 600e-9 \
         --output-write-batch 500 \
         --rand-amount-per-zernike 2 24 " -2e-9" 2e-9 100000 \
+        --append-no-aberrations-row \
+        --cores 4
+
+    # -10 to 10 nm, 25,000 rows
+    python3 main_scnp.py sim_data random_10nm_med_approx v84_approx 600e-9 \
+        --output-write-batch 500 \
+        --rand-amount-per-zernike 2 24 " -10e-9" 10e-9 25000 \
         --append-no-aberrations-row \
         --cores 4
 
@@ -322,6 +335,7 @@ Just the Zernike wavefront without any propagation:
 This data can be used to generate the `zernike` plots:
 
     python3 main.py preprocess_data_bare fixed_50nm_range fixed_50nm_range_processed
+    python3 main.py preprocess_data_bare fixed_50nm_range_approx fixed_50nm_range_approx_processed
 
 Can be used for model training/validation:
 
@@ -579,6 +593,7 @@ Can be used for testing:
 
     # 10 nm
     python3 main.py preprocess_data_bare random_10nm_med random_10nm_med_processed
+    python3 main.py preprocess_data_bare random_10nm_med_approx random_10nm_med_approx_processed
 
     # 50 nm
     python3 main.py preprocess_data_bare random_50nm_med random_50nm_med_processed
@@ -633,7 +648,7 @@ Averaged response matrix:
 `fixed_pm_40nm` response matrix:
 
     python3 main.py run_response_matrix fixed_pm_40nm \
-        fixed_50nm_range_processed --scatter-plot 4 6 2 1e-7 15 --zernike-plots
+        fixed_50nm_range_approx_processed --scatter-plot 4 6 2 1e-7 15 --zernike-plots
 
 `random_50nm_single_each_large` response matrix:
 

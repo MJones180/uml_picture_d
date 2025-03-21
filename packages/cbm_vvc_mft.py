@@ -144,10 +144,11 @@ def obtain_vvc(nvvc, charge, offset, ramp_sign):
 
 # This is an approximation of the complete `cbm_vvc_mft`. Instead of doing the
 # full MFT, this function just multiplies the wavefront by the VVC mask. This
-# function will be much faster at the cost of a minor loss in accuracy.
-# The `center_spot_scaling` parameter needs to be tailored for each set of VVC
-# args so that it best aligns with the results obtained by calling the complete
-# `cbm_vvc_mft` function.
+# function will be much faster at the cost of a minor loss in accuracy. The only
+# thing to be careful about is wavefronts with small aberrations will be
+# substantially different than those that use MFT. The `center_spot_scaling`
+# parameter needs to be tailored for each set of VVC args so that it best aligns
+# with the results obtained by calling the complete `cbm_vvc_mft` function.
 def cbm_vvc_approx(wavefront, charge, offset, ramp_sign, center_spot_scaling):
     n = proper.prop_get_gridsize(wavefront)
     sampling = proper.prop_get_sampling(wavefront)
