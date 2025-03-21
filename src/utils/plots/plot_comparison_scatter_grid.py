@@ -183,6 +183,8 @@ def plot_comparison_scatter_grid(
                          ]):
                 item.set_fontsize(15)
             current_col += 1
+            # Reduce the number of ticks along each axis
+            # axs_cell.locator_params(nbins=4)
     # Fixes padding around subplots, `h_pad` decreases vertical spacing between
     # rows and `rect` makes room for the suptitle
     fig.tight_layout(h_pad=0, rect=[0, 0, 1, 0.99])
