@@ -23,7 +23,7 @@ def sim_prop_wf(
     aberration_values,
     extra_params={},
     grid_points=1024,
-    plotting=None,
+    plotting={},
     use_only_aberration_map=False,
     disable_proper_logs=True,
 ):
@@ -189,7 +189,7 @@ def multi_worker_sim_prop_many_wf(
     extra_params={},
     save_full_intensity=False,
     grid_points=1024,
-    plotting=None,
+    plotting={},
     use_only_aberration_map=False,
     disable_proper_logs=True,
     enable_logs=True,
