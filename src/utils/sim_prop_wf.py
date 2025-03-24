@@ -141,6 +141,15 @@ def sim_prop_wf(
     aberration_map = add_wf_aberrations(wavefront, zernike_terms,
                                         aberration_values)
     _plot('Entrance', wf_obj=wavefront)
+    # # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # # Calculate the total RMS wavefront error for a set of discrete points.
+    # phase_error = proper.prop_get_phase(wavefront)  # In radians
+    # phase_error *= ref_wl / (2 * np.pi)  # In meters
+    # number_pixels = np.prod(phase_error.shape)
+    # # RMS error = sqrt{ (1/N) * Sum phase**2 }, where phase is over pixels
+    # total_RMS_error = np.sqrt(np.sum(phase_error**2) / number_pixels)
+    # print('RMS error: ', total_RMS_error)
+    # # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     if use_only_aberration_map:
         # Pixels where the circle is
         aperture_mask = proper.prop_get_amplitude(wavefront)**2 > 0
