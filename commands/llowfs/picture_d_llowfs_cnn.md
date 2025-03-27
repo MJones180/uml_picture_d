@@ -67,15 +67,26 @@ Generate all the input aberration CSV files:
         --fixed-amount-per-zernike-range 2 24 " -50e-9" 50e-9 2000 \
         --save-aberrations-csv-quit
 
+    # ---- 10 ----
+    # 25,000 rows, -10 nm for Z2-Z24
+    # Based on simulated dataset: random_10nm_med
+    python3 main_scnp.py sim_data picture_d_aberrations_group_10 v84_approx 600e-9 \
+        --rand-amount-per-zernike 2 24 " -10e-9" 10e-9 25000 \
+        --save-aberrations-csv-quit
+
 Export all the input aberration CSV files to binary:
 
-    python3 main.py export_zernike_inputs_to_binary picture_d_aberrations \
+    python3 main.py export_zernike_inputs_to_binary picture_d_aberrations_train \
         --append-no-aberrations-row --put-in-nm --put-in-single-precision \
         --simulated-data-tags picture_d_aberrations_group_1 picture_d_aberrations_group_2 \
                               picture_d_aberrations_group_3 picture_d_aberrations_group_4 \
                               picture_d_aberrations_group_5 picture_d_aberrations_group_6 \
                               picture_d_aberrations_group_7 picture_d_aberrations_group_8 \
                               picture_d_aberrations_group_9
+
+    python3 main.py export_zernike_inputs_to_binary picture_d_aberrations_test \
+        --append-no-aberrations-row --put-in-nm --put-in-single-precision \
+        --simulated-data-tags picture_d_aberrations_group_10
 
 Once all the data has been obtained on the PICTURE-D instrument, it must be preprocessed:
 
