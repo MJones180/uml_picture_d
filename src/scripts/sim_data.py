@@ -100,6 +100,12 @@ def sim_data_parser(subparsers):
         help='will simulate one row with no aberrations',
     )
     aberrations_group.add_argument(
+        '--no-aberrations-for-zernikes',
+        nargs=2,
+        metavar=('[zernike term low]', '[zernike term high]'),
+        help='will simulate one row with no aberrations for given Zernikes',
+    )
+    aberrations_group.add_argument(
         '--explicit',
         nargs='+',
         metavar='[starting Zernike] [*RMS error on Zernike terms]',
@@ -240,6 +246,7 @@ def sim_data(cli_args):
     append_no_aberrations_row = cli_args['append_no_aberrations_row']
     use_only_aberration_map = cli_args['use_only_aberration_map']
     no_aberrations = cli_args['no_aberrations']
+    no_aberrations_for_zernikes = cli_args['no_aberrations_for_zernikes']
     explicit = cli_args['explicit']
     fixed_amount_per_zernike_all = cli_args['fixed_amount_per_zernike_all']
     fixed_amount_per_zernike_all_groups = cli_args[
@@ -290,6 +297,11 @@ def sim_data(cli_args):
         zernike_terms = np.array([1])
         # The aberrations must be a 2D array
         aberrations = np.array([[0]])
+    elif no_aberrations_for_zernikes:
+        idx_low, idx_high = no_aberrations_for_zernikes
+        zernike_terms, col_count = _zernike_terms_list(idx_low, idx_high)
+        aberrations = np.full((1, col_count), 0)
+        print('A signle row with no aberrations')
     elif explicit:
         idx_low = int(explicit[0])
         coeffs = [float(coeff) for coeff in explicit[1:]]
