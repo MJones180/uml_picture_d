@@ -3,6 +3,7 @@
 
 DATA_P = '../data'
 PROC_DATA_P = f'{DATA_P}/processed'
+RAW_INSTRUMENT_DATA_P = f'{DATA_P}/raw_instrument'
 RAW_SIMULATED_DATA_P = f'{DATA_P}/raw_simulated'
 
 OUTPUT_P = '../output'
