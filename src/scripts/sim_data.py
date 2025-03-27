@@ -10,7 +10,7 @@ from utils.cli_args import save_cli_args
 from utils.constants import (ABERRATIONS_F, DATA_F, PLOTTING_LINEAR_INT,
                              PLOTTING_LINEAR_PHASE,
                              PLOTTING_LINEAR_PHASE_NON0_INT, PLOTTING_LOG_INT,
-                             PLOTTING_PATH, RAW_SIMULATED_DATA_P)
+                             PLOTTING_PATH, RAW_DATA_P)
 from utils.hdf_read_and_write import HDFWriteModule
 from utils.load_optical_train import load_optical_train
 from utils.path import make_dir
@@ -263,7 +263,7 @@ def sim_data(cli_args):
         'rand_amount_per_zernike_row_then_gaussian_pert']
 
     step_ri('Creating output directory')
-    output_path = f'{RAW_SIMULATED_DATA_P}/{tag}'
+    output_path = f'{RAW_DATA_P}/{tag}'
     make_dir(output_path)
 
     step_ri('Saving all CLI args')

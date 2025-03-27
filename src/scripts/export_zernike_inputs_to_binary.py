@@ -8,7 +8,7 @@ Zernike coefficients in (n or nm) RMS error.
 
 import numpy as np
 from utils.cli_args import save_cli_args
-from utils.constants import ABERRATIONS_F, BINARY_DATA_F, RAW_SIMULATED_DATA_P
+from utils.constants import ABERRATIONS_F, BINARY_DATA_F, RAW_DATA_P
 from utils.load_raw_sim_data import load_raw_sim_data_aberrations_file
 from utils.path import make_dir
 from utils.printing_and_logging import step_ri, title
@@ -89,7 +89,7 @@ def export_zernike_inputs_to_binary(cli_args):
 
     step_ri('Creating the output directory')
     output_binary_tag = cli_args['binary_data_tag']
-    out_path = f'{RAW_SIMULATED_DATA_P}/binary_{output_binary_tag}'
+    out_path = f'{RAW_DATA_P}/binary_{output_binary_tag}'
     print(f'Making {out_path}')
     make_dir(out_path)
 

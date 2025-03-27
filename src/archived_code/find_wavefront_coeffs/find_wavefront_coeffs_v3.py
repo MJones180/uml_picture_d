@@ -18,7 +18,7 @@ import numpy as np
 from pathos.multiprocessing import ProcessPool
 from time import time
 from utils.constants import (ARGS_F, CAMERA_INTENSITY, RANDOM_P,
-                             FULL_INTENSITY, RAW_SIMULATED_DATA_P)
+                             FULL_INTENSITY, RAW_DATA_P)
 from utils.json import json_load
 from utils.load_optical_train import load_optical_train
 from utils.load_raw_sim_data import load_raw_sim_data_chunks
@@ -103,7 +103,7 @@ def find_wavefront_coeffs_v3(cli_args):
 
     step_ri('Loading in simulation args')
     # Loading in the args used to simulate data from the base field
-    bf_cli_args = json_load(f'{RAW_SIMULATED_DATA_P}/{base_field_ds}/{ARGS_F}')
+    bf_cli_args = json_load(f'{RAW_DATA_P}/{base_field_ds}/{ARGS_F}')
     train_name = bf_cli_args['train_name']
     ref_wl = float(bf_cli_args['ref_wl'])
     grid_points = int(bf_cli_args['grid_points'])

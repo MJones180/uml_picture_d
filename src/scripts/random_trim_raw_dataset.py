@@ -7,8 +7,7 @@ from glob import glob
 import numpy as np
 from utils.cli_args import load_cli_args, save_cli_args
 from utils.constants import (CAMERA_INTENSITY, CAMERA_SAMPLING, DATA_F,
-                             RAW_SIMULATED_DATA_P, ZERNIKE_COEFFS,
-                             ZERNIKE_TERMS)
+                             RAW_DATA_P, ZERNIKE_COEFFS, ZERNIKE_TERMS)
 from utils.hdf_read_and_write import HDFWriteModule, read_hdf
 from utils.path import make_dir
 from utils.printing_and_logging import step_ri, title
@@ -56,7 +55,7 @@ def random_trim_raw_dataset(cli_args):
 
     # Loop through all the raw datafiles and combine them
     step_ri('Loading in the data')
-    in_dir = f'{RAW_SIMULATED_DATA_P}/{original_tag}'
+    in_dir = f'{RAW_DATA_P}/{original_tag}'
     for path in glob(f'{in_dir}/*_{DATA_F}'):
         print(f'Path: {path}')
         data = read_hdf(path)
@@ -85,7 +84,7 @@ def random_trim_raw_dataset(cli_args):
 
     # Create the new output directory
     step_ri('Creating output directory')
-    out_dir = f'{RAW_SIMULATED_DATA_P}/{new_tag}'
+    out_dir = f'{RAW_DATA_P}/{new_tag}'
     make_dir(out_dir)
 
     # Write out the new data

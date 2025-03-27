@@ -604,7 +604,7 @@ Can be used for testing:
 If the data does not finish simulating, then the tables will have unequal sizes.
 When this happens, each datafile's rows can be trimmed down:
 
-    python3 main.py hdf_file_ops --trim-rows-in-datafile-based-on-table ../data/raw_simulated/dataset_tag/0_data.h5 ccd_intensity zernike_coeffs
+    python3 main.py hdf_file_ops --trim-rows-in-datafile-based-on-table ../data/raw/dataset_tag/0_data.h5 ccd_intensity zernike_coeffs
 
 ## Creating a Response Matrix
 

@@ -1,15 +1,14 @@
 from glob import glob
 import numpy as np
 from utils.constants import (ABERRATIONS_F, CAMERA_INTENSITY, CAMERA_SAMPLING,
-                             DATA_F, FULL_INTENSITY, FULL_SAMPLING,
-                             RAW_SIMULATED_DATA_P, ZERNIKE_COEFFS,
-                             ZERNIKE_TERMS)
+                             DATA_F, FULL_INTENSITY, FULL_SAMPLING, RAW_DATA_P,
+                             ZERNIKE_COEFFS, ZERNIKE_TERMS)
 from utils.hdf_read_and_write import read_hdf
 from utils.printing_and_logging import dec_print_indent, inc_print_indent
 
 
 def load_raw_sim_data_chunks(raw_data_tag, full_intensity=False):
-    base_path = f'{RAW_SIMULATED_DATA_P}/{raw_data_tag}'
+    base_path = f'{RAW_DATA_P}/{raw_data_tag}'
     # Instead of globbing the paths, it is safer to load in the datafiles using
     # their chunk number so that they are guaranteed to be in order
     chunk_vals = sorted([
@@ -43,7 +42,7 @@ def load_raw_sim_data_chunks(raw_data_tag, full_intensity=False):
 
 
 def load_raw_sim_data_aberrations_file(raw_data_tag):
-    file_path = f'{RAW_SIMULATED_DATA_P}/{raw_data_tag}/{ABERRATIONS_F}'
+    file_path = f'{RAW_DATA_P}/{raw_data_tag}/{ABERRATIONS_F}'
     # Load in the aberration coefficients
     aberrations = np.loadtxt(file_path, delimiter=',')
     # Grab the Zernike terms that correspond to each coefficient

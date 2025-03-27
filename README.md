@@ -94,7 +94,7 @@ As an example, to use only three cores:
 Data can be simulated in this repo by using PROPER in Python 3.
 For all simulations use the `sim_data` script.
 
-A simulated dataset will be outputted at `data/raw_simulated/[tag]`, where `tag` is the name of the dataset.
+A simulated dataset will be outputted at `data/raw/[tag]`, where `tag` is the name of the dataset.
 The following files will be saved:
 
 - `args.json`: the arguments passed to the script to simulate the data
