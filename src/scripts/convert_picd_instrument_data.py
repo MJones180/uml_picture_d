@@ -81,8 +81,9 @@ def convert_picd_instrument_data(cli_args):
             inc_print_indent()
             with fits.open(datafile_path) as hdul:
                 image_data = hdul['IMAGE'].data
-                # Put the data in nm from μm
-                zernike_data = hdul['ZCMD'].data * 1e-6
+                # The data is in μm of surface error
+                # The data should be in nm of wavefront error
+                zernike_data = hdul['ZCMD'].data * 2 * 1e-6
             if zernike_data.shape[1] != len(zernike_terms):
                 terminate_with_message('Incorrect number of Zernike terms')
             print(f'Image data shape: {image_data.shape}')
