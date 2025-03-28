@@ -1,0 +1,99 @@
+"""
+Data obtained on the PICTURE-D instrument is in the FITS file format. To be able
+to use the normal preprocessing scripts, the data should be converted to HDF and
+have the same format as raw simulated data.
+"""
+
+from astropy.io import fits
+from glob import glob
+import numpy as np
+from utils.cli_args import save_cli_args
+from utils.constants import (CAMERA_INTENSITY, CAMERA_SAMPLING, DATA_F,
+                             RAW_DATA_P, ZERNIKE_COEFFS, ZERNIKE_TERMS)
+from utils.hdf_read_and_write import HDFWriteModule
+from utils.path import make_dir, path_exists
+from utils.printing_and_logging import (dec_print_indent, inc_print_indent,
+                                        step_ri, title)
+from utils.terminate_with_message import terminate_with_message
+
+
+def convert_picd_instrument_data_parser(subparsers):
+    subparser = subparsers.add_parser(
+        'convert_picd_instrument_data',
+        help='convert FITS data from the PICTURE-D instrument',
+    )
+    subparser.set_defaults(main=convert_picd_instrument_data)
+    subparser.add_argument(
+        'tag',
+        help='tag of the converted raw dataset',
+    )
+    subparser.add_argument(
+        'zernike_low',
+        type=int,
+        help='lower bound on the Zernike terms',
+    )
+    subparser.add_argument(
+        'zernike_high',
+        type=int,
+        help='lower bound on the Zernike terms',
+    )
+    subparser.add_argument(
+        '--fits-data-tags',
+        nargs='+',
+        help=('tags of the directories containing the FITS datafiles; '
+              'multiple datafiles can be in the same directory with names of '
+              '`*_data.fits`.'),
+    )
+
+
+def convert_picd_instrument_data(cli_args):
+    title('Convert picd instrument data script')
+
+    step_ri('Determining Zernike terms')
+    zernike_terms = np.arange(cli_args['zernike_low'],
+                              cli_args['zernike_high'] + 1)
+    print(f'Zernike terms: {zernike_terms}')
+
+    step_ri('Creating output directory and writing out CLI args')
+    tag = cli_args['tag']
+    output_path = f'{RAW_DATA_P}/{tag}'
+    make_dir(output_path)
+    save_cli_args(output_path, cli_args, 'convert_picd_instrument_data')
+
+    step_ri('Verifying tags exist')
+    fits_data_tags = cli_args['fits_data_tags']
+    print(f'FITS data tags: {fits_data_tags}')
+    fits_data_paths = [f'{RAW_DATA_P}/{tag}' for tag in fits_data_tags]
+    not_found_tags = [p for p in fits_data_paths if not path_exists(p)]
+    if len(not_found_tags) != 0:
+        terminate_with_message(f'Not all tags found: {not_found_tags}')
+
+    step_ri('Will begin looping through all tags')
+
+    outfile_idx = 0
+    for fits_data_path in fits_data_paths:
+        step_ri(f'Tag path: {fits_data_path}')
+        found_datafiles_paths = glob(f'{fits_data_path}/*_data.fits')
+        if len(found_datafiles_paths) == 0:
+            terminate_with_message('No datafiles found')
+        for datafile_path in found_datafiles_paths:
+            print(f'Input FITS datafile: {datafile_path}')
+            inc_print_indent()
+            with fits.open(datafile_path) as hdul:
+                image_data = hdul['IMAGE'].data
+                # Put the data in nm from μm
+                zernike_data = hdul['ZCMD'].data * 1e-6
+            if zernike_data.shape[1] != len(zernike_terms):
+                terminate_with_message('Incorrect number of Zernike terms')
+            print(f'Image data shape: {image_data.shape}')
+            print(f'Zernike data shape: {zernike_data.shape}')
+            outfile = f'{output_path}/{outfile_idx}_{DATA_F}'
+            print(f'Output HDF datafile: {outfile}')
+            HDFWriteModule(outfile).create_and_write_hdf_simple({
+                ZERNIKE_TERMS: zernike_terms,
+                ZERNIKE_COEFFS: zernike_data,
+                CAMERA_INTENSITY: image_data,
+                CAMERA_SAMPLING: 0,
+            })
+            outfile_idx += 1
+            dec_print_indent()
