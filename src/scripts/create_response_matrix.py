@@ -48,6 +48,12 @@ def create_response_matrix_parser(subparsers):
               '`--fixed-amount-per-zernike-range` arguments passed; '
               'the average of all the perturbations will be taken'),
     )
+    subparser.add_argument(
+        '--base-field-tag',
+        help=('if the base field is not the last row in the data, then it '
+              'should be passed via this argument; this argument should not '
+              'be used if the base field is already in the data'),
+    )
 
 
 def create_response_matrix(cli_args):
@@ -72,17 +78,26 @@ def create_response_matrix(cli_args):
     # The shape of this data is (fields, pixels, pixels) and should be
     # converted to (flattened_pixels, fields)
     intensity = intensity.reshape(intensity.shape[0], -1).T
-    # The last column of data is the intensity field without any Zernike
-    # aberrations, so we will take our differences with respect to it
-    base_field = intensity[:, -1]
-    # All the data now consists of perturbed fields for each Zernike term
-    perturbation_fields = intensity[:, :-1]
-    # Verify that the last row has no aberrations
-    if not np.all(zernike_amounts[-1] == 0):
-        terminate_with_message('Last row not all zeros for Zernike coeffs')
-    # For the perturbation amounts, the last row is for the base case,
-    # so we can chop it off
-    perturbation_amounts = zernike_amounts[:-1]
+    base_field_tag = cli_args.get('base_field_tag')
+    # The base field is being passed in separately
+    if base_field_tag:
+        (base_field, _, _, _) = load_raw_sim_data_chunks(base_field_tag)
+        # Like above, the base field must also be flattened and reshaped
+        base_field = base_field.reshape(-1)
+        perturbation_fields = intensity
+        perturbation_amounts = zernike_amounts
+    else:
+        # The last column of data is the intensity field without any Zernike
+        # aberrations, so we will take our differences with respect to it
+        base_field = intensity[:, -1]
+        # All the data now consists of perturbed fields for each Zernike term
+        perturbation_fields = intensity[:, :-1]
+        # Verify that the last row has no aberrations
+        if not np.all(zernike_amounts[-1] == 0):
+            terminate_with_message('Last row not all zeros for Zernike coeffs')
+        # For the perturbation amounts, the last row is for the base case,
+        # so we can chop it off
+        perturbation_amounts = zernike_amounts[:-1]
 
     step_ri('Chunking the data')
     # Instead of creating the response matrix for a single RMS perturbation,
