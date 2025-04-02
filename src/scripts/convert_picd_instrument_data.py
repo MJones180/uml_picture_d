@@ -113,7 +113,7 @@ def convert_picd_instrument_data(cli_args):
                     # Use only the first n rows
                     if first_n_rows:
                         image_data = image_data[:first_n_rows]
-                        zernike_data = image_data[:first_n_rows]
+                        zernike_data = zernike_data[:first_n_rows]
                     # Slice out specific rows from each datafile
                     slice_row_ranges = cli_args.get('slice_row_ranges')
                     if slice_row_ranges:
