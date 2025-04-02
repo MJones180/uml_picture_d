@@ -55,6 +55,13 @@ def convert_picd_instrument_data_parser(subparsers):
         action='store_true',
         help='average together all the rows to form the base field',
     )
+    subparser.add_argument(
+        '--slice-row-ranges',
+        type=int,
+        nargs='*',
+        help=('slice out rows from the given ranges in the form of '
+              '[idx low, idx high]..., this will be done to each datafile'),
+    )
 
 
 def convert_picd_instrument_data(cli_args):
@@ -103,9 +110,27 @@ def convert_picd_instrument_data(cli_args):
                     # The data should be in nm of wavefront error
                     zernike_data = hdul['ZCMD'].data * 2 * 1e-6
                     first_n_rows = cli_args.get('first_n_rows')
+                    # Use only the first n rows
                     if first_n_rows:
                         image_data = image_data[:first_n_rows]
                         zernike_data = image_data[:first_n_rows]
+                    # Slice out specific rows from each datafile
+                    slice_row_ranges = cli_args.get('slice_row_ranges')
+                    if slice_row_ranges:
+                        print('Slicing out specific rows')
+                        inc_print_indent()
+                        if len(slice_row_ranges) % 2 == 1:
+                            terminate_with_message('Invalid row slice params')
+                        # A mask of the rows to keep
+                        row_mask = np.full(image_data.shape[0], False)
+                        for range_idx in range(len(slice_row_ranges) // 2):
+                            idx_low = slice_row_ranges[range_idx * 2]
+                            idx_high = slice_row_ranges[range_idx * 2 + 1]
+                            print(f'Index low, high: {idx_low}, {idx_high}')
+                            row_mask[idx_low:idx_high] = True
+                        dec_print_indent()
+                        image_data = image_data[row_mask]
+                        zernike_data = zernike_data[row_mask]
             if zernike_data.shape[1] != len(zernike_terms):
                 terminate_with_message('Incorrect number of Zernike terms')
             print(f'Image data shape: {image_data.shape}')
