@@ -139,8 +139,8 @@ def convert_picd_instrument_data(cli_args):
             print(f'Output HDF datafile: {outfile}')
             HDFWriteModule(outfile).create_and_write_hdf_simple({
                 ZERNIKE_TERMS: zernike_terms,
-                ZERNIKE_COEFFS: zernike_data,
-                CAMERA_INTENSITY: image_data,
+                ZERNIKE_COEFFS: zernike_data.astype('float32'),
+                CAMERA_INTENSITY: image_data.astype('float32'),
                 CAMERA_SAMPLING: 0,
             })
             outfile_idx += 1

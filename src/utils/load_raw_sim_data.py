@@ -36,8 +36,8 @@ def load_raw_sim_data_chunks(raw_data_tag, full_intensity=False):
             zernike_terms = data[ZERNIKE_TERMS][:]
             sampling = data[sampling_tag][()]
     dec_print_indent()
-    input_data = np.array(input_data)
-    output_data = np.array(output_data)
+    input_data = np.array(input_data).astype('float32')
+    output_data = np.array(output_data).astype('float32')
     return input_data, output_data, zernike_terms, sampling
 
 
