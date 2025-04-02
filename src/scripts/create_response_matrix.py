@@ -82,7 +82,7 @@ def create_response_matrix(cli_args):
     # The base field is being passed in separately
     if base_field_tag:
         (base_field, _, _, _) = load_raw_sim_data_chunks(base_field_tag)
-        # Like above, the base field must also be flattened and reshaped
+        # Like above, the base field must be flattened
         base_field = base_field.reshape(-1)
         perturbation_fields = intensity
         perturbation_amounts = zernike_amounts
