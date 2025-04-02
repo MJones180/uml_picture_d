@@ -1,15 +1,9 @@
-These are all the commands needed to obtain real data on the PICTURE-D instrument and to train the associated CNN.
+These are all the commands needed to obtain data on the PICTURE-D instrument and to create the associated RM and CNN.
 Most of the commands are adapted from the ones meant for simulated data which are taken from the `general.md` and `model_training_versions.txt` files.
-The CNN created is based off the simulated [V49] `weighted_aberration_ranges_local_v4` model.
+The RM is for ±40 nm RMS error.
+The CNN is based off the simulated [V49] `weighted_aberration_ranges_local_v4` model.
 
-Generate all the input aberration CSV files:
-
-    # ---- 0 ----
-    # 1 row of the base field
-    # Based on simulated dataset: no_aberrations
-    python3 main_scnp.py sim_data picture_d_aberrations_group_0 v84_approx 600e-9 \
-        --no-aberrations-for-zernikes 2 24 \
-        --save-aberrations-csv-quit
+Generate all the input aberration CSV files (every set of data should include the base field):
 
     # ---- 1 ----
     # 100,000 rows, 500 nm for Z2-3, 20 nm for Z4-8, 10 nm for Z9-24
@@ -83,8 +77,6 @@ Generate all the input aberration CSV files:
 
 Export all the input aberration CSV files to binary:
 
-    python3 main.py export_zernike_inputs_to_binary picture_d_aberrations_group_0 \
-        --simulated-data-tags picture_d_aberrations_group_0
     python3 main.py export_zernike_inputs_to_binary picture_d_aberrations_group_1 \
         --simulated-data-tags picture_d_aberrations_group_1
     python3 main.py export_zernike_inputs_to_binary picture_d_aberrations_group_2 \
@@ -106,20 +98,45 @@ Export all the input aberration CSV files to binary:
     python3 main.py export_zernike_inputs_to_binary picture_d_aberrations_group_10 \
         --simulated-data-tags picture_d_aberrations_group_10
 
-Once all the data has been obtained on the PICTURE-D instrument, it must be preprocessed:
+Next, the FITS datafiles should be moved to the `data/raw` directory with the following file names:
 
-    # First, all the FITS datafiles should be moved to the `data/raw/` directory and
-    # put in folders with filenames of `*_data.fits`.
+    # lyt_100k_chunks/[IDX]_data.fits
+    # IDX  Data Aberration Group           Filename
+    # 0    picture_d_aberrations_group_1   lyt_alp_train_lac_20250401_152943_caldata.fits
+    # 1    picture_d_aberrations_group_2   lyt_alp_train_lac_20250401_154408_caldata.fits
+    # 2    picture_d_aberrations_group_3   lyt_alp_train_lac_20250401_155025_caldata.fits
+    # 3    picture_d_aberrations_group_4   lyt_alp_train_lac_20250401_162221_caldata.fits
+    # 4    picture_d_aberrations_group_5   lyt_alp_train_lac_20250401_161757_caldata.fits
+    # 5    picture_d_aberrations_group_6   lyt_alp_train_lac_20250401_161330_caldata.fits
+    # 6    picture_d_aberrations_group_7   lyt_alp_train_lac_20250401_160856_caldata.fits
+    # 7    picture_d_aberrations_group_8   lyt_alp_train_lac_20250401_160418_caldata.fits
 
-    # Convert the data from FITS to HDF (formatted the same as raw simulated data)
+    # lyt_single_zernikes/0_data.fits
+    # Data Aberration Group           Filename
+    # picture_d_aberrations_group_9   lyt_alp_train_lac_20250401_155940_caldata.fits
+
+    # lyt_10nm_testing/0_data.fits
+    # Data Aberration Group           Filename
+    # picture_d_aberrations_group_10  lyt_alp_train_lac_20250401_155512_caldata.fits
+
+    # lyt_base_field/0_data.fits
+    # Original datafile: lyt_alp_train_lac_20250401_152943_caldata_extra.fits
+
+Now, these FITS datafiles must be converted to HDF (with the same format as raw simulated data):
+
     python3 main.py convert_picd_instrument_data picd_instrument_data_100k_groups 2 24 \
-        --fits-data-tags ...
+        --fits-data-tags lyt_100k_chunks
     python3 main.py convert_picd_instrument_data picd_instrument_data_single_zernikes 2 24 \
-        --fits-data-tags ...
-    python3 main.py convert_picd_instrument_data picd_instrument_data_no_aberrations 2 24 \
-        --fits-data-tags ...
+        --fits-data-tags lyt_single_zernikes --first-n-rows 46000
     python3 main.py convert_picd_instrument_data picd_instrument_data_25k_10nm 2 24 \
-        --fits-data-tags ...
+        --fits-data-tags lyt_10nm_testing --first-n-rows 25000
+    python3 main.py convert_picd_instrument_data picd_instrument_data_no_aberrations 2 24 \
+        --fits-data-tags lyt_base_field --base-field-data
+    # Technically ±39.995 nm RMS error
+    python3 main.py convert_picd_instrument_data picd_instrument_data_single_zernikes_pm40 2 24 \
+        --fits-data-tags lyt_single_zernikes --first-n-rows 46000 --slice-row-ranges 4600 4623 41377 41400
+
+Once the files are converted, they can be preprocessed:
 
     # Preprocess the data for training, validation, and testing
     python3 main.py preprocess_data_complete \
@@ -158,3 +175,20 @@ Finally, the CNN can be tested:
     python3 main.py model_test picd_cnn last \
         picd_instrument_data_single_zernikes_raw_processed \
         --zernike-plots --inputs-need-norm --inputs-need-diff
+
+Create the RM:
+
+    python3 main.py create_response_matrix \
+        --simulated-data-tag-average picd_instrument_data_single_zernikes_pm40 \
+        --base-field-tag picd_instrument_data_no_aberrations
+
+Then, the RM can be tested:
+
+    python3 main.py run_response_matrix picd_instrument_data_single_zernikes_pm40 \
+        test_picd_data \
+        --scatter-plot 4 6 2 0 15 --inputs-need-denorm --inputs-are-diff
+    python3 main.py run_response_matrix picd_instrument_data_single_zernikes_pm40 \
+        picd_instrument_data_25k_10nm_raw_processed \
+        --scatter-plot 4 6 2 1e-8 15
+    python3 main.py run_response_matrix picd_instrument_data_single_zernikes_pm40 \
+        picd_instrument_data_single_zernikes_raw_processed --zernike-plots
