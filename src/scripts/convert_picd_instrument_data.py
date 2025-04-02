@@ -44,6 +44,17 @@ def convert_picd_instrument_data_parser(subparsers):
               'multiple datafiles can be in the same directory with names of '
               '`*_data.fits`.'),
     )
+    subparser.add_argument(
+        '--first-n-rows',
+        type=int,
+        metavar='n',
+        help='use only the first n rows',
+    )
+    subparser.add_argument(
+        '--base-field-data',
+        action='store_true',
+        help='average together all the rows to form the base field',
+    )
 
 
 def convert_picd_instrument_data(cli_args):
@@ -80,10 +91,21 @@ def convert_picd_instrument_data(cli_args):
             print(f'Input FITS datafile: {datafile_path}')
             inc_print_indent()
             with fits.open(datafile_path) as hdul:
-                image_data = hdul['IMAGE'].data
-                # The data is in μm of surface error
-                # The data should be in nm of wavefront error
-                zernike_data = hdul['ZCMD'].data * 2 * 1e-6
+                if cli_args.get('base_field_data'):
+                    print('Taking the average of all the rows.')
+                    # This table name is different than the other datafiles
+                    image_data = hdul['PRIMARY'].data
+                    image_data = np.average(image_data, axis=0)[None, :, :]
+                    zernike_data = np.array([np.zeros_like(zernike_terms)])
+                else:
+                    image_data = hdul['IMAGE'].data
+                    # The data is in μm of surface error
+                    # The data should be in nm of wavefront error
+                    zernike_data = hdul['ZCMD'].data * 2 * 1e-6
+                    first_n_rows = cli_args.get('first_n_rows')
+                    if first_n_rows:
+                        image_data = image_data[:first_n_rows]
+                        zernike_data = image_data[:first_n_rows]
             if zernike_data.shape[1] != len(zernike_terms):
                 terminate_with_message('Incorrect number of Zernike terms')
             print(f'Image data shape: {image_data.shape}')
