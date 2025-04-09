@@ -96,11 +96,6 @@ def sim_data_parser(subparsers):
     aberrations_group = subparser.add_mutually_exclusive_group()
     aberrations_group.add_argument(
         '--no-aberrations',
-        action='store_true',
-        help='will simulate one row with no aberrations',
-    )
-    aberrations_group.add_argument(
-        '--no-aberrations-for-zernikes',
         nargs=2,
         metavar=('[zernike term low]', '[zernike term high]'),
         help='will simulate one row with no aberrations for given Zernikes',
@@ -113,14 +108,6 @@ def sim_data_parser(subparsers):
     )
     aberrations_group.add_argument(
         '--fixed-amount-per-zernike-all',
-        nargs=3,
-        metavar=('[zernike term low]', '[zernike term high]',
-                 '[rms error in meters]'),
-        help=('will simulate 1 row by injecting a fixed RMS error on all '
-              'Zernike terms (the terms must be sequential)'),
-    )
-    aberrations_group.add_argument(
-        '--fixed-amount-per-zernike-all-groups',
         nargs='+',
         metavar='[zernike term low] [zernike term high] [rms error in meters]',
         help=('will simulate 1 row by injecting a fixed RMS error on each '
@@ -163,17 +150,6 @@ def sim_data_parser(subparsers):
     )
     aberrations_group.add_argument(
         '--rand-amount-per-zernike',
-        nargs=5,
-        metavar=('[zernike term low]', '[zernike term high]',
-                 '[rms error in meters low]', '[rms error in meters high]',
-                 '[nrows]'),
-        help=('will simulate `nrows` by injecting a random uniform RMS error '
-              'between the two bounds for each Zernike term in each '
-              'simulation (the terms must be sequential) | NOTE: for any '
-              'negative values, write them as \" -number\"'),
-    )
-    aberrations_group.add_argument(
-        '--rand-amount-per-zernike-groups',
         nargs='+',
         metavar=('[nrows] [zernike term low] [zernike term high] '
                  '[rms error in meters low] [rms error in meters high]'),
@@ -211,9 +187,9 @@ def sim_data_parser(subparsers):
     aberrations_group.add_argument(
         '--rand-amount-per-zernike-row-then-gaussian-pert',
         nargs=6,
-        metavar=('[zernike term low]', '[zernike term high]',
+        metavar=('[std]', '[zernike term low]', '[zernike term high]',
                  '[rms error in meters low]', '[rms error in meters high]',
-                 '[pert_nrows]', '[std]'),
+                 '[pert_nrows]'),
         help=('will simulate 1 base row by injecting a random uniform RMS '
               'error between the two bounds for each Zernike term (the terms '
               'must be sequential), then will simulate `pert_nrows` with '
@@ -245,22 +221,6 @@ def sim_data(cli_args):
     save_aberrations_csv_quit = cli_args['save_aberrations_csv_quit']
     append_no_aberrations_row = cli_args['append_no_aberrations_row']
     use_only_aberration_map = cli_args['use_only_aberration_map']
-    no_aberrations = cli_args['no_aberrations']
-    no_aberrations_for_zernikes = cli_args['no_aberrations_for_zernikes']
-    explicit = cli_args['explicit']
-    fixed_amount_per_zernike_all = cli_args['fixed_amount_per_zernike_all']
-    fixed_amount_per_zernike_all_groups = cli_args[
-        'fixed_amount_per_zernike_all_groups']
-    fixed_amount_per_zernike = cli_args['fixed_amount_per_zernike']
-    fixed_amount_per_zernike_pm = cli_args['fixed_amount_per_zernike_pm']
-    fixed_amount_per_zernike_range = cli_args['fixed_amount_per_zernike_range']
-    rand_amount_per_zernike = cli_args['rand_amount_per_zernike']
-    rand_amount_per_zernike_groups = cli_args['rand_amount_per_zernike_groups']
-    rand_amount_per_zernike_single = cli_args['rand_amount_per_zernike_single']
-    rand_amount_per_zernike_single_each = cli_args[
-        'rand_amount_per_zernike_single_each']
-    rand_amount_per_zernike_row_then_gaussian_pert = cli_args[
-        'rand_amount_per_zernike_row_then_gaussian_pert']
 
     step_ri('Creating output directory')
     output_path = f'{RAW_DATA_P}/{tag}'
@@ -273,11 +233,19 @@ def sim_data(cli_args):
     (init_beam_d, beam_ratio, optical_train, camera_pixels,
      camera_sampling) = load_optical_train(train_name)
 
-    step_ri('Figuring out aberrations')
+    step_ri('Determining aberrations')
+    zernike_terms = None
+    col_count = None
+
+    def _set_zernike_terms(terms):
+        nonlocal zernike_terms, col_count
+        zernike_terms = terms
+        col_count = len(terms)
 
     # Generate Zernike terms in order between two bounds
-    def _zernike_terms_list(low, high):
+    def _gen_zernike_terms(low, high):
         terms = np.arange(int(low), int(high) + 1)
+        _set_zernike_terms(terms)
         return terms, len(terms)
 
     # Setup for aberration simulations that perturb between two bounds
@@ -286,39 +254,27 @@ def sim_data(cli_args):
         perturb_low = float(perturb_low)
         perturb_high = float(perturb_high)
         print(f'Perturbation range: {perturb_low} to {perturb_high} meters')
-        zernike_terms, col_count = _zernike_terms_list(idx_low, idx_high)
-        return rows, perturb_low, perturb_high, zernike_terms, col_count
+        _gen_zernike_terms(idx_low, idx_high)
+        return rows, perturb_low, perturb_high
 
     # Create a random number generator
     rng = np.random.default_rng()
-    # These variables must be defined: `zernike_terms`, `aberrations`
-    if no_aberrations:
-        print('Will not use any aberrations')
-        zernike_terms = np.array([1])
-        # The aberrations must be a 2D array
-        aberrations = np.array([[0]])
-    elif no_aberrations_for_zernikes:
-        idx_low, idx_high = no_aberrations_for_zernikes
-        zernike_terms, col_count = _zernike_terms_list(idx_low, idx_high)
-        aberrations = np.full((1, col_count), 0)
+
+    def no_aberrations(idx_low, idx_high):
         print('A signle row with no aberrations')
-    elif explicit:
-        idx_low = int(explicit[0])
-        coeffs = [float(coeff) for coeff in explicit[1:]]
-        zernike_terms, col_count = _zernike_terms_list(
-            idx_low,
-            idx_low + len(coeffs) - 1,
-        )
-        aberrations = np.array([float(coeff) for coeff in coeffs])[None]
+        _gen_zernike_terms(idx_low, idx_high)
+        return np.full((1, col_count), 0)
+
+    def explicit(idx_low, *coeffs):
         print('A single row with explicitly given Zernike coefficients')
-    elif fixed_amount_per_zernike_all:
-        idx_low, idx_high, perturb = fixed_amount_per_zernike_all
-        zernike_terms, col_count = _zernike_terms_list(idx_low, idx_high)
-        aberrations = np.full((1, col_count), float(perturb))
-        print('A single row where each term will have an RMS error of '
-              f'{perturb} meters')
-    elif fixed_amount_per_zernike_all_groups:
-        all_groups = fixed_amount_per_zernike_all_groups
+        idx_low = int(idx_low)
+        coeffs = [float(coeff) for coeff in coeffs]
+        _gen_zernike_terms(idx_low, idx_low + len(coeffs) - 1)
+        return np.array([float(coeff) for coeff in coeffs])[None]
+
+    def fixed_amount_per_zernike_all(*all_groups):
+        print('A single row where each term can have a different '
+              'fixed RMS error')
         # Verify there are the correct number of arguments
         if len(all_groups) % 3 != 0:
             terminate_with_message('Each group must have three arguments')
@@ -329,7 +285,7 @@ def sim_data(cli_args):
         for group_idx in range(len(all_groups) // 3):
             print(f'Group: {group_idx}')
             groups_args = all_groups[group_idx * 3:(group_idx + 1) * 3]
-            group_zernikes, cols = _zernike_terms_list(*groups_args[:2])
+            group_zernikes, cols = _gen_zernike_terms(*groups_args[:2])
             zernike_terms.extend(group_zernikes)
             col_count += cols
             print(f'    Zernike terms ({cols}): {group_zernikes}')
@@ -338,32 +294,33 @@ def sim_data(cli_args):
             row_aberrations.extend(np.full(cols, aberration_amount))
         # Convert the datatype back to native int
         zernike_terms = np.array([int(v) for v in zernike_terms])
-        aberrations = np.array([row_aberrations])
-        print('A single row where each term can have a different '
-              'fixed RMS error')
-    elif fixed_amount_per_zernike:
-        idx_low, idx_high, perturb = fixed_amount_per_zernike
-        zernike_terms, col_count = _zernike_terms_list(idx_low, idx_high)
-        # For this we just need an identity matrix to represent perturbing
-        # each zernike term independently
-        aberrations = np.identity(col_count) * float(perturb)
+        _set_zernike_terms(zernike_terms)
+        return np.array([row_aberrations])
+
+    def fixed_amount_per_zernike(idx_low, idx_high, perturb):
         print('Each row will consist of a Zernike term with an RMS error of '
               f'{perturb} meters')
-    elif fixed_amount_per_zernike_pm:
-        idx_low, idx_high, perturb = fixed_amount_per_zernike_pm
-        zernike_terms, col_count = _zernike_terms_list(idx_low, idx_high)
+        _gen_zernike_terms(idx_low, idx_high)
+        # For this we just need an identity matrix to represent perturbing
+        # each zernike term independently
+        return np.identity(col_count) * float(perturb)
+
+    def fixed_amount_per_zernike_pm(idx_low, idx_high, perturb):
+        print('Each Zernike term will have two rows with the RMS errors of  '
+              f'{perturb} and -{perturb} meters')
+        _gen_zernike_terms(idx_low, idx_high)
         # For this we just need an identity matrix to represent perturbing
         # each Zernike term independently for both the +/- perturbations
         m_aberrations = np.identity(col_count) * -float(perturb)
         p_aberrations = np.identity(col_count) * float(perturb)
-        aberrations = np.concatenate((m_aberrations, p_aberrations), axis=0)
-        print('Each Zernike term will have two rows with the RMS errors of  '
-              f'{perturb} and -{perturb} meters')
-    elif fixed_amount_per_zernike_range:
+        return np.concatenate((m_aberrations, p_aberrations), axis=0)
+
+    def fixed_amount_per_zernike_range(*args):
+        print('Each row will consist of a single Zernike term with '
+              'aberrations between two bounds along a fixed grid')
         # This function is technically for the random perturbations, but the
         # code is the same, just the argument meanings are slightly different
-        (rms_points, perturb_low, perturb_high, zernike_terms,
-         col_count) = _pert_range_setup(*fixed_amount_per_zernike_range)
+        rms_points, perturb_low, perturb_high = _pert_range_setup(*args)
         rms_vals = np.linspace(perturb_low, perturb_high, rms_points)
         print(f'The following RMS error values will be used ({rms_points}):')
         print(rms_vals)
@@ -372,16 +329,12 @@ def sim_data(cli_args):
         for rms_val in rms_vals:
             aberrations.append(np.identity(col_count) * rms_val)
         # Stack them all so the shape is (Zernike cols * points, Zernike cols)
-        aberrations = np.vstack(aberrations)
-    elif rand_amount_per_zernike:
-        (rows, perturb_low, perturb_high, zernike_terms,
-         col_count) = _pert_range_setup(*rand_amount_per_zernike)
-        aberrations = rng.uniform(perturb_low, perturb_high, (rows, col_count))
+        return np.vstack(aberrations)
+
+    def rand_amount_per_zernike(rows, *group_args):
         print('Each row will consist of Zernike terms with random uniform '
-              'RMS error')
-    elif rand_amount_per_zernike_groups:
-        rows = int(rand_amount_per_zernike_groups[0])
-        group_args = rand_amount_per_zernike_groups[1:]
+              'RMS error between the group bounds')
+        rows = int(rows)
         # Verify there are the correct number of arguments
         if len(group_args) % 4 != 0:
             terminate_with_message('Each group must have four arguments')
@@ -392,7 +345,7 @@ def sim_data(cli_args):
         for group_idx in range(len(group_args) // 4):
             print(f'Group: {group_idx}')
             groups_args = group_args[group_idx * 4:(group_idx + 1) * 4]
-            group_zernikes, cols = _zernike_terms_list(*groups_args[:2])
+            group_zernikes, cols = _gen_zernike_terms(*groups_args[:2])
             zernike_terms.extend(group_zernikes)
             col_count += cols
             print(f'    Zernike terms ({cols}): {group_zernikes}')
@@ -403,24 +356,26 @@ def sim_data(cli_args):
                 rng.uniform(perturb_low, perturb_high, (rows, cols)))
         # Convert the datatype back to native int
         zernike_terms = np.array([int(v) for v in zernike_terms])
+        _set_zernike_terms(zernike_terms)
         # Join together all the aberrations
-        aberrations = np.concatenate(aberrations, axis=1)
-        print('Each row will consist of Zernike terms with random uniform '
-              'RMS error between the group bounds')
-    elif rand_amount_per_zernike_single:
-        (rows, perturb_low, perturb_high, zernike_terms,
-         col_count) = _pert_range_setup(*rand_amount_per_zernike_single)
+        return np.concatenate(aberrations, axis=1)
+
+    def rand_amount_per_zernike_single(*args):
+        print('Each row will consist of a random Zernike term with a random '
+              'RMS error')
+        rows, perturb_low, perturb_high = _pert_range_setup(*args)
         # One Zernike term per row
         coeffs = rng.uniform(perturb_low, perturb_high, rows)
         # Pick a random column for each term
         rand_cols = rng.integers(0, col_count, rows)
         aberrations = np.zeros((rows, col_count))
         aberrations[np.arange(rows), rand_cols] = coeffs
-        print('Each row will consist of a random Zernike term with a random '
-              'RMS error')
-    elif rand_amount_per_zernike_single_each:
-        (rows, perturb_low, perturb_high, zernike_terms,
-         col_count) = _pert_range_setup(*rand_amount_per_zernike_single_each)
+        return aberrations
+
+    def rand_amount_per_zernike_single_each(*args):
+        print('Each row will consist of a Zernike term with a random RMS '
+              'error and a row for each Zernike term in the range')
+        rows, perturb_low, perturb_high = _pert_range_setup(*args)
         # The random amount to perturb each set of Zernikes by
         coeffs = rng.uniform(perturb_low, perturb_high, rows)
         aberrations = []
@@ -428,30 +383,41 @@ def sim_data(cli_args):
         for rms_val in coeffs:
             aberrations.append(np.identity(col_count) * rms_val)
         # Stack them all so the shape is (Zernike cols * points, Zernike cols)
-        aberrations = np.vstack(aberrations)
-        print('Each row will consist of a Zernike term with a random RMS '
-              'error and a row for each Zernike term in the range')
-    elif rand_amount_per_zernike_row_then_gaussian_pert:
-        *initial_args, std = rand_amount_per_zernike_row_then_gaussian_pert
-        (rows, perturb_low, perturb_high, zernike_terms,
-         col_count) = _pert_range_setup(*initial_args)
-        std = float(std)
-        # Create the base row
+        return np.vstack(aberrations)
+
+    def rand_amount_per_zernike_row_then_gaussian_pert(std, *initial_args):
+        print('A single base row with Gaussian perturbations')
+        rows, perturb_low, perturb_high = _pert_range_setup(*initial_args)
         base_row = rng.uniform(perturb_low, perturb_high, (1, col_count))
         # Figure out the Gaussian perturbations about the base row
-        perturb_amounts = rng.normal(0, std, size=(rows, col_count))
-        perturbed_rows = base_row + perturb_amounts
-        aberrations = np.concatenate((base_row, perturbed_rows))
-    else:
+        perturb_amounts = rng.normal(0, float(std), size=(rows, col_count))
+        return np.concatenate((base_row, base_row + perturb_amounts))
+
+    for key in (
+            'no_aberrations',
+            'explicit',
+            'fixed_amount_per_zernike_all',
+            'fixed_amount_per_zernike',
+            'fixed_amount_per_zernike_pm',
+            'fixed_amount_per_zernike_range',
+            'rand_amount_per_zernike',
+            'rand_amount_per_zernike_single',
+            'rand_amount_per_zernike_single_each',
+            'rand_amount_per_zernike_row_then_gaussian_pert',
+    ):
+        if cli_args[key]:
+            step_ri(f'Calling `{key}`')
+            aberrations = locals()[key](*cli_args[key])
+            print(aberrations)
+            break
+    if zernike_terms is None:
         terminate_with_message('No aberration procedure chosen')
-    if zernike_terms.shape[0]:
-        print(f'Zernike term range: {zernike_terms[0]} to {zernike_terms[-1]}')
+    print(f'Zernike term range: {zernike_terms[0]} to {zernike_terms[-1]}')
     if append_no_aberrations_row:
         print('Adding a blank row of zeros at the end')
         # Add a blank row of zeros at the end
-        aberrations = np.vstack((aberrations, np.zeros(col_count)))
-    nrows = aberrations.shape[0]
-    print(f'Total rows being simulated: {nrows}')
+        aberrations = np.vstack((aberrations, np.zeros(aberrations.shape[1])))
+    print(f'Total rows being simulated: {aberrations.shape[0]}')
 
     if save_aberrations_csv or save_aberrations_csv_quit:
         step_ri('Saving the aberrations')

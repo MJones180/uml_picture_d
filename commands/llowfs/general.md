@@ -4,7 +4,7 @@
 
 A single row with no aberrations (used to compute the difference during preprocessing):
 
-    python3 main_scnp.py sim_data no_aberrations v84 600e-9 --no-aberrations
+    python3 main_scnp.py sim_data no_aberrations v84_approx 600e-9 --no-aberrations 2 24
 
 A single row with aberrations (10 nm) on every term:
 
@@ -16,7 +16,7 @@ A single row where different terms have different aberrations:
 
     # 1 row, 500 nm for Z2-3, 20 nm for Z4-8, 10 nm for Z9-24
     python3 main_scnp.py sim_data fixed_group_500_20_10 v84_approx 600e-9 \
-        --fixed-amount-per-zernike-all-groups 2 3 500e-9 4 8 20e-9 9 24 10e-9
+        --fixed-amount-per-zernike-all 2 3 500e-9 4 8 20e-9 9 24 10e-9
 
 The `--save-aberrations-csv` or `--save-aberrations-csv-quit` args can be passed and an additional CSV file will be written out containing the aberrations. This can be handy if just the aberration values are needed, then the script can terminate.
 
@@ -98,49 +98,49 @@ Random aberrations for every term in each row:
     # -10 to 10 nm, 25,000 rows
     python3 main_scnp.py sim_data random_10nm_med v84 600e-9 \
         --output-write-batch 500 \
-        --rand-amount-per-zernike 2 24 " -10e-9" 10e-9 25000 \
+        --rand-amount-per-zernike 25000 2 24 " -10e-9" 10e-9 \
         --append-no-aberrations-row \
         --cores 4
 
     # -10 to 10 nm, 100,000 rows
     python3 main_scnp.py sim_data random_10nm_large v84 600e-9 \
         --output-write-batch 500 \
-        --rand-amount-per-zernike 2 24 " -10e-9" 10e-9 100000 \
+        --rand-amount-per-zernike 100000 2 24 " -10e-9" 10e-9 \
         --append-no-aberrations-row \
         --cores 4
 
     # -20 to 20 nm, 100,000 rows
     python3 main_scnp.py sim_data random_20nm_large v84 600e-9 \
         --output-write-batch 500 \
-        --rand-amount-per-zernike 2 24 " -20e-9" 20e-9 100000 \
+        --rand-amount-per-zernike 100000 2 24 " -20e-9" 20e-9 \
         --append-no-aberrations-row \
         --cores 4
 
     # -30 to 30 nm, 100,000 rows
     python3 main_scnp.py sim_data random_30nm_large v84 600e-9 \
         --output-write-batch 500 \
-        --rand-amount-per-zernike 2 24 " -30e-9" 30e-9 100000 \
+        --rand-amount-per-zernike 100000 2 24 " -30e-9" 30e-9 \
         --append-no-aberrations-row \
         --cores 4
 
     # -40 to 40 nm, 100,000 rows
     python3 main_scnp.py sim_data random_40nm_large v84 600e-9 \
         --output-write-batch 500 \
-        --rand-amount-per-zernike 2 24 " -40e-9" 40e-9 100000 \
+        --rand-amount-per-zernike 100000 2 24 " -40e-9" 40e-9 \
         --append-no-aberrations-row \
         --cores 4
 
     # -50 to 50 nm, 25,000 rows
     python3 main_scnp.py sim_data random_50nm_med v84 600e-9 \
         --output-write-batch 500 \
-        --rand-amount-per-zernike 2 24 " -50e-9" 50e-9 25000 \
+        --rand-amount-per-zernike 25000 2 24 " -50e-9" 50e-9 \
         --append-no-aberrations-row \
         --cores 4
 
     # -50 to 50 nm, 100,000 rows
     python3 main_scnp.py sim_data random_50nm_large v84 600e-9 \
         --output-write-batch 500 \
-        --rand-amount-per-zernike 2 24 " -50e-9" 50e-9 100000\
+        --rand-amount-per-zernike 100000 2 24 " -50e-9" 50e-9 \
         --append-no-aberrations-row \
         --cores 4
 
@@ -149,56 +149,56 @@ Random aberrations for every term in each row generated using the approximated V
     # -1 to 1 nm, 100,000 rows
     python3 main_scnp.py sim_data random_1nm_large_approx v84_approx 600e-9 \
         --output-write-batch 500 \
-        --rand-amount-per-zernike 2 24 " -1e-9" 1e-9 100000 \
+        --rand-amount-per-zernike 100000 2 24 " -1e-9" 1e-9 \
         --append-no-aberrations-row \
         --cores 4
 
     # -2 to 2 nm, 100,000 rows
     python3 main_scnp.py sim_data random_2nm_large_approx v84_approx 600e-9 \
         --output-write-batch 500 \
-        --rand-amount-per-zernike 2 24 " -2e-9" 2e-9 100000 \
+        --rand-amount-per-zernike 100000 2 24 " -2e-9" 2e-9 \
         --append-no-aberrations-row \
         --cores 4
 
     # -10 to 10 nm, 25,000 rows
     python3 main_scnp.py sim_data random_10nm_med_approx v84_approx 600e-9 \
         --output-write-batch 500 \
-        --rand-amount-per-zernike 2 24 " -10e-9" 10e-9 25000 \
+        --rand-amount-per-zernike 25000 2 24 " -10e-9" 10e-9 \
         --append-no-aberrations-row \
         --cores 4
 
     # -10 to 10 nm, 100,000 rows
     python3 main_scnp.py sim_data random_10nm_large_approx v84_approx 600e-9 \
         --output-write-batch 500 \
-        --rand-amount-per-zernike 2 24 " -10e-9" 10e-9 100000 \
+        --rand-amount-per-zernike 100000 2 24 " -10e-9" 10e-9 \
         --append-no-aberrations-row \
         --cores 4
 
     # -20 to 20 nm, 100,000 rows
     python3 main_scnp.py sim_data random_20nm_large_approx v84_approx 600e-9 \
         --output-write-batch 500 \
-        --rand-amount-per-zernike 2 24 " -20e-9" 20e-9 100000 \
+        --rand-amount-per-zernike 100000 2 24 " -20e-9" 20e-9 \
         --append-no-aberrations-row \
         --cores 4
 
     # -30 to 30 nm, 100,000 rows
     python3 main_scnp.py sim_data random_30nm_large_approx v84_approx 600e-9 \
         --output-write-batch 500 \
-        --rand-amount-per-zernike 2 24 " -30e-9" 30e-9 100000 \
+        --rand-amount-per-zernike 100000 2 24 " -30e-9" 30e-9 \
         --append-no-aberrations-row \
         --cores 4
 
     # -40 to 40 nm, 100,000 rows
     python3 main_scnp.py sim_data random_40nm_large_approx v84_approx 600e-9 \
         --output-write-batch 500 \
-        --rand-amount-per-zernike 2 24 " -40e-9" 40e-9 100000 \
+        --rand-amount-per-zernike 100000 2 24 " -40e-9" 40e-9 \
         --append-no-aberrations-row \
         --cores 4
 
     # -50 to 50 nm, 100,000 rows
     python3 main_scnp.py sim_data random_50nm_large_approx v84_approx 600e-9 \
         --output-write-batch 500 \
-        --rand-amount-per-zernike 2 24 " -50e-9" 50e-9 100000\
+        --rand-amount-per-zernike 100000 2 24 " -50e-9" 50e-9 \
         --append-no-aberrations-row \
         --cores 4
 
@@ -227,43 +227,43 @@ Random aberrations where different groups have different ranges:
     # 100,000 rows, 500 nm for Z2-3, 20 nm for Z4-8, 10 nm for Z9-24
     python3 main_scnp.py sim_data random_group_500_20_10 v84_approx 600e-9 \
         --output-write-batch 500 --append-no-aberrations-row \
-        --rand-amount-per-zernike-groups 100000 2 3 " -500e-9" 500e-9 4 8 " -20e-9" 20e-9 9 24 " -10e-9" 10e-9 \
+        --rand-amount-per-zernike 100000 2 3 " -500e-9" 500e-9 4 8 " -20e-9" 20e-9 9 24 " -10e-9" 10e-9 \
         --cores 4
 
     # 100,000 rows, 50 nm for Z2-3, 10 nm for Z4-8, 5 nm for Z9-24
     python3 main_scnp.py sim_data random_group_50_10_5 v84_approx 600e-9 \
         --output-write-batch 500 --append-no-aberrations-row \
-        --rand-amount-per-zernike-groups 100000 2 3 " -50e-9" 50e-9 4 8 " -10e-9" 10e-9 9 24 " -5e-9" 5e-9 \
+        --rand-amount-per-zernike 100000 2 3 " -50e-9" 50e-9 4 8 " -10e-9" 10e-9 9 24 " -5e-9" 5e-9 \
         --cores 4
 
     # 100,000 rows, 15 nm for Z2-3, 5 nm for Z4-8, 2 nm for Z9-24
     python3 main_scnp.py sim_data random_group_15_5_2 v84_approx 600e-9 \
         --output-write-batch 500 --append-no-aberrations-row \
-        --rand-amount-per-zernike-groups 100000 2 3 " -15e-9" 15e-9 4 8 " -5e-9" 5e-9 9 24 " -2e-9" 2e-9 \
+        --rand-amount-per-zernike 100000 2 3 " -15e-9" 15e-9 4 8 " -5e-9" 5e-9 9 24 " -2e-9" 2e-9 \
         --cores 4
 
     # 100,000 rows, 15 nm for Z2-3, 1 nm for Z4-8, 0.5 nm for Z9-24
     python3 main_scnp.py sim_data random_group_15_1_half v84_approx 600e-9 \
         --output-write-batch 500 --append-no-aberrations-row \
-        --rand-amount-per-zernike-groups 100000 2 3 " -15e-9" 15e-9 4 8 " -1e-9" 1e-9 9 24 " -5e-10" 5e-10 \
+        --rand-amount-per-zernike 100000 2 3 " -15e-9" 15e-9 4 8 " -1e-9" 1e-9 9 24 " -5e-10" 5e-10 \
         --cores 4
 
     # 100,000 rows, 10 nm for Z2-3, 2 nm for Z4-8, 1 nm for Z9-24
     python3 main_scnp.py sim_data random_group_10_2_1 v84_approx 600e-9 \
         --output-write-batch 500 --append-no-aberrations-row \
-        --rand-amount-per-zernike-groups 100000 2 3 " -10e-9" 10e-9 4 8 " -2e-9" 2e-9 9 24 " -1e-9" 1e-9 \
+        --rand-amount-per-zernike 100000 2 3 " -10e-9" 10e-9 4 8 " -2e-9" 2e-9 9 24 " -1e-9" 1e-9 \
         --cores 4
 
     # 100,000 rows, 0.5 nm for Z2-3, 0.25 nm for Z4-8, 0.2 nm for Z9-24
     python3 main_scnp.py sim_data random_group_half_quarter_fifth v84_approx 600e-9 \
         --output-write-batch 500 --append-no-aberrations-row \
-        --rand-amount-per-zernike-groups 100000 2 3 " -5e-10" 5e-10 4 8 " -2.5e-10" 2.5e-10 9 24 " -2e-10" 2e-10 \
+        --rand-amount-per-zernike 100000 2 3 " -5e-10" 5e-10 4 8 " -2.5e-10" 2.5e-10 9 24 " -2e-10" 2e-10 \
         --cores 4
 
 Just the aberrations for groups with different ranges:
 
     python3 main_scnp.py sim_data random_group_500_20_10_just_aberrations v84_approx 600e-9 \
-        --rand-amount-per-zernike-groups 200 2 3 " -500e-9" 500e-9 4 8 " -20e-9" 20e-9 9 24 " -10e-9" 10e-9 \
+        --rand-amount-per-zernike 200 2 3 " -500e-9" 500e-9 4 8 " -20e-9" 20e-9 9 24 " -10e-9" 10e-9 \
         --save-aberrations-csv-quit
 
 Random aberration for only one term in each row ranging from -50 to 50 nm:
@@ -277,7 +277,7 @@ Random aberration for only one term in each row ranging from -50 to 50 nm:
 A base row with random aberrations between -50 and 50 nm for each term. Then, rows with Gaussian perturbations (1 nm std) about the base row.
 
     python3 main_scnp.py sim_data rows_with_gaussian_pert v84 600e-9 \
-        --rand-amount-per-zernike-row-then-gaussian-pert 2 24 " -10e-9" 10e-9 25 1e-9 \
+        --rand-amount-per-zernike-row-then-gaussian-pert 1e-9 2 24 " -10e-9" 10e-9 25 \
         --save-plots True True True True --cores 4
 
 Random aberration ranging from -50 to 50 nm for only one term in each row and a row for each of the Zernike terms (can be used to create a response matrix):
@@ -319,14 +319,14 @@ Just the Zernike wavefront without any propagation:
     # 25,000 rows between -10 and 10 nm
     python3 main_scnp.py sim_data random_10nm_med_zernike_wf no_prop 600e-9 \
         --output-write-batch 500 \
-        --rand-amount-per-zernike 2 24 " -10e-9" 10e-9 25000 \
+        --rand-amount-per-zernike 25000 2 24 " -10e-9" 10e-9 \
         --append-no-aberrations-row \
         --cores 4 --use-only-aberration-map
 
     # 25,000 rows between -50 and 50 nm
     python3 main_scnp.py sim_data random_50nm_med_zernike_wf no_prop 600e-9 \
         --output-write-batch 500 \
-        --rand-amount-per-zernike 2 24 " -50e-9" 50e-9 25000 \
+        --rand-amount-per-zernike 25000 2 24 " -50e-9" 50e-9 \
         --append-no-aberrations-row \
         --cores 4 --use-only-aberration-map
 
