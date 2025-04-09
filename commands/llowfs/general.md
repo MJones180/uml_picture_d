@@ -260,6 +260,62 @@ Random aberrations where different groups have different ranges:
         --rand-amount-per-zernike 100000 2 3 " -5e-10" 5e-10 4 8 " -2.5e-10" 2.5e-10 9 24 " -2e-10" 2e-10 \
         --cores 4
 
+More random aberrations but with a random normal distribution (Gaussian):
+
+    # -2 to 2 nm, 100,000 rows, normal distribution
+    python3 main_scnp.py sim_data random_1nm_large_normal v84_approx 600e-9 \
+        --output-write-batch 500 --append-no-aberrations-row \
+        --rand-amount-per-zernike-normal 100000 2 24 0 1e-9 \
+        --cores 7
+
+    # -10 to 10 nm, 25,000 rows, normal distribution
+    python3 main_scnp.py sim_data random_5nm_med_normal v84_approx 600e-9 \
+        --output-write-batch 500 --append-no-aberrations-row \
+        --rand-amount-per-zernike-normal 25000 2 24 0 5e-9 \
+        --cores 7
+
+    # -10 to 10 nm, 100,000 rows, normal distribution
+    python3 main_scnp.py sim_data random_5nm_large_normal v84_approx 600e-9 \
+        --output-write-batch 500 --append-no-aberrations-row \
+        --rand-amount-per-zernike-normal 100000 2 24 0 5e-9 \
+        --cores 7
+
+    # 100,000 rows, sigma=(250, 10, 5) nm for Z(2-3, 4-8, 9-24)
+    python3 main_scnp.py sim_data random_group_250_10_5_normal v84_approx 600e-9 \
+        --output-write-batch 500 --append-no-aberrations-row \
+        --rand-amount-per-zernike-normal 100000 2 3 0 250e-9 4 8 0 10e-9 9 24 0 5e-9 \
+        --cores 7
+
+    # 100,000 rows, sigma=(25, 5, 2) nm for Z(2-3, 4-8, 9-24)
+    python3 main_scnp.py sim_data random_group_25_5_2_normal v84_approx 600e-9 \
+        --output-write-batch 500 --append-no-aberrations-row \
+        --rand-amount-per-zernike-normal 100000 2 3 0 25e-9 4 8 0 5e-9 9 24 0 2e-9 \
+        --cores 7
+
+    # 100,000 rows, sigma=(7, 2, 1) nm for Z(2-3, 4-8, 9-24)
+    python3 main_scnp.py sim_data random_group_7_2_1_normal v84_approx 600e-9 \
+        --output-write-batch 500 --append-no-aberrations-row \
+        --rand-amount-per-zernike-normal 100000 2 3 0 7e-9 4 8 0 2e-9 9 24 0 1e-9 \
+        --cores 7
+
+    # 100,000 rows, sigma=(7, 0.5, 0.25) nm for Z(2-3, 4-8, 9-24)
+    python3 main_scnp.py sim_data random_group_7_half_quarter_normal v84_approx 600e-9 \
+        --output-write-batch 500 --append-no-aberrations-row \
+        --rand-amount-per-zernike-normal 100000 2 3 0 7e-9 4 8 0 5e-10 9 24 0 2.5e-10 \
+        --cores 7
+
+    # 100,000 rows, sigma=(5, 1, 0.5) nm for Z(2-3, 4-8, 9-24)
+    python3 main_scnp.py sim_data random_group_5_1_half_normal v84_approx 600e-9 \
+        --output-write-batch 500 --append-no-aberrations-row \
+        --rand-amount-per-zernike-normal 100000 2 3 0 5e-9 4 8 0 1e-9 9 24 0 5e-10 \
+        --cores 7
+
+    # 100,000 rows, sigma=(0.25, 0.125, 0.1) nm for Z(2-3, 4-8, 9-24)
+    python3 main_scnp.py sim_data random_group_quarter_eigth_tenth_normal v84_approx 600e-9 \
+        --output-write-batch 500 --append-no-aberrations-row \
+        --rand-amount-per-zernike-normal 100000 2 3 0 2.5e-10 4 8 0 1.25e-10 9 24 0 0.1e-10 \
+        --cores 7
+
 Just the aberrations for groups with different ranges:
 
     python3 main_scnp.py sim_data random_group_500_20_10_just_aberrations v84_approx 600e-9 \
@@ -586,6 +642,17 @@ Can be used for model training/validation:
         --additional-raw-data-tags random_group_50_10_5 random_group_15_5_2 random_group_10_2_1 random_group_15_1_half random_group_half_quarter_fifth random_2nm_large_approx random_10nm_large_approx \
         --additional-raw-data-tags-train-only fixed_50nm_range_2000_approx
 
+    python3 main.py preprocess_data_complete \
+        random_group_250_10_5_normal \
+        train_fixed_2000_and_random_weighted_group_ranges_local_v4_normal \
+        val_fixed_2000_and_random_weighted_group_ranges_local_v4_normal \
+        test_fixed_2000_and_random_weighted_group_ranges_local_v4_normal \
+        80 15 5 \
+        --norm-outputs individually --norm-range-ones \
+        --use-field-diff no_aberrations \
+        --additional-raw-data-tags random_group_25_5_2_normal random_group_7_2_1_normal random_group_5_1_half_normal random_group_7_half_quarter_normal random_group_quarter_eigth_tenth_normal random_1nm_large_normal random_5nm_large_normal \
+        --additional-raw-data-tags-train-only fixed_50nm_range_2000_approx
+
 Can be used for testing:
 
     # 1 nm
@@ -597,6 +664,9 @@ Can be used for testing:
 
     # 50 nm
     python3 main.py preprocess_data_bare random_50nm_med random_50nm_med_processed
+
+    # sigma = 5 nm
+    python3 main.py preprocess_data_bare random_5nm_med_normal random_5nm_med_normal_processed
 
     # One row with no aberrations
     python3 main.py preprocess_data_bare no_aberrations no_aberrations_processed
