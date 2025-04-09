@@ -14,7 +14,8 @@ from utils.constants import (ABERRATIONS_F, DATA_F, PLOTTING_LINEAR_INT,
 from utils.hdf_read_and_write import HDFWriteModule
 from utils.load_optical_train import load_optical_train
 from utils.path import make_dir
-from utils.printing_and_logging import step_ri, title
+from utils.printing_and_logging import (dec_print_indent, inc_print_indent,
+                                        step_ri, title)
 from utils.proper_use_fftw import proper_use_fftw
 from utils.sim_prop_wf import multi_worker_sim_prop_many_wf
 from utils.terminate_with_message import terminate_with_message
@@ -284,14 +285,16 @@ def sim_data(cli_args):
         col_count = 0
         for group_idx in range(len(all_groups) // 3):
             print(f'Group: {group_idx}')
+            inc_print_indent()
             groups_args = all_groups[group_idx * 3:(group_idx + 1) * 3]
             group_zernikes, cols = _gen_zernike_terms(*groups_args[:2])
             zernike_terms.extend(group_zernikes)
             col_count += cols
-            print(f'    Zernike terms ({cols}): {group_zernikes}')
+            print(f'Zernike terms ({cols}): {group_zernikes}')
             aberration_amount = float(groups_args[2])
-            print(f'    Aberration amount: {aberration_amount}')
+            print(f'Aberration amount: {aberration_amount}')
             row_aberrations.extend(np.full(cols, aberration_amount))
+            dec_print_indent()
         # Convert the datatype back to native int
         zernike_terms = np.array([int(v) for v in zernike_terms])
         _set_zernike_terms(zernike_terms)
@@ -344,16 +347,18 @@ def sim_data(cli_args):
         col_count = 0
         for group_idx in range(len(group_args) // 4):
             print(f'Group: {group_idx}')
+            inc_print_indent()
             groups_args = group_args[group_idx * 4:(group_idx + 1) * 4]
             group_zernikes, cols = _gen_zernike_terms(*groups_args[:2])
             zernike_terms.extend(group_zernikes)
             col_count += cols
-            print(f'    Zernike terms ({cols}): {group_zernikes}')
+            print(f'Zernike terms ({cols}): {group_zernikes}')
             perturb_low = float(groups_args[2])
             perturb_high = float(groups_args[3])
-            print(f'    Perturbation range: {perturb_low} to {perturb_high}')
+            print(f'Perturbation range: {perturb_low} to {perturb_high}')
             aberrations.append(
                 rng.uniform(perturb_low, perturb_high, (rows, cols)))
+            dec_print_indent()
         # Convert the datatype back to native int
         zernike_terms = np.array([int(v) for v in zernike_terms])
         _set_zernike_terms(zernike_terms)
@@ -408,7 +413,6 @@ def sim_data(cli_args):
         if cli_args[key]:
             step_ri(f'Calling `{key}`')
             aberrations = locals()[key](*cli_args[key])
-            print(aberrations)
             break
     if zernike_terms is None:
         terminate_with_message('No aberration procedure chosen')
