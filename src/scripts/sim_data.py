@@ -230,13 +230,12 @@ def sim_data(cli_args):
     append_no_aberrations_row = cli_args['append_no_aberrations_row']
     use_only_aberration_map = cli_args['use_only_aberration_map']
 
-    # step_ri('Creating output directory')
-    # output_path = f'{RAW_DATA_P}/{tag}'
-    # make_dir(output_path)
+    step_ri('Creating output directory')
+    output_path = f'{RAW_DATA_P}/{tag}'
+    make_dir(output_path)
 
-    # step_ri('Saving all CLI args')
-    # save_cli_args(output_path, cli_args, 'sim_data')
-    # quit()
+    step_ri('Saving all CLI args')
+    save_cli_args(output_path, cli_args, 'sim_data')
 
     step_ri('Loading in the optical train')
     (init_beam_d, beam_ratio, optical_train, camera_pixels,
@@ -433,8 +432,6 @@ def sim_data(cli_args):
         # Add a blank row of zeros at the end
         aberrations = np.vstack((aberrations, np.zeros(aberrations.shape[1])))
     print(f'Total rows being simulated: {aberrations.shape[0]}')
-
-    quit()
 
     if save_aberrations_csv or save_aberrations_csv_quit:
         step_ri('Saving the aberrations')
