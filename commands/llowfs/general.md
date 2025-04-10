@@ -262,19 +262,19 @@ Random aberrations where different groups have different ranges:
 
 More random aberrations but with a random normal distribution (Gaussian):
 
-    # -2 to 2 nm, 100,000 rows, normal distribution
+    # 100,000 rows, sigma=1 nm, normal distribution
     python3 main_scnp.py sim_data random_1nm_large_normal v84_approx 600e-9 \
         --output-write-batch 500 --append-no-aberrations-row \
         --rand-amount-per-zernike-normal 100000 2 24 0 1e-9 \
         --cores 7
 
-    # -10 to 10 nm, 25,000 rows, normal distribution
+    # 25,000 rows, sigma=5 nm, normal distribution
     python3 main_scnp.py sim_data random_5nm_med_normal v84_approx 600e-9 \
         --output-write-batch 500 --append-no-aberrations-row \
         --rand-amount-per-zernike-normal 25000 2 24 0 5e-9 \
         --cores 7
 
-    # -10 to 10 nm, 100,000 rows, normal distribution
+    # 100,000 rows, sigma=5 nm, normal distribution
     python3 main_scnp.py sim_data random_5nm_large_normal v84_approx 600e-9 \
         --output-write-batch 500 --append-no-aberrations-row \
         --rand-amount-per-zernike-normal 100000 2 24 0 5e-9 \
