@@ -1495,7 +1495,6 @@ After model testing, it is useful to rank the model analyses:
         test_fixed_2000_and_random_weighted_group_ranges_local_v4 \
         --scatter-plot 4 6 2 0 15
 
-
 [V50] The `weighted_aberration_ranges_local_v4_normal` tag:
 
     python3 main_scnp.py model_train \
@@ -1524,4 +1523,34 @@ After model testing, it is useful to rank the model analyses:
     python3 main.py model_test \
         weighted_aberration_ranges_local_v4_normal last \
         test_fixed_2000_and_random_weighted_group_ranges_local_v4_normal \
+        --scatter-plot 4 6 2 0 15
+
+[V51] The `weighted_aberration_ranges_local_v4_bdw` tag:
+
+    python3 main_scnp.py model_train \
+        weighted_aberration_ranges_local_v4_bdw_round_one \
+        train_fixed_2000_and_random_weighted_group_ranges_local_v4_bdw \
+        val_fixed_2000_and_random_weighted_group_ranges_local_v4_bdw \
+        best32_1_smaller_10 mae adam 1e-5 1000 --batch-size 256 \
+        --overwrite-existing --only-best-epoch --early-stopping 15
+
+    python3 main_scnp.py model_train \
+        weighted_aberration_ranges_local_v4_bdw \
+        train_fixed_2000_and_random_weighted_group_ranges_local_v4_bdw \
+        val_fixed_2000_and_random_weighted_group_ranges_local_v4_bdw \
+        best32_1_smaller_10 mae adam 1e-8 200 --batch-size 128 \
+        --overwrite-existing --only-best-epoch --early-stopping 15 \
+        --init-weights weighted_aberration_ranges_local_v4_bdw_round_one last
+
+    python3 main.py model_test \
+        weighted_aberration_ranges_local_v4_bdw last fixed_50nm_range_approx_processed \
+        --zernike-plots --inputs-need-norm --inputs-need-diff
+
+    python3 main.py model_test \
+        weighted_aberration_ranges_local_v4_bdw last random_10nm_med_approx_processed \
+        --scatter-plot 4 6 2 1e-7 15 --inputs-need-norm --inputs-need-diff
+
+    python3 main.py model_test \
+        weighted_aberration_ranges_local_v4_bdw last \
+        test_fixed_2000_and_random_weighted_group_ranges_local_v4_bdw \
         --scatter-plot 4 6 2 0 15

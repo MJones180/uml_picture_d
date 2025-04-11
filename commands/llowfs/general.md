@@ -4,7 +4,8 @@
 
 A single row with no aberrations (used to compute the difference during preprocessing):
 
-    python3 main_scnp.py sim_data no_aberrations v84_approx 600e-9 --no-aberrations 2 24
+    python3 main_scnp.py sim_data no_aberrations v84 600e-9 --no-aberrations 2 24
+    python3 main_scnp.py sim_data no_aberrations_approx v84_approx 600e-9 --no-aberrations 2 24
 
 A single row with aberrations (10 nm) on every term:
 
@@ -639,6 +640,17 @@ Can be used for model training/validation:
         80 15 5 \
         --norm-outputs individually --norm-range-ones \
         --use-field-diff no_aberrations \
+        --additional-raw-data-tags random_group_50_10_5 random_group_15_5_2 random_group_10_2_1 random_group_15_1_half random_group_half_quarter_fifth random_2nm_large_approx random_10nm_large_approx \
+        --additional-raw-data-tags-train-only fixed_50nm_range_2000_approx
+
+    python3 main.py preprocess_data_complete \
+        random_group_500_20_10 \
+        train_fixed_2000_and_random_weighted_group_ranges_local_v4_bdw \
+        val_fixed_2000_and_random_weighted_group_ranges_local_v4_bdw \
+        test_fixed_2000_and_random_weighted_group_ranges_local_v4_bdw \
+        80 15 5 \
+        --norm-outputs individually --norm-range-ones \
+        --use-field-diff no_aberrations_approx \
         --additional-raw-data-tags random_group_50_10_5 random_group_15_5_2 random_group_10_2_1 random_group_15_1_half random_group_half_quarter_fifth random_2nm_large_approx random_10nm_large_approx \
         --additional-raw-data-tags-train-only fixed_50nm_range_2000_approx
 
