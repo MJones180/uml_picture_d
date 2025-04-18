@@ -205,6 +205,12 @@ def sim_data_parser(subparsers):
               'any negative values, write them as \" -number\"'),
     )
 
+    DM_group = subparser.add_argument_group('DM Group', 'Used to control DMs')
+    DM_group.add_argument(
+        '--add-dms',
+        help='simulate DM actuators',
+    )
+
 
 def sim_data(cli_args):
     title('Simulate data script')
@@ -447,6 +453,31 @@ def sim_data(cli_args):
         print(f'Saved to {aber_path}')
         if save_aberrations_csv_quit:
             quit()
+
+    add_dms = cli_args['add_dms']
+    if add_dms is not None:
+        step_ri('Simulating DM actuators')
+        # ==============================================================
+        # Code to find the circle of actuators that should be controlled
+        # ==============================================================
+        # SIZE = 34
+        # # How far each value is from the middle
+        # distances = np.arange(SIZE) - (SIZE // 2)
+        # # If the grid is evenly sized, then there cannot be a point at 0;
+        # # the points will have to be symmetric around 0
+        # if SIZE % 2 == 0:
+        #     distances = distances + 0.5
+        # # Normalize the distances between -1 to 1
+        # distances = distances / np.max(distances)
+        # # Create a grid of all distances from the center
+        # distance_grid = np.sqrt(distances[None, :]**2 + distances[:, None]**2)
+        # # Mask out all pixels that form a circle
+        # grid = np.zeros((SIZE, SIZE))
+        # grid[distance_grid <= 1.06] = 1
+        # # Print the grid out
+        # [print([int(v) for v in row]) for row in grid]
+        # print(f'Total circle pixels: {np.sum(grid)}/{SIZE**2}')
+        # # 952 is the number of actuators on our HODMs
 
     def write_cb(worker_idx, simulation_data):
         print(f'Worker [{worker_idx}] writing out data')
