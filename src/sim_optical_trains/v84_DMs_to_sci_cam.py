@@ -22,9 +22,11 @@ BEAM_RATIO = 0.5
 CAMERA_PIXELS = 100
 CAMERA_SAMPLING = 7.4e-6
 
-# Number of actuators and spacing between them on the DM
+# The DMs are assumed to be a square, so this is the number of rows and
+# columns of actuators
 DM_ACTUATOR_COUNT = 34
 DM_ACTUATOR_COUNT_HALF = DM_ACTUATOR_COUNT / 2
+# The spacing between each actuator
 DM_ACTUATOR_SPACING = 0.003  # 3 mm
 
 # All distances are in meters. Assume the beam starts at HODM 1.
