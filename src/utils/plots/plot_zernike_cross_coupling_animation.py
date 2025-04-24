@@ -2,7 +2,7 @@ from matplotlib.animation import FuncAnimation, PillowWriter
 import matplotlib.pyplot as plt
 import numpy as np
 from utils.constants import ZERNIKE_NAME_LOOKUP
-from utils.idl_rainbow_cmap import idl_rainbow_cmap
+from utils.idl_rainbow_cmap import idl_rainbow_colors
 
 
 def plot_zernike_cross_coupling_animation(
@@ -65,7 +65,7 @@ def plot_zernike_cross_coupling_animation(
     zernike_count = len(zernike_terms)
 
     # The colors that will be plotted for each line
-    colors = idl_rainbow_cmap()(np.linspace(0, 1, zernike_count))
+    colors = idl_rainbow_colors(zernike_count)
 
     lines = [
         ax.plot(perturbation_grid,

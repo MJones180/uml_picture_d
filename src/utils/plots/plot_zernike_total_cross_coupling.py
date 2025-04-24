@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from utils.constants import ZERNIKE_NAME_LOOKUP
-from utils.idl_rainbow_cmap import idl_rainbow_cmap
+from utils.idl_rainbow_cmap import idl_rainbow_colors
 from utils.stats_and_error import rss
 
 # The old version of this plot only output a single line for all the terms.
@@ -75,7 +75,7 @@ def plot_zernike_total_cross_coupling(
         # the other Zernike terms.
         crosstalk_each = rss(pred_groupings_no_diag, 2)
         # The colors that will be plotted for each line
-        colors = idl_rainbow_cmap()(np.linspace(0, 1, len(zernike_terms)))
+        colors = idl_rainbow_colors(len(zernike_terms))
         # Plot the cross coupling for each Zernike term
         for term_idx, term in enumerate(zernike_terms):
             ax.plot(

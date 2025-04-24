@@ -1,6 +1,7 @@
 from matplotlib.colors import LinearSegmentedColormap
+import numpy as np
 
-# Colormap taken from
+# The IDL equivalent of the rainbow colormap, taken from
 # https://github.com/planetarymike/idl-colorbars-python/blob/master/idl_colorbars/IDL_rgb_values/013_RAINBOW.dat
 RAINBOW_COLORS = [
     [0., 0., 0.],
@@ -262,6 +263,11 @@ RAINBOW_COLORS = [
 ]
 
 
-# The IDL equivalent of the rainbow colormap
+# The colormap
 def idl_rainbow_cmap():
     return LinearSegmentedColormap.from_list('idl_rainbow', RAINBOW_COLORS)
+
+
+# Just the colors
+def idl_rainbow_colors(count, low=0, high=1):
+    return idl_rainbow_cmap()(np.linspace(low, high, count))

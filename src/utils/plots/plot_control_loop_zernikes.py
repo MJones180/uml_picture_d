@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from utils.constants import ZERNIKE_NAME_LOOKUP
-from utils.idl_rainbow_cmap import idl_rainbow_cmap
+from utils.idl_rainbow_cmap import idl_rainbow_colors
 
 
 def plot_control_loop_zernikes(
@@ -43,7 +43,7 @@ def plot_control_loop_zernikes(
     ax.set_title(title)
 
     # The colors that will be plotted for each line
-    colors = idl_rainbow_cmap()(np.linspace(0, 1, len(zernike_terms)))
+    colors = idl_rainbow_colors(len(zernike_terms))
 
     # Plot each Zernike coefficient term
     for term_idx, term in enumerate(zernike_terms):

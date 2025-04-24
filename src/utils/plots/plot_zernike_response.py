@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from utils.constants import ZERNIKE_NAME_LOOKUP
-from utils.idl_rainbow_cmap import idl_rainbow_cmap
+from utils.idl_rainbow_cmap import idl_rainbow_colors
 
 
 def plot_zernike_response(
@@ -66,7 +66,7 @@ def plot_zernike_response(
     _add_line(y_vals=(0, 0))
 
     # The colors that will be plotted for each line
-    colors = idl_rainbow_cmap()(np.linspace(0, 1, len(zernike_terms)))
+    colors = idl_rainbow_colors(len(zernike_terms))
 
     # For this plot, we only care about elements along the main diagonal
     for term_idx, term in enumerate(zernike_terms):
