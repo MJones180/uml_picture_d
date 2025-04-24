@@ -230,6 +230,7 @@ def model_test(cli_args):
 
         step_ri('Generating a Zernike total cross coupling plot')
         plot_zernike_total_cross_coupling(
+            zernike_terms,
             perturbation_grid,
             outputs_model_gr,
             plot_title,

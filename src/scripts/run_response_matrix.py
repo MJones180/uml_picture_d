@@ -238,6 +238,7 @@ def run_response_matrix(cli_args):
 
         step_ri('Generating a Zernike total cross coupling plot')
         plot_zernike_total_cross_coupling(
+            zernike_terms,
             perturbation_grid,
             outputs_resp_mat_gr,
             plot_title,

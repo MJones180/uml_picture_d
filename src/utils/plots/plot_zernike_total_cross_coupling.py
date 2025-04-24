@@ -1,9 +1,18 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from utils.constants import ZERNIKE_NAME_LOOKUP
+from utils.idl_rainbow_cmap import idl_rainbow_cmap
 from utils.stats_and_error import rss
+
+# The old version of this plot only output a single line for all the terms.
+# The new version outputs a line for each Zernike, along with a line for all
+# the terms. If for some reason the old plot is needed, then this variable
+# should be manually set to False.
+LINE_PER_ZERNIKE = True
 
 
 def plot_zernike_total_cross_coupling(
+    zernike_terms,
     perturbation_grid,
     pred_groupings,
     title_append,
@@ -18,6 +27,8 @@ def plot_zernike_total_cross_coupling(
 
     Parameters
     ----------
+    zernike_terms : list
+        Noll Zernike terms.
     perturbation_grid : np.array
         Array for how much each group is perturbed by.
     pred_groupings : np.array
@@ -33,25 +44,14 @@ def plot_zernike_total_cross_coupling(
     """
 
     # Set the figure size and add the title + axes labels
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(8, 6.5))
     title = f'Zernike Total Cross Coupling ({title_append})\n{identifier}'
     ax.set_title(title)
     ax.set_xlabel('Input Zernike Amplitude [nm RMS]')
-    ax.set_ylabel('Total RSS Cross Coupling [nm RMS]')
-
-    # Zero out all entries along the main diagonal
-    diag_idxs = np.arange(pred_groupings.shape[1])
-    # Convert to nm and remove the main diagonal
-    pred_groupings_no_diag = pred_groupings * 1e9
-    pred_groupings_no_diag[:, diag_idxs, diag_idxs] = 0
-    # Calculate the total coupled error at each perturbation amount
-    total_coupled_error = rss(pred_groupings_no_diag, (1, 2))
+    ax.set_ylabel('RSS Total Cross Coupling [nm RMS]')
 
     # Set the limits on the x-axis
     ax.set_xlim(np.min(perturbation_grid), np.max(perturbation_grid))
-
-    ax.plot(perturbation_grid, total_coupled_error)
-
     # Set the labels
     tick_idxs = np.linspace(0, len(perturbation_grid) - 1, 7)
     tick_idxs = np.round(tick_idxs).astype(int)
@@ -59,6 +59,44 @@ def plot_zernike_total_cross_coupling(
     # Need to put the positions into nm
     tick_labels = [f'{a:.0f}' for a in tick_pos * 1e9]
     ax.set_xticks(tick_pos, tick_labels)
+
+    # Zero out all entries along the main diagonal
+    diag_idxs = np.arange(pred_groupings.shape[1])
+    # Convert to nm and remove the main diagonal
+    pred_groupings_no_diag = pred_groupings * 1e9
+    pred_groupings_no_diag[:, diag_idxs, diag_idxs] = 0
+
+    # The total crosstalk from all Zernikes
+    crosstalk_total = rss(pred_groupings_no_diag, (1, 2))
+
+    if LINE_PER_ZERNIKE:
+        # This is the total cross coupling for each Zernike term. As an example,
+        # if 10 nm is injected on Z2, then this is the RSS of crosstalk from all
+        # the other Zernike terms.
+        crosstalk_each = rss(pred_groupings_no_diag, 2)
+        # The colors that will be plotted for each line
+        colors = idl_rainbow_cmap()(np.linspace(0, 1, len(zernike_terms)))
+        # Plot the cross coupling for each Zernike term
+        for term_idx, term in enumerate(zernike_terms):
+            ax.plot(
+                perturbation_grid,
+                crosstalk_each[:, term_idx],
+                label=f'Z{term} {ZERNIKE_NAME_LOOKUP[term]}',
+                color=colors[term_idx],
+            )
+        # Plot the total crosstalk from all Zernikes
+        ax.plot(
+            perturbation_grid,
+            crosstalk_total,
+            linestyle='--',
+            label='All Terms',
+            color='black',
+        )
+        # Display the legend to the right middle of the plot
+        ax.legend(loc='center left', bbox_to_anchor=(1.01, 0.5))
+    else:
+        # Plot the total crosstalk from all Zernikes
+        ax.plot(perturbation_grid, crosstalk_total, color='black')
 
     if interactive_view:
         plt.show()
