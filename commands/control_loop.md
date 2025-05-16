@@ -45,6 +45,8 @@ Control loop step files:
     # New best neural network model, much better on small aberrations
     python3 main.py control_loop_run \
         all_terms_10 -0.6 -0.2 0 v84_approx 600e-9 --neural-network weighted_aberration_ranges_local_v4 last
+    python3 main.py control_loop_run \
+        cos_10_2_1 -0.6 -0.2 0 v84_approx 600e-9 --neural-network weighted_aberration_ranges_local_v4 last
 
     # Most simple response matrix
     python3 main.py control_loop_run \
@@ -68,7 +70,9 @@ Control loop step files:
 
     # PICTURE-C response matrix
     python3 main.py control_loop_run \
-        all_terms_10 -0.6 -0.2 0 v84_approx 600e-9 --response-matrix fixed_40nm_positive_and_negative
+        all_terms_10 -0.6 -0.2 0 v84_approx 600e-9 --response-matrix fixed_pm_40nm
+    python3 main.py control_loop_run \
+        cos_10_2_1 -0.6 -0.2 0 v84_approx 600e-9 --response-matrix fixed_pm_40nm
 
 Control loops on static wavefronts:
 
@@ -79,7 +83,7 @@ Control loops on static wavefronts:
 
     python3 main_scnp.py control_loop_static_wavefronts \
         random_group_500_20_10_just_aberrations 20 1e-3 \
-        -0.5 0.0 0.0 v84_approx 600e-9 --response-matrix fixed_40nm_positive_and_negative \
+        -0.5 0.0 0.0 v84_approx 600e-9 --response-matrix fixed_pm_40nm \
         --cores 7
 
 To analyze the number of rows that converged after running the static wavefronts:
