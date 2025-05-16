@@ -22,6 +22,12 @@
     python3 main.py gen_zernike_time_steps \
         all_terms_50 0.001 50 2 24 --all-zernikes-constant-value 50e-9
 
+10 ms steps for a total of 1 second, terms 2 through 24, aberrations follow a cos with gaussian perturbations:
+
+    python3 main.py gen_zernike_time_steps \
+        cos_10_2_1 0.01 100 2 24 \
+        --cos-with-gaussian-pert 25 2 10e-9 5e-10 5 2e-9 1e-10 16 1e-9 5e-11
+
 ## Perform Control Loop Run
 
 Control loop step files:

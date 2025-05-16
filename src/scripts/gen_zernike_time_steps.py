@@ -66,8 +66,8 @@ def gen_zernike_time_steps_parser(subparsers):
     )
     gen_method_group.add_argument(
         '--cos-with-gaussian-pert',
-        metavar='[rms error in meters]',
         nargs='+',
+        type=float,
         metavar=('[period], [relative column count], '
                  '[amplitude in meters], [perturbation std in meters]'),
         help=('add aberrations along a cos with gaussian perturbations; the '
@@ -154,7 +154,7 @@ def gen_zernike_time_steps(cli_args):
         for group_idx in range(len(group_args) // 3):
             idx_low = group_idx * 3
             rel_col_count, amp, std = group_args[idx_low:idx_low + 3]
-            for _ in range(rel_col_count):
+            for _ in range(int(rel_col_count)):
                 output_data[:, current_col] = get_coeffs(amp, std)
                 current_col += 1
     else:
