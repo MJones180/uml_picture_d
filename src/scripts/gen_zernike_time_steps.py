@@ -64,6 +64,15 @@ def gen_zernike_time_steps_parser(subparsers):
         metavar='[rms error in meters]',
         help='add a constant amplitude on all Zernike terms',
     )
+    gen_method_group.add_argument(
+        '--cos-with-gaussian-pert',
+        metavar='[rms error in meters]',
+        nargs='+',
+        metavar=('[period], [relative column count], '
+                 '[amplitude in meters], [perturbation std in meters]'),
+        help=('add aberrations along a cos with gaussian perturbations; the '
+              'last three terms can be repeated as many times as necessary'),
+    )
 
 
 def gen_zernike_time_steps(cli_args):
@@ -77,6 +86,7 @@ def gen_zernike_time_steps(cli_args):
     zernike_high = cli_args['zernike_high']
     single_zernike_constant_value = cli_args['single_zernike_constant_value']
     all_zernikes_constant_value = cli_args['all_zernikes_constant_value']
+    cos_with_gaussian_pert = cli_args['cos_with_gaussian_pert']
 
     step_ri('Config information')
     print(f'Timesteps: {timesteps}')
@@ -124,6 +134,29 @@ def gen_zernike_time_steps(cli_args):
         term_values = np.full(timesteps, float(rms_error))
         for idx in range(base_column_count, total_column_count):
             output_data[:, idx] = term_values
+    elif cos_with_gaussian_pert:
+        step_ri('Adding Zernike aberrations along a cos with perturbations')
+        period = cos_with_gaussian_pert[0]
+        group_args = cos_with_gaussian_pert[1:]
+        rng = np.random.default_rng()
+
+        def get_coeffs(amp, std):
+            # Add on a random starting phase
+            phase = np.arange(timesteps) + rng.integers(0, period)
+            coeffs = np.cos(2 * np.pi * phase / period) * amp
+            perturbations = rng.normal(0, std, size=(timesteps))
+            # Add Gaussian perturbations to each coefficient
+            return coeffs + perturbations
+
+        if len(group_args) % 3 != 0:
+            terminate_with_message('Each group must have 3 arguments')
+        current_col = base_column_count
+        for group_idx in range(len(group_args) // 3):
+            idx_low = group_idx * 3
+            rel_col_count, amp, std = group_args[idx_low:idx_low + 3]
+            for _ in range(rel_col_count):
+                output_data[:, current_col] = get_coeffs(amp, std)
+                current_col += 1
     else:
         terminate_with_message('No method for generating the data chosen')
 
