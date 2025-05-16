@@ -1561,14 +1561,14 @@ After model testing, it is useful to rank the model analyses:
         weighted_aberration_ranges_local_v4_tanh_round_one \
         train_fixed_2000_and_random_weighted_group_ranges_local_v4 \
         val_fixed_2000_and_random_weighted_group_ranges_local_v4 \
-        best32_1_smaller_10 mae adam 1e-5 1000 --batch-size 256 \
+        best32_1_smaller_10_2 mae adam 1e-5 1000 --batch-size 256 \
         --overwrite-existing --only-best-epoch --early-stopping 15
 
     python3 main_scnp.py model_train \
         weighted_aberration_ranges_local_v4_tanh \
         train_fixed_2000_and_random_weighted_group_ranges_local_v4 \
         val_fixed_2000_and_random_weighted_group_ranges_local_v4 \
-        best32_1_smaller_10 mae adam 1e-8 200 --batch-size 128 \
+        best32_1_smaller_10_2 mae adam 1e-8 200 --batch-size 128 \
         --overwrite-existing --only-best-epoch --early-stopping 15 \
         --init-weights weighted_aberration_ranges_local_v4_tanh_round_one last
 
