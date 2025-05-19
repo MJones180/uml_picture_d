@@ -18,6 +18,7 @@ The following error metrics are implemented (takes two arrays):
     mean_absolute_error     MAE       Σ_i abs(x1_i - x2_i) / N
     mean_square_error       MSE       Σ_i (x1_i - x2_i)**2 / N
     root_mean_square_error  RMSE      sqrt( Σ_i (x1_i - x2_i)**2 / N )
+    percent_error                     abs((x2 - x1)/x1); x1 is truth
 
 If a function has an acronym, it can be access via that instead.
 
@@ -78,6 +79,10 @@ def mean_square_error(x1, x2, axes=None):
 
 def root_mean_square_error(x1, x2, axes=None):
     return root_mean_of_squares(x1 - x2, axes)
+
+
+def percent_error(truth, x):
+    return np.abs((x - truth) / truth)
 
 
 # ==============================================================================
