@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import mpl_scatter_density  # noqa: F401; 'scatter_density' projection
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import numpy as np
+from utils.constants import PLOT_STYLE_FILE
 from utils.idl_rainbow_cmap import idl_rainbow_cmap
 from utils.terminate_with_message import terminate_with_message
 
@@ -52,6 +53,9 @@ def plot_comparison_scatter_grid(
         Display the plot in interactive mode, False by default.
     """
 
+    # Load in the style file
+    plt.style.use(PLOT_STYLE_FILE)
+
     # =============================
     # Ensure there are enough cells
     # =============================
@@ -81,7 +85,7 @@ def plot_comparison_scatter_grid(
     # Setup the subplots
     # ==================
 
-    subplot_args = {'figsize': (n_cols * 5, n_rows * 5)}
+    subplot_args = {'figsize': (n_cols * 4, n_rows * 4)}
     if plot_density:
         subplot_args['subplot_kw'] = {'projection': 'scatter_density'}
     if filter_value:
@@ -99,7 +103,7 @@ def plot_comparison_scatter_grid(
         title += (f'Filtered out {rows_filtered_out} '
                   f'rows using bounds [-{filter_value}, {filter_value}].')
 
-    plt.suptitle(title, size=30)
+    plt.suptitle(title)
     # The limits should be the global min and max values if filtered, otherwise
     # it changes for each subplot
     if filter_value:
@@ -124,7 +128,7 @@ def plot_comparison_scatter_grid(
             axs_cell.annotate(
                 f'Z{starting_zernike + current_col}',
                 (0, 1),
-                xytext=(8, -8),
+                xytext=(5, -5),
                 xycoords='axes fraction',
                 textcoords='offset points',
                 fontweight='bold',
@@ -132,7 +136,6 @@ def plot_comparison_scatter_grid(
                 backgroundcolor='k',
                 ha='left',
                 va='top',
-                fontsize=20,
             )
             # Draw a 1-to-1 line, it should be based on truth values
             # https://stackoverflow.com/a/60950862
@@ -163,31 +166,21 @@ def plot_comparison_scatter_grid(
                     cbar.ax.tick_params(labelsize=15)
             else:
                 # Plot the scatter of all the points
-                axs_cell.scatter(truth_col, model_col, 0.25, alpha=.1)
+                axs_cell.scatter(truth_col, model_col, 1, alpha=.1)
             # Set the limits on each subplot
             axs_cell.set_xlim(*xlim)
             axs_cell.set_ylim(*ylim)
             # Only display x labels for the last row
             if plot_row == n_rows - 1:
                 axs_cell.set_xlabel('Truth Outputs')
-                axs_cell.xaxis.label.set_fontsize(20)
             # Only display y labels for the first column
             if plot_col == 0:
                 axs_cell.set_ylabel('Model Outputs')
-                axs_cell.yaxis.label.set_fontsize(20)
-            # Increase the font size for ticks
-            for item in (axs_cell.get_xticklabels() +
-                         axs_cell.get_yticklabels() + [
-                             axs_cell.xaxis.get_offset_text(),
-                             axs_cell.yaxis.get_offset_text()
-                         ]):
-                item.set_fontsize(15)
             current_col += 1
             # Reduce the number of ticks along each axis
             # axs_cell.locator_params(nbins=4)
-    # Fixes padding around subplots, `h_pad` decreases vertical spacing between
-    # rows and `rect` makes room for the suptitle
-    fig.tight_layout(h_pad=0, rect=[0, 0, 1, 0.99])
+    fig.tight_layout()
+    plt.subplots_adjust(top=0.94, wspace=0.1, hspace=0.1)
 
     # =====================
     # Save or show the plot
@@ -196,5 +189,4 @@ def plot_comparison_scatter_grid(
     if interactive_view:
         plt.show()
     else:
-        # Save the plot
-        plt.savefig(plot_path, dpi=300, bbox_inches='tight')
+        plt.savefig(plot_path)
