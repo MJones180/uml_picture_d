@@ -1,7 +1,7 @@
 figure.titlesize: 20
 axes.titlesize : 20
-font.size: 18
 axes.labelsize: 18
+font.size: 18
 xtick.labelsize: 14
 ytick.labelsize: 14
 legend.fontsize: 14
@@ -24,3 +24,6 @@ legend.columnspacing: 1
 legend.facecolor: "#ffffff"
 legend.edgecolor: "#000000"
 legend.framealpha: 1
+
+axes.titlepad: 10
+axes.labelpad: 0

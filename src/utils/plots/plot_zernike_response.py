@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from utils.constants import ZERNIKE_NAME_LOOKUP
+from utils.constants import PLOT_STYLE_FILE, ZERNIKE_NAME_LOOKUP
 from utils.idl_rainbow_cmap import idl_rainbow_colors
 
 
@@ -36,6 +36,9 @@ def plot_zernike_response(
         Display the plot in interactive mode instead of saving it.
     """
 
+    # Load in the style file
+    plt.style.use(PLOT_STYLE_FILE)
+
     # Set the figure size and add the title + axes labels
     fig, ax = plt.subplots(figsize=(8, 8))
     ax.set_title(f'Zernike Response ({title_append})\n{identifier}')
@@ -54,7 +57,6 @@ def plot_zernike_response(
             x_vals,
             y_vals,
             linestyle='--',
-            linewidth=1,
             color='#FF0000',
             scalex=False,
             scaley=False,
@@ -86,11 +88,9 @@ def plot_zernike_response(
 
     # Display the legend to the right middle of the plot
     ax.legend(loc='center left', bbox_to_anchor=(1.01, 0.5))
-    # Ensure the legend does not get cut off
-    plt.tight_layout()
 
     if interactive_view:
         plt.show()
     else:
         # Save the plot
-        plt.savefig(plot_path, dpi=300, bbox_inches='tight')
+        plt.savefig(plot_path)

@@ -49,7 +49,7 @@ def plot_zernike_total_cross_coupling(
     # Set the figure size and add the title + axes labels
     fig, ax = plt.subplots(figsize=(8, 6.5))
     title = f'Zernike Total Cross Coupling ({title_append})\n{identifier}'
-    ax.set_title(title, pad=10)
+    ax.set_title(title)
     ax.set_xlabel('Input Zernike Amplitude [nm RMS]')
     ax.set_ylabel('RSS Total Cross Coupling [nm RMS]')
 

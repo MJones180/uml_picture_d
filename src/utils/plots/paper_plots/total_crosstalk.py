@@ -27,7 +27,7 @@ def paper_plot_total_crosstalk(
     # Set the figure size and add the title + axes labels
     fig, ax = plt.subplots(figsize=(8, 6.5))
     title = f'Zernike Total Cross Coupling ({title_append})'
-    ax.set_title(title, pad=10)
+    ax.set_title(title)
     ax.set_xlabel(r'Input Zernike Amplitude, $a$ [nm RMS]')
     ax.set_ylabel(r'RSS Total Cross Coupling, $\gamma$ [nm RMS]')
 

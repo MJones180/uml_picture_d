@@ -10,8 +10,8 @@ Requirements:
 """
 
 import matplotlib.pyplot as plt
+from utils.constants import PLOT_STYLE_FILE
 
-PLOT_STYLE_FILE = 'plot_styling.mplstyle'
 N_ROWS = N_COLS = 2
 # row idx, col idx, zernike idx
 # For terms 2, 4, 11, 22
@@ -30,11 +30,6 @@ def paper_plot_model_scatters(
 ):
     # Load in the style file
     plt.style.use(PLOT_STYLE_FILE)
-
-    # ==================
-    # Setup the subplots
-    # ==================
-
     fig, axs = plt.subplots(
         N_ROWS,
         N_COLS,
@@ -42,14 +37,7 @@ def paper_plot_model_scatters(
         sharex=True,
         sharey=True,
     )
-
-    # ===============
-    # Do the plotting
-    # ===============
-
-    title = f'Truth vs {title_vs}'
-
-    plt.suptitle(title)
+    plt.suptitle(f'Truth vs {title_vs}')
     for plot_row, plot_col, zernike_col in CELLS:
         # Grab the data for the current cell, put it in nm
         model_col = model_data[:, zernike_col] * 1e9
@@ -87,16 +75,11 @@ def paper_plot_model_scatters(
         axs_cell.set_ylim(*YLIM)
         # Only display x labels for the last row
         if plot_row == N_ROWS - 1:
-            axs_cell.set_xlabel('Truth Outputs [nm]', labelpad=0)
+            axs_cell.set_xlabel('Truth Outputs [nm]')
         # Only display y labels for the first column
         if plot_col == 0:
-            axs_cell.set_ylabel('Model Outputs [nm]', labelpad=0)
+            axs_cell.set_ylabel('Model Outputs [nm]')
         axs_cell.locator_params(nbins=4)
     fig.tight_layout()
     plt.subplots_adjust(top=0.94, wspace=0.1, hspace=0.1)
-
-    # =============
-    # Save the plot
-    # =============
-
     plt.savefig(plot_path)
