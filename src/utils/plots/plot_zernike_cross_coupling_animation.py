@@ -1,7 +1,7 @@
 from matplotlib.animation import FuncAnimation, PillowWriter
 import matplotlib.pyplot as plt
 import numpy as np
-from utils.constants import ZERNIKE_NAME_LOOKUP
+from utils.constants import PLOT_STYLE_FILE, ZERNIKE_NAME_LOOKUP
 from utils.idl_rainbow_cmap import idl_rainbow_colors
 
 
@@ -33,9 +33,11 @@ def plot_zernike_cross_coupling_animation(
     animation_path : str
         Path to save the animation at, must be `.gif`.
     """
+    # Load in the style file
+    plt.style.use(PLOT_STYLE_FILE)
 
     # Set the figure size and add the axes labels
-    fig, ax = plt.subplots(figsize=(8, 8))
+    fig, ax = plt.subplots(figsize=(11, 8))
     ax.set_xlabel('Truth [nm RMS]')
     ax.set_ylabel('Output [nm RMS]')
 
