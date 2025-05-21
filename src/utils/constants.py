@@ -15,6 +15,8 @@ TRAINED_MODELS_P = f'{OUTPUT_P}/trained_models'
 
 PACKAGES_P = '../packages'
 
+PLOT_STYLE_FILE = 'plot_styling.mplstyle'
+
 ABERRATIONS_F = 'aberrations.csv'
 ARGS_F = 'args.json'
 BINARY_DATA_F = 'binary_data.bin'
