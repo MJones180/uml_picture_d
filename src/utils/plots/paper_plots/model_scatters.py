@@ -21,31 +21,13 @@ XLIM = -10, 10
 YLIM = -10, 10
 
 
-def plot_model_scatters(
+def paper_plot_model_scatters(
     model_data,
     truth_data,
     title_vs,
     starting_zernike,
     plot_path=None,
 ):
-    """
-    A scatter plot for each Zernike term that compares the model's predicted
-    value with the true value.
-
-    Parameters
-    ----------
-    model_data : np.array
-        The model data where the second dimension represents the Zernikes.
-    truth_data : np.array
-        The truth data where the second dimension represents the Zernikes.
-    title_vs : str
-        Name of the type of model that is being compared against.
-    starting_zernike : int
-        The first Zernike being compared against.
-    plot_path : str
-        The path to output the plot.
-    """
-
     # Load in the style file
     plt.style.use(PLOT_STYLE_FILE)
 

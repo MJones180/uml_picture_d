@@ -24,6 +24,8 @@ from utils.plots.plot_zernike_cross_coupling_animation import plot_zernike_cross
 from utils.plots.plot_zernike_cross_coupling_mat_animation import plot_zernike_cross_coupling_mat_animation  # noqa
 from utils.plots.plot_zernike_response import plot_zernike_response
 from utils.plots.plot_zernike_total_cross_coupling import plot_zernike_total_cross_coupling  # noqa
+from utils.plots.paper_plots.total_crosstalk import paper_plot_total_crosstalk  # noqa
+from utils.plots.paper_plots.model_scatters import paper_plot_model_scatters  # noqa
 from utils.printing_and_logging import step_ri, title
 from utils.response_matrix import ResponseMatrix
 from utils.stats_and_error import mae, mse
@@ -202,6 +204,14 @@ def run_response_matrix(cli_args):
             f'{analysis_path}/density_scatter.png',
             plot_density=plot_density,
         )
+        # A specific version for a paper
+        # paper_plot_model_scatters(
+        #     outputs_resp_mat,
+        #     outputs_truth,
+        #     plot_title,
+        #     starting_zernike,
+        #     f'{analysis_path}/paper_scatter.png',
+        # )
 
     if cli_args.get('zernike_plots'):
         nrows = outputs_truth.shape[0]
@@ -245,6 +255,14 @@ def run_response_matrix(cli_args):
             plot_identifier,
             f'{analysis_path}/total_cross_coupling.png',
         )
+        # A specific version for a paper
+        # paper_plot_total_crosstalk(
+        #     zernike_terms,
+        #     perturbation_grid,
+        #     outputs_resp_mat_gr,
+        #     plot_title,
+        #     f'{analysis_path}/paper_total_cross_coupling.png',
+        # )
 
         step_ri('Generating a Zernike cross coupling animation')
         plot_zernike_cross_coupling_animation(
