@@ -175,54 +175,61 @@ def control_loop_run(cli_args):
 
     step_ri('Generating the plots')
 
-    # Title that will be displayed on the plots
-    base_title = (f'Control Loop, Step File={step_file}, '
-                  f'Timesteps={total_steps}\n')
-    base_title_ext = base_title + (
-        f'Model={model_str}, K_PID={(K_p, K_i, K_d)}, ')
     # Determine the number of rows and columns for the subplot plots
     n_rows = n_cols = int(np.ceil(np.sqrt(len(zernike_terms))))
 
+    step_str = f'Step File: {step_file}'
+    ts_str = f'Timesteps: {total_steps}'
+    title_str = f', {step_str}, {ts_str}'
+    info_str = f'{step_str}\n{ts_str}'
+
+    print('Saving input signal plots (x2).')
+    input_signal_data = step_data[:, 3:]
+    plot_title = 'Input Signal'
+    plot_path = f'{output_path_ts_same}/input_signal.png'
+    plot_control_loop_zernikes(zernike_terms, input_signal_data, plot_title,
+                               info_str, cumulative_time, plot_path)
+    plot_title += title_str
+    plot_path = f'{output_path_ts_sub}/input_signal.png'
+    plot_control_loop_zernikes_subplots(zernike_terms, input_signal_data,
+                                        plot_title, cumulative_time, n_rows,
+                                        n_cols, plot_path)
+
+    model_str = f'Model: {model_str}'
+    pid_str = f'K_PID: {(K_p, K_i, K_d)}'
+    info_str += f'\n{model_str}\n{pid_str}'
+    title_str += f'\n{model_str}, {pid_str}'
+
     def _create_plots(history_data, hist_type, additional_info):
         print(f'Saving {hist_type} error plots (x4).')
-        plot_title = base_title_ext + f'{hist_type} error ({additional_info})'
+        plot_title = f'{hist_type.capitalize()} Error ({additional_info})'
         plot_file = f'{hist_type}_error.png'
 
         def _zernike_same_plot(output_dir, plot_psd):
             plot_path = f'{output_dir}/{plot_file}'
             plot_control_loop_zernikes(zernike_terms, history_data, plot_title,
-                                       cumulative_time, plot_path, plot_psd)
+                                       info_str, cumulative_time, plot_path,
+                                       plot_psd)
 
         def _zernike_subplots(output_dir, plot_psd):
             plot_path = f'{output_dir}/{plot_file}'
             plot_control_loop_zernikes_subplots(zernike_terms, history_data,
-                                                plot_title, cumulative_time,
-                                                n_rows, n_cols, plot_path,
-                                                plot_psd)
+                                                plot_title + title_str,
+                                                cumulative_time, n_rows,
+                                                n_cols, plot_path, plot_psd)
 
         _zernike_same_plot(output_path_ts_same, False)  # Time series
         _zernike_same_plot(output_path_psd_same, True)  # PSD
         _zernike_subplots(output_path_ts_sub, False)  # Time series
         _zernike_subplots(output_path_psd_sub, True)  # PSD
 
-    _create_plots(true_error_history, 'true', 'input aberrations')
-    _create_plots(meas_error_history, 'meas', 'model outputs')
-
-    print('Saving input signal plots (x2).')
-    input_signal_data = step_data[:, 3:]
-    plot_title = f'{base_title}Input Signal'
-    plot_path = f'{output_path_ts_same}/input_signal.png'
-    plot_control_loop_zernikes(zernike_terms, input_signal_data, plot_title,
-                               cumulative_time, plot_path)
-    plot_path = f'{output_path_ts_sub}/input_signal.png'
-    plot_control_loop_zernikes_subplots(zernike_terms, input_signal_data,
-                                        plot_title, cumulative_time, n_rows,
-                                        n_cols, plot_path)
+    _create_plots(true_error_history, 'true', 'Input Aberrations')
+    _create_plots(meas_error_history, 'meas', 'Model Outputs')
 
     print('Saving input signal vs meas error plots (x2).')
 
     def _zernike_subplots(output_dir, plot_psd):
-        plot_title = base_title_ext + 'input signal vs meas error'
+        plot_title = 'Input Signal vs Meas Error' + title_str
         plot_path = f'{output_dir}/input_vs_meas.png'
         plot_control_loop_zernikes_subplots(zernike_terms, input_signal_data,
                                             plot_title, cumulative_time,
@@ -236,7 +243,7 @@ def control_loop_run(cli_args):
     print('Saving true error vs meas error plots (x2).')
 
     def _zernike_subplots(output_dir, plot_psd):
-        plot_title = base_title_ext + 'true error vs meas error'
+        plot_title = 'True Error vs Meas Error' + title_str
         plot_path = f'{output_dir}/true_vs_meas.png'
         plot_control_loop_zernikes_subplots(zernike_terms, true_error_history,
                                             plot_title, cumulative_time,

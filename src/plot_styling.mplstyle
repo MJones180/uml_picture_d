@@ -16,8 +16,10 @@ savefig.dpi: 300
 xtick.major.width: 2
 ytick.major.width: 2
 
-# Gives a thicker border for the legend
 patch.linewidth: 2
+patch.facecolor: "#ffffff"
+patch.edgecolor: "#000000"
+
 legend.fancybox: False
 legend.labelspacing: 0.1
 legend.columnspacing: 1

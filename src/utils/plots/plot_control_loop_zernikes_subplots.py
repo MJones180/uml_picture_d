@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from utils.constants import PLOT_STYLE_FILE
 from utils.terminate_with_message import terminate_with_message
 
 
@@ -48,6 +49,9 @@ def plot_control_loop_zernikes_subplots(
         List of labels to display on the legend.
     """
 
+    # Load in the style file
+    plt.style.use(PLOT_STYLE_FILE)
+
     # =============================
     # Ensure there are enough cells
     # =============================
@@ -60,19 +64,18 @@ def plot_control_loop_zernikes_subplots(
     # Setup the subplots
     # ==================
 
-    subplot_args = {'figsize': (n_cols * 6, n_rows * 3)}
     fig, axs = plt.subplots(
         n_rows,
         n_cols,
         sharex=True,
-        **subplot_args,
+        figsize=(n_cols * 4, n_rows * 2),
     )
 
     # ===============
     # Do the plotting
     # ===============
 
-    plt.suptitle(title, size=30)
+    plt.suptitle(title)
     current_col = 0
     for plot_row in range(n_rows):
         for plot_col in range(n_cols):
@@ -90,7 +93,7 @@ def plot_control_loop_zernikes_subplots(
             axs_cell.annotate(
                 f'Z{zernike_terms[current_col]}',
                 (0, 1),
-                xytext=(8, -8),
+                xytext=(5, -5),
                 xycoords='axes fraction',
                 textcoords='offset points',
                 fontweight='bold',
@@ -98,7 +101,6 @@ def plot_control_loop_zernikes_subplots(
                 backgroundcolor='k',
                 ha='left',
                 va='top',
-                fontsize=20,
             )
             # Choose whether to do a PSD or time series plot. The labels for
             # these do not matter, they will get overwritten at the end.
@@ -124,32 +126,22 @@ def plot_control_loop_zernikes_subplots(
                     axs_cell.set_xticks(pos, labs)
                 label = 'Frequency' if plot_psd else 'Time [s]'
                 axs_cell.set_xlabel(label)
-                axs_cell.xaxis.label.set_fontsize(20)
             # Only display y labels for the first column
             if plot_col == 0:
-                label = 'PSD [nm RMS/Hz]' if plot_psd else 'Coeff [nm RMS]'
+                label = 'PSD\n[nm RMS/Hz]' if plot_psd else 'Coeffs\n[nm RMS]'
                 axs_cell.set_ylabel(label)
-                axs_cell.yaxis.label.set_fontsize(20)
-            # Increase the font size for ticks
-            for item in (axs_cell.get_xticklabels() +
-                         axs_cell.get_yticklabels() + [
-                             axs_cell.xaxis.get_offset_text(),
-                             axs_cell.yaxis.get_offset_text()
-                         ]):
-                item.set_fontsize(15)
             current_col += 1
 
     # Add the legend only if the labels were passed
     if legend_labels is not None:
         lines, labels = axs_cell.get_legend_handles_labels()
-        fig.legend(lines, legend_labels, loc='lower right', fontsize=25)
+        fig.legend(lines, legend_labels, loc='lower right')
 
-    # Fixes padding around subplots, `h_pad` decreases vertical spacing between
-    # rows and `rect` makes room for the suptitle
-    fig.tight_layout(h_pad=0, rect=[0, 0, 1, 0.99])
+    fig.tight_layout()
+    plt.subplots_adjust(top=0.90, hspace=0.1)
 
     # =============
     # Save the plot
     # =============
 
-    plt.savefig(plot_path, dpi=300, bbox_inches='tight')
+    plt.savefig(plot_path)
