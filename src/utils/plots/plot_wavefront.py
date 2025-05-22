@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from utils.constants import PLOT_STYLE_FILE
 from utils.idl_rainbow_cmap import idl_rainbow_cmap
 
 # The colormap used for log plots
@@ -14,6 +15,8 @@ def plot_wavefront(
     plot_path,
     use_log=False,
 ):
+    # Load in the style file
+    plt.style.use(PLOT_STYLE_FILE)
     plot_points = data.shape[0]
     # Reset the plot
     plt.clf()
@@ -30,19 +33,19 @@ def plot_wavefront(
     plt.xlabel('X [mm]')
     plt.ylabel('Y [mm]')
     tick_count = 7
-    tick_locations = np.linspace(0, plot_points, tick_count)
+    tick_locations = np.linspace(0, plot_points - 1, tick_count)
     # Half the width of the grid in mm (originally in meters)
     grid_rad_mm = 1e3 * plot_sampling * plot_points / 2
     tick_labels = np.linspace(-grid_rad_mm, grid_rad_mm, tick_count)
     # Sometimes the middle tick likes to be negative
-    tick_labels[3] = 0
+    tick_labels[tick_count // 2] = 0
     # Round to two decimal places
     tick_labels = [f'{label:.2f}' for label in tick_labels]
     plt.xticks(tick_locations, tick_labels)
     # The y ticks get plotted from top to bottom, so flip them
     plt.yticks(tick_locations, tick_labels[::-1])
     plt.colorbar(label=colorbar_label)
-    plt.savefig(plot_path, dpi=300)
+    plt.savefig(plot_path)
 
 
 # ==============================================================================
