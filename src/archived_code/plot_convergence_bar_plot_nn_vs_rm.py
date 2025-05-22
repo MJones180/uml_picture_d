@@ -1,6 +1,9 @@
 """
 Plot the NN vs RM for cases converged as outputted by the
 `analyze_static_wavefront_convergence` script.
+Plot for the paper:
+    MS Thesis (older version of script)
+    Adaptive Optics Wavefront Stabilization Using a Convolutional Neural Network
 """
 
 import matplotlib.pyplot as plt
@@ -36,8 +39,11 @@ Y_RM = [2, 14, 66, 291, 1192, 4448, 5000]
 
 # ==============================================================================
 
+# Load in the style file
+plt.style.use('plot_styling.mplstyle')
+
 # Create the subplot
-fig, ax = plt.subplots(1, 1, figsize=(12.5, 5))
+fig, ax = plt.subplots(figsize=(20, 8))
 
 
 def _display_bars(y_values, offset, color, label):
@@ -49,7 +55,6 @@ def _display_bars(y_values, offset, color, label):
         label=label,
         color=color,
         edgecolor='#00364D',
-        linewidth=1,
     )
     # Add the percentage above every bar
     # https://stackoverflow.com/a/40491960
@@ -88,11 +93,11 @@ ax.set_xticklabels([None, *SCALE_FACTORS])
 plt.title(
     f'{ITERATIONS} Iteration Control Loops on Static Aberration '
     'Input Signals\nGain Factors $K_{P,I,D}$ = ' + str(GAIN_VALUES),
-    pad=30,
+    pad=40,
 )
-ax.set_xlabel('Input Aberration Scaling Factor ($k$)\n'
-              'Aberration Ranges Are Uniformly Random Between: '
-              r'$k\cdot\;[-x_Z, x_Z]$ nm RMS error, where $x_{2-3}=$' +
+ax.set_xlabel('Input Aberration Scaling Factor, $k$\n'
+              'Aberrations Uniformly Random Between: '
+              r'$k\;[-x_Z, x_Z]$ nm RMS error, where $x_{2-3}=$' +
               str(RANGES[0]) + '$, x_{4-8}=$' + str(RANGES[1]) +
               '$, x_{9-24}=$' + str(RANGES[2]))
 ax.set_ylabel('Wavefronts Flattened\nTrue Error Threshold: '
@@ -107,4 +112,4 @@ plt.legend(
 )
 
 plt.tight_layout()
-plt.show()
+plt.savefig('convergence_plot.png')
