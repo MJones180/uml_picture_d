@@ -102,6 +102,9 @@ def convert_picd_instrument_data(cli_args):
                     print('Taking the average of all the rows.')
                     # This table name is different than the other datafiles
                     image_data = hdul['PRIMARY'].data
+                    # The data from the PRIMARY table may not be good, so may
+                    # need to use the aberration free rows from the IMAGE table
+                    # image_data = hdul['IMAGE'].data[30000:]
                     image_data = np.average(image_data, axis=0)[None, :, :]
                     zernike_data = np.array([np.zeros_like(zernike_terms)])
                 else:

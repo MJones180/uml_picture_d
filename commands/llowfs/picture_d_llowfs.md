@@ -130,11 +130,18 @@ Now, these FITS datafiles must be converted to HDF (with the same format as raw 
         --fits-data-tags lyt_single_zernikes --first-n-rows 46000
     python3 main.py convert_picd_instrument_data picd_instrument_data_25k_10nm 2 24 \
         --fits-data-tags lyt_10nm_testing --first-n-rows 25000
-    python3 main.py convert_picd_instrument_data picd_instrument_data_no_aberrations 2 24 \
-        --fits-data-tags lyt_base_field --base-field-data
     # Technically ±39.995 nm RMS error
     python3 main.py convert_picd_instrument_data picd_instrument_data_single_zernikes_pm40 2 24 \
         --fits-data-tags lyt_single_zernikes --first-n-rows 46000 --slice-row-ranges 4600 4623 41377 41400
+
+    # IMPORTANT NOTE: the base field produced by `lyt_base_field` (400 rows of PRIMARY) seems to be incorrect.
+    # Therefore, it is recommended to use `lyt_10nm_testing` (last 70k rows of IMAGE); 100k rows saved for
+    # every datafile, but only first 25k rows are being used, so the last 75k rows all have no aberrations.
+    python3 main.py convert_picd_instrument_data picd_instrument_data_no_aberrations 2 24 \
+        --fits-data-tags lyt_base_field --base-field-data
+    # Manually set to use the last 70k rows of IMAGE
+    python3 main.py convert_picd_instrument_data picd_instrument_data_no_aberrations_v2 2 24 \
+        --fits-data-tags lyt_10nm_testing --base-field-data
 
 Once the files are converted, they can be preprocessed:
 
@@ -144,7 +151,7 @@ Once the files are converted, they can be preprocessed:
         train_picd_data val_picd_data test_picd_data \
         80 15 5 \
         --norm-outputs individually --norm-range-ones \
-        --use-field-diff picd_instrument_data_no_aberrations \
+        --use-field-diff picd_instrument_data_no_aberrations_v2 \
         --additional-raw-data-tags-train-only picd_instrument_data_single_zernikes
 
     # Preprocess the testing data
@@ -180,7 +187,7 @@ Create the RM:
 
     python3 main.py create_response_matrix \
         --simulated-data-tag-average picd_instrument_data_single_zernikes_pm40 \
-        --base-field-tag picd_instrument_data_no_aberrations
+        --base-field-tag picd_instrument_data_no_aberrations_v2
 
 Then, the RM can be tested:
 
