@@ -111,6 +111,8 @@ def plot_control_loop_zernikes_subplots(
                 if extra_zernike_coeffs is not None:
                     axs_cell.psd(extra_cell_data, Fs=sampling_freq, label='B')
             else:
+                # Plot the line along zero
+                axs_cell.plot(np.zeros_like(cell_data), color='black')
                 axs_cell.plot(cell_data, label='A')
                 if extra_zernike_coeffs is not None:
                     axs_cell.plot(extra_cell_data, label='B')
