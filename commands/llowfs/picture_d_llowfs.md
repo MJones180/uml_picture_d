@@ -188,7 +188,7 @@ The newly converted HDF datafiles should be preprocessed.
         picd_instrument_data_25k_10nm_raw_processed
 
 SEC7 - CNN TRAINING AND TESTING ++++++++++++++++++++++++++++++++++++++++++++++++
-Train and test the CNN model on the instrument data.
+Train, test, and export the CNN model created from the instrument data.
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     python3 main_scnp.py model_train picd_cnn_round_one \
@@ -209,6 +209,10 @@ Train and test the CNN model on the instrument data.
     python3 main.py model_test picd_cnn last \
         picd_instrument_data_single_zernikes_raw_processed \
         --zernike-plots --inputs-need-norm --inputs-need-diff
+
+    # Export the model so that it can be used in the `pytorch_model_in_c` repo
+    # via ONNX runtime.
+    python3 main.py export_model picd_cnn last val_picd_data --benchmark 5000
 
 SEC8 - RM CREATION AND TESTING +++++++++++++++++++++++++++++++++++++++++++++++++
 Create and test the RM model on the instrument data.
