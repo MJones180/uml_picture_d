@@ -132,6 +132,8 @@ def plot_control_loop_zernikes_subplots(
             if plot_col == 0:
                 label = 'PSD\n[nm RMS/Hz]' if plot_psd else 'Coeffs\n[nm RMS]'
                 axs_cell.set_ylabel(label)
+            # Remove the padding on the left and right sides of the subplots
+            axs_cell.set_xmargin(0)
             current_col += 1
 
     # Add the legend only if the labels were passed
