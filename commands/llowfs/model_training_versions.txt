@@ -1614,3 +1614,93 @@ After model testing, it is useful to rank the model analyses:
         weighted_aberration_ranges_local_v4_tanh_relu last \
         test_fixed_2000_and_random_weighted_group_ranges_local_v4 \
         --scatter-plot 4 6 2 0 15
+
+[V54a] The `V49_speedup_1` tag:
+
+    python3 main_scnp.py model_train \
+        V49_speedup_1_round_one \
+        train_fixed_2000_and_random_weighted_group_ranges_local_v4 \
+        val_fixed_2000_and_random_weighted_group_ranges_local_v4 \
+        speedup_1 mae adam 1e-5 1000 --batch-size 256 \
+        --overwrite-existing --only-best-epoch --early-stopping 15
+
+    python3 main_scnp.py model_train \
+        V49_speedup_1 \
+        train_fixed_2000_and_random_weighted_group_ranges_local_v4 \
+        val_fixed_2000_and_random_weighted_group_ranges_local_v4 \
+        speedup_1 mae adam 1e-8 200 --batch-size 128 \
+        --overwrite-existing --only-best-epoch --early-stopping 15 \
+        --init-weights V49_speedup_1_round_one last
+
+    python3 main.py model_test \
+        V49_speedup_1 last fixed_50nm_range_approx_processed \
+        --zernike-plots --inputs-need-norm --inputs-need-diff
+
+    python3 main.py model_test \
+        V49_speedup_1 last random_10nm_med_approx_processed \
+        --scatter-plot 4 6 2 1e-7 15 --inputs-need-norm --inputs-need-diff
+
+    python3 main.py model_test \
+        V49_speedup_1 last \
+        test_fixed_2000_and_random_weighted_group_ranges_local_v4 \
+        --scatter-plot 4 6 2 0 15
+
+[V54b] The `V49_speedup_2` tag:
+
+    python3 main_scnp.py model_train \
+        V49_speedup_2_round_one \
+        train_fixed_2000_and_random_weighted_group_ranges_local_v4 \
+        val_fixed_2000_and_random_weighted_group_ranges_local_v4 \
+        speedup_2 mae adam 1e-5 1000 --batch-size 256 \
+        --overwrite-existing --only-best-epoch --early-stopping 15
+
+    python3 main_scnp.py model_train \
+        V49_speedup_2 \
+        train_fixed_2000_and_random_weighted_group_ranges_local_v4 \
+        val_fixed_2000_and_random_weighted_group_ranges_local_v4 \
+        speedup_2 mae adam 1e-8 200 --batch-size 128 \
+        --overwrite-existing --only-best-epoch --early-stopping 15 \
+        --init-weights V49_speedup_2_round_one last
+
+    python3 main.py model_test \
+        V49_speedup_2 last fixed_50nm_range_approx_processed \
+        --zernike-plots --inputs-need-norm --inputs-need-diff
+
+    python3 main.py model_test \
+        V49_speedup_2 last random_10nm_med_approx_processed \
+        --scatter-plot 4 6 2 1e-7 15 --inputs-need-norm --inputs-need-diff
+
+    python3 main.py model_test \
+        V49_speedup_2 last \
+        test_fixed_2000_and_random_weighted_group_ranges_local_v4 \
+        --scatter-plot 4 6 2 0 15
+
+[V54c] The `V49_speedup_3` tag:
+
+    python3 main_scnp.py model_train \
+        V49_speedup_3_round_one \
+        train_fixed_2000_and_random_weighted_group_ranges_local_v4 \
+        val_fixed_2000_and_random_weighted_group_ranges_local_v4 \
+        speedup_3 mae adam 1e-5 1000 --batch-size 256 \
+        --overwrite-existing --only-best-epoch --early-stopping 15
+
+    python3 main_scnp.py model_train \
+        V49_speedup_3 \
+        train_fixed_2000_and_random_weighted_group_ranges_local_v4 \
+        val_fixed_2000_and_random_weighted_group_ranges_local_v4 \
+        speedup_3 mae adam 1e-8 200 --batch-size 128 \
+        --overwrite-existing --only-best-epoch --early-stopping 15 \
+        --init-weights V49_speedup_3_round_one last
+
+    python3 main.py model_test \
+        V49_speedup_3 last fixed_50nm_range_approx_processed \
+        --zernike-plots --inputs-need-norm --inputs-need-diff
+
+    python3 main.py model_test \
+        V49_speedup_3 last random_10nm_med_approx_processed \
+        --scatter-plot 4 6 2 1e-7 15 --inputs-need-norm --inputs-need-diff
+
+    python3 main.py model_test \
+        V49_speedup_3 last \
+        test_fixed_2000_and_random_weighted_group_ranges_local_v4 \
+        --scatter-plot 4 6 2 0 15
