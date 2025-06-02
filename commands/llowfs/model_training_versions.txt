@@ -1780,7 +1780,7 @@ After model testing, it is useful to rank the model analyses:
         val_fixed_2000_and_random_weighted_group_ranges_local_v4 \
         speedup_6 mae adam 1e-8 200 --batch-size 128 \
         --overwrite-existing --only-best-epoch --early-stopping 15 \
-        --init-weights V49_speedup_6_round_onb last
+        --init-weights V49_speedup_6_round_one last
 
     python3 main.py model_test \
         V49_speedup_6 last fixed_50nm_range_approx_processed \
