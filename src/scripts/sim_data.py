@@ -209,9 +209,9 @@ def sim_data_parser(subparsers):
     DM_group = subparser.add_mutually_exclusive_group()
     DM_group.add_argument(
         '--single-actuator-pokes',
-        type=float,
-        help=('poke each actuator one at a time across all DMs, amount to '
-              'poke each actuator by must be provided in nm'),
+        nargs=2,
+        metavar=('[poke amount in nm]', '[max actuators per DM or 0 for all]'),
+        help='will poke each actuator one at a time across all DMs',
     )
 
 
@@ -471,7 +471,7 @@ def sim_data(cli_args):
 
     extra_params = {}
     dm_spec = getattr(optical_train_module, OT_DM_LIST, None)
-    if dm_spec:
+    if dm_spec and dm_spec != {}:
         step_ri('Loading in DMs from the optical train')
         dm_masks = []
         for dm_idx in sorted(dm_spec.keys()):
@@ -480,29 +480,70 @@ def sim_data(cli_args):
                   f'Actuators: {dm_mask.sum()}')
             dm_masks.append(dm_mask)
 
-        dm_count = len(dm_masks)
-
         # Make sure there are no aberrations being set when there are DMs
         if not cli_args['no_aberrations']:
             terminate_with_message('When using DMs, the `no_aberrations` '
                                    'option must be set.')
 
-    def single_actuator_pokes(poke_amount):
-        print('Each actuator will be poked one at a time')
-        for dm_idx, dm_mask in enumerate(dm_masks):
-            pass
+        def single_actuator_pokes(poke_amount, max_actuators_per_dm):
+            print('Each actuator will be poked one at a time')
+            # Typecast the args
+            poke_amount = float(poke_amount)
+            max_actuators_per_dm = int(max_actuators_per_dm)
+            # If this has a value of 0, it means use all possible DM actuators
+            if max_actuators_per_dm == 0:
+                max_actuators_per_dm = np.inf
+            # Figure out the total number of rows that will be simulated
+            total_rows = np.sum(
+                [min(arr.sum(), max_actuators_per_dm) for arr in dm_masks])
+            # Store the heights for each DM
+            all_dm_heights = []
+            # Keep track of which simulation it is
+            sim_idx = 0
+            # Loop through each DM
+            for dm_idx, dm_mask in enumerate(dm_masks):
+                # Create a grid of all zeros based on the size of the mask
+                all_zeros = np.zeros_like(dm_mask).astype(float)
+                # Copy the grid so there is a copy for every simulation
+                dm_heights = np.repeat(all_zeros[None], total_rows, axis=0)
+                # Keep track of how many rows this DM has used incase the
+                # `max_actuators_per_dm` variable is set
+                rows_for_dm = 0
+                # Grab a list of all indexes in the mask that have True values
+                for true_idx in np.argwhere(dm_mask):
+                    # Poke the next actuator in the next simulation
+                    dm_heights[sim_idx, *true_idx] = poke_amount
+                    # Increment the counters
+                    sim_idx += 1
+                    rows_for_dm += 1
+                    # End early if max actuators hit
+                    if rows_for_dm == max_actuators_per_dm:
+                        break
+                # Store the actuator heights for the simulations
+                all_dm_heights.append(dm_heights)
+            return all_dm_heights
 
-    print(DM_ACTUATOR_HEIGHTS(0))
-    print(DM_ACTUATOR_HEIGHTS(1))
-    quit()
+        # Call the correction procedure to set the DM heights
+        for key in ('single_actuator_pokes', ):
+            if cli_args[key]:
+                step_ri(f'Calling `{key}`')
+                dm_act_heights = locals()[key](*cli_args[key])
+                break
 
-    for key in ('single_actuator_pokes', ):
-        if cli_args[key]:
-            step_ri(f'Calling `{key}`')
-            aberrations = locals()[key](*cli_args[key])
-            extra_params = {DM_ACTUATOR_HEIGHTS}
-            break
-    print(f'Total rows being simulated: {aberrations.shape[0]}')
+        if len(dm_act_heights) != len(dm_masks):
+            terminate_with_message('No DM actuator height procedure chosen')
+        dm_row_counts = [heights.shape[0] for heights in dm_act_heights]
+        if len(set(dm_row_counts)) > 1:
+            terminate_with_message('All DMs must have the same number of rows')
+        # Store the actuator height arrays so they are passed to the simulations
+        for idx, heights in enumerate(dm_act_heights):
+            extra_params[DM_ACTUATOR_HEIGHTS(idx)] = heights
+        print(f'Total DM rows being simulated: {dm_row_counts[0]}')
+
+        # Simulations are technically based on the number of aberrations rows.
+        # However, since we are controlling the DMs and not the aberrations, we
+        # need to create a copy of the aberrations for every DM configuration.
+        aberrations = np.repeat(aberrations, dm_row_counts[0], axis=0)
 
     # ==========================================================================
     # SIMULATIONS
