@@ -7,9 +7,8 @@ A datafile will be outputted for every worker.
 import numpy as np
 from pathos.multiprocessing import ProcessPool
 from utils.cli_args import save_cli_args
-from utils.constants import (ABERRATIONS_F, DATA_F, DM_ACTUATOR_COUNT,
-                             DM_CIRCLE_SIZE, OT_DM_LIST, PLOTTING_LINEAR_INT,
-                             PLOTTING_LINEAR_PHASE,
+from utils.constants import (ABERRATIONS_F, DATA_F, DM_MASK, OT_DM_LIST,
+                             PLOTTING_LINEAR_INT, PLOTTING_LINEAR_PHASE,
                              PLOTTING_LINEAR_PHASE_NON0_INT, PLOTTING_LOG_INT,
                              PLOTTING_PATH, RAW_DATA_P)
 from utils.hdf_read_and_write import HDFWriteModule
@@ -209,6 +208,9 @@ def sim_data_parser(subparsers):
     DM_group = subparser.add_argument_group('DM Group', 'Used to control DMs')
     DM_group.add_argument(
         '--add-dms',
+        nargs='+',
+        metavar=('[nrows] [zernike term low] [zernike term high] '
+                 '[distribution center] [standard deviation]'),
         help='all DMs in the optical train should be added',
     )
 
@@ -253,28 +255,9 @@ def sim_data(cli_args):
         step_ri('Loading in DMs from the optical train')
         dm_masks = {}
         for dm_idx in sorted(dm_spec.keys()):
-            actuator_count = dm_spec[dm_idx][DM_ACTUATOR_COUNT]
-            # Default to a square DM
-            dm_mask = np.ones((actuator_count, actuator_count), dtype=int)
-            # If the circle size is set, then the DM is circular
-            circle_size = dm_spec[dm_idx].get(DM_CIRCLE_SIZE)
-            if circle_size:
-                # How far each actuator is from the middle
-                distances = np.arange(actuator_count) - (actuator_count // 2)
-                # If there are an even number of actuators, then there cannot
-                # be one at 0, so the actuators will be symmetric about 0
-                if actuator_count % 2 == 0:
-                    distances = distances + 0.5
-                # Scale the distances between -1 to 1
-                distances = distances / np.max(distances)
-                # Create a 2D grid of distances from the center
-                distance_grid = np.sqrt(distances[None, :]**2 +
-                                        distances[:, None]**2)
-                # Mask out all pixels that form a circle
-                dm_mask[distance_grid > circle_size] = 0
-            mask_shape = 'Circle' if circle_size else 'Square'
+            dm_mask = dm_spec[dm_idx][DM_MASK]
             print(f'DM {dm_idx} - Grid: {dm_mask.shape} - '
-                  f'Actuators: {dm_mask.sum()} ({mask_shape}, {circle_size})')
+                  f'Actuators: {dm_mask.sum()}')
             dm_masks[dm_idx] = dm_mask
 
     # add_dms = cli_args['add_dms']

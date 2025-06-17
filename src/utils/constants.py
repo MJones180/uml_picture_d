@@ -108,10 +108,9 @@ OT_OPTICAL_TRAIN = 'OPTICAL_TRAIN'
 # ==============================================================================
 # Deformable mirrors
 
-DM_ACTUATOR_COUNT = 'dm_actuator_count'
 DM_ACTUATOR_HEIGHTS = 'dm_actuator_heights'
 DM_ACTUATOR_SPACING = 'dm_actuator_spacing'
-DM_CIRCLE_SIZE = 'dm_circle_size'
+DM_MASK = 'dm_mask'
 
 # ==============================================================================
 # Simulation plotting commands

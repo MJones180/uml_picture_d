@@ -7,8 +7,9 @@ A diagram of PICTURE-D can be found in the `diagrams` folder under the
 
 from cbm_vvc_mft import cbm_vvc_approx
 import proper
-from utils.constants import (DM_ACTUATOR_COUNT, DM_ACTUATOR_HEIGHTS,
-                             DM_ACTUATOR_SPACING, DM_CIRCLE_SIZE, VVC_CHARGE)
+from utils.constants import (DM_ACTUATOR_HEIGHTS, DM_ACTUATOR_SPACING, DM_MASK,
+                             VVC_CHARGE)
+from utils.create_grid_mask import create_grid_mask
 
 # Diameter of the initial beam
 INIT_BEAM_D = 9e-3
@@ -24,18 +25,20 @@ BEAM_RATIO = 0.5
 CAMERA_PIXELS = 100
 CAMERA_SAMPLING = 7.4e-6
 
+# Both DMs in this train are the same
+DM_RADIUS = 17
+DM_SPACING = 0.003  # 3 mm
+
 # A list of each DM in the optical train, starting at index 0.
-# Each DM should have the same number of rows and columns of actuators.
+# Both DMs are circular on a 34x34 grid.
 DM_LIST = {
     0: {
-        DM_ACTUATOR_COUNT: 34,
-        DM_ACTUATOR_SPACING: 0.003,  # 3 mm
-        DM_CIRCLE_SIZE: 1.06,
+        DM_ACTUATOR_SPACING: DM_SPACING,
+        DM_MASK: create_grid_mask(DM_RADIUS * 2, 1.06),
     },
     1: {
-        DM_ACTUATOR_COUNT: 34,
-        DM_ACTUATOR_SPACING: 0.003,  # 3 mm
-        DM_CIRCLE_SIZE: 1.06,
+        DM_ACTUATOR_SPACING: DM_SPACING,
+        DM_MASK: create_grid_mask(DM_RADIUS * 2, 1.06),
     }
 }
 
@@ -43,13 +46,12 @@ DM_LIST = {
 OPTICAL_TRAIN = [
     [
         'HODM 1',
-        # The real DM is circular, this one is square
         lambda wf, extra_params: proper.prop_dm(
             wf,
             extra_params[DM_ACTUATOR_HEIGHTS][0],
-            DM_LIST[0][DM_ACTUATOR_COUNT] // 2,
-            DM_LIST[0][DM_ACTUATOR_COUNT] // 2,
-            DM_LIST[0][DM_ACTUATOR_SPACING],
+            DM_RADIUS,
+            DM_RADIUS,
+            DM_SPACING,
         ),
     ],
     [
@@ -58,13 +60,12 @@ OPTICAL_TRAIN = [
     ],
     [
         'HODM 2',
-        # The real DM is circular, this one is square
         lambda wf, extra_params: proper.prop_dm(
             wf,
             extra_params[DM_ACTUATOR_HEIGHTS][1],
-            DM_LIST[1][DM_ACTUATOR_COUNT] // 2,
-            DM_LIST[1][DM_ACTUATOR_COUNT] // 2,
-            DM_LIST[1][DM_ACTUATOR_SPACING],
+            DM_RADIUS,
+            DM_RADIUS,
+            DM_SPACING,
         ),
     ],
     [
