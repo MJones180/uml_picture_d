@@ -108,7 +108,7 @@ OT_OPTICAL_TRAIN = 'OPTICAL_TRAIN'
 # ==============================================================================
 # Deformable mirrors
 
-DM_ACTUATOR_HEIGHTS = 'dm_actuator_heights'
+DM_ACTUATOR_HEIGHTS = lambda n: f'dm_actuator_heights_{n}'  # noqa: E731
 DM_ACTUATOR_SPACING = 'dm_actuator_spacing'
 DM_MASK = 'dm_mask'
 

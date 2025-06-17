@@ -295,6 +295,8 @@ def multi_worker_sim_prop_many_wf(
         if save_full_intensity:
             simulation_data[FULL_INTENSITY] = []
             simulation_data[FULL_SAMPLING] = []
+        for key, array in extra_params_chunk.items():
+            simulation_data[key] = array
         plotting_dict = plotting.copy()
         plot_path = plotting_dict.pop(PLOTTING_PATH, None)
         for sim_idx in range(sim_count):

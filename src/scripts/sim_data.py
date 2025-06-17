@@ -7,8 +7,9 @@ A datafile will be outputted for every worker.
 import numpy as np
 from pathos.multiprocessing import ProcessPool
 from utils.cli_args import save_cli_args
-from utils.constants import (ABERRATIONS_F, DATA_F, DM_MASK, OT_DM_LIST,
-                             PLOTTING_LINEAR_INT, PLOTTING_LINEAR_PHASE,
+from utils.constants import (ABERRATIONS_F, DATA_F, DM_ACTUATOR_HEIGHTS,
+                             DM_MASK, OT_DM_LIST, PLOTTING_LINEAR_INT,
+                             PLOTTING_LINEAR_PHASE,
                              PLOTTING_LINEAR_PHASE_NON0_INT, PLOTTING_LOG_INT,
                              PLOTTING_PATH, RAW_DATA_P)
 from utils.hdf_read_and_write import HDFWriteModule
@@ -205,18 +206,21 @@ def sim_data_parser(subparsers):
               'any negative values, write them as \" -number\"'),
     )
 
-    DM_group = subparser.add_argument_group('DM Group', 'Used to control DMs')
+    DM_group = subparser.add_mutually_exclusive_group()
     DM_group.add_argument(
-        '--add-dms',
-        nargs='+',
-        metavar=('[nrows] [zernike term low] [zernike term high] '
-                 '[distribution center] [standard deviation]'),
-        help='all DMs in the optical train should be added',
+        '--single-actuator-pokes',
+        type=float,
+        help=('poke each actuator one at a time across all DMs, amount to '
+              'poke each actuator by must be provided in nm'),
     )
 
 
 def sim_data(cli_args):
     title('Simulate data script')
+
+    # ==========================================================================
+    # INITIAL SETUP
+    # ==========================================================================
 
     step_ri('Creating the process pool')
     cores = cli_args['cores']
@@ -250,19 +254,9 @@ def sim_data(cli_args):
     (init_beam_d, beam_ratio, optical_train, camera_pixels, camera_sampling,
      optical_train_module) = load_optical_train(train_name)
 
-    dm_spec = getattr(optical_train_module, OT_DM_LIST, None)
-    if dm_spec:
-        step_ri('Loading in DMs from the optical train')
-        dm_masks = {}
-        for dm_idx in sorted(dm_spec.keys()):
-            dm_mask = dm_spec[dm_idx][DM_MASK]
-            print(f'DM {dm_idx} - Grid: {dm_mask.shape} - '
-                  f'Actuators: {dm_mask.sum()}')
-            dm_masks[dm_idx] = dm_mask
-
-    # add_dms = cli_args['add_dms']
-    # if add_dms is not None:
-    #     step_ri('Simulating DM actuators')
+    # ==========================================================================
+    # ADD IN ABERRATIONS
+    # ==========================================================================
 
     step_ri('Determining aberrations')
     zernike_terms = None
@@ -315,7 +309,7 @@ def sim_data(cli_args):
     rng = np.random.default_rng()
 
     def no_aberrations(idx_low, idx_high):
-        print('A signle row with no aberrations')
+        print('A single row with no aberrations')
         _gen_zernike_terms(idx_low, idx_high)
         return np.full((1, col_count), 0)
 
@@ -454,7 +448,7 @@ def sim_data(cli_args):
         print('Adding a blank row of zeros at the end')
         # Add a blank row of zeros at the end
         aberrations = np.vstack((aberrations, np.zeros(aberrations.shape[1])))
-    print(f'Total rows being simulated: {aberrations.shape[0]}')
+    print(f'Total aberration rows being simulated: {aberrations.shape[0]}')
 
     if save_aberrations_csv or save_aberrations_csv_quit:
         step_ri('Saving the aberrations')
@@ -470,6 +464,49 @@ def sim_data(cli_args):
         print(f'Saved to {aber_path}')
         if save_aberrations_csv_quit:
             quit()
+
+    # ==========================================================================
+    # ADD IN DM COMMANDS
+    # ==========================================================================
+
+    extra_params = {}
+    dm_spec = getattr(optical_train_module, OT_DM_LIST, None)
+    if dm_spec:
+        step_ri('Loading in DMs from the optical train')
+        dm_masks = []
+        for dm_idx in sorted(dm_spec.keys()):
+            dm_mask = dm_spec[dm_idx][DM_MASK]
+            print(f'DM {dm_idx} - Grid: {dm_mask.shape} - '
+                  f'Actuators: {dm_mask.sum()}')
+            dm_masks.append(dm_mask)
+
+        dm_count = len(dm_masks)
+
+        # Make sure there are no aberrations being set when there are DMs
+        if not cli_args['no_aberrations']:
+            terminate_with_message('When using DMs, the `no_aberrations` '
+                                   'option must be set.')
+
+    def single_actuator_pokes(poke_amount):
+        print('Each actuator will be poked one at a time')
+        for dm_idx, dm_mask in enumerate(dm_masks):
+            pass
+
+    print(DM_ACTUATOR_HEIGHTS(0))
+    print(DM_ACTUATOR_HEIGHTS(1))
+    quit()
+
+    for key in ('single_actuator_pokes', ):
+        if cli_args[key]:
+            step_ri(f'Calling `{key}`')
+            aberrations = locals()[key](*cli_args[key])
+            extra_params = {DM_ACTUATOR_HEIGHTS}
+            break
+    print(f'Total rows being simulated: {aberrations.shape[0]}')
+
+    # ==========================================================================
+    # SIMULATIONS
+    # ==========================================================================
 
     def write_cb(worker_idx, simulation_data):
         print(f'Worker [{worker_idx}] writing out data')
@@ -502,6 +539,7 @@ def sim_data(cli_args):
         camera_sampling,
         zernike_terms,
         aberrations,
+        extra_params=extra_params,
         save_full_intensity=save_full_intensity,
         grid_points=grid_points,
         plotting=plotting,
@@ -510,6 +548,10 @@ def sim_data(cli_args):
         worker_post_cb=write_cb,
         do_not_return_data=True,
     )
+
+    # ==========================================================================
+    # DONE
+    # ==========================================================================
 
     step_ri('Simulations completed')
     # Close the pool to any new jobs and remove it

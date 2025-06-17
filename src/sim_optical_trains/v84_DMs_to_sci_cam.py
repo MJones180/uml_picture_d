@@ -48,7 +48,7 @@ OPTICAL_TRAIN = [
         'HODM 1',
         lambda wf, extra_params: proper.prop_dm(
             wf,
-            extra_params[DM_ACTUATOR_HEIGHTS][0],
+            extra_params[DM_ACTUATOR_HEIGHTS(0)],
             DM_RADIUS,
             DM_RADIUS,
             DM_SPACING,
@@ -62,7 +62,7 @@ OPTICAL_TRAIN = [
         'HODM 2',
         lambda wf, extra_params: proper.prop_dm(
             wf,
-            extra_params[DM_ACTUATOR_HEIGHTS][1],
+            extra_params[DM_ACTUATOR_HEIGHTS(1)],
             DM_RADIUS,
             DM_RADIUS,
             DM_SPACING,
