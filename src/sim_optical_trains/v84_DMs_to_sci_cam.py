@@ -7,7 +7,8 @@ A diagram of PICTURE-D can be found in the `diagrams` folder under the
 
 from cbm_vvc_mft import cbm_vvc_approx
 import proper
-from utils.constants import DM_ACTUATOR_HEIGHTS, VVC_CHARGE
+from utils.constants import (DM_ACTUATOR_COUNT, DM_ACTUATOR_HEIGHTS,
+                             DM_ACTUATOR_SPACING, DM_CIRCLE_SIZE, VVC_CHARGE)
 
 # Diameter of the initial beam
 INIT_BEAM_D = 9e-3
@@ -17,17 +18,26 @@ lyot_stop_hole_r = INIT_BEAM_D * 0.9 / 2
 
 # Ratio of the beam to the grid
 BEAM_RATIO = 0.5
+# INIT_BEAM_D / lyot_stop_outer_d * 0.95
 
 # Number of pixels and sampling size for the final camera
 CAMERA_PIXELS = 100
 CAMERA_SAMPLING = 7.4e-6
 
-# The DMs are assumed to be a square, so this is the number of rows and
-# columns of actuators
-DM_ACTUATOR_COUNT = 34
-DM_ACTUATOR_COUNT_HALF = DM_ACTUATOR_COUNT / 2
-# The spacing between each actuator
-DM_ACTUATOR_SPACING = 0.003  # 3 mm
+# A list of each DM in the optical train, starting at index 0.
+# Each DM should have the same number of rows and columns of actuators.
+DM_LIST = {
+    0: {
+        DM_ACTUATOR_COUNT: 34,
+        DM_ACTUATOR_SPACING: 0.003,  # 3 mm
+        DM_CIRCLE_SIZE: 1.06,
+    },
+    1: {
+        DM_ACTUATOR_COUNT: 34,
+        DM_ACTUATOR_SPACING: 0.003,  # 3 mm
+        DM_CIRCLE_SIZE: 1.06,
+    }
+}
 
 # All distances are in meters. Assume the beam starts at HODM 1.
 OPTICAL_TRAIN = [
@@ -37,9 +47,9 @@ OPTICAL_TRAIN = [
         lambda wf, extra_params: proper.prop_dm(
             wf,
             extra_params[DM_ACTUATOR_HEIGHTS][0],
-            DM_ACTUATOR_COUNT_HALF,
-            DM_ACTUATOR_COUNT_HALF,
-            DM_ACTUATOR_SPACING,
+            DM_LIST[0][DM_ACTUATOR_COUNT] // 2,
+            DM_LIST[0][DM_ACTUATOR_COUNT] // 2,
+            DM_LIST[0][DM_ACTUATOR_SPACING],
         ),
     ],
     [
@@ -52,9 +62,9 @@ OPTICAL_TRAIN = [
         lambda wf, extra_params: proper.prop_dm(
             wf,
             extra_params[DM_ACTUATOR_HEIGHTS][1],
-            DM_ACTUATOR_COUNT_HALF,
-            DM_ACTUATOR_COUNT_HALF,
-            DM_ACTUATOR_SPACING,
+            DM_LIST[1][DM_ACTUATOR_COUNT] // 2,
+            DM_LIST[1][DM_ACTUATOR_COUNT] // 2,
+            DM_LIST[1][DM_ACTUATOR_SPACING],
         ),
     ],
     [

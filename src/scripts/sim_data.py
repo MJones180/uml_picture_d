@@ -7,7 +7,8 @@ A datafile will be outputted for every worker.
 import numpy as np
 from pathos.multiprocessing import ProcessPool
 from utils.cli_args import save_cli_args
-from utils.constants import (ABERRATIONS_F, DATA_F, PLOTTING_LINEAR_INT,
+from utils.constants import (ABERRATIONS_F, DATA_F, DM_ACTUATOR_COUNT,
+                             DM_CIRCLE_SIZE, OT_DM_LIST, PLOTTING_LINEAR_INT,
                              PLOTTING_LINEAR_PHASE,
                              PLOTTING_LINEAR_PHASE_NON0_INT, PLOTTING_LOG_INT,
                              PLOTTING_PATH, RAW_DATA_P)
@@ -208,7 +209,7 @@ def sim_data_parser(subparsers):
     DM_group = subparser.add_argument_group('DM Group', 'Used to control DMs')
     DM_group.add_argument(
         '--add-dms',
-        help='simulate DM actuators',
+        help='all DMs in the optical train should be added',
     )
 
 
@@ -244,8 +245,41 @@ def sim_data(cli_args):
     save_cli_args(output_path, cli_args, 'sim_data')
 
     step_ri('Loading in the optical train')
-    (init_beam_d, beam_ratio, optical_train, camera_pixels,
-     camera_sampling) = load_optical_train(train_name)
+    (init_beam_d, beam_ratio, optical_train, camera_pixels, camera_sampling,
+     optical_train_module) = load_optical_train(train_name)
+
+    dm_spec = getattr(optical_train_module, OT_DM_LIST, None)
+    if dm_spec:
+        step_ri('Loading in DMs from the optical train')
+        dm_masks = {}
+        for dm_idx in sorted(dm_spec.keys()):
+            actuator_count = dm_spec[dm_idx][DM_ACTUATOR_COUNT]
+            # Default to a square DM
+            dm_mask = np.ones((actuator_count, actuator_count), dtype=int)
+            # If the circle size is set, then the DM is circular
+            circle_size = dm_spec[dm_idx].get(DM_CIRCLE_SIZE)
+            if circle_size:
+                # How far each actuator is from the middle
+                distances = np.arange(actuator_count) - (actuator_count // 2)
+                # If there are an even number of actuators, then there cannot
+                # be one at 0, so the actuators will be symmetric about 0
+                if actuator_count % 2 == 0:
+                    distances = distances + 0.5
+                # Scale the distances between -1 to 1
+                distances = distances / np.max(distances)
+                # Create a 2D grid of distances from the center
+                distance_grid = np.sqrt(distances[None, :]**2 +
+                                        distances[:, None]**2)
+                # Mask out all pixels that form a circle
+                dm_mask[distance_grid > circle_size] = 0
+            mask_shape = 'Circle' if circle_size else 'Square'
+            print(f'DM {dm_idx} - Grid: {dm_mask.shape} - '
+                  f'Actuators: {dm_mask.sum()} ({mask_shape}, {circle_size})')
+            dm_masks[dm_idx] = dm_mask
+
+    # add_dms = cli_args['add_dms']
+    # if add_dms is not None:
+    #     step_ri('Simulating DM actuators')
 
     step_ri('Determining aberrations')
     zernike_terms = None
@@ -453,31 +487,6 @@ def sim_data(cli_args):
         print(f'Saved to {aber_path}')
         if save_aberrations_csv_quit:
             quit()
-
-    add_dms = cli_args['add_dms']
-    if add_dms is not None:
-        step_ri('Simulating DM actuators')
-        # ==============================================================
-        # Code to find the circle of actuators that should be controlled
-        # ==============================================================
-        # SIZE = 34
-        # # How far each value is from the middle
-        # distances = np.arange(SIZE) - (SIZE // 2)
-        # # If the grid is evenly sized, then there cannot be a point at 0;
-        # # the points will have to be symmetric around 0
-        # if SIZE % 2 == 0:
-        #     distances = distances + 0.5
-        # # Normalize the distances between -1 to 1
-        # distances = distances / np.max(distances)
-        # # Create a grid of all distances from the center
-        # distance_grid = np.sqrt(distances[None, :]**2 + distances[:, None]**2)
-        # # Mask out all pixels that form a circle
-        # grid = np.zeros((SIZE, SIZE))
-        # grid[distance_grid <= 1.06] = 1
-        # # Print the grid out
-        # [print([int(v) for v in row]) for row in grid]
-        # print(f'Total circle pixels: {np.sum(grid)}/{SIZE**2}')
-        # # 952 is the number of actuators on our HODMs
 
     def write_cb(worker_idx, simulation_data):
         print(f'Worker [{worker_idx}] writing out data')

@@ -93,9 +93,25 @@ OPTIMIZERS = {
 # ==============================================================================
 # PROPER simulation code constants
 
-DM_ACTUATOR_HEIGHTS = 'dm_actuator_heights'
-# Vector Vortex Coronagraph charge
 VVC_CHARGE = 6
+
+# ==============================================================================
+# Keys that appear in optical train files
+
+OT_BEAM_RATIO = 'BEAM_RATIO'
+OT_CAMERA_PIXELS = 'CAMERA_PIXELS'
+OT_CAMERA_SAMPLING = 'CAMERA_SAMPLING'
+OT_DM_LIST = 'DM_LIST'
+OT_INIT_BEAM_D = 'INIT_BEAM_D'
+OT_OPTICAL_TRAIN = 'OPTICAL_TRAIN'
+
+# ==============================================================================
+# Deformable mirrors
+
+DM_ACTUATOR_COUNT = 'dm_actuator_count'
+DM_ACTUATOR_HEIGHTS = 'dm_actuator_heights'
+DM_ACTUATOR_SPACING = 'dm_actuator_spacing'
+DM_CIRCLE_SIZE = 'dm_circle_size'
 
 # ==============================================================================
 # Simulation plotting commands
