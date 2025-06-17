@@ -109,8 +109,8 @@ def find_wavefront_coeffs_v3(cli_args):
     grid_points = int(bf_cli_args['grid_points'])
 
     step_ri('Loading in the optical train')
-    (init_beam_d, beam_ratio, optical_train, camera_pixels,
-     camera_sampling) = load_optical_train(train_name)
+    (init_beam_d, beam_ratio, optical_train, camera_pixels, camera_sampling,
+     _) = load_optical_train(train_name)
 
     step_ri('Loading in the test dataset')
     test_ds_data = load_raw_sim_data_chunks(test_ds, use_full_field)

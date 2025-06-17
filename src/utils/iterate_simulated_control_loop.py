@@ -103,8 +103,8 @@ def iterate_simulated_control_loop(
         if enable_logs:
             step_ri('Loading in the optical train')
         loaded_optical_trains[train_name] = load_optical_train(train_name)
-    (init_beam_d, beam_ratio, optical_train, camera_pixels,
-     camera_sampling) = loaded_optical_trains[train_name]
+    (init_beam_d, beam_ratio, optical_train, camera_pixels, camera_sampling,
+     _) = loaded_optical_trains[train_name]
 
     # ==============
     # Grab the model
