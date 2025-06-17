@@ -12,22 +12,21 @@ from utils.constants import (DM_ACTUATOR_HEIGHTS, DM_ACTUATOR_SPACING, DM_MASK,
 from utils.create_grid_mask import create_grid_mask
 
 # Diameter of the initial beam
-INIT_BEAM_D = 9e-3
-
-# Lyot stop
-lyot_stop_hole_r = INIT_BEAM_D * 0.9 / 2
+INIT_BEAM_D = 0.0099
 
 # Ratio of the beam to the grid
-BEAM_RATIO = 0.5
-# INIT_BEAM_D / lyot_stop_outer_d * 0.95
+BEAM_RATIO = 0.50
 
 # Number of pixels and sampling size for the final camera
-CAMERA_PIXELS = 100
-CAMERA_SAMPLING = 7.4e-6
+CAMERA_PIXELS = 1024
+CAMERA_SAMPLING = 13e-6
+
+# Lyot stop
+LYOT_STOP_HOLE_R = INIT_BEAM_D * 0.9 / 2
 
 # Both DMs in this train are the same
-DM_RADIUS = 17
-DM_SPACING = 0.003  # 3 mm
+DM_RADIUS = 17  # In pixels
+DM_SPACING = 0.00029  # 0.29 mm
 
 # A list of each DM in the optical train, starting at index 0.
 # Both DMs are circular on a 34x34 grid.
@@ -102,8 +101,8 @@ OPTICAL_TRAIN = [
         'Lyot Stop',
         lambda wf: proper.prop_elliptical_aperture(
             wf,
-            lyot_stop_hole_r,
-            lyot_stop_hole_r,
+            LYOT_STOP_HOLE_R,
+            LYOT_STOP_HOLE_R,
         ),
     ],
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
