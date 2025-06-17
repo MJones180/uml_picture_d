@@ -20,7 +20,7 @@ def plot_wavefront(
     plot_points = data.shape[0]
     # Reset the plot
     plt.clf()
-    plt.title(title)
+    plt.title(title, pad=20)
     if use_log:
         # Ignore divide by zero errors here if they occurr
         with np.errstate(divide='ignore'):
@@ -32,7 +32,7 @@ def plot_wavefront(
         plt.imshow(data, cmap='Greys_r')
     plt.xlabel('X [mm]')
     plt.ylabel('Y [mm]')
-    tick_count = 7
+    tick_count = 3
     tick_locations = np.linspace(0, plot_points - 1, tick_count)
     # Half the width of the grid in mm (originally in meters)
     grid_rad_mm = 1e3 * plot_sampling * plot_points / 2
