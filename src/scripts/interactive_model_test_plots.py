@@ -9,9 +9,9 @@ modularized, but that is a task for another day.
 import numpy as np
 from utils.constants import (ANALYSIS_P, RESULTS_F)
 from utils.hdf_read_and_write import read_hdf
-from utils.plots.plot_comparison_scatter_grid import plot_comparison_scatter_grid  # noqa
+from utils.plots.plot_comparison_scatter_grid import plot_comparison_scatter_grid  # noqa: E501
 from utils.plots.plot_zernike_response import plot_zernike_response
-from utils.plots.plot_zernike_total_cross_coupling import plot_zernike_total_cross_coupling  # noqa
+from utils.plots.plot_zernike_total_cross_coupling import plot_zernike_total_cross_coupling  # noqa: E501
 from utils.printing_and_logging import step_ri, title
 from utils.shared_argparser_args import shared_argparser_args
 

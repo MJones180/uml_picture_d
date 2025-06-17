@@ -19,11 +19,11 @@ from utils.constants import (ANALYSIS_P, EXTRA_VARS_F, INPUT_MAX_MIN_DIFF,
 from utils.hdf_read_and_write import HDFWriteModule, read_hdf
 from utils.norm import min_max_denorm
 from utils.path import delete_dir, get_abs_path, make_dir
-from utils.plots.plot_comparison_scatter_grid import plot_comparison_scatter_grid  # noqa
-from utils.plots.plot_zernike_cross_coupling_animation import plot_zernike_cross_coupling_animation  # noqa
-from utils.plots.plot_zernike_cross_coupling_mat_animation import plot_zernike_cross_coupling_mat_animation  # noqa
+from utils.plots.plot_comparison_scatter_grid import plot_comparison_scatter_grid  # noqa: E501
+from utils.plots.plot_zernike_cross_coupling_animation import plot_zernike_cross_coupling_animation  # noqa: E501
+from utils.plots.plot_zernike_cross_coupling_mat_animation import plot_zernike_cross_coupling_mat_animation  # noqa: E501
 from utils.plots.plot_zernike_response import plot_zernike_response
-from utils.plots.plot_zernike_total_cross_coupling import plot_zernike_total_cross_coupling  # noqa
+from utils.plots.plot_zernike_total_cross_coupling import plot_zernike_total_cross_coupling  # noqa: E501
 from utils.plots.paper_plots.total_crosstalk import paper_plot_total_crosstalk  # noqa
 from utils.plots.paper_plots.model_scatters import paper_plot_model_scatters  # noqa
 from utils.printing_and_logging import step_ri, title
