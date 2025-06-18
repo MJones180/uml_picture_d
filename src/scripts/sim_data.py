@@ -490,7 +490,6 @@ def sim_data(cli_args):
             print(f'DM {dm_idx} - Grid: {dm_mask.shape} - '
                   f'Actuators: {dm_mask.sum()}')
             dm_masks.append(dm_mask)
-        dm_count = len(dm_masks)
 
         def single_actuator_pokes(poke_amount, max_actuators_per_dm):
             print('Each actuator will be poked one at a time')
@@ -539,14 +538,13 @@ def sim_data(cli_args):
                 dm_act_heights = locals()[key](*cli_args[key])
                 break
 
-        if len(dm_act_heights) != dm_count:
+        # Verify actuator heights are set for each DM
+        if len(dm_act_heights) != len(dm_masks):
             terminate_with_message('No DM actuator height procedure chosen')
         dm_row_counts = [heights.shape[0] for heights in dm_act_heights]
+        # Verify each DM has the same number of actuator height rows
         if len(set(dm_row_counts)) > 1:
             terminate_with_message('All DMs must have the same number of rows')
-        # Store the actuator height arrays so they are passed to the simulations
-        for idx, heights in enumerate(dm_act_heights):
-            extra_params[DM_ACTUATOR_HEIGHTS(idx)] = heights
         dm_height_row_count = dm_row_counts[0]
         print(f'Total DM rows being simulated: {dm_height_row_count}')
 
@@ -576,12 +574,16 @@ def sim_data(cli_args):
             # Tile the DM heights across the total number of aberrations.
             # Tile of 2 for [A B] produces [A B A B].
             # This is a 3D array tiling on axis 0.
-            for dm_idx in range(dm_count):
-                extra_params[DM_ACTUATOR_HEIGHTS(dm_idx)] = np.tile(
-                    extra_params[DM_ACTUATOR_HEIGHTS(dm_idx)],
+            for dm_idx, dm_heights in enumerate(dm_act_heights):
+                dm_act_heights[dm_idx] = np.tile(
+                    dm_heights,
                     (aberration_row_count, 1, 1),
                 )
         print(f'Total rows being simulated: {total_rows}')
+
+        # Store the actuator height arrays so they are passed to the simulations
+        for idx, heights in enumerate(dm_act_heights):
+            extra_params[DM_ACTUATOR_HEIGHTS(idx)] = heights
 
     # ==========================================================================
     # SIMULATIONS
