@@ -493,6 +493,8 @@ def sim_data(cli_args):
             # If this has a value of 0, it means use all possible DM actuators
             if max_actuators_per_dm == 0:
                 max_actuators_per_dm = np.inf
+            else:
+                print(f'Each DM will have {max_actuators_per_dm} max pokes')
             # Figure out the total number of rows that will be simulated
             total_rows = np.sum(
                 [min(arr.sum(), max_actuators_per_dm) for arr in dm_masks])

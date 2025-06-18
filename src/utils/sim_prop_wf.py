@@ -6,7 +6,7 @@ from utils.constants import (CAMERA_INTENSITY, CAMERA_SAMPLING, FULL_INTENSITY,
                              PLOTTING_LINEAR_PHASE,
                              PLOTTING_LINEAR_PHASE_NON0_INT, PLOTTING_LOG_INT,
                              PLOTTING_PATH, ZERNIKE_COEFFS, ZERNIKE_TERMS)
-from utils.downsample_data import downsample_data, resize_pixel_grid
+from utils.resample_data import resample_data, resize_pixel_grid
 from utils.path import get_abs_path, make_dir
 from utils.printing_and_logging import step_ri
 from utils.plots.plot_wavefront import plot_wavefront
@@ -176,8 +176,8 @@ def sim_prop_wf(
         # The final wavefront intensity and sampling of its grid
         (wavefront_intensity, sampling) = proper.prop_end(wavefront)
         # Downsample to the camera
-        wf_int_ds = downsample_data(wavefront_intensity, sampling,
-                                    camera_sampling, camera_pixels)
+        wf_int_ds = resample_data(wavefront_intensity, sampling,
+                                  camera_sampling, camera_pixels)
     # Plot the downsampled camera wavefront
     _plot('Camera Resampled', intensity_arr=wf_int_ds)
     # Returns camera intensity wf, full intensity wf, and full sampling.
