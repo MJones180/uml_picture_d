@@ -93,6 +93,15 @@ def sim_data_parser(subparsers):
         action='store_true',
         help='do not propagate a wavefront and just store the aberration map',
     )
+    subparser.add_argument(
+        '--aberrations-and-dm-union',
+        action='store_true',
+        help=('by default, when there are DMs in the optical train, every '
+              'combination of specified aberrations (N) and DM actuator '
+              'heights (M) will be formed for a total of (N * M) simulated '
+              'rows; when this option is passed, N == M is required and there '
+              'will be a 1-to-1 mapping, for a total of N simulated rows'),
+    )
 
     aberrations_group = subparser.add_mutually_exclusive_group()
     aberrations_group.add_argument(
@@ -206,8 +215,8 @@ def sim_data_parser(subparsers):
               'any negative values, write them as \" -number\"'),
     )
 
-    DM_group = subparser.add_mutually_exclusive_group()
-    DM_group.add_argument(
+    dm_group = subparser.add_mutually_exclusive_group()
+    dm_group.add_argument(
         '--single-actuator-pokes',
         nargs=2,
         metavar=('[poke amount in nm]', '[max actuators per DM or 0 for all]'),
@@ -242,6 +251,7 @@ def sim_data(cli_args):
     save_aberrations_csv_quit = cli_args['save_aberrations_csv_quit']
     append_no_aberrations_row = cli_args['append_no_aberrations_row']
     use_only_aberration_map = cli_args['use_only_aberration_map']
+    aberrations_and_dm_union = cli_args['aberrations_and_dm_union']
 
     step_ri('Creating output directory')
     output_path = f'{RAW_DATA_P}/{tag}'
@@ -448,7 +458,8 @@ def sim_data(cli_args):
         print('Adding a blank row of zeros at the end')
         # Add a blank row of zeros at the end
         aberrations = np.vstack((aberrations, np.zeros(aberrations.shape[1])))
-    print(f'Total aberration rows being simulated: {aberrations.shape[0]}')
+    aberration_row_count = aberrations.shape[0]
+    print(f'Total aberration rows being simulated: {aberration_row_count}')
 
     if save_aberrations_csv or save_aberrations_csv_quit:
         step_ri('Saving the aberrations')
@@ -479,11 +490,7 @@ def sim_data(cli_args):
             print(f'DM {dm_idx} - Grid: {dm_mask.shape} - '
                   f'Actuators: {dm_mask.sum()}')
             dm_masks.append(dm_mask)
-
-        # Make sure there are no aberrations being set when there are DMs
-        if not cli_args['no_aberrations']:
-            terminate_with_message('When using DMs, the `no_aberrations` '
-                                   'option must be set.')
+        dm_count = len(dm_masks)
 
         def single_actuator_pokes(poke_amount, max_actuators_per_dm):
             print('Each actuator will be poked one at a time')
@@ -532,7 +539,7 @@ def sim_data(cli_args):
                 dm_act_heights = locals()[key](*cli_args[key])
                 break
 
-        if len(dm_act_heights) != len(dm_masks):
+        if len(dm_act_heights) != dm_count:
             terminate_with_message('No DM actuator height procedure chosen')
         dm_row_counts = [heights.shape[0] for heights in dm_act_heights]
         if len(set(dm_row_counts)) > 1:
@@ -540,12 +547,41 @@ def sim_data(cli_args):
         # Store the actuator height arrays so they are passed to the simulations
         for idx, heights in enumerate(dm_act_heights):
             extra_params[DM_ACTUATOR_HEIGHTS(idx)] = heights
-        print(f'Total DM rows being simulated: {dm_row_counts[0]}')
+        dm_height_row_count = dm_row_counts[0]
+        print(f'Total DM rows being simulated: {dm_height_row_count}')
 
+        step_ri('Matching up aberration rows with DM actuator height rows')
         # Simulations are technically based on the number of aberrations rows.
-        # However, since we are controlling the DMs and not the aberrations, we
-        # need to create a copy of the aberrations for every DM configuration.
-        aberrations = np.repeat(aberrations, dm_row_counts[0], axis=0)
+        # Therefore, a 1-to-1 mapping needs to be made between DM actuator
+        # heights and aberration coefficients. If `aberrations_and_dm_union` is
+        # passed, then there should be the same number of actuator height rows
+        # and aberration rows, in which case the two will be paired up 1-to-1.
+        # Otherwise, the product between the two row counts will be taken and
+        # each row will each be matched up to every other row.
+        if aberrations_and_dm_union:
+            print('Mapping each row 1-to-1 between the two')
+            total_rows = aberration_row_count
+            if aberration_row_count != dm_height_row_count:
+                terminate_with_message('Must have the same number of '
+                                       'aberration rows and DM height rows '
+                                       f'({aberration_row_count} != '
+                                       f'{dm_height_row_count})')
+        else:
+            print('Taking the product between the two')
+            total_rows = aberration_row_count * dm_height_row_count
+            # Repeat the aberrations across the total number of DM heights.
+            # Repeat of 2 for [A B] produces [A A B B].
+            # This is a 2D array repeating on axis 0.
+            aberrations = np.repeat(aberrations, dm_height_row_count, axis=0)
+            # Tile the DM heights across the total number of aberrations.
+            # Tile of 2 for [A B] produces [A B A B].
+            # This is a 3D array tiling on axis 0.
+            for dm_idx in range(dm_count):
+                extra_params[DM_ACTUATOR_HEIGHTS(dm_idx)] = np.tile(
+                    extra_params[DM_ACTUATOR_HEIGHTS(dm_idx)],
+                    (aberration_row_count, 1, 1),
+                )
+        print(f'Total rows being simulated: {total_rows}')
 
     # ==========================================================================
     # SIMULATIONS
