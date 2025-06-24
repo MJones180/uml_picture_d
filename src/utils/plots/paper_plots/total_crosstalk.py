@@ -66,13 +66,17 @@ def paper_plot_total_crosstalk(
             color=colors[term_idx],
         )
     # Plot the total crosstalk from all Zernikes
-    ax.plot(
+    ax.fill_between(
         perturbation_grid,
         crosstalk_total,
+        color='#F3F3F3',
+        edgecolor='black',
         linestyle='--',
+        linewidth=1,
         label=r'$\gamma_{:,a}$',
-        color='black',
     )
+    # Remove margin on top and bottom of plot
+    ax.set_ymargin(0)
     # Display the legend to the right middle of the plot
     ax.legend(loc='center left', bbox_to_anchor=(1.01, 0.5))
 
