@@ -219,8 +219,18 @@ def sim_data_parser(subparsers):
     dm_group.add_argument(
         '--single-actuator-pokes',
         nargs=2,
-        metavar=('[poke amount in nm]', '[max actuators per DM or 0 for all]'),
+        metavar=('[poke amount in meters]',
+                 '[max actuators per DM or 0 for all]'),
         help='will poke each actuator one at a time across all DMs',
+    )
+
+    dm_group.add_argument(
+        '--rand-actuator-heights',
+        nargs='+',
+        metavar='[nrows] [stroke low in meters] [stroke high in meters]',
+        help=('will set a uniformly random height on each actuator that is '
+              'between the valid stroke range; the two arguments that specify '
+              'the stroke range must be set for each DM'),
     )
 
 
@@ -486,7 +496,7 @@ def sim_data(cli_args):
         step_ri('Loading in DMs from the optical train')
         dm_masks = []
         for dm_idx in sorted(dm_spec.keys()):
-            dm_mask = dm_spec[dm_idx][DM_MASK]
+            dm_mask = dm_spec[dm_idx][DM_MASK].astype(bool)
             print(f'DM {dm_idx} - Grid: {dm_mask.shape} - '
                   f'Actuators: {dm_mask.sum()}')
             dm_masks.append(dm_mask)
@@ -531,8 +541,30 @@ def sim_data(cli_args):
                 all_dm_heights.append(dm_heights)
             return all_dm_heights
 
+        def rand_actuator_heights(rows, *dm_stroke_ranges):
+            print('Each actuator will be poked with a uniformly random height '
+                  'from the valid stroke range')
+            rows = int(rows)
+            if len(dm_stroke_ranges) != len(dm_masks) * 2:
+                terminate_with_message('Must provide stroke range for each DM')
+            # Store the heights for each DM
+            all_dm_heights = []
+            # Loop through each DM
+            for dm_idx, dm_mask in enumerate(dm_masks):
+                # Set the stroke range for each DM
+                stroke_low = float(dm_stroke_ranges[dm_idx * 2])
+                stroke_high = float(dm_stroke_ranges[dm_idx * 2 + 1])
+                print(f'DM {dm_idx} stroke: [{stroke_low}, {stroke_high}]')
+                # Randomly set the actuator heights
+                dm_heights = rng.uniform(stroke_low, stroke_high,
+                                         (rows, *dm_mask.shape))
+                # Mask out any actuators that should not be active
+                dm_heights[:, ~dm_mask] = 0
+                all_dm_heights.append(dm_heights)
+            return all_dm_heights
+
         # Call the correction procedure to set the DM heights
-        for key in ('single_actuator_pokes', ):
+        for key in ('single_actuator_pokes', 'rand_actuator_heights'):
             if cli_args[key]:
                 step_ri(f'Calling `{key}`')
                 dm_act_heights = locals()[key](*cli_args[key])
