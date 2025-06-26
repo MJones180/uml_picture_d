@@ -524,11 +524,9 @@ def sim_data(cli_args):
                 dm_valid_idxs.append(np.transpose(np.nonzero(dm_mask)))
             # Now set the explicit actuator heights
             for group_idx in range(len(actuator_heights) // 3):
-                idx_low = group_idx * 3
-                groups_args = actuator_heights[idx_low:idx_low + 3]
-                dm_idx = int(groups_args[0])
-                actuator_idx = int(groups_args[1])
-                actuator_height = float(groups_args[2])
+                dm_idx = int(actuator_heights[group_idx * 3])
+                actuator_idx = int(actuator_heights[group_idx * 3 + 1])
+                actuator_height = float(actuator_heights[group_idx * 3 + 2])
                 # The index for the active actuators is passed, but the actual
                 # index inside of the grid is needed
                 actual_actuator_idx = dm_valid_idxs[dm_idx][actuator_idx]
