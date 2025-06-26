@@ -24,7 +24,7 @@ Randomly set each actuator with a valid height in the stroke range:
 
 Poke specific actuators:
 
-    # Two actuators on the first DM
+    # Two actuators on the first DM with heights of 20 nm
     python3 main_scnp.py sim_data test_dataset v84_DMs_to_sci_cam 600e-9 \
-        --explicit-actuator-heights 0 0 50e-9 0 10 50e-9 \
+        --explicit-actuator-heights 0 10 20e-9 0 300 20e-9 \
         --no-aberrations 1 1
