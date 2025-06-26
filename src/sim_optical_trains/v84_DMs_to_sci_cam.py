@@ -18,7 +18,7 @@ INIT_BEAM_D = 0.0099
 BEAM_RATIO = 0.50
 
 # Number of pixels and sampling size for the final camera
-CAMERA_PIXELS = 1024
+CAMERA_PIXELS = 120
 CAMERA_SAMPLING = 13e-6
 
 # Lyot stop
