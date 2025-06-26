@@ -217,20 +217,27 @@ def sim_data_parser(subparsers):
 
     dm_group = subparser.add_mutually_exclusive_group()
     dm_group.add_argument(
+        '--explicit-actuator-heights',
+        nargs='+',
+        metavar='[dm idx (1D)] [actuator idx] [actuator height in meters]',
+        help=('set specific actuators from their index (only active locations '
+              'in the mask can be chosen); the three arguments can be '
+              'repeated as many times as necessary'),
+    )
+    dm_group.add_argument(
         '--single-actuator-pokes',
         nargs=2,
         metavar=('[poke amount in meters]',
                  '[max actuators per DM or 0 for all]'),
         help='will poke each actuator one at a time across all DMs',
     )
-
     dm_group.add_argument(
         '--rand-actuator-heights',
         nargs='+',
         metavar='[nrows] [stroke low in meters] [stroke high in meters]',
         help=('will set a uniformly random height on each actuator that is '
               'between the valid stroke range; the two arguments that specify '
-              'the stroke range must be set for each DM'),
+              'the stroke range must be set for each DM (in order)'),
     )
 
 
@@ -501,6 +508,37 @@ def sim_data(cli_args):
                   f'Actuators: {dm_mask.sum()}')
             dm_masks.append(dm_mask)
 
+        def explicit_actuator_heights(*actuator_heights):
+            print('Setting explicit actuator heights')
+            if len(actuator_heights) % 3 != 0:
+                terminate_with_message('Each group must contain three args')
+            # Store the heights for each DM
+            all_dm_heights = []
+            # Will contain 2D sublists which give the active actuator indexes
+            dm_valid_idxs = []
+            # Loop through each DM
+            for dm_mask in dm_masks:
+                # Grid of actuators at 0
+                all_dm_heights.append(np.zeros_like(dm_mask).astype(float))
+                # The active actuator indexes
+                dm_valid_idxs.append(np.transpose(np.nonzero(dm_mask)))
+            # Now set the explicit actuator heights
+            for group_idx in range(len(actuator_heights) // 3):
+                idx_low = group_idx * 3
+                groups_args = actuator_heights[idx_low:idx_low + 3]
+                dm_idx = int(groups_args[0])
+                actuator_idx = int(groups_args[1])
+                actuator_height = float(groups_args[2])
+                # The index for the active actuators is passed, but the actual
+                # index inside of the grid is needed
+                actual_actuator_idx = dm_valid_idxs[dm_idx][actuator_idx]
+                print(f'[DM {dm_idx}] Actuator {actuator_idx} '
+                      f'({actual_actuator_idx}): {actuator_height}')
+                all_dm_heights[dm_idx][*actual_actuator_idx] = actuator_height
+            # Each set of DM heights needs to be 3D
+            all_dm_heights = [arr[None, :, :] for arr in all_dm_heights]
+            return all_dm_heights
+
         def single_actuator_pokes(poke_amount, max_actuators_per_dm):
             print('Each actuator will be poked one at a time')
             # Typecast the args
@@ -564,7 +602,11 @@ def sim_data(cli_args):
             return all_dm_heights
 
         # Call the correction procedure to set the DM heights
-        for key in ('single_actuator_pokes', 'rand_actuator_heights'):
+        for key in (
+                'explicit_actuator_heights',
+                'single_actuator_pokes',
+                'rand_actuator_heights',
+        ):
             if cli_args[key]:
                 step_ri(f'Calling `{key}`')
                 dm_act_heights = locals()[key](*cli_args[key])
