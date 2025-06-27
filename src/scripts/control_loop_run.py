@@ -242,7 +242,7 @@ def control_loop_run(cli_args):
     plot_path = f'{output_path_ts_same}/rss_zernikes_no_tip_tilt.png'
     plot_title = 'Zernikes Excluding Tip/Tilt RSS' + title_str
     # Grab all Zernike terms ignoring tip, tilt, and piston
-    select_zernike_idxs = np.where(zernike_terms >= 4)[0]
+    select_zernike_idxs = np.where(np.array(zernike_terms) >= 4)[0]
     plot_control_loop_rss(
         true_error_history[:, select_zernike_idxs],
         meas_error_history[:, select_zernike_idxs],

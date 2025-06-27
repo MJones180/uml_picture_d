@@ -40,14 +40,14 @@ def plot_control_loop_rss(
 
     # Plot the RSS
     ax.plot(
-        rss(zernike_coeffs_true * 1e9, 1),
-        label='True Error',
-        color='blue',
-    )
-    ax.plot(
         rss(zernike_coeffs_meas * 1e9, 1),
         label='Measurement Error',
         color='red',
+    )
+    ax.plot(
+        rss(zernike_coeffs_true * 1e9, 1),
+        label='True Error',
+        color='blue',
     )
 
     # Update the axis information
