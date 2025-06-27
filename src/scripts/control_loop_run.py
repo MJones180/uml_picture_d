@@ -228,27 +228,23 @@ def control_loop_run(cli_args):
     _create_plots(meas_error_history, 'meas', 'Model Outputs')
 
     print('Saving all Zernike RSS error plot.')
-    plot_path = f'{output_path_ts_same}/rss_all_zernikes.png'
-    plot_title = 'All Zernike RSS' + title_str
     plot_control_loop_rss(
         true_error_history,
         meas_error_history,
-        plot_title,
+        'Zernike (All) RSS' + title_str,
         cumulative_time,
-        plot_path,
+        f'{output_path_ts_same}/rss_all_zernikes.png',
     )
 
     print('Saving Zernikes (excluding tip/tilt) RSS error plot.')
-    plot_path = f'{output_path_ts_same}/rss_zernikes_no_tip_tilt.png'
-    plot_title = 'Zernikes Excluding Tip/Tilt RSS' + title_str
     # Grab all Zernike terms ignoring tip, tilt, and piston
     select_zernike_idxs = np.where(np.array(zernike_terms) >= 4)[0]
     plot_control_loop_rss(
         true_error_history[:, select_zernike_idxs],
         meas_error_history[:, select_zernike_idxs],
-        plot_title,
+        'Zernike (>3) RSS' + title_str,
         cumulative_time,
-        plot_path,
+        f'{output_path_ts_same}/rss_zernikes_no_tip_tilt.png',
     )
 
     print('Saving input signal vs meas error plots (x2).')
