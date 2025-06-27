@@ -11,6 +11,7 @@ import numpy as np
 from utils.constants import CONTROL_LOOP_RESULTS_P, CONTROL_LOOP_STEPS_P
 from utils.iterate_simulated_control_loop import iterate_simulated_control_loop
 from utils.path import make_dir
+from utils.plots.plot_control_loop_rss import plot_control_loop_rss
 from utils.plots.plot_control_loop_zernikes import plot_control_loop_zernikes
 from utils.plots.plot_control_loop_zernikes_subplots import plot_control_loop_zernikes_subplots  # noqa: E501
 from utils.printing_and_logging import step_ri, title
@@ -225,6 +226,30 @@ def control_loop_run(cli_args):
 
     _create_plots(true_error_history, 'true', 'Input Aberrations')
     _create_plots(meas_error_history, 'meas', 'Model Outputs')
+
+    print('Saving all Zernike RSS error plot.')
+    plot_path = f'{output_path_ts_same}/rss_all_zernikes.png'
+    title = 'All Zernike RSS' + title_str
+    plot_control_loop_rss(
+        true_error_history,
+        meas_error_history,
+        title,
+        cumulative_time,
+        plot_path,
+    )
+
+    print('Saving Zernikes (excluding tip/tilt) RSS error plot.')
+    plot_path = f'{output_path_ts_same}/rss_zernikes_no_tip_tilt.png'
+    title = 'Zernikes Excluding Tip/Tilt RSS' + title_str
+    # Grab all Zernike terms ignoring tip, tilt, and piston
+    select_zernike_idxs = np.where(zernike_terms >= 4)[0]
+    plot_control_loop_rss(
+        true_error_history[:, select_zernike_idxs],
+        meas_error_history[:, select_zernike_idxs],
+        title,
+        cumulative_time,
+        plot_path,
+    )
 
     print('Saving input signal vs meas error plots (x2).')
 
