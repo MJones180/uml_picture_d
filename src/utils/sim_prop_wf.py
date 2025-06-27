@@ -1,9 +1,9 @@
 import numpy as np
 import proper
 from utils.add_wf_aberrations import add_wf_aberrations
-from utils.constants import (CAMERA_INTENSITY, CAMERA_SAMPLING, FULL_INTENSITY,
-                             FULL_SAMPLING, PLOTTING_LINEAR_INT,
-                             PLOTTING_LINEAR_PHASE,
+from utils.constants import (CAMERA_EF, CAMERA_INTENSITY, CAMERA_SAMPLING,
+                             FULL_EF, FULL_INTENSITY, FULL_SAMPLING,
+                             PLOTTING_LINEAR_INT, PLOTTING_LINEAR_PHASE,
                              PLOTTING_LINEAR_PHASE_NON0_INT, PLOTTING_LOG_INT,
                              PLOTTING_PATH, ZERNIKE_COEFFS, ZERNIKE_TERMS)
 from utils.resample_data import resample_data, resize_pixel_grid
@@ -68,8 +68,9 @@ def sim_prop_wf(
 
     Returns
     -------
-    [np.array, np.array, float] where the values consist of the resampled
-    camera intensity wavefront, full intensity wavefront, and full sampling.
+    [np.array, np.array, np.array, np.array, float] where the values consist of
+    the resampled camera E-Field, full E-Field, resampled camera intensity,
+    full intensity, and full sampling.
     """
 
     if disable_proper_logs:
@@ -159,7 +160,7 @@ def sim_prop_wf(
         _plot('Aberration Map', intensity_arr=wavefront_intensity)
         # For the camera, we will just resize the grid so that the number
         # of pixels matches. No need to do any resampling.
-        wf_int_ds = resize_pixel_grid(wavefront_intensity, camera_pixels)
+        wf_int_rs = resize_pixel_grid(wavefront_intensity, camera_pixels)
         sampling = camera_sampling
     else:
         # Loop through the train
@@ -173,15 +174,21 @@ def sim_prop_wf(
                 func(wavefront)
             if plot_title is not None:
                 _plot(plot_title, wf_obj=wavefront)
+        # The final E-Field
+        wf_ef = proper.prop_get_wavefront(wavefront)
         # The final wavefront intensity and sampling of its grid
         (wavefront_intensity, sampling) = proper.prop_end(wavefront)
+
         # Resample to the camera
-        wf_int_ds = resample_data(wavefront_intensity, sampling,
-                                  camera_sampling, camera_pixels)
-    # Plot the downsampled camera wavefront
-    _plot('Camera Resampled', intensity_arr=wf_int_ds)
-    # Returns camera intensity wf, full intensity wf, and full sampling.
-    return [wf_int_ds, wavefront_intensity, sampling]
+        def _resample_data(arr):
+            return resample_data(arr, sampling, camera_sampling, camera_pixels)
+
+        wf_int_rs = _resample_data(wavefront_intensity)
+        wf_ef_rs = _resample_data(wf_ef.real) + _resample_data(wf_ef.imag) * 1j
+    # Plot the resampled camera wavefront
+    _plot('Camera Resampled', intensity_arr=wf_int_rs)
+    # Camera EF, full EF, camera intensity, full intensity, and full sampling.
+    return [wf_ef_rs, wf_ef, wf_int_rs, wavefront_intensity, sampling]
 
 
 def multi_worker_sim_prop_many_wf(
@@ -196,6 +203,7 @@ def multi_worker_sim_prop_many_wf(
     zernike_terms,
     aberrations,
     extra_params={},
+    save_full_ef=False,
     save_full_intensity=False,
     grid_points=1024,
     plotting={},
@@ -235,7 +243,10 @@ def multi_worker_sim_prop_many_wf(
         Some optical train steps may require additional parameters. This
         dictionary will be passed to any optical train steps that accept
         two arguments.
-    save_full_intensity, bool, optional
+    save_full_ef: bool, optional
+        If True, will save the full electric field and return it, but this will
+        take up much more memory, default is False.
+    save_full_intensity: bool, optional
         If True, will save the full intensity field and return it, but this will
         take up much more memory, default is False.
     grid_points : int, optional
@@ -289,12 +300,16 @@ def multi_worker_sim_prop_many_wf(
             ZERNIKE_TERMS: zernike_terms,
             # The rms error in meters associated with each of the zernike terms
             ZERNIKE_COEFFS: aberrations_chunk,
+            CAMERA_EF: [],
             CAMERA_INTENSITY: [],
             CAMERA_SAMPLING: camera_sampling,
         }
+        if save_full_ef or save_full_intensity:
+            simulation_data[FULL_SAMPLING] = []
+        if save_full_ef:
+            simulation_data[FULL_EF] = []
         if save_full_intensity:
             simulation_data[FULL_INTENSITY] = []
-            simulation_data[FULL_SAMPLING] = []
         for key, array in extra_params_chunk.items():
             simulation_data[key] = array
         plotting_dict = plotting.copy()
@@ -310,7 +325,7 @@ def multi_worker_sim_prop_many_wf(
                 key: array[sim_idx]
                 for key, array in extra_params_chunk.items()
             }
-            camera_wf, full_wf, full_sampling = sim_prop_wf(
+            cam_ef, full_ef, cam_int, full_int, full_sampling = sim_prop_wf(
                 init_beam_d,
                 ref_wl,
                 beam_ratio,
@@ -325,10 +340,14 @@ def multi_worker_sim_prop_many_wf(
                 use_only_aberration_map=use_only_aberration_map,
                 disable_proper_logs=disable_proper_logs,
             )
-            simulation_data[CAMERA_INTENSITY].append(camera_wf)
-            if save_full_intensity:
-                simulation_data[FULL_INTENSITY].append(full_wf)
+            simulation_data[CAMERA_EF].append(cam_ef)
+            simulation_data[CAMERA_INTENSITY].append(cam_int)
+            if save_full_ef or save_full_intensity:
                 simulation_data[FULL_SAMPLING].append(full_sampling)
+            if save_full_ef:
+                simulation_data[FULL_EF].append(full_ef)
+            if save_full_intensity:
+                simulation_data[FULL_INTENSITY].append(full_int)
             if sim_post_cb is not None:
                 sim_post_cb(worker_idx, sim_idx, simulation_data)
         if worker_post_cb is not None:

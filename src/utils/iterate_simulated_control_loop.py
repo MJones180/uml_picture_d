@@ -172,7 +172,7 @@ def iterate_simulated_control_loop(
         aberrations = zernike_coeffs + corrections
         true_error_history.append(aberrations)
         # Simulate the camera image that represents these Zernike coeffs
-        camera_image, _, _ = sim_prop_wf(
+        _, _, camera_image, _, _ = sim_prop_wf(
             init_beam_d,
             ref_wl,
             beam_ratio,
@@ -181,7 +181,7 @@ def iterate_simulated_control_loop(
             camera_sampling,
             zernike_terms,
             aberrations,
-            grid_points,
+            grid_points=grid_points,
         )
         # This will output the model's coefficients (nn or response matrix)
         model_output = call_model(camera_image)
