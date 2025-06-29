@@ -145,6 +145,7 @@ def preprocess_data_complete(cli_args):
 
     # The rows with no aberrations, these are equal to the base field
     no_aber_rows = np.all(output_data == 0, axis=1)
+    no_aber_input_row = None
     if no_aber_rows.any():
         step_ri('Removing all rows with no aberrations')
         # This should be the same as the base_field, but the base_field may not
