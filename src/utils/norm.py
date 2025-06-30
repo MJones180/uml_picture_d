@@ -1,6 +1,25 @@
 import numpy as np
 
 
+def sum_to_one(data, dims=None):
+    """Have the values sum to one.
+
+    Parameters
+    ----------
+    data : np.array
+        The data to have sum to one.
+    dims : int or list, optional
+        The dimensions to sum along, by default will sum along every dim.
+
+    Returns
+    -----
+    np.array
+        The data that sums to one.
+    """
+
+    return data / np.sum(data, axis=dims, keepdims=True)
+
+
 def min_max_norm(data, max_min_diff, min_x, ones_range=False):
     """Min max normalize values given the max_min_diff and min_x.
 

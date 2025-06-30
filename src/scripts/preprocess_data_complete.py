@@ -20,7 +20,7 @@ from utils.constants import (BASE_INT_FIELD, CAMERA_SAMPLING, DATA_F,
                              PROC_DATA_P, ZERNIKE_TERMS)
 from utils.hdf_read_and_write import HDFWriteModule
 from utils.load_raw_sim_data import load_raw_sim_data_chunks
-from utils.norm import find_min_max_norm, min_max_norm
+from utils.norm import find_min_max_norm, min_max_norm, sum_to_one
 from utils.path import make_dir
 from utils.printing_and_logging import step_ri, title
 from utils.terminate_with_message import terminate_with_message
@@ -156,8 +156,7 @@ def preprocess_data_complete(cli_args):
     inputs_sum_to_one = cli_args.get('inputs_sum_to_one')
     if inputs_sum_to_one:
         step_ri('Making pixel values in each input sum to 1')
-        input_data = input_data / np.sum(
-            input_data, axis=(1, 2), keepdims=True)
+        input_data = sum_to_one(input_data, (1, 2))
 
     # ==========================================================================
 
@@ -192,7 +191,7 @@ def preprocess_data_complete(cli_args):
         base_field, _, _, _ = load_raw_sim_data_chunks(use_field_diff)
         if inputs_sum_to_one:
             print('Making pixel values in the base field sum to 1')
-            base_field = base_field / np.sum(base_field)
+            base_field = sum_to_one(base_field)
         step_ri('Taking the difference between the inputs and the base field')
         # Take the diff between the base field and each of the individual fields
         input_data = input_data - base_field
