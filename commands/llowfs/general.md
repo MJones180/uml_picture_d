@@ -665,6 +665,18 @@ Can be used for model training/validation:
         --additional-raw-data-tags random_group_25_5_2_normal random_group_7_2_1_normal random_group_5_1_half_normal random_group_7_half_quarter_normal random_group_quarter_eigth_tenth_normal random_1nm_large_normal random_5nm_large_normal \
         --additional-raw-data-tags-train-only fixed_50nm_range_2000_approx
 
+    python3 main.py preprocess_data_complete \
+        random_group_500_20_10 \
+        train_fixed_2000_and_random_weighted_group_ranges_local_v4_sum1 \
+        val_fixed_2000_and_random_weighted_group_ranges_local_v4_sum1 \
+        test_fixed_2000_and_random_weighted_group_ranges_local_v4_sum1 \
+        80 15 5 \
+        --disable-norm-inputs --inputs-sum-to-one \
+        --norm-outputs individually --norm-range-ones \
+        --use-field-diff no_aberrations \
+        --additional-raw-data-tags random_group_50_10_5 random_group_15_5_2 random_group_10_2_1 random_group_15_1_half random_group_half_quarter_fifth random_2nm_large_approx random_10nm_large_approx \
+        --additional-raw-data-tags-train-only fixed_50nm_range_2000_approx
+
 Can be used for testing:
 
     # 1 nm
