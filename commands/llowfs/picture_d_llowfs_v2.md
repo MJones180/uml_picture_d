@@ -1,8 +1,19 @@
+.........................................................................................................
+NOTES AND CHANGES COMPARED TO `picture_d_llowfs.md`:
+- Based on white light in the PICTURE-D testbed (obtained June 29, 2025; previously April 1, 2025).
+- Updated normalization so that the sum of all input pixels equal one instead of scaling between [-1, 1].
+- Instead of the more accurate model based on V49 (V55b), the model based on V54f (V55a) is used.
+- Each chunk for the data obtained only had 10k rows, that means:
+    - The response matrix is only for -40 nm (not ±40 nm).
+    - The models have severly degraded performance.
+- The datafiles were all matched up based on looking at the first row of Zernike coefficients.
+.........................................................................................................
+
 These are all the commands needed to obtain data on the PICTURE-D instrument and to create the associated RM and CNN.
 Most of the commands are adapted from the ones meant for simulated data which are taken from the `general.md` and `model_training_versions.txt` files.
-The RM is for ±40 nm RMS error (technically ±39.995 nm RMS error).
-The CNN is based off the simulated [V49] `weighted_aberration_ranges_local_v4` model.
-Based on instrument data obtained on April 1, 2025.
+The RM is for -40 nm RMS error (technically -39.995 nm RMS error).
+The CNN is based off the simulated [V55a] `sum1_scaling_faster_model` model.
+Based on instrument data obtained on June 29, 2025.
 
 TABLE OF CONTENTS:
     SEC1 - INPUT ABERRATION CSV FILES
@@ -122,51 +133,52 @@ The FITS datafiles that were obtained on the instrument should be moved to the
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     # New path:
-    #     lyt_100k_chunks/[IDX]_data.fits
+    #     lyt_100k_chunks_v2/[IDX]_data.fits
     # IDX  Data Aberration Group           Filename
-    # 0    picture_d_aberrations_group_1   lyt_alp_train_lac_20250401_152943_caldata.fits
-    # 1    picture_d_aberrations_group_2   lyt_alp_train_lac_20250401_154408_caldata.fits
-    # 2    picture_d_aberrations_group_3   lyt_alp_train_lac_20250401_155025_caldata.fits
-    # 3    picture_d_aberrations_group_4   lyt_alp_train_lac_20250401_162221_caldata.fits
-    # 4    picture_d_aberrations_group_5   lyt_alp_train_lac_20250401_161757_caldata.fits
-    # 5    picture_d_aberrations_group_6   lyt_alp_train_lac_20250401_161330_caldata.fits
-    # 6    picture_d_aberrations_group_7   lyt_alp_train_lac_20250401_160856_caldata.fits
-    # 7    picture_d_aberrations_group_8   lyt_alp_train_lac_20250401_160418_caldata.fits
+    # 0    picture_d_aberrations_group_1   lyt_alp_train_lac_20250629_223254_caldata.fits
+    # 1    picture_d_aberrations_group_2   lyt_alp_train_lac_20250629_223616_caldata.fits
+    # 2    picture_d_aberrations_group_3   lyt_alp_train_lac_20250629_224334_caldata.fits
+    # 3    picture_d_aberrations_group_4   lyt_alp_train_lac_20250629_224615_caldata.fits
+    # 4    picture_d_aberrations_group_5   lyt_alp_train_lac_20250629_224810_caldata.fits
+    # 5    picture_d_aberrations_group_6   lyt_alp_train_lac_20250629_225014_caldata.fits
+    # 6    picture_d_aberrations_group_7   lyt_alp_train_lac_20250629_225254_caldata.fits
+    # 7    picture_d_aberrations_group_8   lyt_alp_train_lac_20250629_225525_caldata.fits
 
     # New path:
-    #     lyt_single_zernikes/0_data.fits
+    #     lyt_single_zernikes_v2/0_data.fits
     # Data Aberration Group           Filename
-    # picture_d_aberrations_group_9   lyt_alp_train_lac_20250401_155940_caldata.fits
+    # picture_d_aberrations_group_9   lyt_alp_train_lac_20250629_225757_caldata.fits
 
     # New path:
-    #     lyt_10nm_testing/0_data.fits
+    #     lyt_10nm_testing_v2/0_data.fits
     # Data Aberration Group           Filename
-    # picture_d_aberrations_group_10  lyt_alp_train_lac_20250401_155512_caldata.fits
+    # picture_d_aberrations_group_10  lyt_alp_train_lac_20250629_230006_caldata.fits
+
+    # New path:
+    #     lyt_no_aberrations_v2/0_data.fits
+    # Data Aberration Group           Filename
+    #                                 lyt_alp_train_lac_20250629_224334_caldata_extra.fits
 
 SEC4 - FITS TO HDF FILES +++++++++++++++++++++++++++++++++++++++++++++++++++++++
 These FITS datafiles should be converted to HDF files. The format of the HDF
 datafiles should be the same as the raw simulation datafiles.
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    python3 main.py convert_picd_instrument_data picd_instrument_data_100k_groups 2 24 \
-        --fits-data-tags lyt_100k_chunks
-    python3 main.py convert_picd_instrument_data picd_instrument_data_25k_10nm 2 24 \
-        --fits-data-tags lyt_10nm_testing --first-n-rows 25000
-    python3 main.py convert_picd_instrument_data picd_instrument_data_no_aberrations 2 24 \
-        --fits-data-tags lyt_10nm_testing --base-field-data 70000
-    python3 main.py convert_picd_instrument_data picd_instrument_data_single_zernikes 2 24 \
-        --fits-data-tags lyt_single_zernikes --first-n-rows 46000
-    # Technically ±39.995 nm RMS error
-    python3 main.py convert_picd_instrument_data picd_instrument_data_single_zernikes_pm40 2 24 \
-        --fits-data-tags lyt_single_zernikes --first-n-rows 46000 --slice-row-ranges 4600 4623 41377 41400
+    python3 main.py convert_picd_instrument_data picd_instrument_data_v2_100k_groups 2 24 \
+        --fits-data-tags lyt_100k_chunks_v2
+    python3 main.py convert_picd_instrument_data picd_instrument_data_v2_25k_10nm 2 24 \
+        --fits-data-tags lyt_10nm_testing_v2 --first-n-rows 25000
+    python3 main.py convert_picd_instrument_data picd_instrument_data_v2_no_aberrations 2 24 \
+        --fits-data-tags lyt_no_aberrations_v2 --base-field-data 0
+    python3 main.py convert_picd_instrument_data picd_instrument_data_v2_single_zernikes 2 24 \
+        --fits-data-tags lyt_single_zernikes_v2 --first-n-rows 46000
+    # Technically -39.995 nm RMS error
+    python3 main.py convert_picd_instrument_data picd_instrument_data_v2_single_zernikes_m40 2 24 \
+        --fits-data-tags lyt_single_zernikes_v2 --first-n-rows 46000 --slice-row-ranges 4600 4623
 
 SEC5 - BASE FIELD NOTES ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-All of the FITS datafiles contain a `PRIMARY` table which will either be empty
-or contain 400 wavefronts. Originally, these 400 rows were averaged over to
-create the base field. However, the base field produced from these 400 rows does
-not seem to be the best, so these wavefronts must contain some aberration.
-Therefore, the aberration free rows used to pad the dataset to 100k rows from
-either Group 9 or 10 (see SEC1) should be used to create the base field.
+Optimally, it is best to use extra rows from the datafiles, but sense there
+aren't any in this dataset, we need to use the `PRIMARY` table 400 rows.
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 SEC6 - PREPROCESS DATAFILES ++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -175,59 +187,60 @@ The newly converted HDF datafiles should be preprocessed.
 
     # Preprocess the data for training, validation, and testing
     python3 main.py preprocess_data_complete \
-        picd_instrument_data_100k_groups \
-        train_picd_data val_picd_data test_picd_data \
+        picd_instrument_data_v2_100k_groups \
+        train_picd_data_v2 val_picd_data_v2 test_picd_data_v2 \
         80 15 5 \
+        --disable-norm-inputs --inputs-sum-to-one \
         --norm-outputs individually --norm-range-ones \
-        --use-field-diff picd_instrument_data_no_aberrations \
-        --additional-raw-data-tags-train-only picd_instrument_data_single_zernikes
+        --use-field-diff picd_instrument_data_v2_no_aberrations \
+        --additional-raw-data-tags-train-only picd_instrument_data_v2_single_zernikes
 
     # Preprocess the testing data
-    python3 main.py preprocess_data_bare picd_instrument_data_single_zernikes \
+    python3 main.py preprocess_data_bare picd_instrument_data_v2_single_zernikes \
         picd_instrument_data_single_zernikes_raw_processed
-    python3 main.py preprocess_data_bare picd_instrument_data_25k_10nm \
+    python3 main.py preprocess_data_bare picd_instrument_data_v2_25k_10nm \
         picd_instrument_data_25k_10nm_raw_processed
 
 SEC7 - CNN TRAINING AND TESTING ++++++++++++++++++++++++++++++++++++++++++++++++
 Train, test, and export the CNN model created from the instrument data.
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    python3 main_scnp.py model_train picd_cnn_round_one \
-        train_picd_data val_picd_data \
+    python3 main_scnp.py model_train picd_cnn_v2_round_one \
+        train_picd_data_v2 val_picd_data_v2 \
         best32_1_smaller_10 mae adam 1e-5 1000 --batch-size 256 \
         --overwrite-existing --only-best-epoch --early-stopping 15
-    python3 main_scnp.py model_train picd_cnn \
-        train_picd_data val_picd_data \
+    python3 main_scnp.py model_train picd_cnn_v2 \
+        train_picd_data_v2 val_picd_data_v2 \
         best32_1_smaller_10 mae adam 1e-8 200 --batch-size 128 \
         --overwrite-existing --only-best-epoch --early-stopping 15 \
-        --init-weights picd_cnn_round_one last
+        --init-weights picd_cnn_v2_round_one last
 
-    python3 main.py model_test picd_cnn last \
-        test_picd_data --scatter-plot 4 6 2 0 15
-    python3 main.py model_test picd_cnn last \
+    python3 main.py model_test picd_cnn_v2 last \
+        test_picd_data_v2 --scatter-plot 4 6 2 0 15
+    python3 main.py model_test picd_cnn_v2 last \
         picd_instrument_data_25k_10nm_raw_processed \
         --scatter-plot 4 6 2 1e-7 15 --inputs-need-norm --inputs-need-diff
-    python3 main.py model_test picd_cnn last \
+    python3 main.py model_test picd_cnn_v2 last \
         picd_instrument_data_single_zernikes_raw_processed \
         --zernike-plots --inputs-need-norm --inputs-need-diff
 
     # Export the model so that it can be used in the `pytorch_model_in_c` repo
     # via ONNX runtime.
-    python3 main.py export_model picd_cnn last val_picd_data --benchmark 5000
+    python3 main.py export_model picd_cnn_v2 last val_picd_data_v2 --benchmark 5000
 
 SEC8 - RM CREATION AND TESTING +++++++++++++++++++++++++++++++++++++++++++++++++
 Create and test the RM model on the instrument data.
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     python3 main.py create_response_matrix \
-        --simulated-data-tag-average picd_instrument_data_single_zernikes_pm40 \
-        --base-field-tag picd_instrument_data_no_aberrations
+        --simulated-data-tag-average picd_instrument_data_v2_single_zernikes_m40 \
+        --base-field-tag picd_instrument_data_v2_no_aberrations
 
-    python3 main.py run_response_matrix picd_instrument_data_single_zernikes_pm40 \
-        test_picd_data \
+    python3 main.py run_response_matrix picd_instrument_data_v2_single_zernikes_m40 \
+        test_picd_data_v2 \
         --scatter-plot 4 6 2 0 15 --inputs-need-denorm --inputs-are-diff
-    python3 main.py run_response_matrix picd_instrument_data_single_zernikes_pm40 \
+    python3 main.py run_response_matrix picd_instrument_data_v2_single_zernikes_m40 \
         picd_instrument_data_25k_10nm_raw_processed \
         --scatter-plot 4 6 2 1e-8 15
-    python3 main.py run_response_matrix picd_instrument_data_single_zernikes_pm40 \
+    python3 main.py run_response_matrix picd_instrument_data_v2_single_zernikes_m40 \
         picd_instrument_data_single_zernikes_raw_processed --zernike-plots
