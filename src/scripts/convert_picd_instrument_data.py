@@ -55,7 +55,8 @@ def convert_picd_instrument_data_parser(subparsers):
         type=int,
         help=('the number of rows to take from the end of the `IMAGE` table '
               'that will be averaged over to form the base field, these rows '
-              'should contain no aberrations'),
+              'should contain no aberrations; if a value of 0 is passed, then '
+              'the rows from the PRIMARY table are used'),
     )
     subparser.add_argument(
         '--slice-row-ranges',
@@ -102,11 +103,14 @@ def convert_picd_instrument_data(cli_args):
             with fits.open(datafile_path) as hdul:
                 if cli_args.get('base_field_data'):
                     print('Taking the average of all the rows.')
+                    row_count = cli_args['base_field_data']
+                    if row_count == 0:
+                        rows_to_average = hdul['PRIMARY'].data
+                    else:
+                        # This is the preferred method if there are extra rows
+                        rows_to_average = hdul['IMAGE'].data[-row_count:]
                     image_data = np.average(
-                        # Originally, the 400 rows from the `PRIMARY` table were
-                        # used, but the results were bad. Therefore, aberration
-                        # free rows from a padded dataset should be used.
-                        hdul['IMAGE'].data[-cli_args['base_field_data']:],
+                        rows_to_average,
                         axis=0,
                     )[None, :, :]
                     zernike_data = np.array([np.zeros_like(zernike_terms)])
