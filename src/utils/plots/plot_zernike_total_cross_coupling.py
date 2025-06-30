@@ -95,7 +95,7 @@ def plot_zernike_total_cross_coupling(
             edgecolor='black',
             linestyle='--',
             linewidth=1,
-            label=r'$\gamma_{:,a}$',
+            label='All Terms',
         )
         # Display the legend to the right middle of the plot
         ax.legend(loc='center left', bbox_to_anchor=(1.01, 0.5))
