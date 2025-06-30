@@ -101,7 +101,7 @@ def convert_picd_instrument_data(cli_args):
             print(f'Input FITS datafile: {datafile_path}')
             inc_print_indent()
             with fits.open(datafile_path) as hdul:
-                if cli_args.get('base_field_data'):
+                if cli_args.get('base_field_data') is not None:
                     print('Taking the average of all the rows.')
                     row_count = cli_args['base_field_data']
                     if row_count == 0:
