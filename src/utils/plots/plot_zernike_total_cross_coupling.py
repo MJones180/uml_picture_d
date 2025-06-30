@@ -97,6 +97,8 @@ def plot_zernike_total_cross_coupling(
             linewidth=1,
             label='All Terms',
         )
+        # Remove margin on top and bottom of plot
+        ax.set_ymargin(0)
         # Display the legend to the right middle of the plot
         ax.legend(loc='center left', bbox_to_anchor=(1.01, 0.5))
     else:
