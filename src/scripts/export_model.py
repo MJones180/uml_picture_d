@@ -153,9 +153,11 @@ def export_model(cli_args):
             np.savetxt(out_file, [data], fmt='%.16f')
 
         for key in (INPUT_MAX_MIN_DIFF, INPUT_MIN_X):
-            _write_data(model_vars[key][()])
+            if key in model_vars:
+                _write_data(model_vars[key][()])
         for key in (OUTPUT_MAX_MIN_DIFF, OUTPUT_MIN_X):
-            _write_data(model_vars[key][:])
+            if key in model_vars:
+                _write_data(model_vars[key][:])
     dec_print_indent()
 
     step('Saving base intensity field data')
