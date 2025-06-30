@@ -71,7 +71,8 @@ def preprocess_data_complete_parser(subparsers):
     subparser.add_argument(
         '--disable-norm-inputs',
         action='store_true',
-        help='disable global input normalization',
+        help=('disable global input normalization (does not effect the '
+              '`inputs_sum_to_one` arg)'),
     )
     subparser.add_argument(
         '--inputs-sum-to-one',

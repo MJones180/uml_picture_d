@@ -123,10 +123,8 @@ def iterate_simulated_control_loop(
         model = loaded_neural_networks[nn_key]
 
         def call_model(inputs):
-            # Subtract off the base field so that we have the delta field
-            # intensity and then normalize the data
-            preprocessed_inputs = model.norm_data(
-                model.subtract_basefield(inputs))
+            # Preprocess the data
+            preprocessed_inputs = model.preprocess_data(inputs, True)
             # We need to add an extra dimension to represents the batch size
             preprocessed_inputs = preprocessed_inputs[None, :, :, :]
             # Since we are only passing in one row, we only need to grab the

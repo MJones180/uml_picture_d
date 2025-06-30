@@ -2,13 +2,13 @@ from glob import glob
 import numpy as np
 import torch
 from utils.constants import (ARGS_F, BASE_INT_FIELD, EXTRA_VARS_F,
-                             INPUT_MAX_MIN_DIFF, INPUT_MIN_X, NORM_RANGE_ONES,
-                             OUTPUT_MAX_MIN_DIFF, OUTPUT_MIN_X,
-                             TRAINED_MODELS_P)
+                             INPUTS_SUM_TO_ONE, INPUT_MAX_MIN_DIFF,
+                             INPUT_MIN_X, NORM_RANGE_ONES, OUTPUT_MAX_MIN_DIFF,
+                             OUTPUT_MIN_X, TRAINED_MODELS_P)
 from utils.hdf_read_and_write import read_hdf
 from utils.json import json_load
 from utils.load_network import load_network
-from utils.norm import min_max_denorm, min_max_norm
+from utils.norm import min_max_denorm, min_max_norm, sum_to_one
 from utils.path import path_exists
 from utils.printing_and_logging import dec_print_indent, step
 from utils.terminate_with_message import terminate_with_message
@@ -66,9 +66,18 @@ class Model():
 
         _print('Loading in the extra variables')
         self.extra_vars = read_hdf(f'{dir_path}/{EXTRA_VARS_F}')
+
+        def _grab_extra_vars_bool(arg):
+            if arg in self.extra_vars:
+                return self.extra_vars[arg][()]
+            return False
+
         # True if the data was normalized between [-1, 1] instead of [0, 1].
-        self.norm_range_ones = (self.extra_vars[NORM_RANGE_ONES][()] if
-                                NORM_RANGE_ONES in self.extra_vars else False)
+        self.norm_range_ones = _grab_extra_vars_bool(NORM_RANGE_ONES)
+        # True if the inputs should sum to one.
+        self.inputs_sum_to_one = _grab_extra_vars_bool(INPUTS_SUM_TO_ONE)
+        # True if any input normalization is done (other than summing to one).
+        self.input_norm_done = _grab_extra_vars_bool(INPUT_MIN_X) is not None
         # The base field that will need to be subtracted off. If the field does
         # not exist, then this will just be set to None.
         self.base_field = self.extra_vars.get(BASE_INT_FIELD)
@@ -94,6 +103,18 @@ class Model():
         # A value of None means there have been no memory issues so far, so as
         # many rows as needed can be passed.
         self.max_rows_per_model_call = None
+
+    def preprocess_data(self, input_data, sub_basefield=False, sum_dims=None):
+        if self.inputs_sum_to_one:
+            input_data = self.sum_inputs_to_one(input_data, sum_dims)
+        if sub_basefield:
+            input_data = self.subtract_basefield(input_data)
+        if self.input_norm_done:
+            input_data = self.norm_data(input_data)
+        return input_data
+
+    def sum_inputs_to_one(self, input_data, sum_dims=None):
+        return sum_to_one(input_data, sum_dims)
 
     def subtract_basefield(self, input_data):
         if self.base_field is None:

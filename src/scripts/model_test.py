@@ -99,17 +99,13 @@ def model_test(cli_args):
     zernike_terms = read_hdf(extra_vars_path)[ZERNIKE_TERMS]
     print(f'Using zernike terms: {zernike_terms}')
 
-    # If the model was trained on the difference between the aberrated and the
-    # base field, then the model must be tested on the same thing. If the data
-    # is not already of the difference, then the base field must be subtracted
-    # off before normalization occurs.
-    if cli_args.get('inputs_need_diff'):
-        step_ri('Taking the diff of the inputs')
-        inputs = model.subtract_basefield(inputs)
-
     if cli_args.get('inputs_need_norm'):
-        step_ri('Normalizing the inputs')
-        inputs = model.norm_data(inputs)
+        step_ri('Preprocessing the inputs')
+        inputs = model.preprocess_data(
+            inputs,
+            sub_basefield=cli_args.get('inputs_need_diff'),
+            sum_dims=(1, 2, 3),
+        )
 
     step_ri('Calling the model and obtaining its outputs')
     outputs_model = model(inputs)
