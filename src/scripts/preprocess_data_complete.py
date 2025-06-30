@@ -5,10 +5,10 @@ The datasets should have been simulated by the `sim_data` script.
 Three different datasets will be outputted: training, validation, and testing.
 Old datasets will be overwritten if they already exist.
 
-In this script, all inputs are normalized based on the training normalization
-values. The output normalization for the training and validation data is
-optional and can either be global or individual. If output normalization is
-performed, it will be based on the training normalization values.
+In this script, all normalization is optional. By default, inputs are normalized
+and outputs are not normalized. All normalization is always performed with
+respect to the training dataset. Input normalization can be done globally and
+output normalization can be done either globally or individually.
 """
 
 import numpy as np
@@ -69,6 +69,16 @@ def preprocess_data_complete_parser(subparsers):
         help='int percentage of the data that will go to testing',
     )
     subparser.add_argument(
+        '--disable-norm-inputs',
+        action='store_true',
+        help='disable global input normalization',
+    )
+    subparser.add_argument(
+        '--inputs-sum-to-one',
+        action='store_true',
+        help='make the pixel values in each input sum to 1',
+    )
+    subparser.add_argument(
         '--norm-outputs',
         choices=OUTPUT_NORM_OPTIONS,
         help=('normalize training and validation output values either '
@@ -77,7 +87,8 @@ def preprocess_data_complete_parser(subparsers):
     subparser.add_argument(
         '--norm-range-ones',
         action='store_true',
-        help='normalize data between -1 and 1 instead of 0 to 1',
+        help=('normalize data between -1 and 1 instead of 0 to 1; applies to '
+              'both input and output normalization'),
     )
     subparser.add_argument(
         '--use-field-diff',
@@ -102,6 +113,8 @@ def preprocess_data_complete_parser(subparsers):
 
 def preprocess_data_complete(cli_args):
     title('Preprocess data complete script')
+
+    # ==========================================================================
 
     step_ri('Loading in data chunks')
     (input_data, output_data, zernike_terms,
@@ -138,10 +151,22 @@ def preprocess_data_complete(cli_args):
         train_only_mask = np.zeros(input_data.shape[0]).astype(bool)
         train_only_mask[starting_idx:] = 1
 
+    # ==========================================================================
+
+    inputs_sum_to_one = cli_args.get('inputs_sum_to_one')
+    if inputs_sum_to_one:
+        step_ri('Making pixel values in each input sum to 1')
+        input_data = input_data / np.sum(
+            input_data, axis=(1, 2), keepdims=True)
+
+    # ==========================================================================
+
     step_ri('Adding in dimension for the channels')
     # Since this is a grayscale image, there is only one channel
     input_data = input_data[:, None, :, :]
     print(f'Input shape: {input_data.shape}')
+
+    # ==========================================================================
 
     # The rows with no aberrations, these are equal to the base field
     no_aber_rows = np.all(output_data == 0, axis=1)
@@ -158,15 +183,21 @@ def preprocess_data_complete(cli_args):
         if train_only_mask is not None:
             train_only_mask = train_only_mask[~no_aber_rows]
 
+    # ==========================================================================
+
     use_field_diff = cli_args['use_field_diff']
     base_field = None
     if use_field_diff:
         step_ri('Loading in the base field')
         base_field, _, _, _ = load_raw_sim_data_chunks(use_field_diff)
-
+        if inputs_sum_to_one:
+            print('Making pixel values in the base field sum to 1')
+            base_field = base_field / np.sum(base_field)
         step_ri('Taking the difference between the inputs and the base field')
         # Take the diff between the base field and each of the individual fields
         input_data = input_data - base_field
+
+    # ==========================================================================
 
     step_ri('Shuffling')
     random_shuffle_idxs = np.random.permutation(len(input_data))
@@ -180,6 +211,8 @@ def preprocess_data_complete(cli_args):
         output_data_train_only = output_data[train_only_mask]
         input_data = input_data[~train_only_mask]
         output_data = output_data[~train_only_mask]
+
+    # ==========================================================================
 
     step_ri('Splitting')
     training_percentage = cli_args['training_percentage']
@@ -222,21 +255,28 @@ def preprocess_data_complete(cli_args):
     _print_split('Validation', validation_percentage, val_inputs)
     _print_split('Testing', testing_percentage, test_inputs)
 
+    # ==========================================================================
+
     step_ri('Normalizing inputs')
     # Normalize between -1 and 1 if set to true
     nro = cli_args['norm_range_ones']
     norm_values = {NORM_RANGE_ONES: nro}
-    print('Globally normalizing inputs of training data')
-    train_inputs, max_min_diff, min_x = find_min_max_norm(
-        train_inputs, True, nro)
-    # These will both be singular floats. If individual input normalization
-    # could be handy and needs to be added, then these should always be arrays
-    norm_values[INPUT_MIN_X] = min_x
-    norm_values[INPUT_MAX_MIN_DIFF] = max_min_diff
-    print('Normalizing inputs of validation/testing data based on training '
-          'normalization values')
-    val_inputs = min_max_norm(val_inputs, max_min_diff, min_x, nro)
-    test_inputs = min_max_norm(test_inputs, max_min_diff, min_x, nro)
+    if cli_args.get('disable_norm_inputs'):
+        print('Not performing any input normalization')
+    else:
+        print('Globally normalizing inputs of training data')
+        train_inputs, max_min_diff, min_x = find_min_max_norm(
+            train_inputs, True, nro)
+        # These will both be singular floats. In the future, if individual norm
+        # is needed, then these two vars should be arrays instead of scalars.
+        norm_values[INPUT_MIN_X] = min_x
+        norm_values[INPUT_MAX_MIN_DIFF] = max_min_diff
+        print('Normalizing inputs of validation/testing data based '
+              'on training normalization values')
+        val_inputs = min_max_norm(val_inputs, max_min_diff, min_x, nro)
+        test_inputs = min_max_norm(test_inputs, max_min_diff, min_x, nro)
+
+    # ==========================================================================
 
     step_ri('Normalizing outputs')
     output_normalization = True
@@ -263,6 +303,8 @@ def preprocess_data_complete(cli_args):
         norm_values[OUTPUT_MIN_X] = min_x
         norm_values[OUTPUT_MAX_MIN_DIFF] = max_min_diff
         val_outputs = min_max_norm(val_outputs, max_min_diff, min_x, nro)
+
+    # ==========================================================================
 
     step_ri('Creating new datasets')
     # Extra tables of information taken from the raw datafile
