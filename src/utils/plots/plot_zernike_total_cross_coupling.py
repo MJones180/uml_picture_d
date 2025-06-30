@@ -88,12 +88,14 @@ def plot_zernike_total_cross_coupling(
                 color=colors[term_idx],
             )
         # Plot the total crosstalk from all Zernikes
-        ax.plot(
+        ax.fill_between(
             perturbation_grid,
             crosstalk_total,
+            color='#F3F3F3',
+            edgecolor='black',
             linestyle='--',
-            label='All Terms',
-            color='black',
+            linewidth=1,
+            label=r'$\gamma_{:,a}$',
         )
         # Display the legend to the right middle of the plot
         ax.legend(loc='center left', bbox_to_anchor=(1.01, 0.5))
