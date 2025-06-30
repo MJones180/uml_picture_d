@@ -14,10 +14,10 @@ output normalization can be done either globally or individually.
 import numpy as np
 from utils.cli_args import save_cli_args
 from utils.constants import (BASE_INT_FIELD, CAMERA_SAMPLING, DATA_F,
-                             EXTRA_VARS_F, INPUTS, INPUT_MIN_X,
-                             INPUT_MAX_MIN_DIFF, NORM_RANGE_ONES, OUTPUTS,
-                             OUTPUT_MIN_X, OUTPUT_MAX_MIN_DIFF, PROC_DATA_P,
-                             ZERNIKE_TERMS)
+                             EXTRA_VARS_F, INPUTS, INPUTS_SUM_TO_ONE,
+                             INPUT_MIN_X, INPUT_MAX_MIN_DIFF, NORM_RANGE_ONES,
+                             OUTPUTS, OUTPUT_MIN_X, OUTPUT_MAX_MIN_DIFF,
+                             PROC_DATA_P, ZERNIKE_TERMS)
 from utils.hdf_read_and_write import HDFWriteModule
 from utils.load_raw_sim_data import load_raw_sim_data_chunks
 from utils.norm import find_min_max_norm, min_max_norm
@@ -311,6 +311,7 @@ def preprocess_data_complete(cli_args):
     extra_vars = {
         CAMERA_SAMPLING: camera_sampling,
         ZERNIKE_TERMS: zernike_terms,
+        INPUTS_SUM_TO_ONE: inputs_sum_to_one,
         **norm_values,
     }
     # Need to save the base field so that it can be subtracted if necessary,
