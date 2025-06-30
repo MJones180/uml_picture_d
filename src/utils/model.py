@@ -77,7 +77,7 @@ class Model():
         # True if the inputs should sum to one.
         self.inputs_sum_to_one = _grab_extra_vars_bool(INPUTS_SUM_TO_ONE)
         # True if any input normalization is done (other than summing to one).
-        self.input_norm_done = _grab_extra_vars_bool(INPUT_MIN_X) is not None
+        self.input_norm_done = _grab_extra_vars_bool(INPUT_MIN_X) is not False
         # The base field that will need to be subtracted off. If the field does
         # not exist, then this will just be set to None.
         self.base_field = self.extra_vars.get(BASE_INT_FIELD)
