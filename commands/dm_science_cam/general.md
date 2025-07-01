@@ -30,6 +30,6 @@ Poke specific actuators:
         --no-aberrations 1 1
 
     # No actuators being poked
-    python3 main_scnp.py sim_data single_actuator_poke_test v84_DMs_to_sci_cam 600e-9 \
+    python3 main_scnp.py sim_data no_aberrations v84_DMs_to_sci_cam 600e-9 \
         --explicit-actuator-heights 0 0 0 --no-aberrations 1 1 \
         --save-full-intensity --save-plots True True False False
