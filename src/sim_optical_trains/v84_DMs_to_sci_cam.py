@@ -1,11 +1,10 @@
 """
-This file is for V84 with a 32x32 pixel camera and a sampling of 7.4 microns.
-This optical train goes from HODM 1 to the science camera.
-A diagram of PICTURE-D can be found in the `diagrams` folder under the
-`optical_design_v84.png` file. The VVC function is used without MFT.
+This file is for V84 with two HODMs. This optical train goes from HODM 1
+to the science camera. A diagram of PICTURE-D can be found in the `diagrams`
+folder under the `optical_design_v84.png` file.
 """
 
-from cbm_vvc_mft import cbm_vvc_approx
+from cbm_vvc_mft import cbm_vvc_mft
 import proper
 from utils.constants import (DM_ACTUATOR_HEIGHTS, DM_ACTUATOR_SPACING, DM_MASK,
                              VVC_CHARGE)
@@ -15,11 +14,11 @@ from utils.create_grid_mask import create_grid_mask
 INIT_BEAM_D = 0.0099
 
 # Ratio of the beam to the grid
-BEAM_RATIO = 0.50
+BEAM_RATIO = 0.35
 
 # Number of pixels and sampling size for the final camera
-CAMERA_PIXELS = 120
-CAMERA_SAMPLING = 13e-6
+CAMERA_PIXELS = 100
+CAMERA_SAMPLING = 4.54e-6
 
 # Lyot stop
 LYOT_STOP_HOLE_R = INIT_BEAM_D * 0.9 / 2
@@ -79,12 +78,16 @@ OPTICAL_TRAIN = [
     ],
     [
         'VVC',
-        lambda wf: cbm_vvc_approx(
+        lambda wf: cbm_vvc_mft(
             wavefront=wf,
             charge=VVC_CHARGE,
             offset=0,
             ramp_sign=1,
-            center_spot_scaling=1.75,
+            spot_rad=10e-6,
+            beam_ratio=BEAM_RATIO,
+            d_occulter_lyotcoll=0.511,
+            fl_lyotcoll=0.511,
+            d_lyotcoll_lyotstop=0.3101,
         ),
     ],
     [
@@ -117,6 +120,7 @@ OPTICAL_TRAIN = [
     lambda wf: proper.prop_lens(wf, 0.2),
     [
         'Camera [From final lens]',
-        lambda wf: proper.prop_propagate(wf, 0.1824736),
+        # lambda wf: proper.prop_propagate(wf, 0.1824736),
+        lambda wf: proper.prop_propagate(wf, 0.2),
     ],
 ]

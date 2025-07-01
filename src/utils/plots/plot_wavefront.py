@@ -25,8 +25,9 @@ def plot_wavefront(
         # Ignore divide by zero errors here if they occurr
         with np.errstate(divide='ignore'):
             data = np.log10(data)
-        vmin = -8
+        vmin = -14
         data[data == -np.inf] = vmin
+        data = np.nan_to_num(data, nan=vmin)
         plt.imshow(data, vmin=vmin, vmax=0, cmap=log_cmap)
     else:
         plt.imshow(data, cmap='Greys_r')
