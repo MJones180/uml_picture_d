@@ -81,9 +81,9 @@ def _display_bars(y_values, offset, color, label):
 
 
 # Display the bars for both the NN and RM
-_display_bars(Y_FASTER_NN, -0.32, '#99C2FF', 'Faster CNN')
-_display_bars(Y_PREFERRED_NN, 0, '#FFB3B3', 'Preferred CNN')
-_display_bars(Y_RM, 0.32, '#B3E6B3', 'RM')
+_display_bars(Y_RM, -0.32, '#B3E6B3', 'RM')
+_display_bars(Y_FASTER_NN, 0, '#99C2FF', 'Faster CNN')
+_display_bars(Y_PREFERRED_NN, 0.32, '#FFB3B3', 'Preferred CNN')
 
 # Set the limits on the y axis along with the correct ticks
 # ax.set_ylim([0, WAVEFRONTS_PER_BAR * 1.035])
