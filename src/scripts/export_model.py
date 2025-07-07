@@ -7,7 +7,7 @@ but with a boost to the inference speed.
 In addition to the model, the norm and base field data are also saved.
 The following assumptions are made:
     - The model is trained on the difference (so a base field does exist)
-    - There is only one norm value used for all the inputs
+    - There is only one norm value used for all the inputs (if any)
     - Each output has its own norm value
     - The model expects one input array and outputs a single array
 
@@ -68,6 +68,12 @@ def export_model(cli_args):
     step_ri('Creating output directory')
     output_dir = f'{TRAINED_MODELS_P}/exported_{tag}_epoch{epoch}'
     make_dir(output_dir)
+    output_dir_ex = f'{output_dir}/example_input_and_output'
+    make_dir(output_dir_ex)
+
+    step_ri('Saving the input line (after normalization)')
+    input_line_path = f'{output_dir_ex}/first_input_row_normalized.txt'
+    np.savetxt(input_line_path, np.reshape(first_input_row, -1), fmt='%e')
 
     # =================
     # TorchScript model
@@ -98,6 +104,10 @@ def export_model(cli_args):
     ts_model_out = ts_model(inputs).detach().numpy()
     avg_diff = np.sum(np.abs(pytorch_model_out - ts_model_out)) / row_count
     print(f'Average difference of {avg_diff:0.8f} per row')
+
+    step_ri('Saving the TorchScript output line (before denormalization)')
+    out_line_ts_path = f'{output_dir_ex}/first_output_row_normalized_ts.txt'
+    np.savetxt(out_line_ts_path, np.reshape(ts_model_out[1], -1), fmt='%e')
 
     # ==========
     # ONNX model
@@ -138,6 +148,10 @@ def export_model(cli_args):
     avg_diff = np.sum(np.abs(pytorch_model_out - onnx_model_out)) / row_count
     print(f'Average difference of {avg_diff:0.8f} per row')
 
+    step_ri('Saving the ONNX output line (before denormalization)')
+    out_line_onnx_path = f'{output_dir_ex}/first_output_row_normalized_onnx.txt'
+    np.savetxt(out_line_onnx_path, np.reshape(onnx_model_out[1], -1), fmt='%e')
+
     # ====================
     # Save auxiliary files
     # ====================
@@ -150,7 +164,7 @@ def export_model(cli_args):
     with open(norm_data_path, 'w') as out_file:
 
         def _write_data(data):
-            np.savetxt(out_file, [data], fmt='%.16f')
+            np.savetxt(out_file, [data], fmt='%e')
 
         for key in (INPUT_MAX_MIN_DIFF, INPUT_MIN_X):
             if key in model_vars:
@@ -163,7 +177,7 @@ def export_model(cli_args):
     step('Saving base intensity field data')
     base_field_path = f'{output_dir}/base_field.txt'
     print(f'Location: {base_field_path}')
-    np.savetxt(base_field_path, model_vars[BASE_INT_FIELD][0], fmt='%.16f')
+    np.savetxt(base_field_path, model_vars[BASE_INT_FIELD][0], fmt='%e')
     dec_print_indent()
 
     step('Saving the info file')
@@ -180,7 +194,12 @@ def export_model(cli_args):
             '\tThere is one norm value for all the inputs and a norm value '
             'for each of the output values.\n'
             f'{base_field_path}:\n\tContains the base field that should be '
-            'subtracted off. This field of course has only one channel.')
+            'subtracted off. This field of course has only one channel.\n'
+            f'{input_line_path}:\n\tExample input row after norm is done\n'
+            f'{out_line_ts_path}:\n\tExample TorchScript output row before '
+            'denormalization is done\n'
+            f'{out_line_onnx_path}:\n\tExample ONNX output row before '
+            'denormalization is done')
     dec_print_indent()
 
     # =========
