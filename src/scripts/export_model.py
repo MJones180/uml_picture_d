@@ -20,9 +20,10 @@ import onnxruntime
 import torch
 from utils.benchmark_nn import benchmark_nn
 from utils.constants import (BASE_INT_FIELD, INPUT_MAX_MIN_DIFF, INPUT_MIN_X,
-                             OUTPUT_MAX_MIN_DIFF, OUTPUT_MIN_X,
-                             TRAINED_MODELS_P)
+                             NORM_RANGE_ONES, OUTPUT_MAX_MIN_DIFF,
+                             OUTPUT_MIN_X, TRAINED_MODELS_P)
 from utils.model import Model
+from utils.norm import min_max_denorm
 from utils.path import make_dir
 from utils.printing_and_logging import dec_print_indent, step, step_ri, title
 from utils.shared_argparser_args import shared_argparser_args
@@ -38,7 +39,8 @@ def export_model_parser(subparsers):
     shared_argparser_args(subparser, ['tag', 'epoch'])
     subparser.add_argument(
         'validation_ds',
-        help='name of the validation dataset, data should already be norm',
+        help=('name of the validation dataset, data should already be norm '
+              'and have the base field subtracted off'),
     )
     subparser.add_argument(
         '--benchmark',
@@ -60,8 +62,11 @@ def export_model(cli_args):
     model_vars = model_obj.extra_vars
 
     step_ri('Loading in the inputs from the validation dataset')
-    inputs = DSLoaderHDF(cli_args['validation_ds']).get_inputs_torch()
+    validation_ds_data = DSLoaderHDF(cli_args['validation_ds'])
+    inputs = validation_ds_data.get_inputs_torch()
+    outputs = validation_ds_data.get_outputs_torch()
     first_input_row = inputs[1][None, :, :, :]
+    first_output_row = outputs[1].numpy()
     # Just use the first 1k rows
     inputs = inputs[:1000]
 
@@ -71,9 +76,25 @@ def export_model(cli_args):
     output_dir_ex = f'{output_dir}/example_input_and_output'
     make_dir(output_dir_ex)
 
-    step_ri('Saving the input line (after normalization)')
-    input_line_path = f'{output_dir_ex}/first_input_row_normalized.txt'
-    np.savetxt(input_line_path, np.reshape(first_input_row, -1), fmt='%e')
+    step_ri('Saving the input line (after norm and base field subtraction)')
+    input_line_path = f'{output_dir_ex}/first_input_row_norm.txt'
+    np.savetxt(input_line_path, first_input_row[0][0], fmt='%e')
+
+    def denorm_data(data):
+        return min_max_denorm(
+            data,
+            model_vars[OUTPUT_MAX_MIN_DIFF],
+            model_vars[OUTPUT_MIN_X],
+            model_vars[NORM_RANGE_ONES],
+        )
+
+    step_ri('Saving the true output line (no norm)')
+    out_line_norm_path = f'{output_dir_ex}/first_output_row_norm_truth.txt'
+    np.savetxt(out_line_norm_path, first_output_row, fmt='%e')
+
+    step_ri('Saving the true output line (no norm)')
+    out_line_path = f'{output_dir_ex}/first_output_row_truth.txt'
+    np.savetxt(out_line_path, denorm_data(first_output_row), fmt='%e')
 
     # =================
     # TorchScript model
@@ -106,8 +127,12 @@ def export_model(cli_args):
     print(f'Average difference of {avg_diff:0.8f} per row')
 
     step_ri('Saving the TorchScript output line (before denormalization)')
-    out_line_ts_path = f'{output_dir_ex}/first_output_row_normalized_ts.txt'
-    np.savetxt(out_line_ts_path, np.reshape(ts_model_out[1], -1), fmt='%e')
+    out_line_ts_norm_path = f'{output_dir_ex}/first_output_row_norm_ts.txt'
+    np.savetxt(out_line_ts_norm_path, ts_model_out[1], fmt='%e')
+
+    step_ri('Saving the TorchScript output line (after denormalization)')
+    out_line_ts_path = f'{output_dir_ex}/first_output_row_ts.txt'
+    np.savetxt(out_line_ts_path, denorm_data(ts_model_out[1]), fmt='%e')
 
     # ==========
     # ONNX model
@@ -149,8 +174,12 @@ def export_model(cli_args):
     print(f'Average difference of {avg_diff:0.8f} per row')
 
     step_ri('Saving the ONNX output line (before denormalization)')
-    out_line_onnx_path = f'{output_dir_ex}/first_output_row_normalized_onnx.txt'
-    np.savetxt(out_line_onnx_path, np.reshape(onnx_model_out[1], -1), fmt='%e')
+    out_line_onnx_norm_path = f'{output_dir_ex}/first_output_row_norm_onnx.txt'
+    np.savetxt(out_line_onnx_norm_path, onnx_model_out[1], fmt='%e')
+
+    step_ri('Saving the ONNX output line (after denormalization)')
+    out_line_onnx_path = f'{output_dir_ex}/first_output_row_onnx.txt'
+    np.savetxt(out_line_onnx_path, denorm_data(onnx_model_out[1]), fmt='%e')
 
     # ====================
     # Save auxiliary files
@@ -195,11 +224,20 @@ def export_model(cli_args):
             'for each of the output values.\n'
             f'{base_field_path}:\n\tContains the base field that should be '
             'subtracted off. This field of course has only one channel.\n'
-            f'{input_line_path}:\n\tExample input row after norm is done.\n'
-            f'{out_line_ts_path}:\n\tExample TorchScript output row before '
-            'denorm is done.\n'
-            f'{out_line_onnx_path}:\n\tExample ONNX output row before '
-            'denorm is done.')
+            f'{input_line_path}:\n\tExample input row after norm is done and '
+            'base field is subtracted.\n'
+            f'{out_line_norm_path}:\n\tExample truth output row '
+            'before denorm is done.\n'
+            f'{out_line_path}:\n\tExample truth output row '
+            'after denorm is done.\n'
+            f'{out_line_ts_norm_path}:\n\tExample TorchScript output row '
+            'before denorm is done.\n'
+            f'{out_line_ts_path}:\n\tExample TorchScript output row '
+            'after denorm is done.\n'
+            f'{out_line_onnx_norm_path}:\n\tExample ONNX output row '
+            'before denorm is done.\n'
+            f'{out_line_onnx_path}:\n\tExample ONNX output row '
+            'after denorm is done.')
     dec_print_indent()
 
     # =========
