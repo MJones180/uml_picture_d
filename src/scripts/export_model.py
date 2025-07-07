@@ -2,7 +2,7 @@
 This script will export a PyTorch model to both a TorchScript model and an
 ONNX model. TorchScript allows for the model to be run in C++ instead of Python.
 ONNX allows for the model to be run in many different runtimes (including C/C++)
-but with a boost to the inference speed.
+with an added boost to the inference speed.
 
 In addition to the model, the norm and base field data are also saved.
 The following assumptions are made:
@@ -195,11 +195,11 @@ def export_model(cli_args):
             'for each of the output values.\n'
             f'{base_field_path}:\n\tContains the base field that should be '
             'subtracted off. This field of course has only one channel.\n'
-            f'{input_line_path}:\n\tExample input row after norm is done\n'
+            f'{input_line_path}:\n\tExample input row after norm is done.\n'
             f'{out_line_ts_path}:\n\tExample TorchScript output row before '
-            'denormalization is done\n'
+            'denorm is done.\n'
             f'{out_line_onnx_path}:\n\tExample ONNX output row before '
-            'denormalization is done')
+            'denorm is done.')
     dec_print_indent()
 
     # =========
