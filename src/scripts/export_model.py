@@ -73,7 +73,7 @@ def export_model(cli_args):
     step_ri('Creating output directory')
     output_dir = f'{TRAINED_MODELS_P}/exported_{tag}_epoch{epoch}'
     make_dir(output_dir)
-    output_dir_ex = f'{output_dir}/example_input_and_output'
+    output_dir_ex = f'{output_dir}/example_data'
     make_dir(output_dir_ex)
 
     step_ri('Saving the input line (after norm and base field subtraction)')
@@ -198,9 +198,13 @@ def export_model(cli_args):
         for key in (INPUT_MAX_MIN_DIFF, INPUT_MIN_X):
             if key in model_vars:
                 _write_data(model_vars[key][()])
+            else:
+                _write_data(0)
         for key in (OUTPUT_MAX_MIN_DIFF, OUTPUT_MIN_X):
             if key in model_vars:
                 _write_data(model_vars[key][:])
+            else:
+                _write_data(0)
     dec_print_indent()
 
     step('Saving base intensity field data')
