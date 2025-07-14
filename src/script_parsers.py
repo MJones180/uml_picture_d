@@ -4,6 +4,7 @@ from scripts.batch_model_train import batch_model_train_parser
 from scripts.benchmark_model import benchmark_model_parser
 from scripts.control_loop_run import control_loop_run_parser
 from scripts.control_loop_static_wavefronts import control_loop_static_wf_parser
+from scripts.convert_piccsim_fits_data import convert_piccsim_fits_data_parser
 from scripts.convert_picd_instrument_data import convert_picd_instrument_data_parser  # noqa: E501
 from scripts.create_response_matrix import create_response_matrix_parser
 from scripts.dataset_info import dataset_info_parser
@@ -32,6 +33,7 @@ script_parsers = [
     benchmark_model_parser,
     control_loop_run_parser,
     control_loop_static_wf_parser,
+    convert_piccsim_fits_data_parser,
     convert_picd_instrument_data_parser,
     create_response_matrix_parser,
     dataset_info_parser,
