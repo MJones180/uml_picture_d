@@ -131,10 +131,10 @@ def convert_piccsim_fits_data(cli_args):
             last_filename = found_datafiles[-1].split('/')[-1]
             print(f'Files: {first_filename} - {last_filename}')
             print('Loading in files...')
-            table_data = []
-            for datafile_path in found_datafiles:
-                with fits.open(datafile_path) as hdul:
-                    table_data.append(hdul['PRIMARY'].data)
+            table_data = [
+                fits.getdata(datafile_path, memmap=False)
+                for datafile_path in found_datafiles
+            ]
             print(f'Data stored in the `{table_name}` table')
             tables[table_name] = np.array(table_data)
             dec_print_indent()
