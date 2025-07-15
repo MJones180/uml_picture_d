@@ -5,6 +5,7 @@ the files between each one will be matched up with each other; there are no
 further checks to ensure that IDs match. This script will use a lot of memory as
 all the FITS datafiles are first loaded in before they are written out; using
 smaller chunks will reduce memory consumption.
+This script can also be used to export the science camera mask to HDF.
 """
 
 from astropy.io import fits
@@ -41,7 +42,7 @@ def convert_piccsim_fits_data_parser(subparsers):
               'quotes to avoid evaluation before being passed; each set of '
               'filenames must use the same indexing scheme because they will '
               'all be sorted and aligned'),
-    ),
+    )
     subparser.add_argument(
         '--fits-table-names',
         nargs='+',
@@ -60,6 +61,12 @@ def convert_piccsim_fits_data_parser(subparsers):
         type=int,
         help='number of rows per chunk when writing out the data',
     )
+    subparser.add_argument(
+        '--sci-cam-mask-file',
+        help=('name of the file containing the science camera mask; '
+              'this script will terminate after the mask is converted, '
+              'so there is no point in using any of the other args'),
+    )
 
 
 def convert_piccsim_fits_data(cli_args):
@@ -71,12 +78,26 @@ def convert_piccsim_fits_data(cli_args):
     make_dir(output_path)
     save_cli_args(output_path, cli_args, 'convert_piccsim_fits_data')
 
+    dir_path = cli_args['dir_path']
+    sci_cam_mask_file = cli_args['sci_cam_mask_file']
+    if sci_cam_mask_file:
+        step_ri('Saving the science camera mask')
+        mask_file_path = f'{dir_path}/{sci_cam_mask_file}'
+        print(f'Mask file path: {mask_file_path}')
+        mask = fits.getdata(mask_file_path, memmap=False).astype(np.bool)
+        out_data = {'sci_cam_mask': mask}
+        outfile = f'{output_path}/0_{DATA_F}'
+        print(f'Writing to output HDF datafile: {outfile}')
+        HDFWriteModule(outfile).create_and_write_hdf_simple(out_data)
+        quit()
+
     step_ri('Verifying file glob and name arrays')
     file_globs = cli_args['fits_file_globs']
     table_names = cli_args['fits_table_names']
     if file_globs is None or table_names is None:
         terminate_with_message('The `--fits-file-globs` and '
-                               '`--fits-table-names` args must be passed')
+                               '`--fits-table-names` args must be passed, '
+                               'or `--sci-cam-mask-file` must be passed')
     if len(file_globs) != len(table_names):
         terminate_with_message('The `--fits-file-globs` and '
                                '`--fits-table-names` must be the same length')
