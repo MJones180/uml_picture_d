@@ -207,11 +207,11 @@ Train, test, and export the CNN model created from the instrument data.
 
     python3 main_scnp.py model_train picd_cnn_v2_round_one \
         train_picd_data_v2 val_picd_data_v2 \
-        best32_1_smaller_10 mae adam 1e-5 1000 --batch-size 256 \
+        speedup_6 mae adam 1e-5 1000 --batch-size 256 \
         --overwrite-existing --only-best-epoch --early-stopping 15
     python3 main_scnp.py model_train picd_cnn_v2 \
         train_picd_data_v2 val_picd_data_v2 \
-        best32_1_smaller_10 mae adam 1e-8 200 --batch-size 128 \
+        speedup_6 mae adam 1e-8 200 --batch-size 128 \
         --overwrite-existing --only-best-epoch --early-stopping 15 \
         --init-weights picd_cnn_v2_round_one last
 
