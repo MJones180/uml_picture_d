@@ -117,7 +117,7 @@ def convert_picd_instrument_data(cli_args):
                 else:
                     image_data = hdul['IMAGE'].data
                     # The data is in μm of surface error
-                    # The data should be in nm of wavefront error
+                    # The data should be in m of wavefront error
                     zernike_data = hdul['ZCMD'].data * 2 * 1e-6
                     first_n_rows = cli_args.get('first_n_rows')
                     # Use only the first n rows
