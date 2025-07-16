@@ -197,9 +197,9 @@ The newly converted HDF datafiles should be preprocessed.
 
     # Preprocess the testing data
     python3 main.py preprocess_data_bare picd_instrument_data_v2_single_zernikes \
-        picd_instrument_data_single_zernikes_raw_processed
+        picd_instrument_data_single_zernikes_raw_processed_v2
     python3 main.py preprocess_data_bare picd_instrument_data_v2_25k_10nm \
-        picd_instrument_data_25k_10nm_raw_processed
+        picd_instrument_data_25k_10nm_raw_processed_v2
 
 SEC7 - CNN TRAINING AND TESTING ++++++++++++++++++++++++++++++++++++++++++++++++
 Train, test, and export the CNN model created from the instrument data.
@@ -218,10 +218,10 @@ Train, test, and export the CNN model created from the instrument data.
     python3 main.py model_test picd_cnn_v2 last \
         test_picd_data_v2 --scatter-plot 4 6 2 0 15
     python3 main.py model_test picd_cnn_v2 last \
-        picd_instrument_data_25k_10nm_raw_processed \
+        picd_instrument_data_25k_10nm_raw_processed_v2 \
         --scatter-plot 4 6 2 1e-7 15 --inputs-need-norm --inputs-need-diff
     python3 main.py model_test picd_cnn_v2 last \
-        picd_instrument_data_single_zernikes_raw_processed \
+        picd_instrument_data_single_zernikes_raw_processed_v2 \
         --zernike-plots --inputs-need-norm --inputs-need-diff
 
     # Export the model so that it can be used in the `pytorch_model_in_c` repo
@@ -240,7 +240,7 @@ Create and test the RM model on the instrument data.
         test_picd_data_v2 \
         --scatter-plot 4 6 2 0 15 --inputs-need-denorm --inputs-are-diff
     python3 main.py run_response_matrix picd_instrument_data_v2_single_zernikes_m40 \
-        picd_instrument_data_25k_10nm_raw_processed \
+        picd_instrument_data_25k_10nm_raw_processed_v2 \
         --scatter-plot 4 6 2 1e-8 15
     python3 main.py run_response_matrix picd_instrument_data_v2_single_zernikes_m40 \
-        picd_instrument_data_single_zernikes_raw_processed --zernike-plots
+        picd_instrument_data_single_zernikes_raw_processed_v2 --zernike-plots
