@@ -5,7 +5,7 @@
 Convert FITS datafiles from the `piccsim` library to HDF:
 
     # A mask of the pixels used on the science camera
-    python3 main.py convert_piccsim_fits_data dm_sci_cam_mask \
+    python3 main.py convert_piccsim_fits_data darkhole_mask \
         /home/picture/code/picture/piccsim/plots/rx_picture_d_efcnn/sim_system_dmcmd \
         --sci-cam-mask-file sim_system_dmcmd_rx_picture_d_efcnn_pol0_sci_dhmask.fits
 
@@ -28,6 +28,6 @@ Convert FITS datafiles from the `piccsim` library to HDF:
 Preprocess the datasets:
 
     python3 main.py preprocess_data_dms_sci_cam dm_sci_cam_both_hodms_20nm_100k \
-        train_dsc_20nm val_dsc_20nm test_dsc_20nm 70 15 15 \
+        train_dh_20nm val_dh_20nm test_dh_20nm 70 15 15 \
         --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
-        --dark-zone-mask-tag dm_sci_cam_mask --remove-dark-zone-padding
+        --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding

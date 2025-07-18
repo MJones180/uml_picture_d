@@ -1,0 +1,25 @@
+Model Training and Testing Dark Hole 59x59
+------------------------------------------
+
+The models in this file are for an input dark hole of size 59x59.
+
+Model training is listed from oldest to newest (newest at the bottom).
+
+After model testing, it is useful to rank the model analyses:
+
+    # Ranking on a testing dataset, for instance `test_dh_20nm`
+    python3 main.py rank_analysis_dir test_dh_20nm
+
+[V1] The `dh_v1_` tag:
+
+    python3 main_scnp.py batch_model_train \
+        train_dh_20nm val_dh_20nm \
+        dh_v1_ 1000 \
+        --networks dh_t1 dh_t2 dh_t3 \
+        --losses mae --optimizers adam \
+        --lrs 1e-5 --batch-sizes 256 \
+        --overwrite-existing --only-best-epoch --early-stopping 15
+
+    python3 main.py batch_model_test \
+        test_dh_20nm --outputs-no-denorm \
+        --epoch-and-tag-range last dh_v1_ 1 3

@@ -1,6 +1,6 @@
 # Commands Lookup
 
-This file contains commands to simulate data that involves both DMs and the science camera.
+This file contains commands to simulate data that involves dark holes.
 However, data simulation is actually being done in the `piccsim` library (in IDL).
 Therefore, all these commands are not being used anymore.
 

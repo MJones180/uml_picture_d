@@ -25,13 +25,13 @@ from utils.printing_and_logging import step_ri, title
 from utils.terminate_with_message import terminate_with_message
 
 
-def preprocess_data_dms_sci_cam_parser(subparsers):
+def preprocess_data_dark_hole_parser(subparsers):
     subparser = subparsers.add_parser(
-        'preprocess_data_dms_sci_cam',
+        'preprocess_data_dark_hole',
         help=('preprocess data for training, validation, and testing for the '
-              'DMs and science camera'),
+              'dark holes'),
     )
-    subparser.set_defaults(main=preprocess_data_dms_sci_cam)
+    subparser.set_defaults(main=preprocess_data_dark_hole)
     subparser.add_argument(
         'raw_data_tag',
         help='tag of the raw simulated data',
@@ -109,8 +109,8 @@ def preprocess_data_dms_sci_cam_parser(subparsers):
     )
 
 
-def preprocess_data_dms_sci_cam(cli_args):
-    title('Preprocess data dms sci cam script')
+def preprocess_data_dark_hole(cli_args):
+    title('Preprocess data dark hole script')
 
     # ==========================================================================
 
@@ -335,7 +335,7 @@ def preprocess_data_dms_sci_cam(cli_args):
         print(f'Making {out_path}')
         make_dir(out_path)
         # Write out the CLI args that this script was called with
-        save_cli_args(out_path, cli_args, 'preprocess_data_dms_sci_cam')
+        save_cli_args(out_path, cli_args, 'preprocess_data_dark_hole')
         # Add a file with other necessary variables (includes norm values)
         HDFWriteModule(f'{out_path}/{EXTRA_VARS_F}'
                        ).create_and_write_hdf_simple(extra_vars)

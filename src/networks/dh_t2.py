@@ -1,5 +1,5 @@
-# `dsc_t1` network { 2x59x59 -> 1512 }.
-# Trainable parameters: 7,784,616
+# `dh_t2` network { 2x59x59 -> 1512 }.
+# Trainable parameters: 13,445,992
 
 import torch
 import torch.nn as nn
@@ -34,27 +34,27 @@ class Network(nn.Module):
 
     def __init__(self):
         super().__init__()
-        self.conv_block1 = _make_conv_block(2, 16, 3)
-        self.conv_block2 = _make_conv_block(16, 16, 3)
-        self.conv_block3 = _make_conv_block(16, 16, 3)
+        self.conv_block1 = _make_conv_block(2, 32, 3)
+        self.conv_block2 = _make_conv_block(32, 32, 3)
+        self.conv_block3 = _make_conv_block(32, 32, 3)
         # 59x59 -> 30x30
         self.maxpool1 = nn.MaxPool2d(2, ceil_mode=True)
-        self.conv_block4 = _make_conv_block(16, 32, 3)
-        self.conv_block5 = _make_conv_block(32, 32, 3)
-        self.conv_block6 = _make_conv_block(32, 32, 3)
+        self.conv_block4 = _make_conv_block(32, 64, 3)
+        self.conv_block5 = _make_conv_block(64, 64, 3)
+        self.conv_block6 = _make_conv_block(64, 64, 3)
         # 30x30 -> 15x15
         self.maxpool2 = nn.MaxPool2d(2)
-        self.conv_block7 = _make_conv_block(32, 64, 3)
-        self.conv_block8 = _make_conv_block(64, 64, 3)
-        self.conv_block9 = _make_conv_block(64, 64, 3)
+        self.conv_block7 = _make_conv_block(64, 128, 3)
+        self.conv_block8 = _make_conv_block(128, 128, 3)
+        self.conv_block9 = _make_conv_block(128, 128, 3)
         # 15x15 -> 8x8
         self.maxpool3 = nn.MaxPool2d(2, ceil_mode=True)
-        self.conv_block10 = _make_conv_block(64, 128, 3)
-        self.conv_block11 = _make_conv_block(128, 128, 3)
-        self.conv_block12 = _make_conv_block(128, 128, 3)
+        self.conv_block10 = _make_conv_block(128, 256, 3)
+        self.conv_block11 = _make_conv_block(256, 256, 3)
+        self.conv_block12 = _make_conv_block(256, 256, 3)
         # 8x8 -> 4x4
         self.maxpool4 = nn.MaxPool2d(2)
-        self.dense_block1 = _make_dense_block(2048, 2048, 0.3)
+        self.dense_block1 = _make_dense_block(4096, 2048, 0.3)
         self.out_layer = nn.Linear(2048, 1512)
 
     def forward(self, x):
