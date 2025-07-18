@@ -36,6 +36,11 @@ def batch_model_test_parser(subparsers):
         help='the inputs need to be normalized',
     )
     subparser.add_argument(
+        '--outputs-no-denorm',
+        action='store_true',
+        help='the outputs do not need to be denormalized',
+    )
+    subparser.add_argument(
         '--scatter-plot',
         nargs=5,
         metavar=('[n_rows]', '[n_cols]', '[starting_zernike]',
@@ -97,6 +102,7 @@ def batch_model_test(cli_args):
             'testing_ds',
             'inputs_need_diff',
             'inputs_need_norm',
+            'outputs_no_denorm',
             'scatter_plot',
             'zernike_plots',
             'print_outputs',
