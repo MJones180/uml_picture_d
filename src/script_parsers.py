@@ -19,6 +19,7 @@ from scripts.network_info import network_info_parser
 from scripts.plot_model_loss import plot_model_loss_parser
 from scripts.preprocess_data_bare import preprocess_data_bare_parser
 from scripts.preprocess_data_complete import preprocess_data_complete_parser
+from scripts.preprocess_data_dms_sci_cam import preprocess_data_dms_sci_cam_parser  # noqa: E501
 from scripts.prune_tag_lookup import prune_tag_lookup_parser
 from scripts.prune_trained_model import prune_trained_model_parser
 from scripts.random_trim_raw_dataset import random_trim_raw_dataset_parser
@@ -48,6 +49,7 @@ script_parsers = [
     plot_model_loss_parser,
     preprocess_data_bare_parser,
     preprocess_data_complete_parser,
+    preprocess_data_dms_sci_cam_parser,
     prune_tag_lookup_parser,
     prune_trained_model_parser,
     random_trim_raw_dataset_parser,

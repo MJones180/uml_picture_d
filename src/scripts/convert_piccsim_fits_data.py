@@ -12,7 +12,7 @@ from astropy.io import fits
 from glob import glob
 import numpy as np
 from utils.cli_args import save_cli_args
-from utils.constants import DATA_F, RAW_DATA_P
+from utils.constants import DARK_ZONE_MASK, DATA_F, RAW_DATA_P
 from utils.hdf_read_and_write import HDFWriteModule
 from utils.path import make_dir
 from utils.printing_and_logging import dec_print_indent, step, step_ri, title
@@ -85,7 +85,7 @@ def convert_piccsim_fits_data(cli_args):
         mask_file_path = f'{dir_path}/{sci_cam_mask_file}'
         print(f'Mask file path: {mask_file_path}')
         mask = fits.getdata(mask_file_path, memmap=False).astype(np.bool)
-        out_data = {'sci_cam_mask': mask}
+        out_data = {DARK_ZONE_MASK: mask}
         outfile = f'{output_path}/0_{DATA_F}'
         print(f'Writing to output HDF datafile: {outfile}')
         HDFWriteModule(outfile).create_and_write_hdf_simple(out_data)

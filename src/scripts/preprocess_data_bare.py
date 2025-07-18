@@ -1,4 +1,6 @@
 """
+This script expects a wf intensity as input and Zernike coefficients as output.
+
 This script does not do much preprocessing, it simply ensures that the data can
 be read in with the expected format.
 

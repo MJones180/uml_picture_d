@@ -53,6 +53,11 @@ def model_test_parser(subparsers):
         help='the inputs need to be normalized',
     )
     subparser.add_argument(
+        '--outputs-no-denorm',
+        action='store_true',
+        help='the outputs do not need to be denormalized',
+    )
+    subparser.add_argument(
         '--scatter-plot',
         nargs=5,
         metavar=('[n_rows]', '[n_cols]', '[starting_zernike]',
@@ -110,9 +115,9 @@ def model_test(cli_args):
     step_ri('Calling the model and obtaining its outputs')
     outputs_model = model(inputs)
 
-    step_ri('Denormalizing the outputs')
-    # Denormalize the outputs
-    outputs_model = model.denorm_data(outputs_model)
+    if not cli_args.get('outputs_no_denorm'):
+        step_ri('Denormalizing the outputs')
+        outputs_model = model.denorm_data(outputs_model)
     # Testing output data should already be denormalized
     outputs_truth = testing_dataset.get_outputs()
 

@@ -7,24 +7,31 @@ from utils.hdf_read_and_write import read_hdf
 from utils.printing_and_logging import dec_print_indent, inc_print_indent
 
 
-def load_raw_sim_data_chunks(raw_data_tag, full_intensity=False):
+def raw_sim_data_chunk_paths(raw_data_tag):
     base_path = f'{RAW_DATA_P}/{raw_data_tag}'
     # Instead of globbing the paths, it is safer to load in the datafiles using
     # their chunk number so that they are guaranteed to be in order
-    chunk_vals = sorted([
+    chunk_numbers = sorted([
         # Grab the number associated with each chunk
         int(path.split('/')[-1][:-len(DATA_F) - 1])
         # All datafiles should follow the format [chunk]_[DATA_F]
         for path in glob(f'{base_path}/*_{DATA_F}')
     ])
+    # The path to each chunk
+    return [
+        f'{base_path}/{chunk_idx}_{DATA_F}'
+        for chunk_idx, _ in enumerate(chunk_numbers)
+    ]
+
+
+def load_raw_sim_data_chunks(raw_data_tag, full_intensity=False):
     input_data = []
     output_data = []
     intensity_tag = FULL_INTENSITY if full_intensity else CAMERA_INTENSITY
     sampling_tag = FULL_SAMPLING if full_intensity else CAMERA_SAMPLING
     print(f'Tag: {raw_data_tag}')
     inc_print_indent()
-    for idx, chunk_val in enumerate(chunk_vals):
-        path = f'{base_path}/{chunk_val}_{DATA_F}'
+    for idx, path in enumerate(raw_sim_data_chunk_paths(raw_data_tag)):
         print(f'Path: {path}')
         data = read_hdf(path)
         # For our models, we will want to feed in our intensity fields and

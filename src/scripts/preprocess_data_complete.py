@@ -1,4 +1,6 @@
 """
+This script expects a wf intensity as input and Zernike coefficients as output.
+
 This script preprocesses datasets that can be used for training and testing.
 The datasets should have been simulated by the `sim_data` script.
 
@@ -53,7 +55,7 @@ def preprocess_data_complete_parser(subparsers):
     subparser.add_argument(
         'training_percentage',
         type=int,
-        default=7,
+        default=70,
         help='int percentage of the data that will go to training',
     )
     subparser.add_argument(
