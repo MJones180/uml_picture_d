@@ -198,7 +198,7 @@ def convert_piccsim_fits_data(cli_args):
             found_datafiles = _make_glob(file_glob)
             if row_slice_mask is not None:
                 # Take out the sliced rows if specified
-                found_datafiles = found_datafiles[row_slice_mask]
+                found_datafiles = np.array(found_datafiles)[row_slice_mask]
             # Slice out the simulations for this chunk
             found_datafiles = found_datafiles[idx_low:idx_high]
             first_filename = found_datafiles[0].split('/')[-1]
