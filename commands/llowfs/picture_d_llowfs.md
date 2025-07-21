@@ -85,10 +85,10 @@ be padded with aberration free rows to make 100k rows.
         --save-aberrations-csv-quit
 
     # ---- 10 ----
-    # 25,000 rows, -10 nm for Z2-Z24
+    # 25,000 rows, 10 nm for Z2-Z24
     # Based on simulated dataset: random_10nm_med
     python3 main_scnp.py sim_data picture_d_aberrations_group_10 v84_approx 600e-9 \
-        --rand-amount-per-zernike 2 24 " -10e-9" 10e-9 25000 \
+        --rand-amount-per-zernike 25000 2 24 " -10e-9" 10e-9 \
         --save-aberrations-csv-quit
 
 SEC2 - CSV TO BINARY FILES +++++++++++++++++++++++++++++++++++++++++++++++++++++
