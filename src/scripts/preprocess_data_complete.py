@@ -118,6 +118,11 @@ def preprocess_data_complete_parser(subparsers):
         help=('the Zernike coefficients are in terms of surface error instead '
               'of wavefront error'),
     )
+    subparser.add_argument(
+        '--outputs-scaling-factor',
+        type=float,
+        help='multiply the Zernike coefficients by a scaling factor',
+    )
 
 
 def preprocess_data_complete(cli_args):
@@ -180,6 +185,14 @@ def preprocess_data_complete(cli_args):
         step_ri('Converting from surface error to wavefront error')
         print('Multiplying output data (Zernike coefficients) by 2')
         output_data *= 2
+
+    # ==========================================================================
+
+    output_scaling_factor = cli_args['output_scaling_factor']
+    if output_scaling_factor:
+        step_ri('Adding a scaling factor to the outputs')
+        print(f'Multiplying output data by {output_scaling_factor}')
+        output_data *= output_scaling_factor
 
     # ==========================================================================
 
