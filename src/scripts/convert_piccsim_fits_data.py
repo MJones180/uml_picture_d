@@ -136,6 +136,7 @@ def convert_piccsim_fits_data(cli_args):
         rows_per_chunk = total_file_count
     else:
         chunk_count = np.ceil(total_file_count / rows_per_chunk)
+        rows_per_chunk = min(rows_per_chunk, total_file_count)
     chunk_count = int(chunk_count)
     print(f'A total of {chunk_count} chunk(s) ({rows_per_chunk} row(s) each)')
 
