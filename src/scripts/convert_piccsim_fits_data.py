@@ -12,7 +12,7 @@ from astropy.io import fits
 from glob import glob
 import numpy as np
 from utils.cli_args import save_cli_args
-from utils.constants import DARK_ZONE_MASK, DATA_F, RAW_DATA_P
+from utils.constants import DARK_ZONE_MASK, DATA_F, RAW_DATA_P, ZERNIKE_TERMS
 from utils.hdf_read_and_write import HDFWriteModule
 from utils.path import make_dir
 from utils.printing_and_logging import dec_print_indent, step, step_ri, title
@@ -51,10 +51,19 @@ def convert_piccsim_fits_data_parser(subparsers):
               'correspond to the values in the `--fits-file-globs` argument'),
     )
     subparser.add_argument(
+        '--slice-row-ranges',
+        type=int,
+        nargs='*',
+        help=('slice out rows from the given ranges in the form of '
+              '[idx low, idx high]..., this will be done to each table; '
+              'cannot be used with the `--first-n-rows` arg'),
+    )
+    subparser.add_argument(
         '--first-n-rows',
         type=int,
         metavar='n',
-        help='use only the first n files found',
+        help=('use only the first n files found; cannot be used with the '
+              '`--slice-row-ranges` arg'),
     )
     subparser.add_argument(
         '--rows-per-chunk',
@@ -62,10 +71,20 @@ def convert_piccsim_fits_data_parser(subparsers):
         help='number of rows per chunk when writing out the data',
     )
     subparser.add_argument(
+        '--add-dummy-tables',
+        nargs='+',
+        help='tables to add with a dummy value of 0 to the output datafiles')
+    subparser.add_argument(
+        '--add-zernikes',
+        type=int,
+        nargs=2,
+        help='add Zernike terms to the output datafiles',
+    )
+    subparser.add_argument(
         '--sci-cam-mask-file',
-        help=('name of the file containing the science camera mask; '
-              'this script will terminate after the mask is converted, '
-              'so there is no point in using any of the other args'),
+        help=('name of the file containing the science camera mask; this '
+              'script will terminate after the mask is converted, so there '
+              'is no point in using any of the other args'),
     )
 
 
@@ -124,13 +143,28 @@ def convert_piccsim_fits_data(cli_args):
                                    'of found datafiles')
         dec_print_indent()
 
-    step_ri('Calculating number of chunks')
+    row_slice_mask = None
+    slice_row_ranges = cli_args['slice_row_ranges']
     first_n_rows = cli_args['first_n_rows']
-    rows_per_chunk = cli_args['rows_per_chunk']
-    if first_n_rows:
+    if slice_row_ranges is not None:
+        step_ri('Slicing out specific simulations')
+        if len(slice_row_ranges) % 2 == 1:
+            terminate_with_message('Invalid row slice params')
+        # A mask of the rows to keep
+        row_slice_mask = np.full(total_file_count, False)
+        for range_idx in range(len(slice_row_ranges) // 2):
+            idx_low = slice_row_ranges[range_idx * 2]
+            idx_high = slice_row_ranges[range_idx * 2 + 1]
+            print(f'Index low, high: {idx_low}, {idx_high}')
+            row_slice_mask[idx_low:idx_high] = True
+        total_file_count = row_slice_mask.sum()
+    elif first_n_rows:
         print(f'Using only the first {first_n_rows} rows')
         # Cap the number of datafiles that are loaded in and written out
         total_file_count = min(total_file_count, first_n_rows)
+
+    step_ri('Calculating number of chunks')
+    rows_per_chunk = cli_args['rows_per_chunk']
     if rows_per_chunk is None:
         chunk_count = 1
         rows_per_chunk = total_file_count
@@ -140,15 +174,33 @@ def convert_piccsim_fits_data(cli_args):
     chunk_count = int(chunk_count)
     print(f'A total of {chunk_count} chunk(s) ({rows_per_chunk} row(s) each)')
 
+    step_ri('Setting up the base tables that will be written out')
+    base_tables = {}
+    add_dummy_tables = cli_args['add_dummy_tables']
+    add_zernikes = cli_args['add_zernikes']
+    if add_dummy_tables is not None:
+        print(f'Adding dummy tables: {add_dummy_tables}')
+        for table in add_dummy_tables:
+            base_tables[table] = 0
+    if add_zernikes is not None:
+        zernike_range = np.arange(*add_zernikes)
+        print(f'Adding Zernikes: {zernike_range}')
+        base_tables[ZERNIKE_TERMS] = zernike_range
+
     step_ri('Loading in glob files and writing out data')
     for chunk_idx in range(chunk_count):
         idx_low = chunk_idx * rows_per_chunk
         idx_high = idx_low + rows_per_chunk
         step(f'On chunk {chunk_idx} [idx {idx_low} - {idx_high}]')
-        tables = {}
+        tables = base_tables.copy()
         for file_glob, table_name in zip(file_globs, table_names):
             step(f'Glob {file_glob}')
-            found_datafiles = _make_glob(file_glob)[idx_low:idx_high]
+            found_datafiles = _make_glob(file_glob)
+            if row_slice_mask is not None:
+                # Take out the sliced rows if specified
+                found_datafiles = found_datafiles[row_slice_mask]
+            # Slice out the simulations for this chunk
+            found_datafiles = found_datafiles[idx_low:idx_high]
             first_filename = found_datafiles[0].split('/')[-1]
             last_filename = found_datafiles[-1].split('/')[-1]
             print(f'Files: {first_filename} - {last_filename}')
