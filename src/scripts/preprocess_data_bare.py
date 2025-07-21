@@ -37,6 +37,12 @@ def preprocess_data_bare_parser(subparsers):
         'tag',
         help='tag of the outputted dataset',
     )
+    subparser.add_argument(
+        '--outputs-in-surface-error',
+        action='store_true',
+        help=('the Zernike coefficients are in terms of surface error instead '
+              'of wavefront error'),
+    )
 
 
 def preprocess_data_bare(cli_args):
@@ -54,6 +60,11 @@ def preprocess_data_bare(cli_args):
     # Since this is a grayscale image, there is only one channel
     input_data = input_data[:, None, :, :]
     print(f'Input shape: {input_data.shape}')
+
+    if cli_args['outputs_in_surface_error']:
+        step_ri('Converting from surface error to wavefront error')
+        print('Multiplying output data (Zernike coefficients) by 2')
+        output_data *= 2
 
     step_ri('Creating new dataset')
     # Extra tables of information taken from the raw datafile

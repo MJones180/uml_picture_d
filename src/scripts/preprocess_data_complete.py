@@ -112,6 +112,12 @@ def preprocess_data_complete_parser(subparsers):
               'together, however, this data will only go in the '
               'training dataset'),
     )
+    subparser.add_argument(
+        '--outputs-in-surface-error',
+        action='store_true',
+        help=('the Zernike coefficients are in terms of surface error instead '
+              'of wavefront error'),
+    )
 
 
 def preprocess_data_complete(cli_args):
@@ -167,6 +173,13 @@ def preprocess_data_complete(cli_args):
     # Since this is a grayscale image, there is only one channel
     input_data = input_data[:, None, :, :]
     print(f'Input shape: {input_data.shape}')
+
+    # ==========================================================================
+
+    if cli_args['outputs_in_surface_error']:
+        step_ri('Converting from surface error to wavefront error')
+        print('Multiplying output data (Zernike coefficients) by 2')
+        output_data *= 2
 
     # ==========================================================================
 
