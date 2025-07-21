@@ -183,7 +183,7 @@ def convert_piccsim_fits_data(cli_args):
         for table in add_dummy_tables:
             base_tables[table] = 0
     if add_zernikes is not None:
-        zernike_range = np.arange(*add_zernikes)
+        zernike_range = np.arange(add_zernikes[0], add_zernikes[1] + 1)
         print(f'Adding Zernikes: {zernike_range}')
         base_tables[ZERNIKE_TERMS] = zernike_range
 
