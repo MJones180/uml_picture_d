@@ -43,6 +43,11 @@ def preprocess_data_bare_parser(subparsers):
         help=('the Zernike coefficients are in terms of surface error instead '
               'of wavefront error'),
     )
+    subparser.add_argument(
+        '--outputs-scaling-factor',
+        type=float,
+        help='multiply the Zernike coefficients by a scaling factor',
+    )
 
 
 def preprocess_data_bare(cli_args):
@@ -65,6 +70,12 @@ def preprocess_data_bare(cli_args):
         step_ri('Converting from surface error to wavefront error')
         print('Multiplying output data (Zernike coefficients) by 2')
         output_data *= 2
+
+    outputs_scaling_factor = cli_args.get('outputs_scaling_factor')
+    if outputs_scaling_factor:
+        step_ri('Adding a scaling factor to the outputs')
+        print(f'Multiplying output data by {outputs_scaling_factor}')
+        output_data *= outputs_scaling_factor
 
     step_ri('Creating new dataset')
     # Extra tables of information taken from the raw datafile

@@ -188,11 +188,11 @@ def preprocess_data_complete(cli_args):
 
     # ==========================================================================
 
-    output_scaling_factor = cli_args['output_scaling_factor']
-    if output_scaling_factor:
+    outputs_scaling_factor = cli_args.get('outputs_scaling_factor')
+    if outputs_scaling_factor:
         step_ri('Adding a scaling factor to the outputs')
-        print(f'Multiplying output data by {output_scaling_factor}')
-        output_data *= output_scaling_factor
+        print(f'Multiplying output data by {outputs_scaling_factor}')
+        output_data *= outputs_scaling_factor
 
     # ==========================================================================
 
