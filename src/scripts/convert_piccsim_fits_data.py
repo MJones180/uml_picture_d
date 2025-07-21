@@ -130,7 +130,7 @@ def convert_piccsim_fits_data(cli_args):
     if first_n_rows:
         print(f'Using only the first {first_n_rows} rows')
         # Cap the number of datafiles that are loaded in and written out
-        total_file_count = first_n_rows
+        total_file_count = min(total_file_count, first_n_rows)
     if rows_per_chunk is None:
         chunk_count = 1
         rows_per_chunk = total_file_count
