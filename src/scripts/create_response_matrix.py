@@ -54,6 +54,17 @@ def create_response_matrix_parser(subparsers):
               'should be passed via this argument; this argument should not '
               'be used if the base field is already in the data'),
     )
+    subparser.add_argument(
+        '--outputs-in-surface-error',
+        action='store_true',
+        help=('the Zernike coefficients are in terms of surface error instead '
+              'of wavefront error'),
+    )
+    subparser.add_argument(
+        '--outputs-scaling-factor',
+        type=float,
+        help='multiply the Zernike coefficients by a scaling factor',
+    )
 
 
 def create_response_matrix(cli_args):
@@ -98,6 +109,17 @@ def create_response_matrix(cli_args):
         # For the perturbation amounts, the last row is for the base case,
         # so we can chop it off
         perturbation_amounts = zernike_amounts[:-1]
+
+    if cli_args['outputs_in_surface_error']:
+        step_ri('Converting from surface error to wavefront error')
+        print('Multiplying perturbation amounts by 2')
+        perturbation_amounts *= 2
+
+    outputs_scaling_factor = cli_args.get('outputs_scaling_factor')
+    if outputs_scaling_factor:
+        step_ri('Adding a scaling factor to the outputs')
+        print(f'Multiplying perturbation amounts by {outputs_scaling_factor}')
+        perturbation_amounts *= outputs_scaling_factor
 
     step_ri('Chunking the data')
     # Instead of creating the response matrix for a single RMS perturbation,
