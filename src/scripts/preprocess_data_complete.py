@@ -160,7 +160,7 @@ def preprocess_data_complete(cli_args):
         for tag in cli_args.get('additional_raw_data_tags'):
             input_data, output_data = _load_and_merge_chunks(tag)
 
-    if cli_args.['keep_only_unique_rows']:
+    if cli_args['keep_only_unique_rows']:
         step_ri('Removing any non-unique rows')
         unique_idxs = np.unique(output_data, return_index=True, axis=0)[1]
         non_unique_count = output_data.shape[0] - unique_idxs.shape[0]
