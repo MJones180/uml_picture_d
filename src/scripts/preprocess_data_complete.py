@@ -123,6 +123,11 @@ def preprocess_data_complete_parser(subparsers):
         type=float,
         help='multiply the Zernike coefficients by a scaling factor',
     )
+    subparser.add_argument(
+        '--keep-only-unique-rows',
+        action='store_true',
+        help='remove any rows that are not unique',
+    )
 
 
 def preprocess_data_complete(cli_args):
@@ -154,6 +159,16 @@ def preprocess_data_complete(cli_args):
         step_ri('Loading in additional data chunks')
         for tag in cli_args.get('additional_raw_data_tags'):
             input_data, output_data = _load_and_merge_chunks(tag)
+
+    if cli_args.['keep_only_unique_rows']:
+        step_ri('Removing any non-unique rows')
+        unique_idxs = np.unique(output_data, return_index=True, axis=0)[1]
+        non_unique_count = output_data.shape[0] - unique_idxs.shape[0]
+        print(f'Removing {non_unique_count} rows')
+        input_data = input_data[unique_idxs]
+        output_data = output_data[unique_idxs]
+        print(f'Input shape: {input_data.shape}')
+        print(f'Output shape: {output_data.shape}')
 
     train_only_mask = None
     if cli_args.get('additional_raw_data_tags_train_only') is not None:
