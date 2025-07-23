@@ -101,8 +101,9 @@ def model_test(cli_args):
     testing_dataset = DSLoaderHDF(testing_ds_tag)
     inputs = testing_dataset.get_inputs()
     extra_vars_path = f'{PROC_DATA_P}/{testing_ds_tag}/{EXTRA_VARS_F}'
-    zernike_terms = read_hdf(extra_vars_path)[ZERNIKE_TERMS]
-    print(f'Using zernike terms: {zernike_terms}')
+    zernike_terms = read_hdf(extra_vars_path).get(ZERNIKE_TERMS)
+    if zernike_terms is not None:
+        print(f'Using zernike terms: {zernike_terms}')
 
     if cli_args.get('inputs_need_norm'):
         step_ri('Preprocessing the inputs')
@@ -139,8 +140,9 @@ def model_test(cli_args):
         print('Percent error:')
         percent_errors = abs_diff / outputs_truth * 100
         _print_outputs(percent_errors)
-        print('Average percent error:')
-        print(np.sum(percent_errors) / len(zernike_terms))
+        if zernike_terms is not None:
+            print('Average percent error:')
+            print(np.sum(percent_errors) / len(zernike_terms))
 
     step_ri('Computing the MAE and MSE')
     mae_val = mae(outputs_truth, outputs_model)
