@@ -6,7 +6,7 @@ Based on original plotting script:
 Requirements:
     - The data must all be in meters
     - Must be Zernikes 2-24
-    - Every Zernike must share the same limits
+    - Every Zernike must share the same limits (-10 to 10 nm)
 """
 
 import matplotlib.pyplot as plt
