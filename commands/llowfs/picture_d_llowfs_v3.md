@@ -20,8 +20,9 @@ TABLE OF CONTENTS:
     SEC1 - SIMULATED DATA
     SEC2 - FITS TO HDF FILES
     SEC3 - PREPROCESS DATAFILES
-    SEC4 - CNN TRAINING AND TESTING
+    SEC4 - [V55a] CNN TRAINING AND TESTING
     SEC5 - RM CREATION AND TESTING
+    SEC6 - (EXTRA) [V55b] CNN TRAINING AND TESTING
 
 SEC1 - SIMULATED DATA ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 The data is simulated in `piccsim` (IDL) using the `batch.llowfsnn.pro` script.
@@ -55,7 +56,7 @@ Each simulation will be output in its own FITS datafile.
     # of being written out to the SSD. The command to do this for a directory is
     #   sudo mount -t tmpfs -o size=1G,rw,nodev,nosuid,uid=$(id -u),gid=$(id -g),mode=1700,noatime,nodiratime tmpfs PATH_TO_DIR
 
-SEC4 - FITS TO HDF FILES +++++++++++++++++++++++++++++++++++++++++++++++++++++++
+SEC2 - FITS TO HDF FILES +++++++++++++++++++++++++++++++++++++++++++++++++++++++
 These FITS datafiles should be converted to HDF files. The format of the HDF
 datafiles should be the same as the raw simulation datafiles. On the workstation
 these FITS datafile directories are located under:
@@ -160,7 +161,7 @@ The newly converted HDF datafiles should be preprocessed.
         piccsim_llowfs_v1_10_processed \
         --outputs-in-surface-error --outputs-scaling-factor 1e-9
 
-SEC4 - CNN TRAINING AND TESTING ++++++++++++++++++++++++++++++++++++++++++++++++
+SEC4 - [V55a] CNN TRAINING AND TESTING +++++++++++++++++++++++++++++++++++++++++
 Train, test, and export the CNN model.
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -214,3 +215,27 @@ Create and test the RM model.
         piccsim_llowfs_v1_9_processed --zernike-plots
     python3 main.py run_response_matrix piccsim_llowfs_v1_9b \
         piccsim_llowfs_v1_10_processed --scatter-plot 4 6 2 1e-8 15
+
+SEC6 - (EXTRA) [V55b] CNN TRAINING AND TESTING +++++++++++++++++++++++++++++++++
+The commands to train and test the [V55b] CNN model.
+This CNN is too slow to run on the older, slower flight computer.
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+    python3 main_scnp.py model_train picd_cnn_v3_v55b_round_one \
+        train_picd_data_v3 val_picd_data_v3 \
+        best32_1_smaller_10 mae adam 1e-5 1000 --batch-size 256 \
+        --overwrite-existing --only-best-epoch --early-stopping 15
+    python3 main_scnp.py model_train picd_cnn_v3_v55b \
+        train_picd_data_v3 val_picd_data_v3 \
+        best32_1_smaller_10 mae adam 1e-8 200 --batch-size 128 \
+        --overwrite-existing --only-best-epoch --early-stopping 15 \
+        --init-weights picd_cnn_v3_v55b_round_one last
+
+    python3 main.py model_test picd_cnn_v3_v55b last \
+        test_picd_data_v3 --scatter-plot 4 6 2 0 15
+    python3 main.py model_test picd_cnn_v3_v55b last \
+        piccsim_llowfs_v1_9_processed \
+        --zernike-plots --inputs-need-norm --inputs-need-diff
+    python3 main.py model_test picd_cnn_v3_v55b last \
+        piccsim_llowfs_v1_10_processed \
+        --scatter-plot 4 6 2 1e-7 15 --inputs-need-norm --inputs-need-diff
