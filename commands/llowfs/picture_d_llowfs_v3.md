@@ -45,6 +45,16 @@ Each simulation will be output in its own FITS datafile.
     # 10      25000     10      10       10    random_10nm_med_approx
     # 11          0      0       0        0    no_aberrations_approx
 
+    # The `piccsim/batch.llowfsnn.pro` script was used for simulations.
+    # Each chunk of data was simulated using its own core on the workstation.
+    # For some reason, as each process ran, the read/write speeds slowly
+    # decreased which led to simulations taking way longer than expected.
+    # In order to fix this, the `piccsim/output/rx_picture_d_llowfs/*`
+    # directories were each put into memory - this means all the temporary
+    # files written/deleted for each simulation are stored in memory instead
+    # of being written out to the SSD. The command to do this for a directory is
+    #   sudo mount -t tmpfs -o size=1G,rw,nodev,nosuid,uid=$(id -u),gid=$(id -g),mode=1700,noatime,nodiratime tmpfs PATH_TO_DIR
+
 SEC4 - FITS TO HDF FILES +++++++++++++++++++++++++++++++++++++++++++++++++++++++
 These FITS datafiles should be converted to HDF files. The format of the HDF
 datafiles should be the same as the raw simulation datafiles. On the workstation
