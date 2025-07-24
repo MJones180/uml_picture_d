@@ -177,6 +177,7 @@ class Model():
                 elif self.max_rows_per_model_call <= 1:
                     if self.device != CPU:
                         print('Switching to use the CPU instead.')
+                        self.max_rows_per_model_call = None
                         self.device = CPU
                         self._load_model()
                     else:
