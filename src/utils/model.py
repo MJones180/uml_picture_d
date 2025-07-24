@@ -1,7 +1,7 @@
 from glob import glob
 import numpy as np
 import torch
-from utils.constants import (ARGS_F, BASE_INT_FIELD, EXTRA_VARS_F,
+from utils.constants import (ARGS_F, BASE_INT_FIELD, CPU, EXTRA_VARS_F,
                              INPUTS_SUM_TO_ONE, INPUT_MAX_MIN_DIFF,
                              INPUT_MIN_X, NORM_RANGE_ONES, OUTPUT_MAX_MIN_DIFF,
                              OUTPUT_MIN_X, TRAINED_MODELS_P)
@@ -56,10 +56,10 @@ class Model():
         self.tag = tag
         self.epoch = epoch
 
-        model_path = f'{dir_path}/epoch_{epoch}'
-        _print(f'Model directory path with epoch: {model_path}')
-        if not path_exists(model_path):
-            terminate_with_message(f'Model not found at {model_path}')
+        self.model_path = f'{dir_path}/epoch_{epoch}'
+        _print(f'Model directory path with epoch: {self.model_path}')
+        if not path_exists(self.model_path):
+            terminate_with_message(f'Model not found at {self.model_path}')
 
         _print('Loading in the training args')
         self.training_args = json_load(f'{dir_path}/{ARGS_F}')
@@ -88,14 +88,7 @@ class Model():
         self.device = torch_grab_device(force_cpu)
         # Need to first load in the network
         self.network = load_network(self.network_name)
-        self.model = self.network().to(self.device)
-        # Now, the weights can be set
-        self.model.load_state_dict(
-            torch.load(
-                model_path,
-                weights_only=False,
-                map_location=torch.device(self.device),
-            ))
+        self._load_model()
         # Set to evaluation mode
         self.model.eval()
         dec_print_indent()
@@ -103,6 +96,17 @@ class Model():
         # A value of None means there have been no memory issues so far, so as
         # many rows as needed can be passed.
         self.max_rows_per_model_call = None
+
+    def _load_model(self):
+        # Init the network
+        self.model = self.network().to(self.device)
+        # Now, the weights can be set
+        self.model.load_state_dict(
+            torch.load(
+                self.model_path,
+                weights_only=False,
+                map_location=torch.device(self.device),
+            ))
 
     def preprocess_data(self, input_data, sub_basefield=False, sum_dims=None):
         if self.inputs_sum_to_one:
@@ -171,8 +175,13 @@ class Model():
                 if self.max_rows_per_model_call is None:
                     self.max_rows_per_model_call = data.shape[0] // 2
                 elif self.max_rows_per_model_call <= 1:
-                    terminate_with_message('Model cannot fit in memory, '
-                                           'even when using only one row')
+                    if self.device != CPU:
+                        print('Switching to use the CPU instead.')
+                        self.device = CPU
+                        self._load_model()
+                    else:
+                        terminate_with_message('Model cannot fit in memory, '
+                                               'even when using only one row')
                 else:
                     self.max_rows_per_model_call //= 2
                 print('Received `torch.OutOfMemoryError`, decreasing max '

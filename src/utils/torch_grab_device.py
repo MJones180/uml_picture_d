@@ -1,14 +1,15 @@
 import torch
+from utils.constants import CPU, CUDA, MPS
 
 
 def torch_grab_device(force_cpu=False):
     if torch.cuda.is_available():
-        device = 'cuda'
+        device = CUDA
     elif torch.backends.mps.is_available():
-        device = 'mps'
+        device = MPS
     else:
-        device = 'cpu'
+        device = CPU
     if force_cpu is True:
-        device = 'cpu'
+        device = CPU
     print(f'Device: {device}')
     return device

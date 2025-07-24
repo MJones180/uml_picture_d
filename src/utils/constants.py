@@ -130,6 +130,13 @@ PLOTTING_LOG_INT = 'log_intensity'
 PLOTTING_PATH = 'path'
 
 # ==============================================================================
+# Devices
+
+CPU = 'cpu'
+CUDA = 'cuda'
+MPS = 'mps'
+
+# ==============================================================================
 # Zernike polynomial names
 
 ZERNIKE_NAME_LOOKUP = {
