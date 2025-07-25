@@ -44,7 +44,7 @@ def network_info(cli_args):
             print(name, params)
             total += params
     dec_print_indent()
-    print(f'Total: {total}')
+    print(f'Total: {total:,}')
 
     step_ri('Layers')
     print(network_inst)
