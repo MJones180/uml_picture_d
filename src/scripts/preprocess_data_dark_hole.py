@@ -104,10 +104,12 @@ def preprocess_data_dark_hole_parser(subparsers):
               'dark hole that are all zero, this arg will chop them off'),
     )
     subparser.add_argument(
-        '--use-complex-electric-field',
-        action='store_true',
-        help=('instead of feeding in the electric field values in two input '
-              'channels, use a complex datatype in one channel'),
+        '--electric-field-handling',
+        help=('[channels] (default) the real and imaginary components both '
+              'get separate channels in the input image; [stack] the real '
+              'and imaginary components are stacked on top of each other for '
+              'an image that is 2x the original height; [complex] use a '
+              'complex datatype'),
     )
 
 
@@ -197,7 +199,9 @@ def preprocess_data_dark_hole(cli_args):
     # ==========================================================================
 
     step_ri('Creating the input array (electric field)')
-    if cli_args['use_complex_electric_field']:
+    ef_handling = cli_args.get('ef_handling', 'channels')
+    print(f'Method chosen: {ef_handling}')
+    if ef_handling == 'complex':
         print('The electric field will be a single, complex channel')
         input_data = ef_data_real + ef_data_imag * 1j
         # Create a new dimension for the channel
@@ -206,6 +210,8 @@ def preprocess_data_dark_hole(cli_args):
         print('The electric field will be two channels of real data')
         print('The first channel is the real part, '
               'the second channel is the imag part')
+        if ef_handling == 'stack':
+            print('The stacking will be done later')
         input_data = np.stack((ef_data_real, ef_data_imag), axis=1)
     print(f'Input shape: {input_data.shape}')
 
@@ -249,6 +255,16 @@ def preprocess_data_dark_hole(cli_args):
         print(f'Input shape: {input_data.shape}')
         _save_var(SCI_CAM_ACTIVE_COL_IDXS, active_col_idxs)
         _save_var(SCI_CAM_ACTIVE_ROW_IDXS, active_row_idxs)
+
+    # ==========================================================================
+
+    if ef_handling == 'stack':
+        step_ri('Stacking the electric field components')
+        print('The electric field will be one channel of real data')
+        print('The real part will be stacked on top of the imag part')
+        input_data = np.concatenate((input_data[:, 0], input_data[:, 1]),
+                                    axis=1)[:, None, :, :]
+        print(f'Input shape: {input_data.shape}')
 
     # ==========================================================================
 
