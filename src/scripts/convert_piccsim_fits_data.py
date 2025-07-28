@@ -191,6 +191,7 @@ def convert_piccsim_fits_data(cli_args):
     for chunk_idx in range(chunk_count):
         idx_low = chunk_idx * rows_per_chunk
         idx_high = idx_low + rows_per_chunk
+        idx_high = np.min((idx_low + rows_per_chunk, total_file_count))
         step(f'On chunk {chunk_idx} [idx {idx_low} - {idx_high}]')
         tables = base_tables.copy()
         for file_glob, table_name in zip(file_globs, table_names):
