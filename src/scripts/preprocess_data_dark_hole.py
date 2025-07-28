@@ -11,6 +11,8 @@ Three different datasets will be outputted: training, validation, and testing.
 Old datasets will be overwritten if they already exist.
 
 This script does not do any input or output normalization.
+
+All data in this script will be treated as float 32.
 """
 
 import numpy as np
@@ -143,19 +145,23 @@ def preprocess_data_dark_hole(cli_args):
 
     # ==========================================================================
 
+    # A lot of type conversions will be done to float32 from float64, so this
+    # variable is just saved for convenience
+    F32 = np.float32
+
     def _load_datafile_tables(tag):
         for data_path in raw_sim_data_chunk_paths(tag):
             print(f'Loading in data from {data_path}')
             data = read_hdf(data_path)
             for dm_table in dm_tables:
-                all_dm_data[dm_table].extend(data[dm_table][:])
+                all_dm_data[dm_table].extend(data[dm_table][:].astype(F32))
             # The real and imaginary parts are separate
             if len(ef_tables) == 2:
-                ef_data_real.extend(data[ef_tables[0]][:])
-                ef_data_imag.extend(data[ef_tables[1]][:])
+                ef_data_real.extend(data[ef_tables[0]][:].astype(F32))
+                ef_data_imag.extend(data[ef_tables[1]][:].astype(F32))
             # The table should be complex
             else:
-                ef_data_complex = data[ef_tables[0]][:]
+                ef_data_complex = data[ef_tables[0]][:].astype(F32)
                 ef_data_real.extend(ef_data_complex.real)
                 ef_data_imag.extend(ef_data_complex.imag)
 
@@ -181,11 +187,11 @@ def preprocess_data_dark_hole(cli_args):
 
     step_ri('Converting loaded data to numpy arrays')
     for dm_table, dm_data in all_dm_data.items():
-        all_dm_data[dm_table] = np.array(dm_data)
+        all_dm_data[dm_table] = np.array(dm_data).astype(F32)
         print(f'DM {dm_table} shape: {all_dm_data[dm_table].shape}')
-    ef_data_real = np.array(ef_data_real)
+    ef_data_real = np.array(ef_data_real).astype(F32)
     print(f'EF real shape: {ef_data_real.shape}')
-    ef_data_imag = np.array(ef_data_imag)
+    ef_data_imag = np.array(ef_data_imag).astype(F32)
     print(f'EF imag shape: {ef_data_imag.shape}')
 
     # ==========================================================================
