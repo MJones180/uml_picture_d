@@ -38,6 +38,11 @@ Convert FITS datafiles from the `piccsim` library to HDF:
 Preprocess the datasets:
 
     python3 main.py preprocess_data_dark_hole dh_both_hodms_20nm_84k \
+        train_dh_20nm val_dh_20nm test_dh_20nm 70 15 15 \
+        --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding
+
+    python3 main.py preprocess_data_dark_hole dh_both_hodms_20nm_84k \
         train_dh_20nm_xl val_dh_20nm_xl test_dh_20nm_xl 70 15 15 \
         --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
         --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
