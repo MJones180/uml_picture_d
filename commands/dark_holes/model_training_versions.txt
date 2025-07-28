@@ -23,3 +23,17 @@ After model testing, it is useful to rank the model analyses:
     python3 main.py batch_model_test \
         test_dh_20nm --outputs-no-denorm \
         --epoch-and-tag-range last dh_v1_ 1 8
+
+[V2] The `dh_v2_` tag:
+
+    python3 main_scnp.py batch_model_train \
+        train_dh_20nm_xl val_dh_20nm_xl \
+        dh_v2_ 1000 \
+        --networks dh_t2 dh_t4 dh_t5 \
+        --losses mse --optimizers adam \
+        --lrs 1e-5 --batch-sizes 256 \
+        --overwrite-existing --only-best-epoch --early-stopping 15
+
+    python3 main.py batch_model_test \
+        test_dh_20nm_xl --outputs-no-denorm \
+        --epoch-and-tag-range last dh_v2_ 1 3

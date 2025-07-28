@@ -23,7 +23,7 @@ def _make_dense_block(in_features, out_features, dropout):
     return nn.Sequential(
         nn.Linear(in_features, out_features),
         nn.ReLU(),
-        # nn.Dropout(dropout),
+        nn.Dropout(dropout),
     )
 
 
