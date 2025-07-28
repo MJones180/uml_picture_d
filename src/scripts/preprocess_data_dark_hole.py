@@ -199,7 +199,7 @@ def preprocess_data_dark_hole(cli_args):
     # ==========================================================================
 
     step_ri('Creating the input array (electric field)')
-    ef_handling = cli_args.get('ef_handling', 'channels')
+    ef_handling = cli_args.get('electric_field_handling', 'channels')
     print(f'Method chosen: {ef_handling}')
     if ef_handling == 'complex':
         print('The electric field will be a single, complex channel')
