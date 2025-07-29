@@ -262,16 +262,8 @@ def preprocess_data_dark_hole(cli_args):
         step_ri('Stacking the electric field components')
         print('The electric field will be one channel of real data')
         print('The real part will be stacked on top of the imag part')
-        print('A blank row of zeros is added between the two parts')
-        input_data = np.concatenate(
-            (
-                input_data[:, 0],
-                # Add in a blank row of zeros as padding
-                np.zeros_like(input_data[:, 0, :1]),
-                input_data[:, 1],
-            ),
-            axis=1,
-        )[:, None, :, :]
+        input_data = np.concatenate((input_data[:, 0], input_data[:, 1]),
+                                    axis=1)[:, None, :, :]
         print(f'Input shape: {input_data.shape}')
 
     # ==========================================================================
