@@ -13,6 +13,7 @@ Analyses will be saved like normal.
 
 from scripts.model_test import model_test
 from utils.printing_and_logging import dec_print_indent, divider, step_ri, title
+from utils.shared_argparser_args import shared_argparser_args
 
 
 def batch_model_test_parser(subparsers):
@@ -64,6 +65,12 @@ def batch_model_test_parser(subparsers):
         action='store_true',
         help='print out the RSS of the model outputs',
     )
+    subparser.add_argument(
+        '--max-rows-per-model-call',
+        type=int,
+        help='limit the number of rows per model call',
+    )
+    shared_argparser_args(subparser, ['force_cpu'])
 
     selection_group = subparser.add_mutually_exclusive_group()
     selection_group.add_argument(
@@ -107,6 +114,8 @@ def batch_model_test(cli_args):
             'zernike_plots',
             'print_outputs',
             'take_rss_model_outputs',
+            'force_cpu',
+            'max_rows_per_model_call',
         )
     }
 

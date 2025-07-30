@@ -17,7 +17,14 @@ from utils.torch_grab_device import torch_grab_device
 
 class Model():
 
-    def __init__(self, tag, epoch, suppress_logs=False, force_cpu=False):
+    def __init__(
+        self,
+        tag,
+        epoch,
+        suppress_logs=False,
+        force_cpu=False,
+        max_rows_per_model_call=None,
+    ):
 
         def _step(text):
             if suppress_logs:
@@ -94,8 +101,10 @@ class Model():
         dec_print_indent()
         # Max number of rows that can fit in memory at a time for a model call.
         # A value of None means there have been no memory issues so far, so as
-        # many rows as needed can be passed.
-        self.max_rows_per_model_call = None
+        # many rows as needed can be passed. Sometimes, this needs to be set
+        # right at the start because the process will get killed because the
+        # memory consumption is too high when using the CPU.
+        self.max_rows_per_model_call = max_rows_per_model_call
 
     def _load_model(self):
         # Init the network

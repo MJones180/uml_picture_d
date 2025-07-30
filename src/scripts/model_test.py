@@ -77,6 +77,11 @@ def model_test_parser(subparsers):
         action='store_true',
         help='print out the truth and model outputs',
     )
+    subparser.add_argument(
+        '--max-rows-per-model-call',
+        type=int,
+        help='limit the number of rows per model call',
+    )
     shared_argparser_args(subparser, ['force_cpu'])
 
 
@@ -86,7 +91,12 @@ def model_test(cli_args):
     tag = cli_args['tag']
     epoch = cli_args['epoch']
 
-    model = Model(tag, epoch, force_cpu=cli_args.get('force_cpu'))
+    model = Model(
+        tag,
+        epoch,
+        force_cpu=cli_args.get('force_cpu'),
+        max_rows_per_model_call=cli_args.get('max_rows_per_model_call'),
+    )
     # Grab the epoch number so that the output directory has what epoch it is
     epoch = model.epoch
 
