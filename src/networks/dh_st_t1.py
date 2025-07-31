@@ -23,7 +23,7 @@ def _make_dense_block(in_features, out_features, dropout):
     return nn.Sequential(
         nn.Linear(in_features, out_features),
         nn.ReLU(),
-        # nn.Dropout(dropout),
+        nn.Dropout(dropout),
     )
 
 
@@ -49,10 +49,10 @@ class Network(nn.Module):
         self.conv_block9 = _make_conv_block(256, 256, 3)
         # 29x14 -> 14x7
         self.maxpool3 = nn.MaxPool2d(2)
-        self.conv_block10 = _make_conv_block(256, 512, 3)
-        self.conv_block11 = _make_conv_block(512, 512, 3)
-        self.conv_block12 = _make_conv_block(512, 512, 3)
-        # 14x7 -> 1x1
+        self.conv_block10 = _make_conv_block(256, 1024, 3)
+        self.conv_block11 = _make_conv_block(1024, 1024, 3)
+        self.conv_block12 = _make_conv_block(1024, 1024, 3)
+        # 14x7 -> 2x1
         self.maxpool4 = nn.MaxPool2d(7)
         self.dense_block1 = _make_dense_block(1024, 2048, 0.3)
         self.out_layer = nn.Linear(2048, 1512)
