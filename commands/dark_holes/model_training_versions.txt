@@ -47,4 +47,5 @@ After model testing, it is useful to rank the model analyses:
         --overwrite-existing --only-best-epoch
 
     python3 main.py model_test \
-        dh_v3 last test_dh_20nm_xl --outputs-no-denorm
+        dh_v3 last test_dh_20nm_xl --outputs-no-denorm \
+        --force-cpu --max-rows-per-model-call 10000

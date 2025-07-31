@@ -33,6 +33,16 @@ Convert FITS datafiles from the `piccsim` library to HDF:
         --fits-table-names dm1 dm2 sci_i sci_r \
         --rows-per-chunk 25000 --first-n-rows 100000
 
+    # RM SVD modes (HODM 1 and 2)
+    python3 main.py convert_piccsim_fits_data hodm1_300_modes \
+        /home/picture/code/picture/piccsim/output/svd_modes/rx_ch6_vvc_dm1 \
+        --fits-file-globs 'rx_ch6_vvc_scif_dm1_mode_*' \
+        --fits-table-names dm1_modes --first-n-rows 300
+    python3 main.py convert_piccsim_fits_data hodm2_300_modes \
+        /home/picture/code/picture/piccsim/output/svd_modes/rx_ch6_vvc_dm2 \
+        --fits-file-globs 'rx_ch6_vvc_scif_dm1_mode_*' \
+        --fits-table-names dm1_modes --first-n-rows 300
+
 ## Data Preprocessing
 
 Preprocess the datasets:
