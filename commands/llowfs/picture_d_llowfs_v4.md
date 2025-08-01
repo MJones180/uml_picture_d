@@ -179,8 +179,11 @@ The FITS datafiles that were obtained on the instrument should be moved to the
     mv lyt_alp_train_lac_20250731_175044_caldata.fits lyt_10nm_testing_v4/0_data.fits
 
     mkdir lyt_no_aberrations_v4
+    mkdir lyt_no_aberrations_v4b
     # The base field (no aberrations)
     mv lyt_alp_train_lac_20250731_144138_caldata_extra.fits lyt_no_aberrations_v4/0_data.fits
+    # For some reason, the RM works better with this base field
+    mv lyt_alp_train_lac_20250731_174007_caldata_extra.fits lyt_no_aberrations_v4b/0_data.fits
 
 SEC4 - PREMERGE SOME FITS FILES ++++++++++++++++++++++++++++++++++++++++++++++++
 For the datafiles in the `lyt_single_zernikes_v4` directory, there should be
@@ -226,8 +229,10 @@ datafiles should be the same as the raw simulation datafiles.
         --fits-data-tags lyt_10nm_testing_v4
     python3 main.py convert_picd_instrument_data picd_instrument_data_no_aberrations_v4 2 24 \
         --fits-data-tags lyt_no_aberrations_v4 --base-field-data 0
+    python3 main.py convert_picd_instrument_data picd_instrument_data_no_aberrations_v4b 2 24 \
+        --fits-data-tags lyt_no_aberrations_v4b --base-field-data 0
     python3 main.py convert_picd_instrument_data picd_instrument_data_single_zernikes_v4 2 24 \
-        --fits-data-tags lyt_single_zernikes_v4 --first-n-rows 46000
+        --fits-data-tags lyt_single_zernikes_v4
     # Technically ±39.995 nm RMS error
     python3 main.py convert_picd_instrument_data picd_instrument_data_single_zernikes_pm40_v4 2 24 \
         --fits-data-tags lyt_single_zernikes_v4 --slice-row-ranges 4600 4623 41377 41400
@@ -299,11 +304,8 @@ Create and test the RM model on the instrument data.
 
     python3 main.py create_response_matrix \
         --simulated-data-tag-average picd_instrument_data_single_zernikes_pm40_v4 \
-        --base-field-tag picd_instrument_data_no_aberrations_v4
+        --base-field-tag picd_instrument_data_no_aberrations_v4b
 
-    python3 main.py run_response_matrix picd_instrument_data_single_zernikes_pm40_v4 \
-        test_picd_data_v4 \
-        --scatter-plot 4 6 2 0 15 --inputs-need-denorm --inputs-are-diff
     python3 main.py run_response_matrix picd_instrument_data_single_zernikes_pm40_v4 \
         picd_instrument_data_25k_10nm_raw_processed_v4 \
         --scatter-plot 4 6 2 1e-8 15
