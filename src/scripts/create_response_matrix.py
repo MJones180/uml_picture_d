@@ -50,9 +50,12 @@ def create_response_matrix_parser(subparsers):
     )
     subparser.add_argument(
         '--base-field-tag',
+        nargs='*',
         help=('if the base field is not the last row in the data, then it '
               'should be passed via this argument; this argument should not '
-              'be used if the base field is already in the data'),
+              'be used if the base field is already in the data; can also '
+              'pass a second arg to specify which base field to select if '
+              'there is more than one'),
     )
     subparser.add_argument(
         '--outputs-in-surface-error',
@@ -92,7 +95,11 @@ def create_response_matrix(cli_args):
     base_field_tag = cli_args.get('base_field_tag')
     # The base field is being passed in separately
     if base_field_tag:
-        (base_field, _, _, _) = load_raw_sim_data_chunks(base_field_tag)
+        (base_field, _, _, _) = load_raw_sim_data_chunks(base_field_tag[0])
+        if len(base_field_tag) > 1:
+            base_field_index = int(base_field_tag[1])
+            print(f'Using base field at index {base_field_index}')
+            base_field = base_field[base_field_index][None]
         # Like above, the base field must be flattened
         base_field = base_field.reshape(-1)
         perturbation_fields = intensity
