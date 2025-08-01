@@ -101,6 +101,14 @@ def preprocess_data_complete_parser(subparsers):
               'containing no aberrations'),
     )
     subparser.add_argument(
+        '--use-field-diff-mapping',
+        nargs='*',
+        type=int,
+        help=('map specific base fields to different portions of the data; '
+              'the arguments can be repeated as many times as necessary and '
+              'should specify <base field index> <starting row> <ending row>'),
+    )
+    subparser.add_argument(
         '--additional-raw-data-tags',
         nargs='*',
         help='additional raw simulated data to preprocess and merge together',
@@ -234,11 +242,31 @@ def preprocess_data_complete(cli_args):
         step_ri('Loading in the base field')
         base_field, _, _, _ = load_raw_sim_data_chunks(use_field_diff)
         if inputs_sum_to_one:
-            print('Making pixel values in the base field sum to 1')
-            base_field = sum_to_one(base_field)
-        step_ri('Taking the difference between the inputs and the base field')
-        # Take the diff between the base field and each of the individual fields
-        input_data = input_data - base_field
+            print('Making pixel values in the base field(s) sum to 1')
+            base_field = sum_to_one(base_field, (1, 2))
+        # All rows may not use the same base field
+        use_field_diff_mapping = cli_args.get('use_field_diff_mapping')
+        if use_field_diff_mapping:
+            elements = len(use_field_diff_mapping)
+            if elements % 3 != 0:
+                terminate_with_message('Incorrect number of mapping arguments')
+            for arg_idx in range(elements // 3):
+                starting_arg = arg_idx * 3
+                base_field_idx = use_field_diff_mapping[starting_arg]
+                idx_low = use_field_diff_mapping[starting_arg + 1]
+                idx_high = use_field_diff_mapping[starting_arg + 2]
+                print(f'Using base field at index {base_field_idx} on '
+                      f'rows {idx_low} - {idx_high}')
+                input_data[idx_low:idx_high] -= base_field[base_field_idx]
+            print('Creating an averaged base field')
+            base_field_idxs = np.array(use_field_diff_mapping[::3])
+            base_field = np.sum(base_field[base_field_idxs], axis=0)
+            base_field /= len(base_field_idxs)
+            base_field = base_field[None]
+        else:
+            step_ri('Taking the difference between the inputs and base field')
+            # Diff between the base field and each of the individual fields
+            input_data -= base_field
 
     # ==========================================================================
 
