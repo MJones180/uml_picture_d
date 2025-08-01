@@ -2,6 +2,7 @@
 NOTES AND CHANGES COMPARED TO `picture_d_llowfs_v3.md`:
 - Turns out the CNN trained on `piccsim` data actually does not perform the best. Due to this, more
   data was obtained on the PICTURE-D instrument which was used to train the CNN in this file.
+- Used the corresponding base field for every datafile to improve the differential wavefronts.
 ....................................................................................................
 
 These are the commands needed to obtain data on the PICTURE-D instrument and to create the associated models.
@@ -178,12 +179,53 @@ The FITS datafiles that were obtained on the instrument should be moved to the
     # picture_d_aberrations_group_9, 1 chunk of 25k rows
     mv lyt_alp_train_lac_20250731_175044_caldata.fits lyt_10nm_testing_v4/0_data.fits
 
+    # The base field (no aberrations) for each chunk
     mkdir lyt_no_aberrations_v4
-    mkdir lyt_no_aberrations_v4b
-    # The base field (no aberrations)
+    # picture_d_aberrations_group_0, 4 chunks of 25k rows each
     mv lyt_alp_train_lac_20250731_144138_caldata_extra.fits lyt_no_aberrations_v4/0_data.fits
-    # For some reason, the RM works better with this base field
-    mv lyt_alp_train_lac_20250731_174007_caldata_extra.fits lyt_no_aberrations_v4b/0_data.fits
+    mv lyt_alp_train_lac_20250731_144547_caldata_extra.fits lyt_no_aberrations_v4/1_data.fits
+    mv lyt_alp_train_lac_20250731_145113_caldata_extra.fits lyt_no_aberrations_v4/2_data.fits
+    mv lyt_alp_train_lac_20250731_145508_caldata_extra.fits lyt_no_aberrations_v4/3_data.fits
+    # picture_d_aberrations_group_1, 4 chunks of 25k rows each
+    mv lyt_alp_train_lac_20250731_145937_caldata_extra.fits lyt_no_aberrations_v4/4_data.fits
+    mv lyt_alp_train_lac_20250731_150411_caldata_extra.fits lyt_no_aberrations_v4/5_data.fits
+    mv lyt_alp_train_lac_20250731_150820_caldata_extra.fits lyt_no_aberrations_v4/6_data.fits
+    mv lyt_alp_train_lac_20250731_151623_caldata_extra.fits lyt_no_aberrations_v4/7_data.fits
+    # picture_d_aberrations_group_2, 4 chunks of 25k rows each
+    mv lyt_alp_train_lac_20250731_152146_caldata_extra.fits lyt_no_aberrations_v4/8_data.fits
+    mv lyt_alp_train_lac_20250731_153135_caldata_extra.fits lyt_no_aberrations_v4/9_data.fits
+    mv lyt_alp_train_lac_20250731_154039_caldata_extra.fits lyt_no_aberrations_v4/10_data.fits
+    mv lyt_alp_train_lac_20250731_154441_caldata_extra.fits lyt_no_aberrations_v4/11_data.fits
+    # picture_d_aberrations_group_3, 4 chunks of 25k rows each
+    mv lyt_alp_train_lac_20250731_154842_caldata_extra.fits lyt_no_aberrations_v4/12_data.fits
+    mv lyt_alp_train_lac_20250731_155730_caldata_extra.fits lyt_no_aberrations_v4/13_data.fits
+    mv lyt_alp_train_lac_20250731_160138_caldata_extra.fits lyt_no_aberrations_v4/14_data.fits
+    mv lyt_alp_train_lac_20250731_160538_caldata_extra.fits lyt_no_aberrations_v4/15_data.fits
+    # picture_d_aberrations_group_4, 4 chunks of 25k rows each
+    mv lyt_alp_train_lac_20250731_161411_caldata_extra.fits lyt_no_aberrations_v4/16_data.fits
+    mv lyt_alp_train_lac_20250731_161813_caldata_extra.fits lyt_no_aberrations_v4/17_data.fits
+    mv lyt_alp_train_lac_20250731_162310_caldata_extra.fits lyt_no_aberrations_v4/18_data.fits
+    mv lyt_alp_train_lac_20250731_162727_caldata_extra.fits lyt_no_aberrations_v4/19_data.fits
+    # picture_d_aberrations_group_5, 4 chunks of 25k rows each
+    mv lyt_alp_train_lac_20250731_163123_caldata_extra.fits lyt_no_aberrations_v4/20_data.fits
+    mv lyt_alp_train_lac_20250731_163732_caldata_extra.fits lyt_no_aberrations_v4/21_data.fits
+    mv lyt_alp_train_lac_20250731_165014_caldata_extra.fits lyt_no_aberrations_v4/22_data.fits
+    mv lyt_alp_train_lac_20250731_165443_caldata_extra.fits lyt_no_aberrations_v4/23_data.fits
+    # picture_d_aberrations_group_6, 4 chunks of 25k rows each
+    mv lyt_alp_train_lac_20250731_170019_caldata_extra.fits lyt_no_aberrations_v4/24_data.fits
+    mv lyt_alp_train_lac_20250731_170457_caldata_extra.fits lyt_no_aberrations_v4/25_data.fits
+    mv lyt_alp_train_lac_20250731_170930_caldata_extra.fits lyt_no_aberrations_v4/26_data.fits
+    mv lyt_alp_train_lac_20250731_171411_caldata_extra.fits lyt_no_aberrations_v4/27_data.fits
+    # picture_d_aberrations_group_7, 4 chunks of 25k rows each
+    mv lyt_alp_train_lac_20250731_171923_caldata_extra.fits lyt_no_aberrations_v4/28_data.fits
+    mv lyt_alp_train_lac_20250731_172729_caldata_extra.fits lyt_no_aberrations_v4/29_data.fits
+    mv lyt_alp_train_lac_20250731_173218_caldata_extra.fits lyt_no_aberrations_v4/30_data.fits
+    mv lyt_alp_train_lac_20250731_173617_caldata_extra.fits lyt_no_aberrations_v4/31_data.fits
+    # picture_d_aberrations_group_8, 2 chunks of 25k rows and 21k rows
+    mv lyt_alp_train_lac_20250731_174007_caldata_extra.fits lyt_no_aberrations_v4/32_data.fits
+    mv lyt_alp_train_lac_20250731_174613_caldata_extra.fits lyt_no_aberrations_v4/33_data.fits
+    # picture_d_aberrations_group_9, 1 chunk of 25k rows
+    mv lyt_alp_train_lac_20250731_175044_caldata_extra.fits lyt_no_aberrations_v4/34_data.fits
 
 SEC4 - PREMERGE SOME FITS FILES ++++++++++++++++++++++++++++++++++++++++++++++++
 For the datafiles in the `lyt_single_zernikes_v4` directory, there should be
@@ -229,8 +271,6 @@ datafiles should be the same as the raw simulation datafiles.
         --fits-data-tags lyt_10nm_testing_v4
     python3 main.py convert_picd_instrument_data picd_instrument_data_no_aberrations_v4 2 24 \
         --fits-data-tags lyt_no_aberrations_v4 --base-field-data 0
-    python3 main.py convert_picd_instrument_data picd_instrument_data_no_aberrations_v4b 2 24 \
-        --fits-data-tags lyt_no_aberrations_v4b --base-field-data 0
     python3 main.py convert_picd_instrument_data picd_instrument_data_single_zernikes_v4 2 24 \
         --fits-data-tags lyt_single_zernikes_v4
     # Technically ±39.995 nm RMS error
@@ -249,6 +289,15 @@ The newly converted HDF datafiles should be preprocessed.
         --disable-norm-inputs --inputs-sum-to-one \
         --norm-outputs individually --norm-range-ones \
         --use-field-diff picd_instrument_data_no_aberrations_v4 \
+        --use-field-diff-mapping 0 0 25000 1 25000 50000 2 50000 75000 \
+            3 75000 100000 4 100000 125000 5 125000 150000 6 150000 175000 \
+            7 175000 200000 8 200000 225000 9 225000 250000 10 250000 275000 \
+            11 275000 300000 12 300000 325000 13 325000 350000 14 350000 375000 \
+            15 375000 400000 16 400000 425000 17 425000 450000 18 450000 475000 \
+            19 475000 500000 20 500000 525000 21 525000 550000 22 550000 575000 \
+            23 575000 600000 24 600000 625000 25 625000 650000 26 650000 675000 \
+            27 675000 700000 28 700000 725000 29 725000 750000 30 750000 775000 \
+            31 775000 800000 32 800000 825000 33 825000 846000 \
         --additional-raw-data-tags-train-only picd_instrument_data_single_zernikes_v4
 
     # Preprocess the testing data
@@ -275,10 +324,12 @@ Train, test, and export the CNN model created from the instrument data.
         test_picd_data_v4 --scatter-plot 4 6 2 0 15
     python3 main.py model_test picd_cnn_v4 last \
         picd_instrument_data_25k_10nm_raw_processed_v4 \
-        --scatter-plot 4 6 2 1e-7 15 --inputs-need-norm --inputs-need-diff
+        --scatter-plot 4 6 2 1e-7 15 --inputs-need-norm --inputs-need-diff \
+        --change-base-field picd_instrument_data_no_aberrations_v4 31 0 25000
     python3 main.py model_test picd_cnn_v4 last \
         picd_instrument_data_single_zernikes_raw_processed_v4 \
-        --zernike-plots --inputs-need-norm --inputs-need-diff
+        --zernike-plots --inputs-need-norm --inputs-need-diff \
+        --change-base-field picd_instrument_data_no_aberrations_v4 32 0 25000 33 25000 46000
 
     # Export the model so that it can be used in the `pytorch_model_in_c` repo
     # via ONNX runtime.
@@ -304,7 +355,7 @@ Create and test the RM model on the instrument data.
 
     python3 main.py create_response_matrix \
         --simulated-data-tag-average picd_instrument_data_single_zernikes_pm40_v4 \
-        --base-field-tag picd_instrument_data_no_aberrations_v4b
+        --base-field-tag picd_instrument_data_no_aberrations_v4 32
 
     python3 main.py run_response_matrix picd_instrument_data_single_zernikes_pm40_v4 \
         picd_instrument_data_25k_10nm_raw_processed_v4 \
@@ -331,7 +382,9 @@ This CNN is too slow to run on the older, slower flight computer.
         test_picd_data_v4 --scatter-plot 4 6 2 0 15
     python3 main.py model_test picd_cnn_v4_v55b last \
         picd_instrument_data_25k_10nm_raw_processed_v4 \
-        --scatter-plot 4 6 2 1e-7 15 --inputs-need-norm --inputs-need-diff
+        --scatter-plot 4 6 2 1e-7 15 --inputs-need-norm --inputs-need-diff \
+        --change-base-field picd_instrument_data_no_aberrations_v4 31 0 25000
     python3 main.py model_test picd_cnn_v4_v55b last \
         picd_instrument_data_single_zernikes_raw_processed_v4 \
-        --zernike-plots --inputs-need-norm --inputs-need-diff
+        --zernike-plots --inputs-need-norm --inputs-need-diff \
+        --change-base-field picd_instrument_data_no_aberrations_v4 32 0 25000 33 25000 46000
