@@ -19,11 +19,12 @@ given image by `Z = M_inv @ ΔI`.
 """
 
 import numpy as np
-from utils.constants import (BASE_INT_FIELD, PERTURBATION_AMOUNTS,
-                             RESPONSE_MATRICES_P, RESPONSE_MATRIX_INV,
-                             ZERNIKE_TERMS)
+from utils.constants import (BASE_INT_FIELD, INPUTS_SUM_TO_ONE,
+                             PERTURBATION_AMOUNTS, RESPONSE_MATRICES_P,
+                             RESPONSE_MATRIX_INV, ZERNIKE_TERMS)
 from utils.hdf_read_and_write import HDFWriteModule
 from utils.load_raw_sim_data import load_raw_sim_data_chunks
+from utils.norm import sum_to_one
 from utils.printing_and_logging import step_ri, title
 from utils.terminate_with_message import terminate_with_message
 
@@ -49,13 +50,23 @@ def create_response_matrix_parser(subparsers):
               'the average of all the perturbations will be taken'),
     )
     subparser.add_argument(
+        '--wfs-sum-to-one',
+        action='store_true',
+        help='make the pixel values in each wavefront sum to 1',
+    )
+    subparser.add_argument(
         '--base-field-tag',
-        nargs='*',
         help=('if the base field is not the last row in the data, then it '
               'should be passed via this argument; this argument should not '
-              'be used if the base field is already in the data; can also '
-              'pass a second arg to specify which base field to select if '
-              'there is more than one'),
+              'be used if the base field is already in the data'),
+    )
+    subparser.add_argument(
+        '--base-field-mapping',
+        nargs='*',
+        type=int,
+        help=('map specific base fields to different portions of the data; '
+              'the arguments can be repeated as many times as necessary and '
+              'should specify <base field index> <starting row> <ending row>'),
     )
     subparser.add_argument(
         '--outputs-in-surface-error',
@@ -92,24 +103,52 @@ def create_response_matrix(cli_args):
     # The shape of this data is (fields, pixels, pixels) and should be
     # converted to (flattened_pixels, fields)
     intensity = intensity.reshape(intensity.shape[0], -1).T
+    wfs_sum_to_one = cli_args.get('wfs_sum_to_one')
+    if wfs_sum_to_one:
+        step_ri('Making pixel values in each wavefront sum to 1')
+        intensity = sum_to_one(intensity, (0))
     base_field_tag = cli_args.get('base_field_tag')
     # The base field is being passed in separately
     if base_field_tag:
-        (base_field, _, _, _) = load_raw_sim_data_chunks(base_field_tag[0])
-        if len(base_field_tag) > 1:
-            base_field_index = int(base_field_tag[1])
-            print(f'Using base field at index {base_field_index}')
-            base_field = base_field[base_field_index][None]
-        # Like above, the base field must be flattened
-        base_field = base_field.reshape(-1)
-        perturbation_fields = intensity
+        (base_field, _, _, _) = load_raw_sim_data_chunks(base_field_tag)
+        # Like above, the base field(s) must be flattened
+        base_field = base_field.reshape(base_field.shape[0], -1).T
+        wfs_sum_to_one = cli_args.get('wfs_sum_to_one')
+        if wfs_sum_to_one:
+            step_ri('Making pixel values in each base field sum to 1')
+            base_field = sum_to_one(base_field, (0))
+        differential_fields = intensity
         perturbation_amounts = zernike_amounts
+        # All the rows may not use the same base field
+        base_field_mapping = cli_args.get('base_field_mapping')
+        if base_field_mapping:
+            elements = len(base_field_mapping)
+            if elements % 3 != 0:
+                terminate_with_message('Incorrect number of mapping arguments')
+            for arg_idx in range(elements // 3):
+                starting_arg = arg_idx * 3
+                base_field_idx = base_field_mapping[starting_arg]
+                idx_low = base_field_mapping[starting_arg + 1]
+                idx_high = base_field_mapping[starting_arg + 2]
+                print(f'Using base field at index {base_field_idx} on '
+                      f'rows {idx_low} - {idx_high}')
+                differential_fields[:, idx_low:idx_high] -= (
+                    base_field[:, base_field_idx][:, None])
+            print('Creating an averaged base field that will be saved')
+            base_field_idxs = np.array(base_field_mapping[::3])
+            base_field = np.sum(base_field[:, base_field_idxs], axis=1)
+            base_field /= len(base_field_idxs)
+            base_field = base_field[None]
+        else:
+            differential_fields -= base_field
     else:
         # The last column of data is the intensity field without any Zernike
         # aberrations, so we will take our differences with respect to it
         base_field = intensity[:, -1]
         # All the data now consists of perturbed fields for each Zernike term
         perturbation_fields = intensity[:, :-1]
+        # Form the differential wavefronts
+        differential_fields = perturbation_fields - base_field[:, None]
         # Verify that the last row has no aberrations
         if not np.all(zernike_amounts[-1] == 0):
             terminate_with_message('Last row not all zeros for Zernike coeffs')
@@ -135,24 +174,22 @@ def create_response_matrix(cli_args):
     # chunk represents a single RMS perturbation across Zernike terms.
     if sim_data_tag_avg:
         chunks = int(perturbation_amounts.shape[0] / len(zernike_terms))
-        chunked_pert_fields = np.split(perturbation_fields, chunks, axis=1)
+        chunked_diff_fields = np.split(differential_fields, chunks, axis=1)
         chunked_pert_amounts = np.split(perturbation_amounts, chunks)
     else:
         # For the single RMS perturbation, wrap it all inside of a single chunk
         # to make the code the same
         chunks = 1
-        chunked_pert_fields = [perturbation_fields]
+        chunked_diff_fields = [differential_fields]
         chunked_pert_amounts = [perturbation_amounts]
 
     step_ri('Calculating M')
     # Below is an iterative approach to calculate the M matrix, it ends up being
     # faster than the vectorized version.
-    M_matrix = np.zeros_like(chunked_pert_fields[0])
-    fields_and_amounts = zip(chunked_pert_fields, chunked_pert_amounts)
+    M_matrix = np.zeros_like(chunked_diff_fields[0])
+    fields_and_amounts = zip(chunked_diff_fields, chunked_pert_amounts)
     perturbation_chunk_amounts = []
-    for pert_fields, pert_amounts in fields_and_amounts:
-        # This is the delta intensity field portion
-        field_changes = pert_fields - base_field[:, None]
+    for field_changes, pert_amounts in fields_and_amounts:
         # Verify that all the perturbations are equal
         pert_amounts_diag = np.diag(pert_amounts)
         if not np.all(pert_amounts_diag == pert_amounts_diag[0]):
@@ -174,9 +211,8 @@ def create_response_matrix(cli_args):
     # being slower. Commenting it out for now, could be handy to have the code
     # around for later.
     # ==========================================================================
-    # chunked_pert_fields = np.array(chunked_pert_fields)
+    # field_changes = np.array(chunked_diff_fields)
     # chunked_pert_amounts = np.array(chunked_pert_amounts)
-    # field_changes = chunked_pert_fields - base_field[:, None]
     # # Need to wrap in an array otherwise it is ends up being read only.
     # diags = np.array(np.diagonal(chunked_pert_amounts, 0, 1, 2))
     # if not np.all(diags[:, 1:] == diags[:, :-1]):
@@ -200,4 +236,5 @@ def create_response_matrix(cli_args):
         RESPONSE_MATRIX_INV: M_matrix_inv,
         PERTURBATION_AMOUNTS: perturbation_chunk_amounts,
         ZERNIKE_TERMS: zernike_terms,
+        INPUTS_SUM_TO_ONE: wfs_sum_to_one,
     })

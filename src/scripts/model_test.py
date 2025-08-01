@@ -57,11 +57,11 @@ def model_test_parser(subparsers):
         '--change-base-field',
         nargs='*',
         help=('raw datafile containing an updated base field to use to form '
-              'the differential wavefronts; additional arguments can be '
-              'repeated as many times as necessary and should specify '
-              '<base field index> <starting row> <ending row>; this requires '
-              'that both the `--inputs-need-norm` and `--inputs-need-diff` '
-              'args are set'),
+              'the differential wavefronts (should not have any sum one '
+              'normalization); additional arguments can be repeated as many '
+              'times as necessary and should specify <base field index> '
+              '<starting row> <ending row>; this requires that both the '
+              '`--inputs-need-norm` and `--inputs-need-diff` args are set'),
     )
     subparser.add_argument(
         '--outputs-no-denorm',

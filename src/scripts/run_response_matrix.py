@@ -17,7 +17,8 @@ from utils.constants import (ANALYSIS_P, EXTRA_VARS_F, INPUT_MAX_MIN_DIFF,
                              INPUT_MIN_X, MAE, MSE, NORM_RANGE_ONES,
                              PROC_DATA_P, RESULTS_F, ZERNIKE_TERMS)
 from utils.hdf_read_and_write import HDFWriteModule, read_hdf
-from utils.norm import min_max_denorm
+from utils.load_raw_sim_data import load_raw_sim_data_chunks
+from utils.norm import min_max_denorm, sum_to_one
 from utils.path import delete_dir, get_abs_path, make_dir
 from utils.plots.plot_comparison_scatter_grid import plot_comparison_scatter_grid  # noqa: E501
 from utils.plots.plot_zernike_cross_coupling_animation import plot_zernike_cross_coupling_animation  # noqa: E501
@@ -74,6 +75,22 @@ def run_response_matrix_parser(subparsers):
         help='the inputs are the delta from the base field',
     )
     subparser.add_argument(
+        '--wfs-need-sum-to-one',
+        action='store_true',
+        help=('the input wavefronts need to be sum to one normalized; will '
+              'occur after the differential wavefront happens; a differential '
+              'wavefront cannot be passed in'),
+    )
+    subparser.add_argument(
+        '--change-base-field',
+        nargs='*',
+        help=('raw datafile containing an updated base field to use to form '
+              'the differential wavefronts; additional arguments can be '
+              'repeated as many times as necessary and should specify '
+              '<base field index> <starting row> <ending row>; this requires '
+              'that the `--inputs-are-diff` arg is not set'),
+    )
+    subparser.add_argument(
         '--print-outputs',
         action='store_true',
         help='print out the truth and response matrix outputs',
@@ -121,8 +138,35 @@ def run_response_matrix(cli_args):
                                'match terms in dataset')
     # Need to flatten out the pixels before calling the response matrix
     inputs_reshaped = inputs.reshape(inputs.shape[0], -1)
+
+    wfs_need_sum_to_one = cli_args.get('wfs_need_sum_to_one')
+    if wfs_need_sum_to_one:
+        step_ri('Summing the inputs to one')
+        inputs_reshaped = sum_to_one(inputs_reshaped, (1))
+
+    change_base_field = cli_args.get('change_base_field')
     if cli_args.get('inputs_are_diff'):
         print('Passing in the difference of the intensity field')
+        outputs_resp_mat = response_matrix_obj(diff_int_field=inputs_reshaped)
+    elif change_base_field:
+        print('Using a different base field')
+        base_field_tag, *base_field_args = change_base_field
+        base_field, _, _, _ = load_raw_sim_data_chunks(base_field_tag)
+        base_field = base_field.reshape(base_field.shape[0], -1)
+        if wfs_need_sum_to_one:
+            print('Making pixel values in the base field(s) sum to 1')
+            base_field = sum_to_one(base_field, (1))
+        elements = len(base_field_args)
+        if elements % 3 != 0:
+            terminate_with_message('Incorrect number of mapping arguments')
+        for arg_idx in range(elements // 3):
+            starting_arg = arg_idx * 3
+            base_field_idx = int(base_field_args[starting_arg])
+            idx_low = int(base_field_args[starting_arg + 1])
+            idx_high = int(base_field_args[starting_arg + 2])
+            print(f'Using base field at index {base_field_idx} on '
+                  f'rows {idx_low} - {idx_high}')
+            inputs_reshaped[idx_low:idx_high] -= base_field[base_field_idx]
         outputs_resp_mat = response_matrix_obj(diff_int_field=inputs_reshaped)
     else:
         print('Passing in the total intensity field')
