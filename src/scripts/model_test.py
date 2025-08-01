@@ -13,6 +13,7 @@ import numpy as np
 from utils.constants import (ANALYSIS_P, EXTRA_VARS_F, MAE, MSE, PROC_DATA_P,
                              RESULTS_F, ZERNIKE_TERMS)
 from utils.hdf_read_and_write import HDFWriteModule, read_hdf
+from utils.load_raw_sim_data import load_raw_sim_data_chunks
 from utils.model import Model
 from utils.path import delete_dir, get_abs_path, make_dir
 from utils.plots.plot_comparison_scatter_grid import plot_comparison_scatter_grid  # noqa: E501
@@ -51,6 +52,16 @@ def model_test_parser(subparsers):
         '--inputs-need-norm',
         action='store_true',
         help='the inputs need to be normalized',
+    )
+    subparser.add_argument(
+        '--change-base-field',
+        nargs='*',
+        help=('raw datafile containing an updated base field to use to form '
+              'the differential wavefronts; additional arguments can be '
+              'repeated as many times as necessary and should specify '
+              '<base field index> <starting row> <ending row>; this requires '
+              'that both the `--inputs-need-norm` and `--inputs-need-diff` '
+              'args are set'),
     )
     subparser.add_argument(
         '--outputs-no-denorm',
@@ -117,11 +128,36 @@ def model_test(cli_args):
 
     if cli_args.get('inputs_need_norm'):
         step_ri('Preprocessing the inputs')
-        inputs = model.preprocess_data(
-            inputs,
-            sub_basefield=cli_args.get('inputs_need_diff'),
-            sum_dims=(1, 2, 3),
-        )
+        change_base_field = cli_args.get('change_base_field')
+        if change_base_field:
+            print('Changing the base field')
+            base_field_tag, *base_field_args = change_base_field
+            base_field, _, _, _ = load_raw_sim_data_chunks(base_field_tag)
+            if model.inputs_sum_to_one:
+                print('Making pixel values in the base field(s) sum to 1')
+                base_field = model.sum_inputs_to_one(base_field, (1, 2))
+            elements = len(base_field_args)
+            if elements % 3 != 0:
+                terminate_with_message('Incorrect number of mapping arguments')
+            for arg_idx in range(elements // 3):
+                starting_arg = arg_idx * 3
+                base_field_idx = int(base_field_args[starting_arg])
+                idx_low = int(base_field_args[starting_arg + 1])
+                idx_high = int(base_field_args[starting_arg + 2])
+                print(f'Using base field at index {base_field_idx} on '
+                      f'rows {idx_low} - {idx_high}')
+                model.change_base_field(base_field[base_field_idx])
+                inputs[idx_low:idx_high] = model.preprocess_data(
+                    inputs[idx_low:idx_high],
+                    sub_basefield=cli_args.get('inputs_need_diff'),
+                    sum_dims=(1, 2, 3),
+                )
+        else:
+            inputs = model.preprocess_data(
+                inputs,
+                sub_basefield=cli_args.get('inputs_need_diff'),
+                sum_dims=(1, 2, 3),
+            )
 
     step_ri('Calling the model and obtaining its outputs')
     outputs_model = model(inputs)

@@ -117,6 +117,9 @@ class Model():
                 map_location=torch.device(self.device),
             ))
 
+    def change_base_field(self, base_field):
+        self.base_field = base_field
+
     def preprocess_data(self, input_data, sub_basefield=False, sum_dims=None):
         if self.inputs_sum_to_one:
             input_data = self.sum_inputs_to_one(input_data, sum_dims)

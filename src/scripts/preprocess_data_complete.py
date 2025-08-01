@@ -258,7 +258,7 @@ def preprocess_data_complete(cli_args):
                 print(f'Using base field at index {base_field_idx} on '
                       f'rows {idx_low} - {idx_high}')
                 input_data[idx_low:idx_high] -= base_field[base_field_idx]
-            print('Creating an averaged base field')
+            print('Creating an averaged base field that will be saved')
             base_field_idxs = np.array(use_field_diff_mapping[::3])
             base_field = np.sum(base_field[base_field_idxs], axis=0)
             base_field /= len(base_field_idxs)
