@@ -355,13 +355,17 @@ Create and test the RM model on the instrument data.
 
     python3 main.py create_response_matrix \
         --simulated-data-tag-average picd_instrument_data_single_zernikes_pm40_v4 \
-        --base-field-tag picd_instrument_data_no_aberrations_v4 32
+        --base-field-tag picd_instrument_data_no_aberrations_v4 \
+        --wfs-sum-to-one --base-field-mapping 32 0 23 33 23 46
 
     python3 main.py run_response_matrix picd_instrument_data_single_zernikes_pm40_v4 \
         picd_instrument_data_25k_10nm_raw_processed_v4 \
-        --scatter-plot 4 6 2 1e-8 15
+        --scatter-plot 4 6 2 1e-8 15 --wfs-need-sum-to-one \
+        --change-base-field picd_instrument_data_no_aberrations_v4 31 0 25000
     python3 main.py run_response_matrix picd_instrument_data_single_zernikes_pm40_v4 \
-        picd_instrument_data_single_zernikes_raw_processed_v4 --zernike-plots
+        picd_instrument_data_single_zernikes_raw_processed_v4 --zernike-plots \
+        --wfs-need-sum-to-one \
+        --change-base-field picd_instrument_data_no_aberrations_v4 32 0 25000 33 25000 46000
 
 SEC9 - (EXTRA) [V55b] CNN TRAINING AND TESTING +++++++++++++++++++++++++++++++++
 The commands to train and test the [V55b] CNN model.
