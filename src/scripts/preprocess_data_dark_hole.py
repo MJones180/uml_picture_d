@@ -247,11 +247,11 @@ def preprocess_data_dark_hole(cli_args):
         nonzero_pixels = (input_data != 0).any(axis=(0, 1))
         # Indexes of the rows and columns in the input where there is at least
         # one pixel in that row or column that has a nonzero value
-        active_row_idxs = np.where(nonzero_pixels.any(axis=(0)))[0]
-        active_col_idxs = np.where(nonzero_pixels.any(axis=(1)))[0]
+        active_col_idxs = np.where(nonzero_pixels.any(axis=(0)))[0]
+        active_row_idxs = np.where(nonzero_pixels.any(axis=(1)))[0]
         # Chop off the padding rows and columns
-        input_data = input_data[:, :, active_row_idxs]
         input_data = input_data[:, :, :, active_col_idxs]
+        input_data = input_data[:, :, active_row_idxs]
         print(f'Input shape: {input_data.shape}')
         _save_var(SCI_CAM_ACTIVE_COL_IDXS, active_col_idxs)
         _save_var(SCI_CAM_ACTIVE_ROW_IDXS, active_row_idxs)

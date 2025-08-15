@@ -1,4 +1,4 @@
-# `dh_t10_half` network { 2x29x59 -> 756 }.
+# `dh_t10_half` network { 2x59x29 -> 756 }.
 # Trainable parameters: ...
 
 import torch
@@ -30,31 +30,31 @@ def _make_dense_block(in_features, out_features, dropout):
 class Network(nn.Module):
 
     def example_input():
-        return torch.rand((1, 2, 29, 59))
+        return torch.rand((1, 2, 59, 29))
 
     def __init__(self):
         super().__init__()
         self.conv_block1 = _make_conv_block(2, 128, 3)
         self.conv_block2 = _make_conv_block(128, 128, 3)
         self.conv_block3 = _make_conv_block(128, 128, 3)
-        # 29x59 -> 15x30
+        # 59x29 -> 30x15
         self.maxpool1 = nn.MaxPool2d(2, ceil_mode=True)
         self.conv_block4 = _make_conv_block(128, 256, 3)
         self.conv_block5 = _make_conv_block(256, 256, 3)
         self.conv_block6 = _make_conv_block(256, 256, 3)
-        # 15x30 -> 8x15
+        # 30x15 -> 15x8
         self.maxpool2 = nn.MaxPool2d(2, ceil_mode=True)
         self.conv_block7 = _make_conv_block(256, 512, 3)
         self.conv_block8 = _make_conv_block(512, 512, 3)
         self.conv_block9 = _make_conv_block(512, 512, 3)
         self.conv_block10 = _make_conv_block(512, 512, 3)
-        # 8x15 -> 4x8
+        # 15x8 -> 8x4
         self.maxpool3 = nn.MaxPool2d(2, ceil_mode=True)
         self.conv_block11 = _make_conv_block(512, 1024, 3)
         self.conv_block12 = _make_conv_block(1024, 1024, 3)
         self.conv_block13 = _make_conv_block(1024, 1024, 3)
         self.conv_block14 = _make_conv_block(1024, 1024, 3)
-        # 4x8 -> 1x1
+        # 8x4 -> 1x1
         self.maxpool4 = nn.MaxPool2d(8, ceil_mode=True)
         self.dense_block1 = _make_dense_block(1024, 4096, 0.3)
         self.out_layer = nn.Linear(4096, 756)
