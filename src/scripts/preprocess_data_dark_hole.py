@@ -111,6 +111,12 @@ def preprocess_data_dark_hole_parser(subparsers):
               'an image that is 2x the original height; [complex] use a '
               'complex datatype'),
     )
+    subparser.add_argument(
+        '--add-total-intensity',
+        action='store_true',
+        help=('add the total intensity as a third channel to the data; this '
+              'option only works with `--add-total-intensity channels`'),
+    )
 
 
 def preprocess_data_dark_hole(cli_args):
@@ -264,6 +270,17 @@ def preprocess_data_dark_hole(cli_args):
         print('The real part will be stacked on top of the imag part')
         input_data = np.concatenate((input_data[:, 0], input_data[:, 1]),
                                     axis=1)[:, None, :, :]
+        print(f'Input shape: {input_data.shape}')
+
+    # ==========================================================================
+
+    if cli_args['add_total_intensity']:
+        step_ri('Adding the total intensity as a third channel')
+        if ef_handling != 'channels':
+            terminate_with_message('This option can only be called with '
+                                   '--electric-field-handling channels')
+        intensity = input_data[:, 0]**2 + input_data[:, 1]**2
+        input_data = np.stack((input_data, intensity), axis=1)
         print(f'Input shape: {input_data.shape}')
 
     # ==========================================================================

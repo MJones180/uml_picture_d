@@ -104,3 +104,10 @@ Preprocess the datasets:
         --dm-tables dm1 --electric-field-tables sci_r sci_i \
         --dark-zone-mask-tag darkhole_mask_half --remove-dark-zone-padding \
         --additional-raw-data-tags dh_first_hodm_20nm_200k_ch1 dh_first_hodm_20nm_200k_ch2
+
+    python3 main.py preprocess_data_dark_hole dh_first_hodm_1nm_100k \
+        train_dh_single_3ch_xl val_dh_single_3ch_xl test_dh_single_3ch_xl 84 8 8 \
+        --dm-tables dm1 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask_half --remove-dark-zone-padding \
+        --additional-raw-data-tags dh_first_hodm_20nm_200k_ch1 dh_first_hodm_20nm_200k_ch2 \
+        --add-total-intensity
