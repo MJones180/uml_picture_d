@@ -205,7 +205,9 @@ def preprocess_data_dark_hole(cli_args):
     # ==========================================================================
 
     step_ri('Creating the input array (electric field)')
-    ef_handling = cli_args.get('electric_field_handling', 'channels')
+    ef_handling = cli_args.get('electric_field_handling')
+    if ef_handling is None:
+        ef_handling = 'channels'
     print(f'Method chosen: {ef_handling}')
     if ef_handling == 'complex':
         print('The electric field will be a single, complex channel')
@@ -280,7 +282,8 @@ def preprocess_data_dark_hole(cli_args):
             terminate_with_message('This option can only be called with '
                                    '--electric-field-handling channels')
         intensity = input_data[:, 0]**2 + input_data[:, 1]**2
-        input_data = np.stack((input_data, intensity), axis=1)
+        intensity = intensity[:, None, :, :]
+        input_data = np.concatenate((input_data, intensity), axis=1)
         print(f'Input shape: {input_data.shape}')
 
     # ==========================================================================
