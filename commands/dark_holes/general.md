@@ -35,6 +35,12 @@ Perfect dark hole (no aberrations or DM commands):
 
 First HODM only:
 
+    # 20nm pokes on every actuator on HODM 1
+    python3 main.py convert_piccsim_fits_data dh_first_hodm_20nm_pokes \
+        /home/picture/code/picture/piccsim/all_sim_data/first_hodm_single_actuator_pokes_20nm \
+        --fits-file-globs 'dm1_*' 'sci_*i' 'sci*r' \
+        --fits-table-names dm1 sci_i sci_r
+
     # 1nm * Gaussian between -1 and 1
     python3 main.py convert_piccsim_fits_data dh_first_hodm_1nm_100k \
         /home/picture/code/picture/piccsim/all_sim_data/first_hodm_1nm_100k \
@@ -111,3 +117,10 @@ Preprocess the datasets:
         --dark-zone-mask-tag darkhole_mask_half --remove-dark-zone-padding \
         --additional-raw-data-tags dh_first_hodm_20nm_200k_ch1 dh_first_hodm_20nm_200k_ch2 \
         --add-total-intensity
+
+    python3 main.py preprocess_data_dark_hole dh_first_hodm_1nm_100k \
+        train_dh_single_wp_xl val_dh_single_wp_xl test_dh_single_wp_xl 84 8 8 \
+        --dm-tables dm1 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask_half --remove-dark-zone-padding \
+        --additional-raw-data-tags dh_first_hodm_20nm_200k_ch1 dh_first_hodm_20nm_200k_ch2 \
+        --additional-raw-data-tags-train-only dh_first_hodm_20nm_pokes
