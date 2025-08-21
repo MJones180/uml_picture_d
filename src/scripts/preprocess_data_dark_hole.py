@@ -20,10 +20,12 @@ from utils.cli_args import save_cli_args
 from utils.constants import (DARK_ZONE_MASK, DATA_F, DM_ACTIVE_IDXS, DM_SIZE,
                              EXTRA_VARS_F, INPUTS, OUTPUTS, PROC_DATA_P,
                              SCI_CAM_ACTIVE_COL_IDXS, SCI_CAM_ACTIVE_ROW_IDXS)
+from utils.group_data_from_list import group_data_from_list
 from utils.hdf_read_and_write import HDFWriteModule, read_hdf
 from utils.load_raw_sim_data import raw_sim_data_chunk_paths
 from utils.path import make_dir
 from utils.printing_and_logging import step_ri, title
+from utils.stats_and_error import mse
 from utils.terminate_with_message import terminate_with_message
 
 
@@ -116,6 +118,18 @@ def preprocess_data_dark_hole_parser(subparsers):
         action='store_true',
         help=('add the total intensity as a third channel to the data; this '
               'option only works with `--add-total-intensity channels`'),
+    )
+    subparser.add_argument(
+        '--use-dm-svd-basis',
+        nargs='+',
+        metavar=('[dm table] [datafile] [datafile table] '
+                 '[max number of modes from the start]'),
+        help=('use the SVD basis for the DM actuator height coeffs; the raw '
+              'datafile must consist of the SVD modes for the DM, the modes '
+              'will be inverted to find the new basis coeffs; the DM modes '
+              'must have the same number of actuators as the data; the '
+              'datafile must only be a single chunk of data; the four '
+              'arguments must be repeated for each DM that is being used'),
     )
 
 
@@ -294,6 +308,35 @@ def preprocess_data_dark_hole(cli_args):
         all_dm_data[dm_table] = np.reshape(dm_data, (dm_shape[0], -1))
         print(f'DM {dm_table} shape: {all_dm_data[dm_table].shape}')
         _save_var(DM_SIZE(dm_idx_lookup[dm_table]), dm_shape[1:])
+
+    # ==========================================================================
+
+    use_dm_svd_basis = cli_args.get('use_dm_svd_basis')
+    if use_dm_svd_basis is not None:
+        step_ri('Using the SVD basis functions for the DM actuator heights')
+        err_msg = 'Four arguments must be passed for each DM'
+        for group in group_data_from_list(use_dm_svd_basis, 4, err_msg):
+            dm_table, modes_tag, modes_table_name, max_modes = group
+            print(f'[DM {dm_table}] Using modes from tag {modes_tag}')
+            modes_path = raw_sim_data_chunk_paths(modes_tag)[0]
+            modes = read_hdf(modes_path)[modes_table_name][:].astype(F32)
+            modes = modes.reshape(modes.shape[0], -1)
+            # Pick out the correct number of modes from the start
+            modes = modes[:max_modes]
+            # Invert the modes
+            modes_inv = np.linalg.pinv(modes)
+            # The original actuator heights for the DM
+            actuator_heights = all_dm_data[dm_table]
+            # The coefficients in the new basis
+            new_basis_coeffs = actuator_heights @ modes_inv
+            # What the actuator heights look like in the new basis
+            reconstructed_actuator_heights = new_basis_coeffs @ modes
+            # The error when switching to the new basis representation
+            error = mse(actuator_heights, reconstructed_actuator_heights)
+            print(f'[DM {dm_table}] With {max_modes} modes, there is an MSE '
+                  f'error of {error} when reconstructing the actuator heights')
+            all_dm_data[dm_table] = new_basis_coeffs
+            print(f'[DM {dm_table}] New shape: {all_dm_data[dm_table].shape}')
 
     # ==========================================================================
 
