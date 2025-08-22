@@ -311,6 +311,21 @@ def preprocess_data_dark_hole(cli_args):
 
     # ==========================================================================
 
+    step_ri('Finding and removing inactive actuators on the DM(s)')
+    for dm_table, dm_data in all_dm_data.items():
+        # Create an array where each actuator will say if it is nonzero
+        # across any of the simulations
+        nonzero_acts = (dm_data != 0).any(axis=0)
+        print(f'DM {dm_table} has {nonzero_acts.sum()} active actuators')
+        # Idxs where there is at least one actuator that has a nonzero value
+        active_idxs = np.where(nonzero_acts)[0]
+        # Filter out the inactive actuators
+        all_dm_data[dm_table] = dm_data[:, active_idxs]
+        print(f'DM {dm_table} shape: {all_dm_data[dm_table].shape}')
+        _save_var(DM_ACTIVE_IDXS(dm_idx_lookup[dm_table]), active_idxs)
+
+    # ==========================================================================
+
     use_dm_svd_basis = cli_args.get('use_dm_svd_basis')
     if use_dm_svd_basis is not None:
         step_ri('Using the SVD basis functions for the DM actuator heights')
@@ -321,6 +336,9 @@ def preprocess_data_dark_hole(cli_args):
             modes_path = raw_sim_data_chunk_paths(modes_tag)[0]
             modes = read_hdf(modes_path)[modes_table_name][:].astype(F32)
             modes = modes.reshape(modes.shape[0], -1)
+            # Filter out the inactive pixels from the modes
+            active_idxs = extra_vars[DM_ACTIVE_IDXS(dm_idx_lookup[dm_table])]
+            modes = modes[:, active_idxs]
             # Pick out the correct number of modes from the start
             modes = modes[:int(max_modes)]
             # Invert the modes
@@ -336,22 +354,6 @@ def preprocess_data_dark_hole(cli_args):
             print(f'Actuator height reconstruction MSE error of {error:0.3e}')
             all_dm_data[dm_table] = new_basis_coeffs
             print(f'DM {dm_table} shape: {all_dm_data[dm_table].shape}')
-
-    # ==========================================================================
-
-    if use_dm_svd_basis is None:
-        step_ri('Finding and removing inactive actuators on the DM(s)')
-        for dm_table, dm_data in all_dm_data.items():
-            # Create an array where each actuator will say if it is nonzero
-            # across any of the simulations
-            nonzero_acts = (dm_data != 0).any(axis=0)
-            print(f'DM {dm_table} has {nonzero_acts.sum()} active actuators')
-            # Idxs where there is at least one actuator that has a nonzero value
-            active_idxs = np.where(nonzero_acts)[0]
-            # Filter out the inactive actuators
-            all_dm_data[dm_table] = dm_data[:, active_idxs]
-            print(f'DM {dm_table} shape: {all_dm_data[dm_table].shape}')
-            _save_var(DM_ACTIVE_IDXS(dm_idx_lookup[dm_table]), active_idxs)
 
     # ==========================================================================
 
