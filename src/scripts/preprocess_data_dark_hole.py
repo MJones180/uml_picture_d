@@ -10,19 +10,22 @@ with the `convert_piccsim_fits_data` script.
 Three different datasets will be outputted: training, validation, and testing.
 Old datasets will be overwritten if they already exist.
 
-This script does not do any input or output normalization.
-
 All data in this script will be treated as float 32.
+
+In this script, all normalization is optional and performed with respect to the
+training dataset.
 """
 
 import numpy as np
 from utils.cli_args import save_cli_args
 from utils.constants import (DARK_ZONE_MASK, DATA_F, DM_ACTIVE_IDXS, DM_SIZE,
-                             EXTRA_VARS_F, INPUTS, OUTPUTS, PROC_DATA_P,
+                             EXTRA_VARS_F, INPUTS, NORM_RANGE_ONES, OUTPUTS,
+                             OUTPUT_MAX_MIN_DIFF, OUTPUT_MIN_X, PROC_DATA_P,
                              SCI_CAM_ACTIVE_COL_IDXS, SCI_CAM_ACTIVE_ROW_IDXS)
 from utils.group_data_from_list import group_data_from_list
 from utils.hdf_read_and_write import HDFWriteModule, read_hdf
 from utils.load_raw_sim_data import raw_sim_data_chunk_paths
+from utils.norm import find_min_max_norm, min_max_norm
 from utils.path import make_dir
 from utils.printing_and_logging import step_ri, title
 from utils.stats_and_error import mse
@@ -130,6 +133,17 @@ def preprocess_data_dark_hole_parser(subparsers):
               'must have the same number of actuators as the data; the '
               'datafile must only be a single chunk of data; the four '
               'arguments must be repeated for each DM that is being used'),
+    )
+    subparser.add_argument(
+        '--norm-range-ones',
+        action='store_true',
+        help=('normalize data between -1 and 1 instead of 0 to 1; applies to '
+              'all normalization being done'),
+    )
+    subparser.add_argument(
+        '--norm-outputs',
+        action='store_true',
+        help='normalize training and validation output values individually',
     )
 
 
@@ -412,6 +426,25 @@ def preprocess_data_dark_hole(cli_args):
     _print_split('Training', training_percentage, train_inputs)
     _print_split('Validation', validation_percentage, val_inputs)
     _print_split('Testing', testing_percentage, test_inputs)
+
+    # ==========================================================================
+
+    nro = cli_args['norm_range_ones']
+    _save_var(NORM_RANGE_ONES, nro)
+    if nro:
+        step_ri('Using -1 to 1 normalization instead of 0 to 1')
+
+    # ==========================================================================
+
+    if cli_args['norm_outputs']:
+        step_ri('Normalizing training outputs individually')
+        train_outputs, max_min_diff, min_x = find_min_max_norm(train_outputs,
+                                                               ones_range=nro)
+        _save_var(OUTPUT_MAX_MIN_DIFF, max_min_diff)
+        _save_var(OUTPUT_MIN_X, min_x)
+        print('Normalizing outputs of validation data based on training '
+              'normalization values')
+        val_outputs = min_max_norm(val_outputs, max_min_diff, min_x, nro)
 
     # ==========================================================================
 
