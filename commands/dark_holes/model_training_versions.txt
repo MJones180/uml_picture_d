@@ -71,3 +71,23 @@ After model testing, it is useful to rank the model analyses:
     python3 main.py model_test \
         dh_v5 last test_dh_single_wp_xl --outputs-no-denorm \
         --force-cpu --max-rows-per-model-call 10000
+
+[V6] The `dh_v6_` tag:
+
+    python3 main_scnp.py model_train \
+        dh_v6_756 train_dh_single_svd_xl val_dh_single_svd_xl \
+        dh_t10_half mse adam 1e-4 5000 --batch-size 256 \
+        --overwrite-existing --only-best-epoch --early-stopping 50
+
+    python3 main.py model_test \
+        dh_v6_756 last test_dh_single_svd_xl --outputs-no-denorm \
+        --force-cpu --max-rows-per-model-call 10000
+
+    python3 main_scnp.py model_train \
+        dh_v6_300 train_dh_single_svd_300_xl val_dh_single_svd_300_xl \
+        dh_t10_half_300 mse adam 1e-4 5000 --batch-size 256 \
+        --overwrite-existing --only-best-epoch --early-stopping 50
+
+    python3 main.py model_test \
+        dh_v6_300 last test_dh_single_svd_300_xl --outputs-no-denorm \
+        --force-cpu --max-rows-per-model-call 10000

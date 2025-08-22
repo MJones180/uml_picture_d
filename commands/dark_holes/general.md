@@ -124,3 +124,17 @@ Preprocess the datasets:
         --dark-zone-mask-tag darkhole_mask_half --remove-dark-zone-padding \
         --additional-raw-data-tags dh_first_hodm_20nm_200k_ch1 dh_first_hodm_20nm_200k_ch2 \
         --additional-raw-data-tags-train-only dh_first_hodm_20nm_pokes
+
+    python3 main.py preprocess_data_dark_hole dh_first_hodm_1nm_100k \
+        train_dh_single_svd_xl val_dh_single_svd_xl test_dh_single_svd_xl 84 8 8 \
+        --dm-tables dm1 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask_half --remove-dark-zone-padding \
+        --additional-raw-data-tags dh_first_hodm_20nm_200k_ch1 dh_first_hodm_20nm_200k_ch2 \
+        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 756
+
+    python3 main.py preprocess_data_dark_hole dh_first_hodm_1nm_100k \
+        train_dh_single_svd_300_xl val_dh_single_svd_300_xl test_dh_single_svd_300_xl 84 8 8 \
+        --dm-tables dm1 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask_half --remove-dark-zone-padding \
+        --additional-raw-data-tags dh_first_hodm_20nm_200k_ch1 dh_first_hodm_20nm_200k_ch2 \
+        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 300
