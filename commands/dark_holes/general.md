@@ -145,4 +145,4 @@ Preprocess the datasets:
         --dark-zone-mask-tag darkhole_mask_half --remove-dark-zone-padding \
         --additional-raw-data-tags dh_first_hodm_20nm_200k_ch1 dh_first_hodm_20nm_200k_ch2 \
         --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 300 \
-        --norm-range-ones --norm-outputs
+        --norm-inputs --norm-outputs
