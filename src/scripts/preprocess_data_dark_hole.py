@@ -19,7 +19,8 @@ training dataset.
 import numpy as np
 from utils.cli_args import save_cli_args
 from utils.constants import (DARK_ZONE_MASK, DATA_F, DM_ACTIVE_IDXS, DM_SIZE,
-                             EXTRA_VARS_F, INPUTS, NORM_RANGE_ONES, OUTPUTS,
+                             EXTRA_VARS_F, INPUT_MAX_MIN_DIFF, INPUT_MIN_X,
+                             INPUTS, NORM_RANGE_ONES_OUTPUT, OUTPUTS,
                              OUTPUT_MAX_MIN_DIFF, OUTPUT_MIN_X, PROC_DATA_P,
                              SCI_CAM_ACTIVE_COL_IDXS, SCI_CAM_ACTIVE_ROW_IDXS)
 from utils.group_data_from_list import group_data_from_list
@@ -135,15 +136,16 @@ def preprocess_data_dark_hole_parser(subparsers):
               'arguments must be repeated for each DM that is being used'),
     )
     subparser.add_argument(
-        '--norm-range-ones',
+        '--norm-inputs',
         action='store_true',
-        help=('normalize data between -1 and 1 instead of 0 to 1; applies to '
-              'all normalization being done'),
+        help=('normalize training and validation input values globally '
+              'between 0 and 1'),
     )
     subparser.add_argument(
         '--norm-outputs',
         action='store_true',
-        help='normalize training and validation output values individually',
+        help=('normalize training and validation output values individually '
+              'between -1 and 1'),
     )
 
 
@@ -429,22 +431,28 @@ def preprocess_data_dark_hole(cli_args):
 
     # ==========================================================================
 
-    nro = cli_args['norm_range_ones']
-    _save_var(NORM_RANGE_ONES, nro)
-    if nro:
-        step_ri('Using -1 to 1 normalization instead of 0 to 1')
+    if cli_args['norm_inputs']:
+        step_ri('Normalizing training inputs globally between 0 and 1')
+        train_inputs, max_min_diff, min_x = find_min_max_norm(train_inputs,
+                                                              globally=True)
+        _save_var(INPUT_MAX_MIN_DIFF, max_min_diff)
+        _save_var(INPUT_MIN_X, min_x)
+        print('Normalizing inputs of validation data based on training '
+              'normalization values')
+        val_inputs = min_max_norm(val_inputs, max_min_diff, min_x)
 
     # ==========================================================================
 
     if cli_args['norm_outputs']:
-        step_ri('Normalizing training outputs individually')
+        step_ri('Normalizing training outputs individually between -1 and 1')
         train_outputs, max_min_diff, min_x = find_min_max_norm(train_outputs,
-                                                               ones_range=nro)
+                                                               ones_range=True)
         _save_var(OUTPUT_MAX_MIN_DIFF, max_min_diff)
         _save_var(OUTPUT_MIN_X, min_x)
+        _save_var(NORM_RANGE_ONES_OUTPUT, True)
         print('Normalizing outputs of validation data based on training '
               'normalization values')
-        val_outputs = min_max_norm(val_outputs, max_min_diff, min_x, nro)
+        val_outputs = min_max_norm(val_outputs, max_min_diff, min_x, True)
 
     # ==========================================================================
 

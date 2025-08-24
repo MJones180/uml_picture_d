@@ -17,7 +17,8 @@ import numpy as np
 from utils.cli_args import save_cli_args
 from utils.constants import (BASE_INT_FIELD, CAMERA_SAMPLING, DATA_F,
                              EXTRA_VARS_F, INPUTS, INPUTS_SUM_TO_ONE,
-                             INPUT_MIN_X, INPUT_MAX_MIN_DIFF, NORM_RANGE_ONES,
+                             INPUT_MIN_X, INPUT_MAX_MIN_DIFF,
+                             NORM_RANGE_ONES_INPUT, NORM_RANGE_ONES_OUTPUT,
                              OUTPUTS, OUTPUT_MIN_X, OUTPUT_MAX_MIN_DIFF,
                              PROC_DATA_P, ZERNIKE_TERMS)
 from utils.hdf_read_and_write import HDFWriteModule
@@ -331,7 +332,7 @@ def preprocess_data_complete(cli_args):
     step_ri('Normalizing inputs')
     # Normalize between -1 and 1 if set to true
     nro = cli_args['norm_range_ones']
-    norm_values = {NORM_RANGE_ONES: nro}
+    norm_values = {NORM_RANGE_ONES_INPUT: nro, NORM_RANGE_ONES_OUTPUT: nro}
     if cli_args.get('disable_norm_inputs'):
         print('Not performing any input normalization')
     else:

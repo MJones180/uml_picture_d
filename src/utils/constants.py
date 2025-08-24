@@ -47,6 +47,8 @@ INPUT_MAX_MIN_DIFF = 'input_max_min_diff'
 OUTPUT_MIN_X = 'output_min_x'
 OUTPUT_MAX_MIN_DIFF = 'output_max_min_diff'
 NORM_RANGE_ONES = 'norm_range_ones'
+NORM_RANGE_ONES_INPUT = 'input_norm_range_ones'
+NORM_RANGE_ONES_OUTPUT = 'output_norm_range_ones'
 
 # ==============================================================================
 # Random HDF table names

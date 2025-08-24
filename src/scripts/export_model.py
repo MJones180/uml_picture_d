@@ -20,7 +20,7 @@ import onnxruntime
 import torch
 from utils.benchmark_nn import benchmark_nn
 from utils.constants import (BASE_INT_FIELD, INPUT_MAX_MIN_DIFF, INPUT_MIN_X,
-                             NORM_RANGE_ONES, OUTPUT_MAX_MIN_DIFF,
+                             NORM_RANGE_ONES_OUTPUT, OUTPUT_MAX_MIN_DIFF,
                              OUTPUT_MIN_X, TRAINED_MODELS_P)
 from utils.model import Model
 from utils.norm import min_max_denorm
@@ -85,7 +85,7 @@ def export_model(cli_args):
             data,
             model_vars[OUTPUT_MAX_MIN_DIFF],
             model_vars[OUTPUT_MIN_X],
-            model_vars[NORM_RANGE_ONES],
+            model_obj.norm_range_ones_output,
         )
 
     step_ri('Saving the true output line (no norm)')

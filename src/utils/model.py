@@ -3,8 +3,10 @@ import numpy as np
 import torch
 from utils.constants import (ARGS_F, BASE_INT_FIELD, CPU, EXTRA_VARS_F,
                              INPUTS_SUM_TO_ONE, INPUT_MAX_MIN_DIFF,
-                             INPUT_MIN_X, NORM_RANGE_ONES, OUTPUT_MAX_MIN_DIFF,
-                             OUTPUT_MIN_X, TRAINED_MODELS_P)
+                             INPUT_MIN_X, NORM_RANGE_ONES,
+                             NORM_RANGE_ONES_INPUT, NORM_RANGE_ONES_OUTPUT,
+                             OUTPUT_MAX_MIN_DIFF, OUTPUT_MIN_X,
+                             TRAINED_MODELS_P)
 from utils.hdf_read_and_write import read_hdf
 from utils.json import json_load
 from utils.load_network import load_network
@@ -74,17 +76,23 @@ class Model():
         _print('Loading in the extra variables')
         self.extra_vars = read_hdf(f'{dir_path}/{EXTRA_VARS_F}')
 
-        def _grab_extra_vars_bool(arg):
+        def _grab_ev_bool(arg):
             if arg in self.extra_vars:
                 return self.extra_vars[arg][()]
             return False
 
-        # True if the data was normalized between [-1, 1] instead of [0, 1].
-        self.norm_range_ones = _grab_extra_vars_bool(NORM_RANGE_ONES)
+        # If either the input or output data was normalized between
+        # [-1, 1] instead of [0, 1].
+        self.norm_range_ones_input = _grab_ev_bool(NORM_RANGE_ONES_INPUT)
+        self.norm_range_ones_output = _grab_ev_bool(NORM_RANGE_ONES_OUTPUT)
+        # This is a deprecated variable.
+        if _grab_ev_bool(NORM_RANGE_ONES) is True:
+            self.norm_range_ones_input = True
+            self.norm_range_ones_output = True
         # True if the inputs should sum to one.
-        self.inputs_sum_to_one = _grab_extra_vars_bool(INPUTS_SUM_TO_ONE)
+        self.inputs_sum_to_one = _grab_ev_bool(INPUTS_SUM_TO_ONE)
         # True if any input normalization is done (other than summing to one).
-        self.input_norm_done = _grab_extra_vars_bool(INPUT_MIN_X) is not False
+        self.input_norm_done = _grab_ev_bool(INPUT_MIN_X) is not False
         # The base field that will need to be subtracted off. If the field does
         # not exist, then this will just be set to None.
         self.base_field = self.extra_vars.get(BASE_INT_FIELD)
@@ -142,7 +150,7 @@ class Model():
             input_data,
             self.extra_vars[INPUT_MAX_MIN_DIFF],
             self.extra_vars[INPUT_MIN_X],
-            self.norm_range_ones,
+            self.norm_range_ones_input,
         )
 
     def denorm_data(self, output_data):
@@ -150,7 +158,7 @@ class Model():
             output_data,
             self.extra_vars[OUTPUT_MAX_MIN_DIFF],
             self.extra_vars[OUTPUT_MIN_X],
-            self.norm_range_ones,
+            self.norm_range_ones_output,
         )
 
     def call_model(self, data):
