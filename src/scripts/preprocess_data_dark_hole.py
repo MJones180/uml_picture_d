@@ -138,7 +138,7 @@ def preprocess_data_dark_hole_parser(subparsers):
     subparser.add_argument(
         '--norm-inputs',
         action='store_true',
-        help=('normalize training and validation input values globally '
+        help=('normalize training, validation, and test input values globally '
               'between 0 and 1'),
     )
     subparser.add_argument(
@@ -437,9 +437,10 @@ def preprocess_data_dark_hole(cli_args):
                                                               globally=True)
         _save_var(INPUT_MAX_MIN_DIFF, max_min_diff)
         _save_var(INPUT_MIN_X, min_x)
-        print('Normalizing inputs of validation data based on training '
-              'normalization values')
+        print('Normalizing inputs of validation data and test data based on '
+              'training normalization values')
         val_inputs = min_max_norm(val_inputs, max_min_diff, min_x)
+        test_inputs = min_max_norm(test_inputs, max_min_diff, min_x)
 
     # ==========================================================================
 
