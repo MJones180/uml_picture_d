@@ -110,11 +110,11 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main_scnp.py batch_model_train \
         train_dh_single_svd_300_norm_xl val_dh_single_svd_300_norm_xl \
-        dh_v8_ 250 --networks dh_t10_half_300_1 dh_t10_half_300_2 \
+        dh_v8_ 500 --networks dh_t10_half_300_1 dh_t10_half_300_2 \
         dh_t10_half_300_3 dh_t10_half_300_4 dh_t10_half_300_5 \
         --losses mse --optimizers adam \
         --lrs 1e-5 --batch-sizes 256 \
-        --overwrite-existing --only-best-epoch --early-stopping 15
+        --overwrite-existing --only-best-epoch --early-stopping 25
 
     python3 main.py batch_model_test \
         test_dh_single_svd_300_norm_xl \
