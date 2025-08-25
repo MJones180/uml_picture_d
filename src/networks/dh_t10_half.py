@@ -1,5 +1,5 @@
 # `dh_t10_half` network { 2x59x29 -> 756 }.
-# Trainable parameters: ...
+# Trainable parameters: 50,369,780
 
 import torch
 import torch.nn as nn

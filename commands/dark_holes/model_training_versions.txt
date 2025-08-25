@@ -105,3 +105,18 @@ After model testing, it is useful to rank the model analyses:
         test_dh_single_svd_300_norm_xl \
         --epoch-and-tag-range last dh_v7_ 1 5 \
         --force-cpu --max-rows-per-model-call 10000
+
+[V8] The `dh_v8_` tag:
+
+    python3 main_scnp.py batch_model_train \
+        train_dh_single_svd_300_norm_xl val_dh_single_svd_300_norm_xl \
+        dh_v8_ 250 --networks dh_t10_half_300_1 dh_t10_half_300_2 \
+        dh_t10_half_300_3 dh_t10_half_300_4 dh_t10_half_300_5 \
+        --losses mse --optimizers adam \
+        --lrs 1e-5 --batch-sizes 256 \
+        --overwrite-existing --only-best-epoch --early-stopping 15
+
+    python3 main.py batch_model_test \
+        test_dh_single_svd_300_norm_xl \
+        --epoch-and-tag-range last dh_v8_ 1 5 \
+        --force-cpu --max-rows-per-model-call 10000

@@ -1,5 +1,5 @@
-# `dh_t10_half_300` network { 2x59x29 -> 300 }.
-# Trainable parameters: 48,501,548
+# `dh_t10_half_300_4` network { 2x59x29 -> 300 }.
+# Trainable parameters: 45,787,948
 
 import torch
 import torch.nn as nn
@@ -56,8 +56,8 @@ class Network(nn.Module):
         self.conv_block14 = _make_conv_block(1024, 1024, 3)
         # 8x4 -> 1x1
         self.maxpool4 = nn.MaxPool2d(8, ceil_mode=True)
-        self.dense_block1 = _make_dense_block(1024, 4096, 0.3)
-        self.out_layer = nn.Linear(4096, 300)
+        self.dense_block1 = _make_dense_block(1024, 2048, 0.3)
+        self.out_layer = nn.Linear(2048, 300)
 
     def forward(self, x):
         x = self.conv_block1(x)
