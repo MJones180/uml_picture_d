@@ -61,7 +61,7 @@ class Network(nn.Module):
         self.conv_block17 = _make_conv_block(2048, 2048, 3)
         self.conv_block18 = _make_conv_block(2048, 2048, 3)
         # 4x2 -> 1x1
-        self.maxpool5 = nn.AvgPool2d(4, ceil_mode=True)
+        self.avgpool5 = nn.AvgPool2d(4, ceil_mode=True)
         self.dense_block1 = _make_dense_block(2048, 4096, 0.3)
         self.out_layer = nn.Linear(4096, 300)
 
@@ -88,7 +88,7 @@ class Network(nn.Module):
         x = self.conv_block16(x)
         x = self.conv_block17(x)
         x = self.conv_block18(x)
-        x = self.maxpool5(x)
+        x = self.avgpool5(x)
         x = torch.squeeze(x, (2, 3))
         x = self.dense_block1(x)
         x = self.out_layer(x)
