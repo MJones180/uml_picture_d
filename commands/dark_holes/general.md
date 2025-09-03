@@ -59,6 +59,27 @@ First HODM only:
         --fits-file-globs 'dm1_*' 'sci_*i' 'sci*r' \
         --fits-table-names dm1 sci_i sci_r \
         --rows-per-chunk 25000
+    python3 main.py convert_piccsim_fits_data dh_first_hodm_20nm_200k_ch3 \
+        /home/picture/code/picture/piccsim/all_sim_data/first_hodm_20nm_200k_ch3 \
+        --fits-file-globs 'dm1_*' 'sci_*i' 'sci*r' \
+        --fits-table-names dm1 sci_i sci_r \
+        --rows-per-chunk 25000
+    python3 main.py convert_piccsim_fits_data dh_first_hodm_20nm_200k_ch4 \
+        /home/picture/code/picture/piccsim/all_sim_data/first_hodm_20nm_200k_ch4 \
+        --fits-file-globs 'dm1_*' 'sci_*i' 'sci*r' \
+        --fits-table-names dm1 sci_i sci_r \
+        --rows-per-chunk 25000
+    # Same as the above, just less data to make model prototyping quicker and easier
+    python3 main.py convert_piccsim_fits_data dh_first_hodm_20nm_100k_train_and_val \
+        /home/picture/code/picture/piccsim/all_sim_data/first_hodm_20nm_200k_ch1 \
+        --fits-file-globs 'dm1_*' 'sci_*i' 'sci*r' \
+        --fits-table-names dm1 sci_i sci_r \
+        --rows-per-chunk 25000 --first-n-rows 100000
+    python3 main.py convert_piccsim_fits_data dh_first_hodm_20nm_20k_test \
+        /home/picture/code/picture/piccsim/all_sim_data/first_hodm_20nm_200k_ch2 \
+        --fits-file-globs 'dm1_*' 'sci_*i' 'sci*r' \
+        --fits-table-names dm1 sci_i sci_r \
+        --rows-per-chunk 25000 --first-n-rows 20000
 
 Both HODMs:
 
@@ -146,3 +167,16 @@ Preprocess the datasets:
         --additional-raw-data-tags dh_first_hodm_20nm_200k_ch1 dh_first_hodm_20nm_200k_ch2 \
         --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 300 \
         --norm-inputs --norm-outputs
+
+    python3 main.py preprocess_data_dark_hole dh_first_hodm_20nm_100k_train_and_val \
+        train_dh_single_prototype_svd_300_norm val_dh_single_prototype_svd_300_norm empty 90 10 0 \
+        --dm-tables dm1 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask_half --remove-dark-zone-padding \
+        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 300 \
+        --norm-inputs --norm-outputs
+    python3 main.py preprocess_data_dark_hole dh_first_hodm_20nm_20k_test \
+        empty empty test_dh_single_prototype_svd_300_norm 0 0 100 \
+        --dm-tables dm1 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask_half --remove-dark-zone-padding \
+        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 300 \
+        --disable-shuffle
