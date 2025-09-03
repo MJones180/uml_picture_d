@@ -147,6 +147,11 @@ def preprocess_data_dark_hole_parser(subparsers):
         help=('normalize training and validation output values individually '
               'between -1 and 1'),
     )
+    subparser.add_argument(
+        '--disable-shuffle',
+        action='store_true',
+        help='do not shuffle the rows',
+    )
 
 
 def preprocess_data_dark_hole(cli_args):
@@ -385,12 +390,13 @@ def preprocess_data_dark_hole(cli_args):
 
     # ==========================================================================
 
-    step_ri('Shuffling')
-    random_shuffle_idxs = np.random.permutation(len(input_data))
-    input_data = input_data[random_shuffle_idxs]
-    output_data = output_data[random_shuffle_idxs]
-    if train_only_mask is not None:
-        train_only_mask = train_only_mask[random_shuffle_idxs]
+    if not cli_args['disable_shuffle']:
+        step_ri('Shuffling')
+        random_shuffle_idxs = np.random.permutation(len(input_data))
+        input_data = input_data[random_shuffle_idxs]
+        output_data = output_data[random_shuffle_idxs]
+        if train_only_mask is not None:
+            train_only_mask = train_only_mask[random_shuffle_idxs]
 
     # ==========================================================================
 
