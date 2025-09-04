@@ -146,3 +146,14 @@ After model testing, it is useful to rank the model analyses:
     python3 main.py model_test \
         dh_v10 last test_dh_single_prototype_svd_300_norm_3ch --inputs-need-norm \
         --force-cpu --max-rows-per-model-call 10000
+
+[V11] The `dh_v11` tag:
+
+    python3 main_scnp.py model_train \
+        dh_v11 train_dh_single_prototype_svd_756_norm val_dh_single_prototype_svd_756_norm \
+        dh_t10_half_avg mse adam 1e-5 500 --batch-size 256 \
+        --overwrite-existing --only-best-epoch --early-stopping 25
+
+    python3 main.py model_test \
+        dh_v11 last test_dh_single_prototype_svd_756_norm --inputs-need-norm \
+        --force-cpu --max-rows-per-model-call 10000
