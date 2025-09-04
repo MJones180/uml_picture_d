@@ -135,3 +135,14 @@ After model testing, it is useful to rank the model analyses:
         --inputs-need-norm \
         --epoch-and-tag-range last dh_v9_ 1 2 \
         --force-cpu --max-rows-per-model-call 10000
+
+[V10] The `dh_v10` tag:
+
+    python3 main_scnp.py model_train \
+        dh_v10 train_dh_single_prototype_svd_300_norm_3ch val_dh_single_prototype_svd_300_norm_3ch \
+        dh_t10_half_300_6_3ch mse adam 1e-5 500 --batch-size 256 \
+        --overwrite-existing --only-best-epoch --early-stopping 25
+
+    python3 main.py model_test \
+        dh_v10 last test_dh_single_prototype_svd_300_norm_3ch --inputs-need-norm \
+        --force-cpu --max-rows-per-model-call 10000

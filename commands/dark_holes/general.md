@@ -180,3 +180,16 @@ Preprocess the datasets:
         --dark-zone-mask-tag darkhole_mask_half --remove-dark-zone-padding \
         --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 300 \
         --disable-shuffle
+
+    python3 main.py preprocess_data_dark_hole dh_first_hodm_20nm_100k_train_and_val \
+        train_dh_single_prototype_svd_300_norm_3ch val_dh_single_prototype_svd_300_norm_3ch empty 90 10 0 \
+        --dm-tables dm1 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask_half --remove-dark-zone-padding \
+        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 300 \
+        --norm-inputs --norm-outputs --add-total-intensity
+    python3 main.py preprocess_data_dark_hole dh_first_hodm_20nm_20k_test \
+        empty empty test_dh_single_prototype_svd_300_norm_3ch 0 0 100 \
+        --dm-tables dm1 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask_half --remove-dark-zone-padding \
+        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 300 \
+        --disable-shuffle --add-total-intensity
