@@ -27,7 +27,7 @@ from utils.group_data_from_list import group_data_from_list
 from utils.hdf_read_and_write import HDFWriteModule, read_hdf
 from utils.load_raw_sim_data import raw_sim_data_chunk_paths
 from utils.norm import find_min_max_norm, min_max_norm
-from utils.path import make_dir
+from utils.path import make_dir, path_exists
 from utils.printing_and_logging import step_ri, title
 from utils.stats_and_error import mse
 from utils.terminate_with_message import terminate_with_message
@@ -152,10 +152,66 @@ def preprocess_data_dark_hole_parser(subparsers):
         action='store_true',
         help='do not shuffle the rows',
     )
+    subparser.add_argument(
+        '--extend-existing-preprocessed-data',
+        action='store_true',
+        help=('add more data chunks to existing preprocessed datasets; the '
+              'data tags must match existing ones for this arg to be used; '
+              'the extra variables from the training dataset will be used '
+              'and will not be written out a second time; the input and '
+              'output norm from the training dataset will be used'),
+    )
 
 
 def preprocess_data_dark_hole(cli_args):
     title('Preprocess data dark hole script')
+
+    # ==========================================================================
+
+    def _get_out_path(cli_arg):
+        return f'{PROC_DATA_P}/{cli_args[cli_arg]}'
+
+    training_tag_path = _get_out_path('training_tag')
+    validation_tag_path = _get_out_path('validation_tag')
+    testing_tag_path = _get_out_path('testing_tag')
+
+    extend_existing_data = cli_args['extend_existing_preprocessed_data']
+    if extend_existing_data:
+        step_ri('Will extend existing data')
+        # Verifying all the datasets exist
+        if not path_exists(training_tag_path):
+            terminate_with_message(f'{training_tag_path} must exist')
+        elif not path_exists(validation_tag_path):
+            terminate_with_message(f'{validation_tag_path} must exist')
+        elif not path_exists(testing_tag_path):
+            terminate_with_message(f'{testing_tag_path} must exist')
+        # Loading in the extra variables so they can just be used
+        extra_vars = read_hdf(f'{training_tag_path}/{EXTRA_VARS_F}')
+    else:
+        step_ri('Setting up dataset outputs')
+
+        def _create_dataset(out_path):
+            print(f'Making {out_path}')
+            make_dir(out_path)
+            # Write out the CLI args that this script was called with
+            save_cli_args(out_path, cli_args, 'preprocess_data_dark_hole')
+
+        _create_dataset(training_tag_path)
+        _create_dataset(validation_tag_path)
+        _create_dataset(testing_tag_path)
+
+        # Extra variables that may be written out at the end
+        extra_vars = {}
+
+        def _save_var(arg, val):
+            extra_vars[arg] = val
+            print(f'Will save `{arg}` at the end')
+
+    def _use_var(var, scalar=False):
+        print(f'Using {var} from `extra_vars`')
+        if scalar:
+            return extra_vars[var][()]
+        return extra_vars[var][:]
 
     # ==========================================================================
 
@@ -230,11 +286,11 @@ def preprocess_data_dark_hole(cli_args):
 
     step_ri('Converting loaded data to numpy arrays')
     for dm_table, dm_data in all_dm_data.items():
-        all_dm_data[dm_table] = np.array(dm_data).astype(F32)
+        all_dm_data[dm_table] = np.asarray(dm_data)
         print(f'DM {dm_table} shape: {all_dm_data[dm_table].shape}')
-    ef_data_real = np.array(ef_data_real).astype(F32)
+    ef_data_real = np.asarray(ef_data_real)
     print(f'EF real shape: {ef_data_real.shape}')
-    ef_data_imag = np.array(ef_data_imag).astype(F32)
+    ef_data_imag = np.asarray(ef_data_imag)
     print(f'EF imag shape: {ef_data_imag.shape}')
 
     # ==========================================================================
@@ -260,44 +316,42 @@ def preprocess_data_dark_hole(cli_args):
 
     # ==========================================================================
 
-    # Extra variables that may be written out at the end
-    extra_vars = {}
-
-    def _save_var(arg, val):
-        extra_vars[arg] = val
-        print(f'Will save `{arg}` at the end')
-
-    # ==========================================================================
-
     dark_zone_mask_tag = cli_args['dark_zone_mask_tag']
     if dark_zone_mask_tag is not None:
         step_ri('Applying the dark zone mask to the inputs')
-        mask_path = raw_sim_data_chunk_paths(dark_zone_mask_tag)[0]
-        print(f'Loading in the dark zone mask from {mask_path}')
-        dark_zone_mask = read_hdf(mask_path)[DARK_ZONE_MASK][:]
+        if extend_existing_data:
+            dark_zone_mask = _use_var(DARK_ZONE_MASK)
+        else:
+            mask_path = raw_sim_data_chunk_paths(dark_zone_mask_tag)[0]
+            print(f'Loading in the dark zone mask from {mask_path}')
+            dark_zone_mask = read_hdf(mask_path)[DARK_ZONE_MASK][:]
+            _save_var(DARK_ZONE_MASK, dark_zone_mask)
         print(f'This mask has {dark_zone_mask.sum()} active pixels')
         # Zero out all pixels that are not within the mask
         input_data[:, :, ~dark_zone_mask] = 0
         print('Inactive pixels zeroed out')
-        _save_var(DARK_ZONE_MASK, dark_zone_mask)
 
     # ==========================================================================
 
     if cli_args['remove_dark_zone_padding']:
         step_ri('Chopping off zero padded pixels in the inputs')
-        # Create an array where each pixel will say if it is nonzero
-        # across any of the simulations
-        nonzero_pixels = (input_data != 0).any(axis=(0, 1))
-        # Indexes of the rows and columns in the input where there is at least
-        # one pixel in that row or column that has a nonzero value
-        active_col_idxs = np.where(nonzero_pixels.any(axis=(0)))[0]
-        active_row_idxs = np.where(nonzero_pixels.any(axis=(1)))[0]
+        if extend_existing_data:
+            active_col_idxs = _use_var(SCI_CAM_ACTIVE_COL_IDXS)
+            active_row_idxs = _use_var(SCI_CAM_ACTIVE_ROW_IDXS)
+        else:
+            # Create an array where each pixel will say if it is nonzero
+            # across any of the simulations
+            nonzero_pixels = (input_data != 0).any(axis=(0, 1))
+            # Indexes of the rows and columns in the input where there is at
+            # least one pixel in that row or column that has a nonzero value
+            active_col_idxs = np.where(nonzero_pixels.any(axis=(0)))[0]
+            active_row_idxs = np.where(nonzero_pixels.any(axis=(1)))[0]
+            _save_var(SCI_CAM_ACTIVE_COL_IDXS, active_col_idxs)
+            _save_var(SCI_CAM_ACTIVE_ROW_IDXS, active_row_idxs)
         # Chop off the padding rows and columns
         input_data = input_data[:, :, :, active_col_idxs]
         input_data = input_data[:, :, active_row_idxs]
         print(f'Input shape: {input_data.shape}')
-        _save_var(SCI_CAM_ACTIVE_COL_IDXS, active_col_idxs)
-        _save_var(SCI_CAM_ACTIVE_ROW_IDXS, active_row_idxs)
 
     # ==========================================================================
 
@@ -328,22 +382,26 @@ def preprocess_data_dark_hole(cli_args):
         dm_shape = dm_data.shape
         all_dm_data[dm_table] = np.reshape(dm_data, (dm_shape[0], -1))
         print(f'DM {dm_table} shape: {all_dm_data[dm_table].shape}')
-        _save_var(DM_SIZE(dm_idx_lookup[dm_table]), dm_shape[1:])
+        if not extend_existing_data:
+            _save_var(DM_SIZE(dm_idx_lookup[dm_table]), dm_shape[1:])
 
     # ==========================================================================
 
     step_ri('Finding and removing inactive actuators on the DM(s)')
     for dm_table, dm_data in all_dm_data.items():
-        # Create an array where each actuator will say if it is nonzero
-        # across any of the simulations
-        nonzero_acts = (dm_data != 0).any(axis=0)
-        print(f'DM {dm_table} has {nonzero_acts.sum()} active actuators')
-        # Idxs where there is at least one actuator that has a nonzero value
-        active_idxs = np.where(nonzero_acts)[0]
+        if extend_existing_data:
+            active_idxs = _use_var(DM_ACTIVE_IDXS(dm_idx_lookup[dm_table]))
+        else:
+            # Create an array where each actuator will say if it is nonzero
+            # across any of the simulations
+            nonzero_acts = (dm_data != 0).any(axis=0)
+            print(f'DM {dm_table} has {nonzero_acts.sum()} active actuators')
+            # Idxs where there is at least one actuator that has a nonzero value
+            active_idxs = np.where(nonzero_acts)[0]
+            _save_var(DM_ACTIVE_IDXS(dm_idx_lookup[dm_table]), active_idxs)
         # Filter out the inactive actuators
         all_dm_data[dm_table] = dm_data[:, active_idxs]
         print(f'DM {dm_table} shape: {all_dm_data[dm_table].shape}')
-        _save_var(DM_ACTIVE_IDXS(dm_idx_lookup[dm_table]), active_idxs)
 
     # ==========================================================================
 
@@ -358,7 +416,7 @@ def preprocess_data_dark_hole(cli_args):
             modes = read_hdf(modes_path)[modes_table_name][:].astype(F32)
             modes = modes.reshape(modes.shape[0], -1)
             # Filter out the inactive pixels from the modes
-            active_idxs = extra_vars[DM_ACTIVE_IDXS(dm_idx_lookup[dm_table])]
+            active_idxs = _use_var(DM_ACTIVE_IDXS(dm_idx_lookup[dm_table]))
             modes = modes[:, active_idxs]
             # Pick out the correct number of modes from the start
             modes = modes[:int(max_modes)]
@@ -439,10 +497,15 @@ def preprocess_data_dark_hole(cli_args):
 
     if cli_args['norm_inputs']:
         step_ri('Normalizing training inputs globally between 0 and 1')
-        train_inputs, max_min_diff, min_x = find_min_max_norm(train_inputs,
-                                                              globally=True)
-        _save_var(INPUT_MAX_MIN_DIFF, max_min_diff)
-        _save_var(INPUT_MIN_X, min_x)
+        if extend_existing_data:
+            max_min_diff = _use_var(INPUT_MAX_MIN_DIFF, True)
+            min_x = _use_var(INPUT_MIN_X, True)
+            train_inputs = min_max_norm(train_inputs, max_min_diff, min_x)
+        else:
+            train_inputs, max_min_diff, min_x = find_min_max_norm(
+                train_inputs, globally=True)
+            _save_var(INPUT_MAX_MIN_DIFF, max_min_diff)
+            _save_var(INPUT_MIN_X, min_x)
         print('Normalizing inputs of validation data and test data based on '
               'training normalization values')
         val_inputs = min_max_norm(val_inputs, max_min_diff, min_x)
@@ -452,34 +515,44 @@ def preprocess_data_dark_hole(cli_args):
 
     if cli_args['norm_outputs']:
         step_ri('Normalizing training outputs individually between -1 and 1')
-        train_outputs, max_min_diff, min_x = find_min_max_norm(train_outputs,
-                                                               ones_range=True)
-        _save_var(OUTPUT_MAX_MIN_DIFF, max_min_diff)
-        _save_var(OUTPUT_MIN_X, min_x)
-        _save_var(NORM_RANGE_ONES_OUTPUT, True)
+        if extend_existing_data:
+            max_min_diff = _use_var(OUTPUT_MAX_MIN_DIFF)
+            min_x = _use_var(OUTPUT_MIN_X)
+            train_outputs = min_max_norm(train_outputs, max_min_diff, min_x,
+                                         True)
+        else:
+            train_outputs, max_min_diff, min_x = find_min_max_norm(
+                train_outputs, ones_range=True)
+            _save_var(OUTPUT_MAX_MIN_DIFF, max_min_diff)
+            _save_var(OUTPUT_MIN_X, min_x)
+            _save_var(NORM_RANGE_ONES_OUTPUT, True)
         print('Normalizing outputs of validation data based on training '
               'normalization values')
         val_outputs = min_max_norm(val_outputs, max_min_diff, min_x, True)
 
     # ==========================================================================
 
-    step_ri('Creating new datasets')
-
-    def _create_dataset(cli_arg, inputs, outputs):
-        out_path = f'{PROC_DATA_P}/{cli_args[cli_arg]}'
-        print(f'Making {out_path}')
-        make_dir(out_path)
-        # Write out the CLI args that this script was called with
-        save_cli_args(out_path, cli_args, 'preprocess_data_dark_hole')
-        # Add a file with other necessary variables (includes norm values)
-        HDFWriteModule(f'{out_path}/{EXTRA_VARS_F}'
-                       ).create_and_write_hdf_simple(extra_vars)
+    def _write_data(out_path, inputs, outputs):
+        datafile_path = f'{out_path}/{DATA_F}'
+        step_ri(f'Writing out to {datafile_path}')
+        if extend_existing_data:
+            print('Merging existing data in')
+            # Add on to the existing datafiles
+            with read_hdf(datafile_path) as existing_data:
+                inputs = np.vstack((existing_data[INPUTS][:], inputs))
+                outputs = np.vstack((existing_data[OUTPUTS][:], outputs))
+        else:
+            # Add a file with extra necessary variables
+            file_path = f'{out_path}/{EXTRA_VARS_F}'
+            HDFWriteModule(file_path).create_and_write_hdf_simple(extra_vars)
         # Write out the processed HDF file
-        HDFWriteModule(f'{out_path}/{DATA_F}').create_and_write_hdf_simple({
+        HDFWriteModule(datafile_path).create_and_write_hdf_simple({
             INPUTS: inputs,
             OUTPUTS: outputs,
         })
+        print(f'Input shape: {inputs.shape}')
+        print(f'Output shape: {outputs.shape}')
 
-    _create_dataset('training_tag', train_inputs, train_outputs)
-    _create_dataset('validation_tag', val_inputs, val_outputs)
-    _create_dataset('testing_tag', test_inputs, test_outputs)
+    _write_data(training_tag_path, train_inputs, train_outputs)
+    _write_data(validation_tag_path, val_inputs, val_outputs)
+    _write_data(testing_tag_path, test_inputs, test_outputs)
