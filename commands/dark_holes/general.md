@@ -120,6 +120,12 @@ Preprocess the datasets:
         --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
         --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding
 
+    python3 main.py preprocess_data_dark_hole dh_both_hodms_20nm_100k_ch1 \
+        train_dh_double_prototype_756_norm val_dh_double_prototype_756_norm test_dh_double_prototype_756_norm 80 10 10 \
+        --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask_half --remove-dark-zone-padding \
+        --norm-inputs --norm-outputs
+
     python3 main.py preprocess_data_dark_hole dh_both_hodms_20nm_84k \
         train_dh_20nm_xl val_dh_20nm_xl test_dh_20nm_xl 70 15 15 \
         --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
@@ -205,4 +211,15 @@ Preprocess the datasets:
         --dm-tables dm1 --electric-field-tables sci_r sci_i \
         --dark-zone-mask-tag darkhole_mask_half --remove-dark-zone-padding \
         --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 756 \
+        --disable-shuffle
+
+    python3 main.py preprocess_data_dark_hole dh_first_hodm_20nm_100k_train_and_val \
+        train_dh_single_prototype_756_norm val_dh_single_prototype_756_norm empty 90 10 0 \
+        --dm-tables dm1 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask_half --remove-dark-zone-padding \
+        --norm-inputs --norm-outputs
+    python3 main.py preprocess_data_dark_hole dh_first_hodm_20nm_20k_test \
+        empty empty test_dh_single_prototype_756_norm 0 0 100 \
+        --dm-tables dm1 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask_half --remove-dark-zone-padding \
         --disable-shuffle
