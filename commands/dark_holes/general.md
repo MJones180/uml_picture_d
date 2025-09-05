@@ -132,6 +132,14 @@ Preprocess the datasets:
         --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
         --additional-raw-data-tags dh_both_hodms_20nm_100k_ch1 dh_both_hodms_20nm_100k_ch2
 
+    python3 main.py preprocess_data_dark_hole dh_both_hodms_20nm_84k \
+        train_dh_both_svd_300_norm val_dh_both_svd_300_norm test_dh_both_svd_300_norm 84 8 8 \
+        --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
+        --additional-raw-data-tags dh_both_hodms_20nm_100k_ch1 dh_both_hodms_20nm_100k_ch2 \
+        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 300 dm2 hodm2_756_modes dm2_modes 300 \
+        --norm-inputs --norm-outputs
+
     python3 main.py preprocess_data_dark_hole dh_first_hodm_1nm_100k \
         train_dh_single_xl val_dh_single_xl test_dh_single_xl 84 8 8 \
         --dm-tables dm1 --electric-field-tables sci_r sci_i \
@@ -173,6 +181,21 @@ Preprocess the datasets:
         --additional-raw-data-tags dh_first_hodm_20nm_200k_ch1 dh_first_hodm_20nm_200k_ch2 \
         --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 300 \
         --norm-inputs --norm-outputs
+
+    python3 main.py preprocess_data_dark_hole dh_first_hodm_1nm_100k \
+        train_dh_single_svd_300_norm_xxl val_dh_single_svd_300_norm_xxl test_dh_single_svd_300_norm_xxl 84 8 8 \
+        --dm-tables dm1 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask_half --remove-dark-zone-padding \
+        --additional-raw-data-tags dh_first_hodm_20nm_200k_ch1 dh_first_hodm_20nm_200k_ch2 \
+        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 300 \
+        --norm-inputs --norm-outputs
+    python3 main.py preprocess_data_dark_hole dh_first_hodm_20nm_200k_ch3 \
+        train_dh_single_svd_300_norm_xxl val_dh_single_svd_300_norm_xxl test_dh_single_svd_300_norm_xxl 84 8 8 \
+        --dm-tables dm1 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask_half --remove-dark-zone-padding \
+        --additional-raw-data-tags dh_first_hodm_20nm_200k_ch4 \
+        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 300 \
+        --norm-inputs --norm-outputs --extend-existing-preprocessed-data
 
     python3 main.py preprocess_data_dark_hole dh_first_hodm_20nm_100k_train_and_val \
         train_dh_single_prototype_svd_300_norm val_dh_single_prototype_svd_300_norm empty 90 10 0 \
