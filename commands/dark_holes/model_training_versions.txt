@@ -177,5 +177,5 @@ After model testing, it is useful to rank the model analyses:
         --overwrite-existing --only-best-epoch --early-stopping 25
 
     python3 main.py model_test \
-        dh_v13 last test_dh_both_svd_300_norm --inputs-need-norm \
+        dh_v13 last test_dh_both_svd_300_norm \
         --force-cpu --max-rows-per-model-call 10000
