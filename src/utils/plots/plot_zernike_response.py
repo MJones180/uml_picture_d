@@ -9,7 +9,7 @@ def plot_zernike_response(
     perturbation_grid,
     pred_groupings,
     title_append,
-    identifier,
+    identifier=None,
     plot_path=None,
     interactive_view=False,
 ):
@@ -41,7 +41,10 @@ def plot_zernike_response(
 
     # Set the figure size and add the title + axes labels
     fig, ax = plt.subplots(figsize=(8, 8))
-    ax.set_title(f'Zernike Response ({title_append})\n{identifier}')
+    plot_title = f'Zernike Response ({title_append})'
+    if identifier is not None:
+        plot_title += f'\n{identifier}'
+    ax.set_title(plot_title)
     ax.set_xlabel('Truth [nm RMS]')
     ax.set_ylabel('Output [nm RMS]')
 
