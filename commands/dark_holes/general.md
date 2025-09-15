@@ -99,6 +99,16 @@ Both HODMs:
         --fits-file-globs 'dm1_*' 'dm2_*' 'sci_*i' 'sci*r' \
         --fits-table-names dm1 dm2 sci_i sci_r \
         --rows-per-chunk 25000 --first-n-rows 100000
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_20nm_200k_ch1 \
+        /home/picture/code/picture/piccsim/all_sim_data/both_hodm_20nm_200k_ch1 \
+        --fits-file-globs 'dm1_*' 'dm2_*' 'sci_*i' 'sci*r' \
+        --fits-table-names dm1 dm2 sci_i sci_r \
+        --rows-per-chunk 25000
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_20nm_200k_ch2 \
+        /home/picture/code/picture/piccsim/all_sim_data/both_hodm_20nm_200k_ch2 \
+        --fits-file-globs 'dm1_*' 'dm2_*' 'sci_*i' 'sci*r' \
+        --fits-table-names dm1 dm2 sci_i sci_r \
+        --rows-per-chunk 25000
 
 The DM SVD modes from the inverted matrix:
 
@@ -139,6 +149,19 @@ Preprocess the datasets:
         --additional-raw-data-tags dh_both_hodms_20nm_100k_ch1 dh_both_hodms_20nm_100k_ch2 \
         --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 300 dm2 hodm2_756_modes dm2_modes 300 \
         --norm-inputs --norm-outputs
+
+    python3 main.py preprocess_data_dark_hole dh_both_hodms_20nm_84k \
+        train_dh_both_norm_xl val_dh_both_norm_xl test_dh_both_norm_xl 84 8 8 \
+        --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
+        --additional-raw-data-tags dh_both_hodms_20nm_100k_ch1 dh_both_hodms_20nm_100k_ch2 \
+        --norm-inputs --norm-outputs
+    python3 main.py preprocess_data_dark_hole dh_both_hodms_20nm_200k_ch1 \
+        train_dh_both_norm_xl val_dh_both_norm_xl test_dh_both_norm_xl 84 8 8 \
+        --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
+        --additional-raw-data-tags dh_both_hodms_20nm_200k_ch2 \
+        --norm-inputs --norm-outputs --extend-existing-preprocessed-data
 
     python3 main.py preprocess_data_dark_hole dh_first_hodm_1nm_100k \
         train_dh_single_xl val_dh_single_xl test_dh_single_xl 84 8 8 \
@@ -246,3 +269,20 @@ Preprocess the datasets:
         --dm-tables dm1 --electric-field-tables sci_r sci_i \
         --dark-zone-mask-tag darkhole_mask_half --remove-dark-zone-padding \
         --disable-shuffle
+
+## Analysis Conversion
+
+Analysis results for models trained on SVD basis outputs can be converted to actuator heights:
+
+    # Half dark hole; one HODM
+    python3 main.py convert_analysis_outputs_from_svd_basis \
+        dh_v9_2 last test_dh_single_prototype_svd_300_norm \
+        --svd-modes-tags hodm1_756_modes \
+        --svd-modes-table-names dm1_modes \
+        --svd-modes-count 300
+    # Full dark hole; two HODMs
+    python3 main.py convert_analysis_outputs_from_svd_basis \
+        dh_v13 last test_dh_both_svd_300_norm \
+        --svd-modes-tags hodm1_756_modes hodm2_756_modes \
+        --svd-modes-table-names dm1_modes dm2_modes \
+        --svd-modes-count 300
