@@ -3,6 +3,9 @@
 # This script should be called from the root of `src/` as
 #   python3 piccsim_scripts/sim_dh_ef.py <tag> <epoch> <testing_ds> [other args]
 # Examples:
+#   # Full DH
+#   python3 piccsim_scripts/sim_dh_ef.py dh_v14 210 \
+#       test_dh_both_norm_xl --full-dh
 #   # Full DH, 300 SVD modes
 #   python3 piccsim_scripts/sim_dh_ef.py dh_v13 95 \
 #       test_dh_both_svd_300_norm --full-dh --svd-mode-count 300
