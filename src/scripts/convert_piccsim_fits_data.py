@@ -98,7 +98,7 @@ def convert_piccsim_fits_data(cli_args):
     save_cli_args(output_path, cli_args, 'convert_piccsim_fits_data')
 
     dir_path = cli_args['dir_path']
-    sci_cam_mask_file = cli_args['sci_cam_mask_file']
+    sci_cam_mask_file = cli_args.get('sci_cam_mask_file')
     if sci_cam_mask_file:
         step_ri('Saving the science camera mask')
         mask_file_path = f'{dir_path}/{sci_cam_mask_file}'
@@ -144,8 +144,8 @@ def convert_piccsim_fits_data(cli_args):
         dec_print_indent()
 
     row_slice_mask = None
-    slice_row_ranges = cli_args['slice_row_ranges']
-    first_n_rows = cli_args['first_n_rows']
+    slice_row_ranges = cli_args.get('slice_row_ranges')
+    first_n_rows = cli_args.get('first_n_rows')
     if slice_row_ranges is not None:
         step_ri('Slicing out specific simulations')
         if len(slice_row_ranges) % 2 == 1:
@@ -164,7 +164,7 @@ def convert_piccsim_fits_data(cli_args):
         total_file_count = min(total_file_count, first_n_rows)
 
     step_ri('Calculating number of chunks')
-    rows_per_chunk = cli_args['rows_per_chunk']
+    rows_per_chunk = cli_args.get('rows_per_chunk')
     if rows_per_chunk is None:
         chunk_count = 1
         rows_per_chunk = total_file_count
@@ -176,8 +176,8 @@ def convert_piccsim_fits_data(cli_args):
 
     step_ri('Setting up the base tables that will be written out')
     base_tables = {}
-    add_dummy_tables = cli_args['add_dummy_tables']
-    add_zernikes = cli_args['add_zernikes']
+    add_dummy_tables = cli_args.get('add_dummy_tables')
+    add_zernikes = cli_args.get('add_zernikes')
     if add_dummy_tables is not None:
         print(f'Adding dummy tables: {add_dummy_tables}')
         for table in add_dummy_tables:
