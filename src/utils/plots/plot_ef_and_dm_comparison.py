@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+import numpy as np
 from utils.constants import PLOT_STYLE_FILE
 
 
@@ -9,6 +10,7 @@ def plot_ef_and_dm_comparison(
     darkhole_mask,
     active_sci_cam_rows,
     active_sci_cam_cols,
+    fix_colorbars=False,
     plot_path=None,
 ):
     """
@@ -28,6 +30,8 @@ def plot_ef_and_dm_comparison(
         The active rows on the science camera.
     active_sci_cam_cols : np.array
         The active columns on the science camera.
+    fix_colorbars : bool
+        Make the colorbars have the same scales in every column.
     plot_path : str
         The path to output the plot.
     """
@@ -36,41 +40,48 @@ def plot_ef_and_dm_comparison(
     plt.style.use(PLOT_STYLE_FILE)
 
     nrows = len(rows)
-    # Add one for the intensity plot
+    # Add one to account for the intensity plot
     ncols = len(rows[0].keys()) + 1
     fig = plt.figure(figsize=(ncols * 5, nrows * 4))
     ax = fig.subplots(nrows=nrows, ncols=ncols)
 
-    def _add_row(row_idx, identifier, data_dict):
-
-        def _preprocess_sci(key):
-            sci = data_dict[key]
+    # Preprocess the data in each row
+    for row_data in rows:
+        for key in ('sci_r', 'sci_i'):
+            sci = row_data[key]
             sci[~darkhole_mask] = 0
             sci = sci[:, active_sci_cam_cols]
             sci = sci[active_sci_cam_rows]
-            return sci
+            row_data[key] = sci
+        row_data['intensity'] = row_data['sci_r']**2 + row_data['sci_i']**2
 
-        sci_r = _preprocess_sci('sci_r')
-        sci_i = _preprocess_sci('sci_i')
-        intensity = sci_r**2 + sci_i**2
+    # Accumulate the bounds for each table
+    if fix_colorbars:
+        bounds = {}
+        for key in rows[0].keys():
+            all_vals = [row_data[key] for row_data in rows]
+            bounds[key] = (np.min(all_vals), np.max(all_vals))
 
-        def _plot_with_cb(col_idx, title, img):
-            plot_im = ax[row_idx, col_idx].imshow(img)
-            ax[row_idx, col_idx].set_title(f'{identifier}\n{title}',
-                                           fontsize=14)
+    for row_idx, (row_data, ident) in enumerate(zip(rows, row_identifiers)):
+        col_info = [('Real(EF)', 'sci_r'), ('Imag(EF)', 'sci_i'),
+                    ('Intensity', 'intensity'), ('DM1 CMD', 'dm1')]
+        if ncols == 5:
+            col_info.append(('DM2 CMD', 'dm2'))
+        for col_idx, (title, key) in enumerate(col_info):
+            cell_data = row_data[key]
+            vmin = np.min(cell_data)
+            vmax = np.max(cell_data)
+            if fix_colorbars:
+                vmin, vmax = bounds[key]
+            plot_im = ax[row_idx, col_idx].imshow(
+                cell_data,
+                vmin=vmin,
+                vmax=vmax,
+            )
+            ax[row_idx, col_idx].set_title(f'{ident}\n{title}', fontsize=14)
             divider = make_axes_locatable(ax[row_idx, col_idx])
             cax = divider.append_axes('right', size='5%', pad=0.05)
             fig.colorbar(plot_im, cax=cax, orientation='vertical')
-
-        _plot_with_cb(0, 'Real(EF)', sci_r)
-        _plot_with_cb(1, 'Imag(EF)', sci_i)
-        _plot_with_cb(2, 'Intensity', intensity)
-        _plot_with_cb(3, 'DM1 CMD', data_dict['dm1'])
-        if ncols == 5:
-            _plot_with_cb(4, 'DM2 CMD', data_dict['dm2'])
-
-    for idx, (row, identifier) in enumerate(zip(rows, row_identifiers)):
-        _add_row(idx, identifier, row)
 
     plt.tight_layout()
     plt.savefig(plot_path)

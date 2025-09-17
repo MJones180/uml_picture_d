@@ -208,7 +208,6 @@ if __name__ == '__main__':
         } for prefix in prefixes]
 
     # Create the output plot directory
-
     out_dir = f'{EF_RECONSTRUCTIONS_P}/{tag_and_epoch}/'
     make_dir(out_dir)
     # Create each plot
@@ -219,5 +218,6 @@ if __name__ == '__main__':
             darkhole_mask,
             active_sci_cam_rows,
             active_sci_cam_cols,
-            f'{out_dir}/{idx}.png',
+            fix_colorbars=True,
+            plot_path=f'{out_dir}/{idx}.png',
         )
