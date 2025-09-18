@@ -1,16 +1,16 @@
 # =============================================================================
 # Simulate the EF for a DH
 # This script should be called from the root of `src/` as
-#   python3 piccsim_scripts/sim_dh_ef.py <tag> <epoch> <testing_ds> [other args]
+#   python3 piccsim_pipelines/sim_dh_ef.py <tag> <epoch> <testing_ds> [other]
 # Examples:
 #   # Full DH
-#   python3 piccsim_scripts/sim_dh_ef.py dh_v14 210 \
+#   python3 piccsim_pipelines/sim_dh_ef.py dh_v14 210 \
 #       test_dh_both_norm_xl --full-dh
 #   # Full DH, 300 SVD modes
-#   python3 piccsim_scripts/sim_dh_ef.py dh_v13 95 \
+#   python3 piccsim_pipelines/sim_dh_ef.py dh_v13 95 \
 #       test_dh_both_svd_300_norm --full-dh --svd-mode-count 300
 #   # Half DH, 300 SVD modes
-#   python3 piccsim_scripts/sim_dh_ef.py dh_v7_4 91 \
+#   python3 piccsim_pipelines/sim_dh_ef.py dh_v7_4 91 \
 #       test_dh_single_svd_300_norm_xl --svd-mode-count 300
 # =============================================================================
 
