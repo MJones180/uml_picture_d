@@ -78,7 +78,7 @@ class Model():
 
         def _grab_ev_bool(arg):
             if arg in self.extra_vars:
-                return self.extra_vars[arg][()]
+                return bool(self.extra_vars[arg][()])
             return False
 
         # If either the input or output data was normalized between
