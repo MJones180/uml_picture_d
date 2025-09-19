@@ -1933,7 +1933,7 @@ After model testing, it is useful to rank the model analyses:
         --init-weights smaller_aberrations_faster_model_round_one last
 
     python3 main.py model_test \
-        smaller_aberrations_faster_model last fixed_50nm_range_approx_processed \
+        smaller_aberrations_faster_model last fixed_10nm_range_401_approx_processed \
         --zernike-plots --inputs-need-norm --inputs-need-diff
 
     python3 main.py model_test \
@@ -1963,7 +1963,7 @@ After model testing, it is useful to rank the model analyses:
         --init-weights smaller_aberrations_better_model_round_one last
 
     python3 main.py model_test \
-        smaller_aberrations_better_model last fixed_50nm_range_approx_processed \
+        smaller_aberrations_better_model last fixed_10nm_range_401_approx_processed \
         --zernike-plots --inputs-need-norm --inputs-need-diff
 
     python3 main.py model_test \
@@ -1993,12 +1993,8 @@ After model testing, it is useful to rank the model analyses:
         --init-weights smaller_aberrations_xs_faster_model_round_one last
 
     python3 main.py model_test \
-        smaller_aberrations_xs_faster_model last fixed_50nm_range_approx_processed \
+        smaller_aberrations_xs_faster_model last fixed_1nm_range_301_approx_processed \
         --zernike-plots --inputs-need-norm --inputs-need-diff
-
-    python3 main.py model_test \
-        smaller_aberrations_xs_faster_model last random_10nm_med_approx_processed \
-        --scatter-plot 4 6 2 1e-7 15 --inputs-need-norm --inputs-need-diff
 
     python3 main.py model_test \
         smaller_aberrations_xs_faster_model last \
@@ -2023,12 +2019,8 @@ After model testing, it is useful to rank the model analyses:
         --init-weights smaller_aberrations_xs_better_model_round_one last
 
     python3 main.py model_test \
-        smaller_aberrations_xs_better_model last fixed_50nm_range_approx_processed \
+        smaller_aberrations_xs_better_model last fixed_1nm_range_301_approx_processed \
         --zernike-plots --inputs-need-norm --inputs-need-diff
-
-    python3 main.py model_test \
-        smaller_aberrations_xs_better_model last random_10nm_med_approx_processed \
-        --scatter-plot 4 6 2 1e-7 15 --inputs-need-norm --inputs-need-diff
 
     python3 main.py model_test \
         smaller_aberrations_xs_better_model last \

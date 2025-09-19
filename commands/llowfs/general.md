@@ -407,6 +407,10 @@ This data can be used to generate the `zernike` plots:
 
     python3 main.py preprocess_data_bare fixed_50nm_range fixed_50nm_range_processed
     python3 main.py preprocess_data_bare fixed_50nm_range_approx fixed_50nm_range_approx_processed
+    python3 main.py preprocess_data_bare \
+        fixed_10nm_range_401_approx fixed_10nm_range_401_approx_processed --remove-last-row
+    python3 main.py preprocess_data_bare \
+        fixed_1nm_range_301_approx fixed_1nm_range_301_approx_processed --remove-last-row
 
 Can be used for model training/validation:
 
