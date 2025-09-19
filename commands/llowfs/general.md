@@ -87,6 +87,13 @@ Fixed aberrations on a grid for one term at a time in each row across all terms:
         --append-no-aberrations-row \
         --cores 4
 
+    # -10 to 10 nm with 401 points in between using the approximated VVC simulations
+    python3 main_scnp.py sim_data fixed_10nm_range_401_approx v84_approx 600e-9 \
+        --output-write-batch 1000 \
+        --fixed-amount-per-zernike-range 2 24 " -10e-9" 10e-9 401 \
+        --append-no-aberrations-row \
+        --cores 4
+
     # -1 to 1 nm with 301 points in between
     python3 main_scnp.py sim_data fixed_1nm_range_301 v84 600e-9 \
         --output-write-batch 1000 \
@@ -676,6 +683,19 @@ Can be used for model training/validation:
         --use-field-diff no_aberrations \
         --additional-raw-data-tags random_group_50_10_5 random_group_15_5_2 random_group_10_2_1 random_group_15_1_half random_group_half_quarter_fifth random_2nm_large_approx random_10nm_large_approx \
         --additional-raw-data-tags-train-only fixed_50nm_range_2000_approx
+
+    # Based on `train_fixed_2000_and_random_weighted_group_ranges_local_v4_sum1` but with smaller aberrations
+    python3 main.py preprocess_data_complete \
+        random_group_10_2_1  \
+        train_fixed_2000_and_random_weighted_group_ranges_local_v5 \
+        val_fixed_2000_and_random_weighted_group_ranges_local_v5 \
+        test_fixed_2000_and_random_weighted_group_ranges_local_v5 \
+        80 15 5 \
+        --disable-norm-inputs --inputs-sum-to-one \
+        --norm-outputs individually --norm-range-ones \
+        --use-field-diff no_aberrations \
+        --additional-raw-data-tags random_group_15_1_half random_group_half_quarter_fifth random_2nm_large_approx random_10nm_large_approx \
+        --additional-raw-data-tags-train-only fixed_10nm_range_401_approx
 
 Can be used for testing:
 

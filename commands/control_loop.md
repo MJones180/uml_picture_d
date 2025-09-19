@@ -74,6 +74,20 @@ Control loop step files:
     python3 main.py control_loop_run \
         cos_10_2_1 -0.6 -0.2 0 v84_approx 600e-9 --response-matrix fixed_pm_40nm
 
+Making use of the PICC control loop steps:
+
+    # New best neural network model, much better on small aberrations
+    python3 main.py control_loop_run \
+        picc_control_steps_1000 -0.6 -0.2 0 v84_approx 600e-9 --neural-network weighted_aberration_ranges_local_v4 last
+    python3 main.py control_loop_run \
+        picc_control_steps_5000 -0.6 -0.2 0 v84_approx 600e-9 --neural-network weighted_aberration_ranges_local_v4 last
+
+    # PICTURE-C response matrix
+    python3 main.py control_loop_run \
+        picc_control_steps_1000 -0.6 -0.2 0 v84_approx 600e-9 --response-matrix fixed_pm_40nm
+    python3 main.py control_loop_run \
+        picc_control_steps_5000 -0.6 -0.2 0 v84_approx 600e-9 --response-matrix fixed_pm_40nm
+
 Control loops on static wavefronts:
 
     python3 main_scnp.py control_loop_static_wavefronts \
