@@ -101,6 +101,13 @@ Fixed aberrations on a grid for one term at a time in each row across all terms:
         --append-no-aberrations-row \
         --cores 4
 
+    # -1 to 1 nm with 301 points in between using the approximated VVC simulations
+    python3 main_scnp.py sim_data fixed_1nm_range_301_approx v84_approx 600e-9 \
+        --output-write-batch 1000 \
+        --fixed-amount-per-zernike-range 2 24 " -1e-9" 1e-9 301 \
+        --append-no-aberrations-row \
+        --cores 12
+
 Random aberrations for every term in each row:
 
     # -10 to 10 nm, 25,000 rows
@@ -696,6 +703,18 @@ Can be used for model training/validation:
         --use-field-diff no_aberrations \
         --additional-raw-data-tags random_group_15_1_half random_group_half_quarter_fifth random_2nm_large_approx random_10nm_large_approx \
         --additional-raw-data-tags-train-only fixed_10nm_range_401_approx
+
+    python3 main.py preprocess_data_complete \
+        random_group_10_2_1  \
+        train_fixed_2000_and_random_weighted_group_ranges_local_v5_xs \
+        val_fixed_2000_and_random_weighted_group_ranges_local_v5_xs \
+        test_fixed_2000_and_random_weighted_group_ranges_local_v5_xs \
+        80 15 5 \
+        --disable-norm-inputs --inputs-sum-to-one \
+        --norm-outputs individually --norm-range-ones \
+        --use-field-diff no_aberrations \
+        --additional-raw-data-tags random_group_15_1_half random_group_half_quarter_fifth \
+        --additional-raw-data-tags-train-only fixed_1nm_range_301_approx
 
 Can be used for testing:
 
