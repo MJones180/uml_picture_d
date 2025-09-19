@@ -48,6 +48,12 @@ def preprocess_data_bare_parser(subparsers):
         type=float,
         help='multiply the Zernike coefficients by a scaling factor',
     )
+    subparser.add_argument(
+        '--remove-last-row',
+        action='store_true',
+        help=('remove the last row from the data '
+              '(useful if the last row has no aberrations)'),
+    )
 
 
 def preprocess_data_bare(cli_args):
@@ -76,6 +82,11 @@ def preprocess_data_bare(cli_args):
         step_ri('Adding a scaling factor to the outputs')
         print(f'Multiplying output data by {outputs_scaling_factor}')
         output_data *= outputs_scaling_factor
+
+    if cli_args['remove_last_row']:
+        step_ri('Removing the last row from the data')
+        input_data = input_data[:-1]
+        output_data = output_data[:-1]
 
     step_ri('Creating new dataset')
     # Extra tables of information taken from the raw datafile
