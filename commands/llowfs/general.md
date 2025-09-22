@@ -251,6 +251,12 @@ Random aberrations where different groups have different ranges:
         --rand-amount-per-zernike 100000 2 3 " -50e-9" 50e-9 4 8 " -10e-9" 10e-9 9 24 " -5e-9" 5e-9 \
         --cores 4
 
+    # 100,000 rows, 25 nm for Z2-3, 1 nm for Z4-8, 0.5 nm for Z9-24
+    python3 main_scnp.py sim_data random_group_25_1_half v84_approx 600e-9 \
+        --output-write-batch 500 --append-no-aberrations-row \
+        --rand-amount-per-zernike 100000 2 3 " -25e-9" 25e-9 4 8 " -1e-9" 1e-9 9 24 " -5e-10" 5e-10 \
+        --cores 4
+
     # 100,000 rows, 15 nm for Z2-3, 5 nm for Z4-8, 2 nm for Z9-24
     python3 main_scnp.py sim_data random_group_15_5_2 v84_approx 600e-9 \
         --output-write-batch 500 --append-no-aberrations-row \
@@ -749,6 +755,18 @@ Can be used for model training/validation:
         --norm-outputs individually --norm-range-ones \
         --use-field-diff no_aberrations \
         --additional-raw-data-tags random_group_15_1_half random_group_10_2_1 random_group_10_1_half random_group_10_half_quarter random_group_half_quarter_fifth random_1nm_large_approx random_2nm_large_approx \
+        --additional-raw-data-tags-train-only fixed_1nm_range_301_approx
+
+    python3 main.py preprocess_data_complete \
+        random_group_25_1_half   \
+        train_fixed_2000_and_random_weighted_group_ranges_local_v5_c \
+        val_fixed_2000_and_random_weighted_group_ranges_local_v5_c \
+        test_fixed_2000_and_random_weighted_group_ranges_local_v5_c \
+        80 15 5 \
+        --disable-norm-inputs --inputs-sum-to-one \
+        --norm-outputs individually --norm-range-ones \
+        --use-field-diff no_aberrations \
+        --additional-raw-data-tags random_group_15_2_1 random_group_15_1_half random_group_10_2_1 random_group_10_1_half random_group_10_half_quarter random_group_half_quarter_fifth random_1nm_large_approx random_2nm_large_approx \
         --additional-raw-data-tags-train-only fixed_1nm_range_301_approx
 
 Can be used for testing:

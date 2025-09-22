@@ -2078,3 +2078,55 @@ After model testing, it is useful to rank the model analyses:
         smaller_aberrations_b_better_model last \
         test_fixed_2000_and_random_weighted_group_ranges_local_v5_b \
         --scatter-plot 4 6 2 0 15
+
+[V59a] The `smaller_aberrations_c_faster_model` tag {based on V58a}:
+
+    python3 main_scnp.py model_train \
+        smaller_aberrations_c_faster_model_round_one \
+        train_fixed_2000_and_random_weighted_group_ranges_local_v5_c \
+        val_fixed_2000_and_random_weighted_group_ranges_local_v5_c \
+        speedup_6 mae adam 1e-5 1000 --batch-size 256 \
+        --overwrite-existing --only-best-epoch --early-stopping 15
+
+    python3 main_scnp.py model_train \
+        smaller_aberrations_c_faster_model \
+        train_fixed_2000_and_random_weighted_group_ranges_local_v5_c \
+        val_fixed_2000_and_random_weighted_group_ranges_local_v5_c \
+        speedup_6 mae adam 1e-8 200 --batch-size 128 \
+        --overwrite-existing --only-best-epoch --early-stopping 15 \
+        --init-weights smaller_aberrations_c_faster_model_round_one last
+
+    python3 main.py model_test \
+        smaller_aberrations_c_faster_model last fixed_1nm_range_301_approx_processed \
+        --zernike-plots --inputs-need-norm --inputs-need-diff
+
+    python3 main.py model_test \
+        smaller_aberrations_c_faster_model last \
+        test_fixed_2000_and_random_weighted_group_ranges_local_v5_c \
+        --scatter-plot 4 6 2 0 15
+
+[V59b] The `smaller_aberrations_c_better_model` tag {based on V58b}:
+
+    python3 main_scnp.py model_train \
+        smaller_aberrations_c_better_model_round_one \
+        train_fixed_2000_and_random_weighted_group_ranges_local_v5_c \
+        val_fixed_2000_and_random_weighted_group_ranges_local_v5_c \
+        best32_1_smaller_10 mae adam 1e-5 1000 --batch-size 256 \
+        --overwrite-existing --only-best-epoch --early-stopping 15
+
+    python3 main_scnp.py model_train \
+        smaller_aberrations_c_better_model \
+        train_fixed_2000_and_random_weighted_group_ranges_local_v5_c \
+        val_fixed_2000_and_random_weighted_group_ranges_local_v5_c \
+        best32_1_smaller_10 mae adam 1e-8 200 --batch-size 128 \
+        --overwrite-existing --only-best-epoch --early-stopping 15 \
+        --init-weights smaller_aberrations_c_better_model_round_one last
+
+    python3 main.py model_test \
+        smaller_aberrations_c_better_model last fixed_1nm_range_301_approx_processed \
+        --zernike-plots --inputs-need-norm --inputs-need-diff
+
+    python3 main.py model_test \
+        smaller_aberrations_c_better_model last \
+        test_fixed_2000_and_random_weighted_group_ranges_local_v5_c \
+        --scatter-plot 4 6 2 0 15
