@@ -203,6 +203,7 @@ def multi_worker_sim_prop_many_wf(
     zernike_terms,
     aberrations,
     extra_params={},
+    save_cam_ef=False,
     save_full_ef=False,
     save_full_intensity=False,
     grid_points=1024,
@@ -243,15 +244,18 @@ def multi_worker_sim_prop_many_wf(
         Some optical train steps may require additional parameters. This
         dictionary will be passed to any optical train steps that accept
         two arguments.
-    save_full_ef: bool, optional
+    save_cam_ef : bool, optional
+        If True, will save the camera electric field and return it, but this
+        will take up much more memory and space, default is False.
+    save_full_ef : bool, optional
         If True, will save the full electric field and return it, but this will
-        take up much more memory, default is False.
-    save_full_intensity: bool, optional
+        take up much more memory and space, default is False.
+    save_full_intensity : bool, optional
         If True, will save the full intensity field and return it, but this will
         take up much more memory, default is False.
     grid_points : int, optional
         Number of grid points, defaults to 1024.
-    plotting: dict, optional
+    plotting : dict, optional
         If the 'path' key is set, then plots will be saved in subfolders
         under the opinionated name of `w_{worker_idx}_sim_{sim_idx}`.
         The following bool keys will determine which plots are created:
@@ -300,10 +304,11 @@ def multi_worker_sim_prop_many_wf(
             ZERNIKE_TERMS: zernike_terms,
             # The rms error in meters associated with each of the zernike terms
             ZERNIKE_COEFFS: aberrations_chunk,
-            CAMERA_EF: [],
             CAMERA_INTENSITY: [],
             CAMERA_SAMPLING: camera_sampling,
         }
+        if save_cam_ef:
+            simulation_data[CAMERA_EF] = []
         if save_full_ef or save_full_intensity:
             simulation_data[FULL_SAMPLING] = []
         if save_full_ef:
@@ -340,8 +345,9 @@ def multi_worker_sim_prop_many_wf(
                 use_only_aberration_map=use_only_aberration_map,
                 disable_proper_logs=disable_proper_logs,
             )
-            simulation_data[CAMERA_EF].append(cam_ef)
             simulation_data[CAMERA_INTENSITY].append(cam_int)
+            if save_cam_ef:
+                simulation_data[CAMERA_EF].append(cam_ef)
             if save_full_ef or save_full_intensity:
                 simulation_data[FULL_SAMPLING].append(full_sampling)
             if save_full_ef:

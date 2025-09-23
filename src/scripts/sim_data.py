@@ -62,6 +62,11 @@ def sim_data_parser(subparsers):
               'a few rows since the plots take extra time and space'),
     )
     subparser.add_argument(
+        '--save-cam-ef',
+        action='store_true',
+        help='save the camera electric field',
+    )
+    subparser.add_argument(
         '--save-full-ef',
         action='store_true',
         help='save the final, full electric field',
@@ -268,6 +273,7 @@ def sim_data(cli_args):
     output_write_batch = cli_args['output_write_batch']
     grid_points = cli_args['grid_points']
     save_plots = cli_args['save_plots']
+    save_cam_ef = cli_args['save_cam_ef']
     save_full_ef = cli_args['save_full_ef']
     save_full_intensity = cli_args['save_full_intensity']
     save_aberrations_csv = cli_args['save_aberrations_csv']
@@ -699,6 +705,7 @@ def sim_data(cli_args):
         zernike_terms,
         aberrations,
         extra_params=extra_params,
+        save_cam_ef=save_cam_ef,
         save_full_ef=save_full_ef,
         save_full_intensity=save_full_intensity,
         grid_points=grid_points,
