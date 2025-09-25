@@ -15,9 +15,22 @@ import numpy as np
 
 ITERATIONS = 20
 WAVEFRONTS_PER_BAR = 5000
-RANGES = (500, 20, 10)
 THRESHOLD = 1e-9
 GAIN_VALUES = (-0.5, 0, 0)
+
+# # Faster CNN: smaller_aberrations_c_faster_model
+# # Preferred NN: smaller_aberrations_c_better_model
+# # RM: fixed_40nm_positive_and_negative
+# # SCALING   Z2-3  Z4-8  Z9-24  | Faster CNN  Preferred CNN    RM
+# #       8   250    10    5     |       1252           2365  1192
+# #       4   125    5     2.5   |       4506           5000  4448
+# #       2   62.5   2.5   1.25  |       5000           5000  5000
+# #       1   31.25  1.25  0.625 |       5000           5000  5000
+# RANGES = (31.25, 1.25, 0.625)
+# SCALE_FACTORS = [8, 4, 2, 1]
+# Y_FASTER_NN = [1252, 4506, 5000, 5000]
+# Y_PREFERRED_NN = [2365, 5000, 5000, 5000]
+# Y_RM = [1192, 4448, 5000, 5000]
 
 # Faster CNN: sum1_scaling_faster_model
 # Preferred NN: sum1_scaling_better_model
@@ -35,6 +48,7 @@ GAIN_VALUES = (-0.5, 0, 0)
 #  0.25      125     5    2.5 |       5000           5000  4448
 #  0.125    62.5   2.5   1.25 |       5000           5000  5000
 #  0.0625  31.25  1.25  0.625 |       5000           5000  5000
+RANGES = (500, 20, 10)
 SCALE_FACTORS = [4, 3, 2, 1, 0.5, 0.25, 0.125]
 Y_FASTER_NN = [459, 2450, 4971, 5000, 5000, 5000, 5000]
 Y_PREFERRED_NN = [312, 1872, 4902, 5000, 5000, 5000, 5000]
