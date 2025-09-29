@@ -218,6 +218,7 @@ if __name__ == '__main__':
             darkhole_mask,
             active_sci_cam_rows,
             active_sci_cam_cols,
+            add_first_row_diff_comparison=True,
             fix_colorbars=True,
             plot_path=f'{out_dir}/{idx}.png',
         )

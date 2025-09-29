@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import numpy as np
 from utils.constants import PLOT_STYLE_FILE
+from utils.stats_and_error import rss
 
 
 def plot_ef_and_dm_comparison(
@@ -10,11 +11,12 @@ def plot_ef_and_dm_comparison(
     darkhole_mask,
     active_sci_cam_rows,
     active_sci_cam_cols,
+    add_first_row_diff_comparison=False,
     fix_colorbars=False,
     plot_path=None,
 ):
     """
-    Plot three rows of comparisons. Each row will contain the real and imaginary
+    Plot rows of comparisons. Each row will contain the real and imaginary
     parts of the EF, the intensity, and the HODM command(s).
 
     Parameters
@@ -30,6 +32,8 @@ def plot_ef_and_dm_comparison(
         The active rows on the science camera.
     active_sci_cam_cols : np.array
         The active columns on the science camera.
+    add_first_row_diff_comparison : bool
+        Add comparisons to each subplot of their difference from the first row.
     fix_colorbars : bool
         Make the colorbars have the same scales in every column.
     plot_path : str
@@ -67,19 +71,38 @@ def plot_ef_and_dm_comparison(
                     ('Intensity', 'intensity'), ('DM1 CMD', 'dm1')]
         if ncols == 5:
             col_info.append(('DM2 CMD', 'dm2'))
-        for col_idx, (title, key) in enumerate(col_info):
+        for col_idx, (col_title, key) in enumerate(col_info):
+            cell_ax = ax[row_idx, col_idx]
             cell_data = row_data[key]
             vmin = np.min(cell_data)
             vmax = np.max(cell_data)
             if fix_colorbars:
                 vmin, vmax = bounds[key]
-            plot_im = ax[row_idx, col_idx].imshow(
+            plot_im = cell_ax.imshow(
                 cell_data,
                 vmin=vmin,
                 vmax=vmax,
             )
-            ax[row_idx, col_idx].set_title(f'{ident}\n{title}', fontsize=14)
-            divider = make_axes_locatable(ax[row_idx, col_idx])
+            if row_idx == 0:
+                cell_ax.set_title(
+                    f'{col_title}\n',
+                    fontsize=14,
+                    fontweight='bold',
+                )
+            elif add_first_row_diff_comparison:
+                rss_val = rss(rows[0][key] - cell_data)
+                cell_ax.set_title(
+                    f'RSS from {row_identifiers[0]}: {rss_val:0.5f}',
+                    fontsize=14,
+                )
+            if col_idx == 0:
+                cell_ax.set_ylabel(
+                    f'{ident}\n',
+                    fontsize=14,
+                    fontweight='bold',
+                    rotation='vertical',
+                )
+            divider = make_axes_locatable(cell_ax)
             cax = divider.append_axes('right', size='5%', pad=0.05)
             fig.colorbar(plot_im, cax=cax, orientation='vertical')
 
