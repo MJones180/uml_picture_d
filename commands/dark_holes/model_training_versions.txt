@@ -202,6 +202,6 @@ After model testing, it is useful to rank the model analyses:
         --overwrite-existing --only-best-epoch --early-stopping 25
 
     python3 main.py batch_model_test \
-        test_dh_both_norm_xl --outputs-no-denorm \
+        test_dh_both_norm_xl \
         --epoch-and-tag-range last dh_v15_ 1 5 \
         --force-cpu --max-rows-per-model-call 10000
