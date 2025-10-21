@@ -60,77 +60,77 @@ SEC2 - FITS TO HDF FILES +++++++++++++++++++++++++++++++++++++++++++++++++++++++
 These FITS datafiles should be converted to HDF files. The format of the HDF
 datafiles should be the same as the raw simulation datafiles. On the workstation
 these FITS datafile directories are located under:
-    `/home/picture/code/picture/piccsim/all_sim_data/`.
+    `/home/michael-jones/Documents/piccsim_sim_data/`.
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     python3 main.py convert_piccsim_fits_data piccsim_llowfs_v1_1 \
-        /home/picture/code/picture/piccsim/all_sim_data/llowfsnn_1 \
+        /home/michael-jones/Documents/piccsim_sim_data/llowfsnn_1 \
         --fits-file-globs 'dm_*' 'intensity_*' \
         --fits-table-names zernike_coeffs ccd_intensity \
         --add-dummy-tables ccd_sampling --add-zernikes 2 24 \
         --rows-per-chunk 25000
     python3 main.py convert_piccsim_fits_data piccsim_llowfs_v1_2 \
-        /home/picture/code/picture/piccsim/all_sim_data/llowfsnn_2 \
+        /home/michael-jones/Documents/piccsim_sim_data/llowfsnn_2 \
         --fits-file-globs 'dm_*' 'intensity_*' \
         --fits-table-names zernike_coeffs ccd_intensity \
         --add-dummy-tables ccd_sampling --add-zernikes 2 24 \
         --rows-per-chunk 25000
     python3 main.py convert_piccsim_fits_data piccsim_llowfs_v1_3 \
-        /home/picture/code/picture/piccsim/all_sim_data/llowfsnn_3 \
+        /home/michael-jones/Documents/piccsim_sim_data/llowfsnn_3 \
         --fits-file-globs 'dm_*' 'intensity_*' \
         --fits-table-names zernike_coeffs ccd_intensity \
         --add-dummy-tables ccd_sampling --add-zernikes 2 24 \
         --rows-per-chunk 25000
     python3 main.py convert_piccsim_fits_data piccsim_llowfs_v1_4 \
-        /home/picture/code/picture/piccsim/all_sim_data/llowfsnn_4 \
+        /home/michael-jones/Documents/piccsim_sim_data/llowfsnn_4 \
         --fits-file-globs 'dm_*' 'intensity_*' \
         --fits-table-names zernike_coeffs ccd_intensity \
         --add-dummy-tables ccd_sampling --add-zernikes 2 24 \
         --rows-per-chunk 25000
     python3 main.py convert_piccsim_fits_data piccsim_llowfs_v1_5 \
-        /home/picture/code/picture/piccsim/all_sim_data/llowfsnn_5 \
+        /home/michael-jones/Documents/piccsim_sim_data/llowfsnn_5 \
         --fits-file-globs 'dm_*' 'intensity_*' \
         --fits-table-names zernike_coeffs ccd_intensity \
         --add-dummy-tables ccd_sampling --add-zernikes 2 24 \
         --rows-per-chunk 25000
     python3 main.py convert_piccsim_fits_data piccsim_llowfs_v1_6 \
-        /home/picture/code/picture/piccsim/all_sim_data/llowfsnn_6 \
+        /home/michael-jones/Documents/piccsim_sim_data/llowfsnn_6 \
         --fits-file-globs 'dm_*' 'intensity_*' \
         --fits-table-names zernike_coeffs ccd_intensity \
         --add-dummy-tables ccd_sampling --add-zernikes 2 24 \
         --rows-per-chunk 25000
     python3 main.py convert_piccsim_fits_data piccsim_llowfs_v1_7 \
-        /home/picture/code/picture/piccsim/all_sim_data/llowfsnn_7 \
+        /home/michael-jones/Documents/piccsim_sim_data/llowfsnn_7 \
         --fits-file-globs 'dm_*' 'intensity_*' \
         --fits-table-names zernike_coeffs ccd_intensity \
         --add-dummy-tables ccd_sampling --add-zernikes 2 24 \
         --rows-per-chunk 25000
     python3 main.py convert_piccsim_fits_data piccsim_llowfs_v1_8 \
-        /home/picture/code/picture/piccsim/all_sim_data/llowfsnn_8 \
+        /home/michael-jones/Documents/piccsim_sim_data/llowfsnn_8 \
         --fits-file-globs 'dm_*' 'intensity_*' \
         --fits-table-names zernike_coeffs ccd_intensity \
         --add-dummy-tables ccd_sampling --add-zernikes 2 24 \
         --rows-per-chunk 25000
     python3 main.py convert_piccsim_fits_data piccsim_llowfs_v1_9 \
-        /home/picture/code/picture/piccsim/all_sim_data/llowfsnn_9 \
+        /home/michael-jones/Documents/piccsim_sim_data/llowfsnn_9 \
         --fits-file-globs 'dm_*' 'intensity_*' \
         --fits-table-names zernike_coeffs ccd_intensity \
         --add-dummy-tables ccd_sampling --add-zernikes 2 24 \
         --rows-per-chunk 10000
     # Slice out the rows for the RM
     python3 main.py convert_piccsim_fits_data piccsim_llowfs_v1_9b \
-        /home/picture/code/picture/piccsim/all_sim_data/llowfsnn_9 \
+        /home/michael-jones/Documents/piccsim_sim_data/llowfsnn_9 \
         --fits-file-globs 'dm_*' 'intensity_*' \
         --fits-table-names zernike_coeffs ccd_intensity \
         --add-dummy-tables ccd_sampling --add-zernikes 2 24 \
         --slice-row-ranges 4600 4623 41377 41400
     python3 main.py convert_piccsim_fits_data piccsim_llowfs_v1_10 \
-        /home/picture/code/picture/piccsim/all_sim_data/llowfsnn_10 \
+        /home/michael-jones/Documents/piccsim_sim_data/llowfsnn_10 \
         --fits-file-globs 'dm_*' 'intensity_*' \
         --fits-table-names zernike_coeffs ccd_intensity \
         --add-dummy-tables ccd_sampling --add-zernikes 2 24
     python3 main.py convert_piccsim_fits_data piccsim_llowfs_v1_11 \
-        /home/picture/code/picture/piccsim/all_sim_data/llowfsnn_11 \
+        /home/michael-jones/Documents/piccsim_sim_data/llowfsnn_11 \
         --fits-file-globs 'dm_*' 'intensity_*' \
         --fits-table-names zernike_coeffs ccd_intensity \
         --add-dummy-tables ccd_sampling --add-zernikes 2 24

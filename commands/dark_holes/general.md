@@ -7,7 +7,7 @@ Convert FITS datafiles from the `piccsim` library to HDF.
 Science camera masks for the dark hole:
 
     python3 main.py convert_piccsim_fits_data darkhole_mask \
-        /home/picture/code/picture/piccsim/plots/rx_picture_d_efcnn/sim_system_dmcmd \
+        /home/michael-jones/Documents/piccsim/plots/rx_picture_d_efcnn/sim_system_dmcmd \
         --sci-cam-mask-file sim_system_dmcmd_rx_picture_d_efcnn_pol0_sci_dhmask.fits
 
     # ==============================
@@ -29,7 +29,7 @@ Science camera masks for the dark hole:
 Perfect dark hole (no aberrations or DM commands):
 
     python3 main.py convert_piccsim_fits_data dh_perfect \
-        /home/picture/code/picture/piccsim/all_sim_data/dmcmd_perfect \
+        /home/michael-jones/Documents/piccsim_sim_data/dmcmd_perfect \
         --fits-file-globs 'dm1_*' 'dm2_*' 'sci_*i' 'sci*r' \
         --fits-table-names dm1 dm2 sci_i sci_r
 
@@ -37,46 +37,46 @@ First HODM only:
 
     # 20nm pokes on every actuator on HODM 1
     python3 main.py convert_piccsim_fits_data dh_first_hodm_20nm_pokes \
-        /home/picture/code/picture/piccsim/all_sim_data/first_hodm_single_actuator_pokes_20nm \
+        /home/michael-jones/Documents/piccsim_sim_data/first_hodm_single_actuator_pokes_20nm \
         --fits-file-globs 'dm1_*' 'sci_*i' 'sci*r' \
         --fits-table-names dm1 sci_i sci_r
 
     # 1nm * Gaussian between -1 and 1
     python3 main.py convert_piccsim_fits_data dh_first_hodm_1nm_100k \
-        /home/picture/code/picture/piccsim/all_sim_data/first_hodm_1nm_100k \
+        /home/michael-jones/Documents/piccsim_sim_data/first_hodm_1nm_100k \
         --fits-file-globs 'dm1_*' 'dm2_*' 'sci_*i' 'sci*r' \
         --fits-table-names dm1 dm2 sci_i sci_r \
         --rows-per-chunk 25000 --first-n-rows 100000
 
     # 20nm * Gaussian between -1 and 1
     python3 main.py convert_piccsim_fits_data dh_first_hodm_20nm_200k_ch1 \
-        /home/picture/code/picture/piccsim/all_sim_data/first_hodm_20nm_200k_ch1 \
+        /home/michael-jones/Documents/piccsim_sim_data/first_hodm_20nm_200k_ch1 \
         --fits-file-globs 'dm1_*' 'sci_*i' 'sci*r' \
         --fits-table-names dm1 sci_i sci_r \
         --rows-per-chunk 25000
     python3 main.py convert_piccsim_fits_data dh_first_hodm_20nm_200k_ch2 \
-        /home/picture/code/picture/piccsim/all_sim_data/first_hodm_20nm_200k_ch2 \
+        /home/michael-jones/Documents/piccsim_sim_data/first_hodm_20nm_200k_ch2 \
         --fits-file-globs 'dm1_*' 'sci_*i' 'sci*r' \
         --fits-table-names dm1 sci_i sci_r \
         --rows-per-chunk 25000
     python3 main.py convert_piccsim_fits_data dh_first_hodm_20nm_200k_ch3 \
-        /home/picture/code/picture/piccsim/all_sim_data/first_hodm_20nm_200k_ch3 \
+        /home/michael-jones/Documents/piccsim_sim_data/first_hodm_20nm_200k_ch3 \
         --fits-file-globs 'dm1_*' 'sci_*i' 'sci*r' \
         --fits-table-names dm1 sci_i sci_r \
         --rows-per-chunk 25000
     python3 main.py convert_piccsim_fits_data dh_first_hodm_20nm_200k_ch4 \
-        /home/picture/code/picture/piccsim/all_sim_data/first_hodm_20nm_200k_ch4 \
+        /home/michael-jones/Documents/piccsim_sim_data/first_hodm_20nm_200k_ch4 \
         --fits-file-globs 'dm1_*' 'sci_*i' 'sci*r' \
         --fits-table-names dm1 sci_i sci_r \
         --rows-per-chunk 25000
     # Same as the above, just less data to make model prototyping quicker and easier
     python3 main.py convert_piccsim_fits_data dh_first_hodm_20nm_100k_train_and_val \
-        /home/picture/code/picture/piccsim/all_sim_data/first_hodm_20nm_200k_ch1 \
+        /home/michael-jones/Documents/piccsim_sim_data/first_hodm_20nm_200k_ch1 \
         --fits-file-globs 'dm1_*' 'sci_*i' 'sci*r' \
         --fits-table-names dm1 sci_i sci_r \
         --rows-per-chunk 25000 --first-n-rows 100000
     python3 main.py convert_piccsim_fits_data dh_first_hodm_20nm_20k_test \
-        /home/picture/code/picture/piccsim/all_sim_data/first_hodm_20nm_200k_ch2 \
+        /home/michael-jones/Documents/piccsim_sim_data/first_hodm_20nm_200k_ch2 \
         --fits-file-globs 'dm1_*' 'sci_*i' 'sci*r' \
         --fits-table-names dm1 sci_i sci_r \
         --rows-per-chunk 25000 --first-n-rows 20000
@@ -85,27 +85,27 @@ Both HODMs:
 
     # 20nm * Gaussian between -1 and 1
     python3 main.py convert_piccsim_fits_data dh_both_hodms_20nm_84k \
-        /home/picture/code/picture/piccsim/all_sim_data/both_hodm_20nm_84k \
+        /home/michael-jones/Documents/piccsim_sim_data/both_hodm_20nm_84k \
         --fits-file-globs 'dm1_*' 'dm2_*' 'sci_*i' 'sci*r' \
         --fits-table-names dm1 dm2 sci_i sci_r \
         --rows-per-chunk 25000 --first-n-rows 84000
     python3 main.py convert_piccsim_fits_data dh_both_hodms_20nm_100k_ch1 \
-        /home/picture/code/picture/piccsim/all_sim_data/both_hodm_20nm_100k_ch1 \
+        /home/michael-jones/Documents/piccsim_sim_data/both_hodm_20nm_100k_ch1 \
         --fits-file-globs 'dm1_*' 'dm2_*' 'sci_*i' 'sci*r' \
         --fits-table-names dm1 dm2 sci_i sci_r \
         --rows-per-chunk 25000 --first-n-rows 100000
     python3 main.py convert_piccsim_fits_data dh_both_hodms_20nm_100k_ch2 \
-        /home/picture/code/picture/piccsim/all_sim_data/both_hodm_20nm_100k_ch2 \
+        /home/michael-jones/Documents/piccsim_sim_data/both_hodm_20nm_100k_ch2 \
         --fits-file-globs 'dm1_*' 'dm2_*' 'sci_*i' 'sci*r' \
         --fits-table-names dm1 dm2 sci_i sci_r \
         --rows-per-chunk 25000 --first-n-rows 100000
     python3 main.py convert_piccsim_fits_data dh_both_hodms_20nm_200k_ch1 \
-        /home/picture/code/picture/piccsim/all_sim_data/both_hodm_20nm_200k_ch1 \
+        /home/michael-jones/Documents/piccsim_sim_data/both_hodm_20nm_200k_ch1 \
         --fits-file-globs 'dm1_*' 'dm2_*' 'sci_*i' 'sci*r' \
         --fits-table-names dm1 dm2 sci_i sci_r \
         --rows-per-chunk 25000
     python3 main.py convert_piccsim_fits_data dh_both_hodms_20nm_200k_ch2 \
-        /home/picture/code/picture/piccsim/all_sim_data/both_hodm_20nm_200k_ch2 \
+        /home/michael-jones/Documents/piccsim_sim_data/both_hodm_20nm_200k_ch2 \
         --fits-file-globs 'dm1_*' 'dm2_*' 'sci_*i' 'sci*r' \
         --fits-table-names dm1 dm2 sci_i sci_r \
         --rows-per-chunk 25000
@@ -113,11 +113,11 @@ Both HODMs:
 The DM SVD modes from the inverted matrix:
 
     python3 main.py convert_piccsim_fits_data hodm1_756_modes \
-        /home/picture/code/picture/piccsim/output/svd_modes/rx_picture_d_efcnn_dm1 \
+        /home/michael-jones/Documents/piccsim/output/svd_modes/rx_picture_d_efcnn_dm1 \
         --fits-file-globs 'rx_picture_d_efcnn_sci_dm1_mode_*' \
         --fits-table-names dm1_modes
     python3 main.py convert_piccsim_fits_data hodm2_756_modes \
-        /home/picture/code/picture/piccsim/output/svd_modes/rx_picture_d_efcnn_dm2 \
+        /home/michael-jones/Documents/piccsim/output/svd_modes/rx_picture_d_efcnn_dm2 \
         --fits-file-globs 'rx_picture_d_efcnn_sci_dm2_mode_*' \
         --fits-table-names dm2_modes
 
