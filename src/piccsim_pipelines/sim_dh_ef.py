@@ -153,9 +153,9 @@ if __name__ == '__main__':
     step_ri('Calling `piccsim` for simulations')
     os.chdir(piccsim_path)
     if full_dh:
-        idl_run_cmd = '.run batch.plot_cnn_vs_truth_efcnn_full'
+        idl_run_cmd = '.run batch.reconstruct_ef_full'
     else:
-        idl_run_cmd = '.run batch.plot_cnn_vs_truth_efcnn'
+        idl_run_cmd = '.run batch.reconstruct_ef'
     idl_cmd = f'idl -e "{idl_run_cmd}"'
     process = subprocess.Popen(idl_cmd, shell=True, stdout=subprocess.PIPE)
     process.wait()
@@ -176,7 +176,7 @@ if __name__ == '__main__':
     converted_df_tag = f'dh_piccsim_sim_ef_{tag_and_epoch}'
     convert_piccsim_fits_data({
         'tag': converted_df_tag,
-        'dir_path': f'{piccsim_path}/plots/plot_cnn_vs_truth_efcnn',
+        'dir_path': f'{piccsim_path}/plots/reconstruct_ef',
         'fits_file_globs': [
             f'{prefix}_{file_glob}' for prefix in prefixes
             for file_glob in file_globs
