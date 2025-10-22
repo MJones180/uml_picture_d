@@ -214,16 +214,16 @@ def export_model(cli_args):
     dec_print_indent()
 
     no_base_field = cli_args['no_base_field']
-    if no_base_field:
-        step('No base field will be saved')
-        print('Ignore the generated `README.txt` that talks about a '
-              'base field.')
-    else:
+    readme_base_field_str = ''
+    if not no_base_field:
         step('Saving base intensity field data')
         base_field_path = f'{output_dir}/base_field.txt'
         print(f'Location: {base_field_path}')
         np.savetxt(base_field_path, model_vars[BASE_INT_FIELD][0], fmt='%e')
         dec_print_indent()
+        readme_base_field_str = (f'{base_field_path}:\n\tContains the base '
+                                 'field that should be subtracted off. This '
+                                 'field of course has only one channel.\n')
 
     step('Saving the info file')
     readme_path = f'{output_dir}/README.txt'
@@ -238,10 +238,9 @@ def export_model(cli_args):
             '\t\toutput max min diff\n\t\toutput min x\n'
             '\tThere is one norm value for all the inputs and a norm value '
             'for each of the output values.\n'
-            f'{base_field_path}:\n\tContains the base field that should be '
-            'subtracted off. This field of course has only one channel.\n'
+            f'{readme_base_field_str}'
             f'{input_line_path}:\n\tExample input row after norm is done and '
-            'base field is subtracted.\n'
+            'base field is subtracted (if there is one).\n'
             f'{out_line_norm_path}:\n\tExample truth output row '
             'before denorm is done.\n'
             f'{out_line_path}:\n\tExample truth output row '
