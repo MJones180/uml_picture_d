@@ -78,7 +78,7 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         '--piccsim-path',
-        default='/home/picture/code/picture/piccsim',
+        default='/home/michael-jones/Documents/piccsim',
         help='the path to the `piccsim` repo',
     )
 
