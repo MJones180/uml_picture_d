@@ -76,7 +76,8 @@ class Network(nn.Module):
         x = self.conv_block12(x)
         x = self.maxpool4(x)
         x = self.avgpool1(x)
-        x = torch.squeeze(x, (2, 3))
+        x = torch.squeeze(x, 2)
+        x = torch.squeeze(x, 2)
         x = self.dense_block1(x)
         x = self.out_layer(x)
         return x
