@@ -7,6 +7,7 @@ with an added boost to the inference speed.
 In addition to the model, the norm and base field data are also saved.
 The following assumptions are made:
     - The model is trained on the difference (so a base field does exist)
+        > This can be disabled via an argument
     - There is only one norm value used for all the inputs (if any)
     - Each output has its own norm value
     - The model expects one input array and outputs a single array
@@ -20,8 +21,8 @@ import onnxruntime
 import torch
 from utils.benchmark_nn import benchmark_nn
 from utils.constants import (BASE_INT_FIELD, INPUT_MAX_MIN_DIFF, INPUT_MIN_X,
-                             NORM_RANGE_ONES_OUTPUT, OUTPUT_MAX_MIN_DIFF,
-                             OUTPUT_MIN_X, TRAINED_MODELS_P)
+                             OUTPUT_MAX_MIN_DIFF, OUTPUT_MIN_X,
+                             TRAINED_MODELS_P)
 from utils.model import Model
 from utils.norm import min_max_denorm
 from utils.path import make_dir
@@ -46,6 +47,11 @@ def export_model_parser(subparsers):
         '--benchmark',
         type=int,
         help='benchmark exported models by running n rows (will use CPU only)',
+    )
+    subparser.add_argument(
+        '--no-base-field',
+        action='store_true',
+        help='do not save a base field',
     )
 
 
@@ -207,11 +213,17 @@ def export_model(cli_args):
                 _write_data(0)
     dec_print_indent()
 
-    step('Saving base intensity field data')
-    base_field_path = f'{output_dir}/base_field.txt'
-    print(f'Location: {base_field_path}')
-    np.savetxt(base_field_path, model_vars[BASE_INT_FIELD][0], fmt='%e')
-    dec_print_indent()
+    no_base_field = cli_args['no_base_field']
+    if no_base_field:
+        step('No base field will be saved')
+        print('Ignore the generated `README.txt` that talks about a '
+              'base field.')
+    else:
+        step('Saving base intensity field data')
+        base_field_path = f'{output_dir}/base_field.txt'
+        print(f'Location: {base_field_path}')
+        np.savetxt(base_field_path, model_vars[BASE_INT_FIELD][0], fmt='%e')
+        dec_print_indent()
 
     step('Saving the info file')
     readme_path = f'{output_dir}/README.txt'
