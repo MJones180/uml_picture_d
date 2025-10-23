@@ -118,6 +118,12 @@ def model_train_parser(subparsers):
               'structure must be the same'),
     )
     subparser.add_argument(
+        '--transfer-learning-train-layers',
+        nargs='+',
+        help=('freeze all layers, except those that were passed, during '
+              'training; all `BatchNorm2d` layers will not be frozen'),
+    )
+    subparser.add_argument(
         '--save-post-training-loss',
         action='store_true',
         help=('calculate the loss of the training dataset after weights for '
@@ -210,6 +216,29 @@ def model_train(cli_args):
         print(f'Trained model: {init_weights[0]}, Epoch: {init_weights[1]}')
         pt_model = Model(*init_weights, suppress_logs=True).model
         model.load_state_dict(pt_model.state_dict())
+
+    transfer_learn_layers = cli_args.get('transfer_learning_train_layers')
+    if transfer_learn_layers:
+        step_ri('Preparing network for transfer learning')
+
+        def _set_param_grad(params, val):
+            for param in params:
+                param.requires_grad = val
+
+        print('Freezing all layers by default')
+        _set_param_grad(model.parameters(), False)
+        print('Unfreezing all BatchNorm2d layers')
+        print(f'Unfreezing select layers: {transfer_learn_layers}')
+        for name, module in model.named_modules():
+            is_batch_norm = isinstance(module, torch.nn.BatchNorm2d)
+            is_unfrozen_layer = name in transfer_learn_layers
+            if is_batch_norm or is_unfrozen_layer:
+                _set_param_grad(module.parameters(), True)
+        step('Layer frozen status')
+        for name, param in model.named_parameters():
+            frozen_str = 'Unfrozen' if param.requires_grad else 'Frozen'
+            print(f'Layer: {name} - {frozen_str}')
+        dec_print_indent()
 
     step_ri('Setting the loss function')
     loss_name = cli_args['loss']
