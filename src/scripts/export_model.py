@@ -84,7 +84,11 @@ def export_model(cli_args):
 
     step_ri('Saving the input line (after norm and base field subtraction)')
     input_line_path = f'{output_dir_ex}/first_input_row_norm.txt'
-    np.savetxt(input_line_path, first_input_row[0][0], fmt='%e')
+    np.savetxt(
+        input_line_path,
+        first_input_row[0].reshape(-1, first_input_row.shape[-1]),
+        fmt='%e',
+    )
 
     def denorm_data(data):
         return min_max_denorm(
@@ -240,7 +244,8 @@ def export_model(cli_args):
             'for each of the output values.\n'
             f'{readme_base_field_str}'
             f'{input_line_path}:\n\tExample input row after norm is done and '
-            'base field is subtracted (if there is one).\n'
+            'base field is subtracted (if there is one). Channels are '
+            'flattened down if needed.\n'
             f'{out_line_norm_path}:\n\tExample truth output row '
             'before denorm is done.\n'
             f'{out_line_path}:\n\tExample truth output row '
