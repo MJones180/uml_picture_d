@@ -119,6 +119,16 @@ Both HODMs:
         --fits-file-globs 'dm1_*' 'dm2_*' 'sci_*i_pol0' 'sci*r_pol0' 'sci_*i_pol1' 'sci*r_pol1' \
         --fits-table-names dm1 dm2 sci_i_pol0 sci_r_pol0 sci_i_pol1 sci_r_pol1 \
         --rows-per-chunk 25000
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_both_pol_1nm_40k_ch1 \
+        /home/michael-jones/Documents/piccsim_sim_data/both_hodm_both_pol_1nm_40k_ch1 \
+        --fits-file-globs 'dm1_*' 'dm2_*' 'sci_*i_pol0' 'sci*r_pol0' 'sci_*i_pol1' 'sci*r_pol1' \
+        --fits-table-names dm1 dm2 sci_i_pol0 sci_r_pol0 sci_i_pol1 sci_r_pol1 \
+        --rows-per-chunk 20000
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_both_pol_1nm_40k_ch2 \
+        /home/michael-jones/Documents/piccsim_sim_data/both_hodm_both_pol_1nm_40k_ch2 \
+        --fits-file-globs 'dm1_*' 'dm2_*' 'sci_*i_pol0' 'sci*r_pol0' 'sci_*i_pol1' 'sci*r_pol1' \
+        --fits-table-names dm1 dm2 sci_i_pol0 sci_r_pol0 sci_i_pol1 sci_r_pol1 \
+        --rows-per-chunk 20000
 
 The DM SVD modes from the inverted matrix:
 
