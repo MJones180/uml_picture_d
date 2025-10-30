@@ -35,6 +35,8 @@ A native PyTorch model can be exported to TorchScript and ONNX by doing the foll
 
     python3 main.py export_model data_groups_approx_2 last val_fixed_2000_and_random_group_ranges_approx --benchmark 5000
 
+    python3 main.py export_model dh_v15_5 last val_dh_both_norm_xl --benchmark 5000 --no-base-field
+
 ## Control Loop
 
 Commands for running a control loop can be found in the `control_loop.md` file.
