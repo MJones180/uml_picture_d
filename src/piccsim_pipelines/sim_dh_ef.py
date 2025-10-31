@@ -208,7 +208,7 @@ if __name__ == '__main__':
         } for prefix in prefixes]
 
     # Create the output plot directory
-    out_dir = f'{EF_RECONSTRUCTIONS_P}/{tag_and_epoch}/'
+    out_dir = f'{EF_RECONSTRUCTIONS_P}/{tag_and_epoch}/{testing_ds}'
     make_dir(out_dir)
     # Create each plot
     for idx in range(num_rows):
