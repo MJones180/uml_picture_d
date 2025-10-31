@@ -109,6 +109,8 @@ Both HODMs:
         --fits-file-globs 'dm1_*' 'dm2_*' 'sci_*i' 'sci*r' \
         --fits-table-names dm1 dm2 sci_i sci_r \
         --rows-per-chunk 25000
+
+    # 10nm * Gaussian between -1 and 1
     python3 main.py convert_piccsim_fits_data dh_both_hodms_both_pol_10nm_200k_ch1 \
         /home/michael-jones/Documents/piccsim_sim_data/both_hodm_both_pol_10nm_200k_ch1 \
         --fits-file-globs 'dm1_*' 'dm2_*' 'sci_*i_pol0' 'sci*r_pol0' 'sci_*i_pol1' 'sci*r_pol1' \
@@ -119,6 +121,8 @@ Both HODMs:
         --fits-file-globs 'dm1_*' 'dm2_*' 'sci_*i_pol0' 'sci*r_pol0' 'sci_*i_pol1' 'sci*r_pol1' \
         --fits-table-names dm1 dm2 sci_i_pol0 sci_r_pol0 sci_i_pol1 sci_r_pol1 \
         --rows-per-chunk 25000
+
+    # 1nm * Gaussian between -1 and 1
     python3 main.py convert_piccsim_fits_data dh_both_hodms_both_pol_1nm_37k_ch1 \
         /home/michael-jones/Documents/piccsim_sim_data/both_hodm_both_pol_1nm_37k_ch1 \
         --fits-file-globs 'dm1_*' 'dm2_*' 'sci_*i_pol0' 'sci*r_pol0' 'sci_*i_pol1' 'sci*r_pol1' \
@@ -126,6 +130,16 @@ Both HODMs:
         --rows-per-chunk 20000
     python3 main.py convert_piccsim_fits_data dh_both_hodms_both_pol_1nm_37k_ch2 \
         /home/michael-jones/Documents/piccsim_sim_data/both_hodm_both_pol_1nm_37k_ch2 \
+        --fits-file-globs 'dm1_*' 'dm2_*' 'sci_*i_pol0' 'sci*r_pol0' 'sci_*i_pol1' 'sci*r_pol1' \
+        --fits-table-names dm1 dm2 sci_i_pol0 sci_r_pol0 sci_i_pol1 sci_r_pol1 \
+        --rows-per-chunk 20000
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_both_pol_1nm_45k_ch1 \
+        /home/michael-jones/Documents/piccsim_sim_data/both_hodm_both_pol_1nm_45k_ch1 \
+        --fits-file-globs 'dm1_*' 'dm2_*' 'sci_*i_pol0' 'sci*r_pol0' 'sci_*i_pol1' 'sci*r_pol1' \
+        --fits-table-names dm1 dm2 sci_i_pol0 sci_r_pol0 sci_i_pol1 sci_r_pol1 \
+        --rows-per-chunk 20000
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_both_pol_1nm_45k_ch2 \
+        /home/michael-jones/Documents/piccsim_sim_data/both_hodm_both_pol_1nm_45k_ch2 \
         --fits-file-globs 'dm1_*' 'dm2_*' 'sci_*i_pol0' 'sci*r_pol0' 'sci_*i_pol1' 'sci*r_pol1' \
         --fits-table-names dm1 dm2 sci_i_pol0 sci_r_pol0 sci_i_pol1 sci_r_pol1 \
         --rows-per-chunk 20000
@@ -289,6 +303,21 @@ Preprocess the datasets:
         --dm-tables dm1 --electric-field-tables sci_r sci_i \
         --dark-zone-mask-tag darkhole_mask_half --remove-dark-zone-padding \
         --disable-shuffle
+
+    python3 main.py preprocess_data_dark_hole dh_both_hodms_both_pol_1nm_37k_ch1  \
+        train_dh_both_1nm_norm_sm val_dh_both_1nm_norm_sm test_dh_both_1nm_norm_sm 84 8 8 \
+        --dm-tables dm1 dm2 --electric-field-tables sci_r_pol0 sci_i_pol0 \
+        --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
+        --additional-raw-data-tags dh_both_hodms_both_pol_1nm_37k_ch2 \
+        --norm-inputs --norm-outputs
+
+    python3 main.py preprocess_data_dark_hole dh_both_hodms_both_pol_1nm_37k_ch1  \
+        train_dh_both_1nm_norm_med val_dh_both_1nm_norm_med test_dh_both_1nm_norm_med 84 8 8 \
+        --dm-tables dm1 dm2 --electric-field-tables sci_r_pol0 sci_i_pol0 \
+        --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
+        --additional-raw-data-tags dh_both_hodms_both_pol_1nm_37k_ch2 \
+            dh_both_hodms_both_pol_1nm_45k_ch1 dh_both_hodms_both_pol_1nm_45k_ch2 \
+        --norm-inputs --norm-outputs
 
 ## Analysis Conversion
 
