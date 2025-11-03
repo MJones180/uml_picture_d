@@ -137,6 +137,14 @@ def preprocess_data_complete_parser(subparsers):
         action='store_true',
         help='remove any rows that are not unique',
     )
+    subparser.add_argument(
+        '--add-gaussian-noise',
+        nargs=2,
+        help=('add Gaussian noise to the data; two parameters: the scale '
+              '(std = data * scale) and number of row copies with noise; '
+              'noise will only be added to the input PSFs for the '
+              'training and validation data'),
+    )
 
 
 def preprocess_data_complete(cli_args):
@@ -326,6 +334,34 @@ def preprocess_data_complete(cli_args):
     _print_split('Training', training_percentage, train_inputs)
     _print_split('Validation', validation_percentage, val_inputs)
     _print_split('Testing', testing_percentage, test_inputs)
+
+    # ==========================================================================
+
+    if cli_args.get('add_gaussian_noise'):
+        step_ri('Adding Gaussian noise to the inputs')
+        scale, copies = cli_args.get('add_gaussian_noise')
+        print(f'The std will be set to ({scale} * data)')
+        print(f'Each row will be replaced with {copies} rows containing noise')
+        # Create a random generator
+        np_rng = np.random.default_rng()
+
+        def _add_noise(input_data, output_data):
+            # Create n copies of the data to apply noise to
+            input_data = np.repeat(input_data, copies, axis=0)
+            output_data = np.repeat(output_data, copies, axis=0)
+            # Figure out the std for each value
+            sigma = np.abs(input_data * train_inputs[:])
+            input_data_noisey = np_rng.normal(input_data, sigma)
+            # Shuffle the data so the noisy rows are not next to each other
+            random_shuffle_idxs = np.random.permutation(len(input_data_noisey))
+            input_data_noisey = input_data_noisey[random_shuffle_idxs]
+            output_data = output_data[random_shuffle_idxs]
+            return input_data_noisey, output_data
+
+        print('Adding noise to the training input PSFs')
+        train_inputs, train_outputs = _add_noise(train_inputs, train_outputs)
+        print('Adding noise to the validation input PSFs')
+        val_inputs, val_outputs = _add_noise(val_inputs, val_outputs)
 
     # ==========================================================================
 
