@@ -340,23 +340,28 @@ def preprocess_data_complete(cli_args):
     if cli_args.get('add_gaussian_noise'):
         step_ri('Adding Gaussian noise to the inputs')
         scale, copies = cli_args.get('add_gaussian_noise')
+        # Typecast the parameters
+        copies = int(copies)
+        scale = float(scale)
         print(f'The std will be set to ({scale} * data)')
         print(f'Each row will be replaced with {copies} rows containing noise')
         # Create a random generator
         np_rng = np.random.default_rng()
 
         def _add_noise(input_data, output_data):
+            # Figure out the std for each value
+            sigma = np.abs(scale * input_data)
             # Create n copies of the data to apply noise to
             input_data = np.repeat(input_data, copies, axis=0)
             output_data = np.repeat(output_data, copies, axis=0)
-            # Figure out the std for each value
-            sigma = np.abs(input_data * train_inputs[:])
-            input_data_noisey = np_rng.normal(input_data, sigma)
+            sigma = np.repeat(sigma, copies, axis=0)
+            # Add the noise
+            input_data = np_rng.normal(input_data, sigma)
             # Shuffle the data so the noisy rows are not next to each other
-            random_shuffle_idxs = np.random.permutation(len(input_data_noisey))
-            input_data_noisey = input_data_noisey[random_shuffle_idxs]
+            random_shuffle_idxs = np.random.permutation(len(input_data))
+            input_data = input_data[random_shuffle_idxs]
             output_data = output_data[random_shuffle_idxs]
-            return input_data_noisey, output_data
+            return input_data, output_data
 
         print('Adding noise to the training input PSFs')
         train_inputs, train_outputs = _add_noise(train_inputs, train_outputs)
