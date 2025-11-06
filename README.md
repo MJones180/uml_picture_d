@@ -53,8 +53,10 @@ When this happens, uninstall `pyFFTW` from Conda and install with pip:
 
 - If the environment files are not working to properly install things, then a new Conda environment can be created from scratch:
 
+        # Delete the old environment
+        conda remove --name picture_d --all
         # Create and activate the new Conda env
-        conda create --name picture_d
+        conda create --name picture_d python=3.12.5
         conda activate picture_d
         # Install the dependencies
         conda install astropy h5py hdf5 matplotlib numpy pathos pillow prettytable pyfftw scipy
