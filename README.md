@@ -44,13 +44,11 @@ When this happens, uninstall `pyFFTW` from Conda and install with pip:
 
 - Some environments have trouble with the correct version of the `libgfortran` dependency. When this happens, the dependency can be manually updated to `libgfortran>=3.0.0`.
 
-- The `PyTorch` environment with GPU support is configured with CUDA 12.4.
-    - The NVIDIA Display Driver 550 must be download separately (nvidia.com/download/driverResults.aspx/230357/en-us/).
-    - The CUDA Toolkit 12.4 does not need to be installed manually as `PyTorch` installs a CUDA runtime for itself.
-    - Note: if the GPU randomly stops working for model training, then try the following commands (not sure which one actually fixes it):
-        - `sudo apt-get --purge remove "*cublas*" "cuda*" "nsight*"`
-        - `sudo apt-get --purge remove "*nvidia*"`
-        - `sudo ubuntu-drivers install nvidia:550`
+- The `PyTorch` environment with GPU support is configured with CUDA 13.0.
+    - The NVIDIA Display Driver 580 must be download separately.
+    - The CUDA Toolkit 13 does not need to be installed manually as `PyTorch` installs a CUDA runtime for itself.
+    - Note: if the GPU randomly stops working for model training, then try the following commands:
+        - `sudo ubuntu-drivers install nvidia:580`
         - `sudo reboot`
 
 - If the environment files are not working to properly install things, then a new Conda environment can be created from scratch:
