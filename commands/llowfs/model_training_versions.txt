@@ -2156,3 +2156,25 @@ After model testing, it is useful to rank the model analyses:
         smaller_aberrations_d_faster_model last \
         test_fixed_2000_and_random_weighted_group_ranges_local_v5_d \
         --scatter-plot 4 6 2 0 15
+
+[V61] The `wavefront_capture_faster_model` tag:
+
+    python3 main_scnp.py model_train \
+        wavefront_capture_faster_model_round_one \
+        train_fixed_2000_and_random_weighted_group_ranges_local_v6 \
+        val_fixed_2000_and_random_weighted_group_ranges_local_v6 \
+        speedup_6 mae adam 1e-5 1000 --batch-size 256 \
+        --overwrite-existing --only-best-epoch --early-stopping 15
+
+    python3 main_scnp.py model_train \
+        wavefront_capture_faster_model \
+        train_fixed_2000_and_random_weighted_group_ranges_local_v6 \
+        val_fixed_2000_and_random_weighted_group_ranges_local_v6 \
+        speedup_6 mae adam 1e-8 200 --batch-size 128 \
+        --overwrite-existing --only-best-epoch --early-stopping 15 \
+        --init-weights wavefront_capture_faster_model_round_one last
+
+    python3 main.py model_test \
+        wavefront_capture_faster_model last \
+        test_fixed_2000_and_random_weighted_group_ranges_local_v6 \
+        --scatter-plot 4 6 2 0 15
