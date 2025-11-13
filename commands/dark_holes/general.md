@@ -144,6 +144,16 @@ Both HODMs:
         --fits-table-names dm1 dm2 sci_i_pol0 sci_r_pol0 sci_i_pol1 sci_r_pol1 \
         --rows-per-chunk 20000
 
+    # 12 iterations of EFC using the RM; saves the inital EF and the final DH DM command
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_final_dh_14k_ch1 \
+        /home/michael-jones/Documents/piccsim_sim_data/both_hodm_efc_final_dh_14k_ch1 \
+        --fits-file-globs 'dm1_*' 'dm2_*' 'sci_*i' 'sci*r' \
+        --fits-table-names dm1 dm2 sci_i sci_r
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_final_dh_14k_ch2 \
+        /home/michael-jones/Documents/piccsim_sim_data/both_hodm_efc_final_dh_14k_ch2 \
+        --fits-file-globs 'dm1_*' 'dm2_*' 'sci_*i' 'sci*r' \
+        --fits-table-names dm1 dm2 sci_i sci_r
+
 The DM SVD modes from the inverted matrix:
 
     python3 main.py convert_piccsim_fits_data hodm1_756_modes \
@@ -318,6 +328,13 @@ Preprocess the datasets:
         --additional-raw-data-tags dh_both_hodms_both_pol_1nm_37k_ch2 \
             dh_both_hodms_both_pol_1nm_42k_ch1 dh_both_hodms_both_pol_1nm_42k_ch2 \
             dh_both_hodms_both_pol_10nm_200k_ch1 \
+        --norm-inputs --norm-outputs
+
+    python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_final_dh_14k_ch1   \
+        train_dh_both_hodms_efc_final_dh_sm val_dh_both_hodms_efc_final_dh_sm test_dh_both_hodms_efc_final_dh_sm 88 6 6 \
+        --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
+        --additional-raw-data-tags both_hodm_efc_final_dh_14k_ch2  \
         --norm-inputs --norm-outputs
 
 ## Analysis Conversion

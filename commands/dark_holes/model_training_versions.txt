@@ -235,3 +235,18 @@ After model testing, it is useful to rank the model analyses:
         test_dh_both_1nm_10nm_norm_lg \
         --epoch-and-tag-range last dh_v17_ 1 2 \
         --force-cpu --max-rows-per-model-call 10000
+
+[V18] The `dh_v18_` tag:
+
+    python3 main_scnp.py batch_model_train \
+        train_dh_both_hodms_efc_final_dh_sm val_dh_both_hodms_efc_final_dh_sm \
+        dh_v18_ 1000 \
+        --networks dh_t14 dh_t15 \
+        --losses mse --optimizers adam \
+        --lrs 1e-5 --batch-sizes 256 \
+        --overwrite-existing --only-best-epoch --early-stopping 25
+
+    python3 main.py batch_model_test \
+        test_dh_both_hodms_efc_final_dh_sm \
+        --epoch-and-tag-range last dh_v18_ 1 2 \
+        --force-cpu --max-rows-per-model-call 10000
