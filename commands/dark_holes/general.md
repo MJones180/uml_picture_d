@@ -337,6 +337,14 @@ Preprocess the datasets:
         --additional-raw-data-tags both_hodm_efc_final_dh_14k_ch2  \
         --norm-inputs --norm-outputs
 
+    python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_final_dh_14k_ch1 \
+        train_dh_both_hodms_efc_final_dh_sm_svd_300 val_dh_both_hodms_efc_final_dh_sm_svd_300 test_dh_both_hodms_efc_final_dh_sm_svd_300 88 6 6 \
+        --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
+        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 300 dm2 hodm2_756_modes dm2_modes 300 \
+        --additional-raw-data-tags both_hodm_efc_final_dh_14k_ch2  \
+        --norm-inputs --norm-outputs
+
 ## Analysis Conversion
 
 Analysis results for models trained on SVD basis outputs can be converted to actuator heights:
