@@ -1,9 +1,7 @@
 """
 Plot the Faster CNN vs Preferred CNN vs RM for cases converged as outputted by
 the `analyze_static_wavefront_convergence` script.
-Plot for the paper:
-    SPIE Conference
-    Adaptive Optics Wavefront Stabilization Using a Convolutional Neural Network
+Plot for the SPIE Conference paper.
 """
 
 import matplotlib.pyplot as plt
