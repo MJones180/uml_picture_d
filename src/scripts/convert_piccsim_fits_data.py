@@ -86,6 +86,18 @@ def convert_piccsim_fits_data_parser(subparsers):
               'script will terminate after the mask is converted, so there '
               'is no point in using any of the other args'),
     )
+    subparser.add_argument(
+        '--save-difference-only',
+        nargs='+',
+        help=('save only the difference of a row with respect to another row '
+              'in groups, this is handy for saving the delta DM commands; the '
+              'arguments should be: <number of rows per group> <reference row '
+              'of group> <first n rows of group to keep> *<table names>; the '
+              'tables in this argument should also be in the '
+              '`--fits-table-names` argument; any arguments that augment the '
+              'number of rows should be careful to not split up any groups; '
+              'the reference row in each group will not be saved'),
+    )
 
 
 def convert_piccsim_fits_data(cli_args):
@@ -187,6 +199,20 @@ def convert_piccsim_fits_data(cli_args):
         print(f'Adding Zernikes: {zernike_range}')
         base_tables[ZERNIKE_TERMS] = zernike_range
 
+    save_differences = False
+    save_difference_only = cli_args.get('save_difference_only')
+    if save_difference_only:
+        step_ri('Saving the difference of some tables')
+        rows_per_group = int(save_difference_only[0])
+        print(f'The number of rows per group: {rows_per_group}')
+        reference_row = int(save_difference_only[1])
+        print(f'The reference row in each group (0 indexed): {reference_row}')
+        first_n_rows = int(save_difference_only[2])
+        print(f'Only the first {first_n_rows} rows will be kept in each group')
+        save_difference_tables = save_difference_only[3:]
+        print(f'Will work on the tables: {save_difference_tables}')
+        save_differences = True
+
     step_ri('Loading in glob files and writing out data')
     for chunk_idx in range(chunk_count):
         idx_low = chunk_idx * rows_per_chunk
@@ -196,6 +222,7 @@ def convert_piccsim_fits_data(cli_args):
         for file_glob, table_name in zip(file_globs, table_names):
             step(f'Glob {file_glob}')
             found_datafiles = _make_glob(file_glob)
+            # print(found_datafiles)
             if row_slice_mask is not None:
                 # Take out the sliced rows if specified
                 found_datafiles = np.array(found_datafiles)[row_slice_mask]
@@ -210,6 +237,45 @@ def convert_piccsim_fits_data(cli_args):
                 for datafile_path in found_datafiles
             ])
             print(f'Data stored in the `{table_name}` table')
+            dec_print_indent()
+        if save_differences:
+            step('Taking table differences')
+            rows = idx_high - idx_low
+            # Index of each reference row that will be used
+            ref_row_idxs = np.arange(reference_row, rows, rows_per_group)
+            # Index of each row that the difference will be taken of
+            all_other_idxs = np.setdiff1d(np.arange(rows), ref_row_idxs, True)
+            # Create a copy of this index for each row that will be a difference
+            ref_row_idxs_rep = np.repeat(ref_row_idxs, rows_per_group - 1)
+            # Update each table
+            for table in table_names:
+                # Take the difference for this table
+                if table in save_difference_tables:
+                    tables[table] = (tables[table][ref_row_idxs_rep] -
+                                     tables[table][all_other_idxs])
+                # Just delete the reference rows from this table
+                else:
+                    tables[table] = tables[table][all_other_idxs]
+            # At this point, each group is now one row smaller due to the
+            # reference row being removed. Therefore, decrease the number of
+            # rows by one for each group
+            orig_rows = rows
+            rows -= rows // rows_per_group
+            rows_per_group -= 1
+            # Now, figure out how many rows at the start of each group to keep
+            idxs_to_keep = []
+            # Build up the indexes to keep one row per group at a time
+            for start in range(first_n_rows):
+                idxs_to_keep.extend(np.arange(start, rows, rows_per_group))
+            idxs_to_keep = [int(idx) for idx in idxs_to_keep]
+            # Keep the rows grouped together
+            idxs_to_keep.sort()
+            # Remove any rows that are not wanted
+            for table in table_names:
+                tables[table] = tables[table][idxs_to_keep]
+                print(table, np.min(tables[table]), np.max(tables[table]))
+                print(f'Table {table}: {orig_rows} -> '
+                      f'{len(tables[table])} rows')
             dec_print_indent()
         outfile = f'{output_path}/{chunk_idx}_{DATA_F}'
         print()
