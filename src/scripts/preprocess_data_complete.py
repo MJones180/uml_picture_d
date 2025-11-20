@@ -26,6 +26,7 @@ from utils.load_raw_sim_data import load_raw_sim_data_chunks
 from utils.norm import find_min_max_norm, min_max_norm, sum_to_one
 from utils.path import make_dir
 from utils.printing_and_logging import step_ri, title
+from utils.simulate_camera import simulate_camera
 from utils.terminate_with_message import terminate_with_message
 
 OUTPUT_NORM_OPTIONS = ['globally', 'individually']
@@ -138,12 +139,12 @@ def preprocess_data_complete_parser(subparsers):
         help='remove any rows that are not unique',
     )
     subparser.add_argument(
-        '--add-gaussian-noise',
-        nargs=2,
-        help=('add Gaussian noise to the data; two parameters: the scale '
-              '(std = data * scale) and number of row copies with noise; '
-              'noise will only be added to the input PSFs for the '
-              'training and validation data'),
+        '--camera-for-wfs',
+        nargs=3,
+        help=('simulate a camera which adds noise, discretized light levels, '
+              'and saturation; requires three arguments: <cam name> '
+              '<exposure time in s> <countrate>; noise will be added to the '
+              'input PSFs for all the data including the base field'),
     )
 
 
@@ -199,6 +200,25 @@ def preprocess_data_complete(cli_args):
 
     # ==========================================================================
 
+    camera_for_wfs = cli_args.get('camera_for_wfs')
+    if camera_for_wfs:
+        step_ri('Using a camera for the wfs')
+        cam_name, exposure_time, countrate = camera_for_wfs
+        exposure_time = float(exposure_time)
+        countrate = float(countrate)
+        print(f'Camera: {cam_name}')
+        print(f'Exposure time: {exposure_time} s ({1/exposure_time} Hz)')
+        print(f'Countrate: {countrate} photons/s')
+        # Add noise to the PSFs
+        input_data = simulate_camera(
+            input_data,
+            cam_name,
+            exposure_time,
+            countrate,
+        )
+
+    # ==========================================================================
+
     inputs_sum_to_one = cli_args.get('inputs_sum_to_one')
     if inputs_sum_to_one:
         step_ri('Making pixel values in each input sum to 1')
@@ -250,6 +270,16 @@ def preprocess_data_complete(cli_args):
     if use_field_diff:
         step_ri('Loading in the base field')
         base_field, _, _, _ = load_raw_sim_data_chunks(use_field_diff)
+        if camera_for_wfs:
+            print('Using the camera for the base field too')
+            # Add noise to the basefield
+            base_field = simulate_camera(
+                base_field,
+                cam_name,
+                exposure_time,
+                countrate,
+            )
+            print(f'Max electrons in pixel: {np.max(base_field)}')
         if inputs_sum_to_one:
             print('Making pixel values in the base field(s) sum to 1')
             base_field = sum_to_one(base_field, (1, 2))
@@ -334,39 +364,6 @@ def preprocess_data_complete(cli_args):
     _print_split('Training', training_percentage, train_inputs)
     _print_split('Validation', validation_percentage, val_inputs)
     _print_split('Testing', testing_percentage, test_inputs)
-
-    # ==========================================================================
-
-    if cli_args.get('add_gaussian_noise'):
-        step_ri('Adding Gaussian noise to the inputs')
-        scale, copies = cli_args.get('add_gaussian_noise')
-        # Typecast the parameters
-        copies = int(copies)
-        scale = float(scale)
-        print(f'The std will be set to ({scale} * data)')
-        print(f'Each row will be replaced with {copies} rows containing noise')
-        # Create a random generator
-        np_rng = np.random.default_rng()
-
-        def _add_noise(input_data, output_data):
-            # Figure out the std for each value
-            sigma = np.abs(scale * input_data)
-            # Create n copies of the data to apply noise to
-            input_data = np.repeat(input_data, copies, axis=0)
-            output_data = np.repeat(output_data, copies, axis=0)
-            sigma = np.repeat(sigma, copies, axis=0)
-            # Add the noise
-            input_data = np_rng.normal(input_data, sigma)
-            # Shuffle the data so the noisy rows are not next to each other
-            random_shuffle_idxs = np.random.permutation(len(input_data))
-            input_data = input_data[random_shuffle_idxs]
-            output_data = output_data[random_shuffle_idxs]
-            return input_data, output_data
-
-        print('Adding noise to the training input PSFs')
-        train_inputs, train_outputs = _add_noise(train_inputs, train_outputs)
-        print('Adding noise to the validation input PSFs')
-        val_inputs, val_outputs = _add_noise(val_inputs, val_outputs)
 
     # ==========================================================================
 

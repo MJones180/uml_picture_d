@@ -140,6 +140,16 @@ CUDA = 'cuda'
 MPS = 'mps'
 
 # ==============================================================================
+# Camera settings
+
+CAM_BIAS = 'bias'
+CAM_BITDEPTH = 'bitdepth'
+CAM_DARK_RATE = 'dark_rate'
+CAM_FULL_WELL = 'full_well'
+CAM_GAIN = 'gain'
+CAM_READ_NOISE = 'read_noise'
+
+# ==============================================================================
 # Zernike polynomial names
 
 ZERNIKE_NAME_LOOKUP = {
