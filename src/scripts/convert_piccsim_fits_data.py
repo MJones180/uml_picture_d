@@ -261,12 +261,12 @@ def convert_piccsim_fits_data(cli_args):
             # rows by one for each group
             orig_rows = rows
             rows -= rows // rows_per_group
-            rows_per_group -= 1
+            rows_per_group_m1 = rows_per_group - 1
             # Now, figure out how many rows at the start of each group to keep
             idxs_to_keep = []
             # Build up the indexes to keep one row per group at a time
             for start in range(first_n_rows):
-                idxs_to_keep.extend(np.arange(start, rows, rows_per_group))
+                idxs_to_keep.extend(np.arange(start, rows, rows_per_group_m1))
             idxs_to_keep = [int(idx) for idx in idxs_to_keep]
             # Keep the rows grouped together
             idxs_to_keep.sort()
