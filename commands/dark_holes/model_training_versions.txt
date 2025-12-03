@@ -284,7 +284,7 @@ After model testing, it is useful to rank the model analyses:
 [V21] The `dh_v21_` tag:
 
     python3 main_scnp.py batch_model_train \
-        train_dh_both_hodms_efc_final_dh_lg val_dh_both_hodms_efc_final_dh_lg \
+        train_dh_both_hodms_efc_final_dh_lg_6iter val_dh_both_hodms_efc_final_dh_lg_6iter \
         dh_v21_ 1000 \
         --networks dh_t14 dh_t15 \
         --losses mse --optimizers adam \
@@ -292,6 +292,21 @@ After model testing, it is useful to rank the model analyses:
         --overwrite-existing --only-best-epoch --early-stopping 25
 
     python3 main.py batch_model_test \
-        test_dh_both_hodms_efc_final_dh_lg \
+        test_dh_both_hodms_efc_final_dh_lg_6iter \
         --epoch-and-tag-range last dh_v21_ 1 2 \
+        --force-cpu --max-rows-per-model-call 10000
+
+[V22] The `dh_v22_` tag:
+
+    python3 main_scnp.py batch_model_train \
+        train_dh_both_hodms_efc_final_dh_lg_3iter val_dh_both_hodms_efc_final_dh_lg_3iter \
+        dh_v22_ 1000 \
+        --networks dh_t14 dh_t15 \
+        --losses mse --optimizers adam \
+        --lrs 1e-5 --batch-sizes 256 \
+        --overwrite-existing --only-best-epoch --early-stopping 25
+
+    python3 main.py batch_model_test \
+        test_dh_both_hodms_efc_final_dh_lg_3iter \
+        --epoch-and-tag-range last dh_v22_ 1 2 \
         --force-cpu --max-rows-per-model-call 10000
