@@ -20,9 +20,10 @@ import numpy as np
 from utils.cli_args import save_cli_args
 from utils.constants import (DARK_ZONE_MASK, DATA_F, DM_ACTIVE_IDXS, DM_SIZE,
                              EXTRA_VARS_F, INPUT_MAX_MIN_DIFF, INPUT_MIN_X,
-                             INPUTS, NORM_RANGE_ONES_OUTPUT, OUTPUTS,
-                             OUTPUT_MAX_MIN_DIFF, OUTPUT_MIN_X, PROC_DATA_P,
-                             SCI_CAM_ACTIVE_COL_IDXS, SCI_CAM_ACTIVE_ROW_IDXS)
+                             INPUTS, INPUTS_ARCSINH, NORM_RANGE_ONES_OUTPUT,
+                             OUTPUTS, OUTPUT_MAX_MIN_DIFF, OUTPUT_MIN_X,
+                             PROC_DATA_P, SCI_CAM_ACTIVE_COL_IDXS,
+                             SCI_CAM_ACTIVE_ROW_IDXS)
 from utils.group_data_from_list import group_data_from_list
 from utils.hdf_read_and_write import HDFWriteModule, read_hdf
 from utils.load_raw_sim_data import raw_sim_data_chunk_paths
@@ -146,6 +147,11 @@ def preprocess_data_dark_hole_parser(subparsers):
         action='store_true',
         help=('normalize training and validation output values individually '
               'between -1 and 1'),
+    )
+    subparser.add_argument(
+        '--input-arcsinh',
+        action='store_true',
+        help='take the arcsinh of the input data, done before norm',
     )
     subparser.add_argument(
         '--disable-shuffle',
@@ -313,6 +319,13 @@ def preprocess_data_dark_hole(cli_args):
             print('The stacking will be done later')
         input_data = np.stack((ef_data_real, ef_data_imag), axis=1)
     print(f'Input shape: {input_data.shape}')
+
+    # ==========================================================================
+
+    if cli_args['input_arcsinh']:
+        step_ri('Taking the arcsinh of the input data')
+        input_data = np.arcsinh(input_data)
+        _save_var(INPUTS_ARCSINH, True)
 
     # ==========================================================================
 

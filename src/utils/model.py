@@ -2,8 +2,8 @@ from glob import glob
 import numpy as np
 import torch
 from utils.constants import (ARGS_F, BASE_INT_FIELD, CPU, EXTRA_VARS_F,
-                             INPUTS_SUM_TO_ONE, INPUT_MAX_MIN_DIFF,
-                             INPUT_MIN_X, NORM_RANGE_ONES,
+                             INPUT_MAX_MIN_DIFF, INPUT_MIN_X, INPUTS_ARCSINH,
+                             INPUTS_SUM_TO_ONE, NORM_RANGE_ONES,
                              NORM_RANGE_ONES_INPUT, NORM_RANGE_ONES_OUTPUT,
                              OUTPUT_MAX_MIN_DIFF, OUTPUT_MIN_X,
                              TRAINED_MODELS_P)
@@ -93,6 +93,8 @@ class Model():
         self.inputs_sum_to_one = _grab_ev_bool(INPUTS_SUM_TO_ONE)
         # True if any input normalization is done (other than summing to one).
         self.input_norm_done = _grab_ev_bool(INPUT_MIN_X) is not False
+        # The arcsinh is taken for the input values
+        self.inputs_archsinh = _grab_ev_bool(INPUTS_ARCSINH)
         # The base field that will need to be subtracted off. If the field does
         # not exist, then this will just be set to None.
         self.base_field = self.extra_vars.get(BASE_INT_FIELD)
@@ -129,6 +131,8 @@ class Model():
         self.base_field = base_field
 
     def preprocess_data(self, input_data, sub_basefield=False, sum_dims=None):
+        if self.inputs_archsinh:
+            input_data = self.arcsinh_inputs(input_data)
         if self.inputs_sum_to_one:
             input_data = self.sum_inputs_to_one(input_data, sum_dims)
         if sub_basefield:
@@ -136,6 +140,9 @@ class Model():
         if self.input_norm_done:
             input_data = self.norm_data(input_data)
         return input_data
+
+    def arcsinh_inputs(self, input_data):
+        return np.arcsinh(input_data)
 
     def sum_inputs_to_one(self, input_data, sum_dims=None):
         return sum_to_one(input_data, sum_dims)
