@@ -23,6 +23,7 @@ from utils.plots.plot_zernike_response import plot_zernike_response
 from utils.plots.plot_zernike_total_cross_coupling import plot_zernike_total_cross_coupling  # noqa: E501
 from utils.plots.paper_plots.total_crosstalk import paper_plot_total_crosstalk  # noqa
 from utils.plots.paper_plots.model_scatters import paper_plot_model_scatters  # noqa
+from utils.plots.paper_plots.zernike_response import paper_plot_zernike_response  # noqa
 from utils.printing_and_logging import step_ri, title
 from utils.shared_argparser_args import shared_argparser_args
 from utils.stats_and_error import mae, mse
@@ -92,6 +93,11 @@ def model_test_parser(subparsers):
         '--max-rows-per-model-call',
         type=int,
         help='limit the number of rows per model call',
+    )
+    subparser.add_argument(
+        '--enable-paper-plots',
+        action='store_true',
+        help='plot the paper plots too',
     )
     shared_argparser_args(subparser, ['force_cpu'])
 
@@ -210,6 +216,9 @@ def model_test(cli_args):
     plot_title = 'Neural Network'
     plot_identifier = f'{tag}, epoch {epoch}'
 
+    # Enable paper specific plots
+    enable_paper_plots = cli_args['enable_paper_plots']
+
     scatter_plot = cli_args.get('scatter_plot')
     if scatter_plot is not None:
         step_ri('Generating scatter plot and density scatter plot')
@@ -245,14 +254,13 @@ def model_test(cli_args):
             f'{analysis_path}/density_scatter.png',
             plot_density=plot_density,
         )
-        # A specific version for a paper
-        # paper_plot_model_scatters(
-        #     outputs_model,
-        #     outputs_truth,
-        #     plot_title,
-        #     starting_zernike,
-        #     f'{analysis_path}/paper_scatter.png',
-        # )
+        if enable_paper_plots:
+            paper_plot_model_scatters(
+                outputs_model,
+                outputs_truth,
+                starting_zernike,
+                f'{analysis_path}/paper_scatter.png',
+            )
 
     if cli_args.get('zernike_plots'):
         nrows = outputs_truth.shape[0]
@@ -286,6 +294,13 @@ def model_test(cli_args):
             plot_identifier,
             f'{analysis_path}/zernike_response.png',
         )
+        if enable_paper_plots:
+            paper_plot_zernike_response(
+                zernike_terms,
+                perturbation_grid,
+                outputs_model_gr,
+                f'{analysis_path}/paper_zernike_response.png',
+            )
 
         step_ri('Generating a Zernike total cross coupling plot')
         plot_zernike_total_cross_coupling(
@@ -296,14 +311,13 @@ def model_test(cli_args):
             plot_identifier,
             f'{analysis_path}/total_cross_coupling.png',
         )
-        # A specific version for a paper
-        # paper_plot_total_crosstalk(
-        #     zernike_terms,
-        #     perturbation_grid,
-        #     outputs_model_gr,
-        #     plot_title,
-        #     f'{analysis_path}/paper_total_cross_coupling.png',
-        # )
+        if enable_paper_plots:
+            paper_plot_total_crosstalk(
+                zernike_terms,
+                perturbation_grid,
+                outputs_model_gr,
+                f'{analysis_path}/paper_total_cross_coupling.png',
+            )
 
         step_ri('Generating a Zernike cross coupling animation')
         plot_zernike_cross_coupling_animation(

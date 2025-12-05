@@ -1,30 +1,31 @@
 """
 Plot customized for the paper:
-    Adaptive Optics Wavefront Stabilization Using a Convolutional Neural Network
+    Adaptive Optics Wavefront Capture and Stabilization Using Convolutional
+    Neural Networks
 Based on original plotting script:
     utils/plots/plot_comparison_scatter_grid.py
 Requirements:
     - The data must all be in meters
     - Must be Zernikes 2-24
-    - Every Zernike must share the same limits (-10 to 10 nm)
+    - Every Zernike must share the same limits
 """
 
 import matplotlib.pyplot as plt
 from utils.constants import PLOT_STYLE_FILE
 
+MODEL = 'RM'
+MODEL = 'Capture CNN'
+MODEL = 'Stabilization CNN'
 N_ROWS = N_COLS = 2
-# row idx, col idx, zernike idx
+# (row idx, col idx, zernike idx)
 # For terms 2, 4, 11, 22
 CELLS = [(0, 0, 0), (0, 1, 2), (1, 0, 9), (1, 1, 20)]
-# -10 to 10 nm
-XLIM = -10, 10
-YLIM = -10, 10
+LIM = -2, 2
 
 
 def paper_plot_model_scatters(
     model_data,
     truth_data,
-    title_vs,
     starting_zernike,
     plot_path=None,
 ):
@@ -37,7 +38,7 @@ def paper_plot_model_scatters(
         sharex=True,
         sharey=True,
     )
-    plt.suptitle(f'Truth vs {title_vs}')
+    plt.suptitle(f'Truth vs {MODEL}')
     for plot_row, plot_col, zernike_col in CELLS:
         # Grab the data for the current cell, put it in nm
         model_col = model_data[:, zernike_col] * 1e9
@@ -60,8 +61,8 @@ def paper_plot_model_scatters(
         # Draw a 1-to-1 line, it should be based on truth values
         # https://stackoverflow.com/a/60950862
         axs_cell.plot(
-            XLIM,
-            XLIM,
+            LIM,
+            LIM,
             linestyle='-',
             color='#000000',
             scalex=False,
@@ -71,8 +72,8 @@ def paper_plot_model_scatters(
         # Plot the scatter of all the points
         axs_cell.scatter(truth_col, model_col, 1, alpha=.1)
         # Set the limits on each subplot
-        axs_cell.set_xlim(*XLIM)
-        axs_cell.set_ylim(*YLIM)
+        axs_cell.set_xlim(*LIM)
+        axs_cell.set_ylim(*LIM)
         # Only display x labels for the last row
         if plot_row == N_ROWS - 1:
             axs_cell.set_xlabel('Truth Outputs [nm]')
