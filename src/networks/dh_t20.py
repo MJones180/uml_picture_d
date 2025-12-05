@@ -1,5 +1,5 @@
-# `dh_t17` network { 2x59x59 -> 1512 }, based on `dh_t14`.
-# Trainable parameters: 135,079,656
+# `dh_t20` network { 2x59x59 -> 1512 }, based on `dh_t10_avg`.
+# Trainable parameters: 91,224,040
 
 import torch
 import torch.nn as nn
@@ -34,29 +34,33 @@ class Network(nn.Module):
 
     def __init__(self):
         super().__init__()
-        self.conv_block1 = _make_conv_block(2, 64, 3)
-        self.conv_block2 = _make_conv_block(64, 64, 3)
-        self.conv_block3 = _make_conv_block(64, 64, 3)
+        self.conv_block1 = _make_conv_block(2, 128, 3)
+        self.conv_block2 = _make_conv_block(128, 128, 3)
+        self.conv_block3 = _make_conv_block(128, 128, 3)
         # 59x59 -> 30x30
         self.maxpool1 = nn.MaxPool2d(2, ceil_mode=True)
-        self.conv_block4 = _make_conv_block(64, 128, 3)
-        self.conv_block5 = _make_conv_block(128, 128, 3)
-        self.conv_block6 = _make_conv_block(128, 128, 3)
+        self.conv_block4 = _make_conv_block(128, 256, 3)
+        self.conv_block5 = _make_conv_block(256, 256, 3)
+        self.conv_block6 = _make_conv_block(256, 256, 3)
         # 30x30 -> 15x15
         self.maxpool2 = nn.MaxPool2d(2)
-        self.conv_block7 = _make_conv_block(128, 256, 3)
-        self.conv_block8 = _make_conv_block(256, 256, 3)
-        self.conv_block9 = _make_conv_block(256, 256, 3)
-        self.conv_block10 = _make_conv_block(256, 256, 3)
+        self.conv_block7 = _make_conv_block(256, 512, 3)
+        self.conv_block8 = _make_conv_block(512, 512, 3)
+        self.conv_block9 = _make_conv_block(512, 512, 3)
+        self.conv_block10 = _make_conv_block(512, 512, 3)
         # 15x15 -> 8x8
         self.maxpool3 = nn.MaxPool2d(2, ceil_mode=True)
-        self.conv_block11 = _make_conv_block(256, 2048, 3)
-        self.conv_block12 = _make_conv_block(2048, 2048, 3)
-        self.conv_block13 = _make_conv_block(2048, 2048, 3)
-        self.conv_block14 = _make_conv_block(2048, 2048, 3)
+        self.conv_block11 = _make_conv_block(512, 1024, 3)
+        self.conv_block12 = _make_conv_block(1024, 1024, 3)
+        self.conv_block13 = _make_conv_block(1024, 1024, 3)
+        self.conv_block14 = _make_conv_block(1024, 1024, 3)
+        self.conv_block15 = _make_conv_block(1024, 1024, 3)
+        self.conv_block16 = _make_conv_block(1024, 1024, 3)
+        self.conv_block17 = _make_conv_block(1024, 1024, 3)
+        self.conv_block18 = _make_conv_block(1024, 1024, 3)
         # 8x8 -> 1x1
         self.avgpool1 = nn.AvgPool2d(8)
-        self.dense_block1 = _make_dense_block(2048, 4096, 0.3)
+        self.dense_block1 = _make_dense_block(1024, 4096, 0.3)
         self.out_layer = nn.Linear(4096, 1512)
 
     def forward(self, x):
@@ -77,6 +81,10 @@ class Network(nn.Module):
         x = self.conv_block12(x)
         x = self.conv_block13(x)
         x = self.conv_block14(x)
+        x = self.conv_block15(x)
+        x = self.conv_block16(x)
+        x = self.conv_block17(x)
+        x = self.conv_block18(x)
         x = self.avgpool1(x)
         x = torch.squeeze(x, 2)
         x = torch.squeeze(x, 2)

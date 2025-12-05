@@ -1,5 +1,5 @@
-# `dh_t17` network { 2x59x59 -> 1512 }, based on `dh_t14`.
-# Trainable parameters: 135,079,656
+# `dh_t18` network { 2x59x59 -> 1512 }, based on `dh_t10_avg`.
+# Trainable parameters: 147,322,856
 
 import torch
 import torch.nn as nn
@@ -34,23 +34,23 @@ class Network(nn.Module):
 
     def __init__(self):
         super().__init__()
-        self.conv_block1 = _make_conv_block(2, 64, 3)
-        self.conv_block2 = _make_conv_block(64, 64, 3)
-        self.conv_block3 = _make_conv_block(64, 64, 3)
+        self.conv_block1 = _make_conv_block(2, 128, 3)
+        self.conv_block2 = _make_conv_block(128, 128, 3)
+        self.conv_block3 = _make_conv_block(128, 128, 3)
         # 59x59 -> 30x30
         self.maxpool1 = nn.MaxPool2d(2, ceil_mode=True)
-        self.conv_block4 = _make_conv_block(64, 128, 3)
-        self.conv_block5 = _make_conv_block(128, 128, 3)
-        self.conv_block6 = _make_conv_block(128, 128, 3)
+        self.conv_block4 = _make_conv_block(128, 256, 3)
+        self.conv_block5 = _make_conv_block(256, 256, 3)
+        self.conv_block6 = _make_conv_block(256, 256, 3)
         # 30x30 -> 15x15
         self.maxpool2 = nn.MaxPool2d(2)
-        self.conv_block7 = _make_conv_block(128, 256, 3)
-        self.conv_block8 = _make_conv_block(256, 256, 3)
-        self.conv_block9 = _make_conv_block(256, 256, 3)
-        self.conv_block10 = _make_conv_block(256, 256, 3)
+        self.conv_block7 = _make_conv_block(256, 512, 3)
+        self.conv_block8 = _make_conv_block(512, 512, 3)
+        self.conv_block9 = _make_conv_block(512, 512, 3)
+        self.conv_block10 = _make_conv_block(512, 512, 3)
         # 15x15 -> 8x8
         self.maxpool3 = nn.MaxPool2d(2, ceil_mode=True)
-        self.conv_block11 = _make_conv_block(256, 2048, 3)
+        self.conv_block11 = _make_conv_block(512, 2048, 3)
         self.conv_block12 = _make_conv_block(2048, 2048, 3)
         self.conv_block13 = _make_conv_block(2048, 2048, 3)
         self.conv_block14 = _make_conv_block(2048, 2048, 3)

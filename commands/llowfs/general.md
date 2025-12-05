@@ -827,6 +827,9 @@ Can be used for testing:
     # 1 nm
     python3 main.py preprocess_data_bare random_1nm_large_approx random_1nm_large_processed
 
+    # 2 nm
+    python3 main.py preprocess_data_bare random_2nm_med_approx random_2nm_med_processed
+
     # 10 nm
     python3 main.py preprocess_data_bare random_10nm_med random_10nm_med_processed
     python3 main.py preprocess_data_bare random_10nm_med_approx random_10nm_med_approx_processed
