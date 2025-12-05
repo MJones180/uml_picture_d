@@ -118,10 +118,24 @@ def model_train_parser(subparsers):
               'structure must be the same'),
     )
     subparser.add_argument(
+        '--init-weights-select',
+        nargs='+',
+        metavar=('[pretrained model tag], [pretrained model epoch], '
+                 '*[layer name]'),
+        help=('init the weights from a pretrained model; each layer name '
+              'listed will be checked if it is contained within a layer from '
+              'the models state dict, if it is, then the layer will be used'),
+    )
+    subparser.add_argument(
         '--transfer-learning-train-layers',
         nargs='+',
-        help=('freeze all layers, except those that were passed, during '
-              'training; all `BatchNorm2d` layers will not be frozen'),
+        help='freeze all layers, except passed layers, during training',
+    )
+    subparser.add_argument(
+        '--transfer-learning-batchnorm',
+        action='store_true',
+        help=('can be used with the `--transfer-learning-train-layers` arg '
+              'to unfreeze all `BatchNorm2d` layers'),
     )
     subparser.add_argument(
         '--save-post-training-loss',
@@ -217,6 +231,26 @@ def model_train(cli_args):
         pt_model = Model(*init_weights, suppress_logs=True).model
         model.load_state_dict(pt_model.state_dict())
 
+    init_weights_select = cli_args.get('init_weights_select')
+    if init_weights_select is not None:
+        step_ri('Initializing some weights from trained model')
+        model_tag, model_epoch, *pt_layers = init_weights_select
+        print(f'Trained model: {model_tag}, Epoch: {model_epoch}')
+        pt_model = Model(model_tag, model_epoch, suppress_logs=True).model
+        # Grab the state from the pretrained model
+        pt_state = pt_model.state_dict()
+        # The state for the new model that will be trained
+        model_state = model.state_dict()
+        for k, v in pt_state.items():
+            for layer in pt_layers:
+                # If the passed layer's name is contained in the new layer's
+                # name then use its data
+                if layer in k:
+                    model_state[k] = pt_state[k]
+                    break
+        # Set the new state
+        model.load_state_dict(model_state)
+
     transfer_learn_layers = cli_args.get('transfer_learning_train_layers')
     if transfer_learn_layers:
         step_ri('Preparing network for transfer learning')
@@ -227,10 +261,13 @@ def model_train(cli_args):
 
         print('Freezing all layers by default')
         _set_param_grad(model.parameters(), False)
-        print('Unfreezing all BatchNorm2d layers')
+        unfreeze_batchnorm = cli_args.get('transfer_learning_batchnorm')
+        if unfreeze_batchnorm:
+            print('Unfreezing all BatchNorm2d layers')
         print(f'Unfreezing select layers: {transfer_learn_layers}')
         for name, module in model.named_modules():
-            is_batch_norm = isinstance(module, torch.nn.BatchNorm2d)
+            is_batch_norm = (unfreeze_batchnorm
+                             and isinstance(module, torch.nn.BatchNorm2d))
             is_unfrozen_layer = name in transfer_learn_layers
             if is_batch_norm or is_unfrozen_layer:
                 _set_param_grad(module.parameters(), True)
