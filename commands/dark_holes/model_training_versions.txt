@@ -340,12 +340,27 @@ After model testing, it is useful to rank the model analyses:
     python3 main_scnp.py batch_model_train \
         train_dh_both_hodms_efc_final_dh_lg_6iter val_dh_both_hodms_efc_final_dh_lg_6iter \
         dh_v25_ 1000 \
-        --networks dh_t10_avg dh_t16 dh_t17 dh_t18 dh_t19 dh_t20 dh_t21 \
+        --networks dh_t10_avg dh_t16 dh_t17 dh_t18 dh_t19 dh_t20 \
         --losses mse --optimizers adam \
         --lrs 1e-5 --batch-sizes 256 \
         --overwrite-existing --only-best-epoch --early-stopping 25
 
     python3 main.py batch_model_test \
         test_dh_both_hodms_efc_final_dh_lg_6iter \
-        --epoch-and-tag-range last dh_v25_ 1 7 \
+        --epoch-and-tag-range last dh_v25_ 1 6 \
+        --force-cpu --max-rows-per-model-call 10000
+
+[V26] The `dh_v26_` tag:
+
+    python3 main_scnp.py batch_model_train \
+        train_dh_both_hodms_efc_final_dh_lg_6iter_fl val_dh_both_hodms_efc_final_dh_lg_6iter_fl \
+        dh_v26_ 1000 \
+        --networks dh_fcn_1 dh_fcn_2 \
+        --losses mse --optimizers adam \
+        --lrs 1e-5 --batch-sizes 256 \
+        --overwrite-existing --only-best-epoch --early-stopping 25
+
+    python3 main.py batch_model_test \
+        test_dh_both_hodms_efc_final_dh_lg_6iter_fl \
+        --epoch-and-tag-range last dh_v26_ 1 2 \
         --force-cpu --max-rows-per-model-call 10000
