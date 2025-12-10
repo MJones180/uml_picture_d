@@ -41,7 +41,7 @@ def network_info(cli_args):
     for name, parameter in network_inst.named_parameters():
         if parameter.requires_grad:
             params = parameter.numel()
-            print(name, params)
+            print(name, f'{params:,}')
             total += params
     dec_print_indent()
     print(f'Total: {total:,}')
