@@ -220,7 +220,7 @@ def run_response_matrix(cli_args):
     plot_identifier = response_matrix
 
     # Enable paper specific plots
-    enable_paper_plots = cli_args['enable_paper_plots']
+    enable_paper_plots = cli_args.get('enable_paper_plots')
 
     scatter_plot = cli_args.get('scatter_plot')
     if scatter_plot is not None:
