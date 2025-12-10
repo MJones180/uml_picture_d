@@ -64,6 +64,7 @@ CAMERA_SAMPLING = 'ccd_sampling'
 DARK_ZONE_MASK = 'dark_zone_mask'
 DM_ACTIVE_IDXS = lambda idx: f'dm_active_idxs_{idx}'  # noqa: E731
 DM_SIZE = lambda idx: f'dm_size_{idx}'  # noqa: E731
+EF_ACTIVE_IDXS = 'ef_active_idxs'
 FULL_EF = 'full_efield'
 FULL_INTENSITY = 'full_intensity'
 FULL_SAMPLING = 'full_sampling'

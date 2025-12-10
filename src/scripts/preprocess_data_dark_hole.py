@@ -19,11 +19,11 @@ training dataset.
 import numpy as np
 from utils.cli_args import save_cli_args
 from utils.constants import (DARK_ZONE_MASK, DATA_F, DM_ACTIVE_IDXS, DM_SIZE,
-                             EXTRA_VARS_F, INPUT_MAX_MIN_DIFF, INPUT_MIN_X,
-                             INPUTS, INPUTS_ARCSINH, NORM_RANGE_ONES_OUTPUT,
-                             OUTPUTS, OUTPUT_MAX_MIN_DIFF, OUTPUT_MIN_X,
-                             PROC_DATA_P, SCI_CAM_ACTIVE_COL_IDXS,
-                             SCI_CAM_ACTIVE_ROW_IDXS)
+                             EF_ACTIVE_IDXS, EXTRA_VARS_F, INPUT_MAX_MIN_DIFF,
+                             INPUT_MIN_X, INPUTS, INPUTS_ARCSINH,
+                             NORM_RANGE_ONES_OUTPUT, OUTPUTS,
+                             OUTPUT_MAX_MIN_DIFF, OUTPUT_MIN_X, PROC_DATA_P,
+                             SCI_CAM_ACTIVE_COL_IDXS, SCI_CAM_ACTIVE_ROW_IDXS)
 from utils.group_data_from_list import group_data_from_list
 from utils.hdf_read_and_write import HDFWriteModule, read_hdf
 from utils.load_raw_sim_data import raw_sim_data_chunk_paths
@@ -122,7 +122,7 @@ def preprocess_data_dark_hole_parser(subparsers):
         '--add-total-intensity',
         action='store_true',
         help=('add the total intensity as a third channel to the data; this '
-              'option only works with `--add-total-intensity channels`'),
+              'option only works with `--electric-field-handling channels`'),
     )
     subparser.add_argument(
         '--use-dm-svd-basis',
@@ -152,6 +152,13 @@ def preprocess_data_dark_hole_parser(subparsers):
         '--input-arcsinh',
         action='store_true',
         help='take the arcsinh of the input data, done before norm',
+    )
+    subparser.add_argument(
+        '--flatten-input',
+        action='store_true',
+        help=('flatten the 2D electric field into a 1D array; multiple '
+              'channels are flattened into one channel; the imaginary part '
+              'is added after the real part; all inactive pixels are removed'),
     )
     subparser.add_argument(
         '--disable-shuffle',
@@ -387,6 +394,30 @@ def preprocess_data_dark_hole(cli_args):
         intensity = intensity[:, None, :, :]
         input_data = np.concatenate((input_data, intensity), axis=1)
         print(f'Input shape: {input_data.shape}')
+
+    # ==========================================================================
+
+    flatten_input = cli_args['flatten_input']
+    if flatten_input:
+        step_ri('Flattening the input data into a 1D array')
+        orig_shape = input_data.shape
+        input_data = input_data.reshape(orig_shape[0], -1)
+        updated_shape = input_data.shape
+        print(f'Shape: {orig_shape} -> {updated_shape}')
+        print('Removing inactive pixels')
+        if extend_existing_data:
+            active_idxs = _use_var(EF_ACTIVE_IDXS)
+        else:
+            # Create an array where each pixel will say if it is nonzero
+            # across any of the simulations
+            nonzero_pixels = (input_data != 0).any(axis=0)
+            print(f'EF has {nonzero_pixels.sum()} active pixels')
+            # Idxs where there is at least one pixel that has a nonzero value
+            active_idxs = np.where(nonzero_pixels)[0]
+            _save_var(EF_ACTIVE_IDXS, nonzero_pixels)
+        # Filter out the inactive pixels
+        input_data = input_data[:, active_idxs]
+        print(f'Shape: {updated_shape} -> {input_data.shape}')
 
     # ==========================================================================
 
