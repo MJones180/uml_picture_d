@@ -2178,3 +2178,51 @@ After model testing, it is useful to rank the model analyses:
         wavefront_capture_faster_model last \
         test_fixed_2000_and_random_weighted_group_ranges_local_v6 \
         --scatter-plot 4 6 2 0 15
+
+[V62] The `wavefront_stabilization_with_cam` tag {based on V59a}:
+
+    python3 main_scnp.py model_train \
+        wavefront_stabilization_with_cam_round_one \
+        train_fixed_2000_and_random_weighted_group_ranges_local_v5_c_sim_cam \
+        val_fixed_2000_and_random_weighted_group_ranges_local_v5_c_sim_cam \
+        speedup_6 mae adam 1e-5 1000 --batch-size 256 \
+        --overwrite-existing --only-best-epoch --early-stopping 15
+
+    python3 main_scnp.py model_train \
+        wavefront_stabilization_with_cam \
+        train_fixed_2000_and_random_weighted_group_ranges_local_v5_c_sim_cam \
+        val_fixed_2000_and_random_weighted_group_ranges_local_v5_c_sim_cam \
+        speedup_6 mae adam 1e-8 200 --batch-size 128 \
+        --overwrite-existing --only-best-epoch --early-stopping 15 \
+        --init-weights wavefront_stabilization_with_cam_round_one last
+
+    python3 main.py model_test \
+        wavefront_stabilization_with_cam last fixed_1nm_range_301_approx_processed \
+        --zernike-plots --inputs-need-norm --inputs-need-diff
+
+    python3 main.py model_test \
+        wavefront_stabilization_with_cam last \
+        test_fixed_2000_and_random_weighted_group_ranges_local_v5_c_sim_cam \
+        --scatter-plot 4 6 2 0 15
+
+[V63] The `wavefront_capture_with_cam` tag {based on V61}:
+
+    python3 main_scnp.py model_train \
+        wavefront_capture_with_cam_round_one \
+        train_fixed_2000_and_random_weighted_group_ranges_local_v6_sim_cam \
+        val_fixed_2000_and_random_weighted_group_ranges_local_v6_sim_cam \
+        speedup_6 mae adam 1e-5 1000 --batch-size 256 \
+        --overwrite-existing --only-best-epoch --early-stopping 15
+
+    python3 main_scnp.py model_train \
+        wavefront_capture_with_cam \
+        train_fixed_2000_and_random_weighted_group_ranges_local_v6_sim_cam \
+        val_fixed_2000_and_random_weighted_group_ranges_local_v6_sim_cam \
+        speedup_6 mae adam 1e-8 200 --batch-size 128 \
+        --overwrite-existing --only-best-epoch --early-stopping 15 \
+        --init-weights wavefront_capture_with_cam_round_one last
+
+    python3 main.py model_test \
+        wavefront_capture_with_cam last \
+        test_fixed_2000_and_random_weighted_group_ranges_local_v6_sim_cam \
+        --scatter-plot 4 6 2 0 15
