@@ -83,4 +83,6 @@ def simulate_camera(inputs_wfs, cam_name, exposure_time, countrate):
     max_electrons = 2**cam_specs[CAM_BITDEPTH] - 1
     # Clip the electron counts
     np.clip(wfs_with_noise, 0, max_electrons, wfs_with_noise)
+    # Convert to float32 from float64
+    wfs_with_noise = wfs_with_noise.astype(np.float32)
     return wfs_with_noise
