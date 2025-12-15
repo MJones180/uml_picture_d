@@ -26,6 +26,7 @@ from utils.hdf_read_and_write import HDFWriteModule
 from utils.load_raw_sim_data import load_raw_sim_data_chunks
 from utils.norm import sum_to_one
 from utils.printing_and_logging import step_ri, title
+from utils.simulate_camera import simulate_camera
 from utils.terminate_with_message import terminate_with_message
 
 
@@ -79,6 +80,14 @@ def create_response_matrix_parser(subparsers):
         type=float,
         help='multiply the Zernike coefficients by a scaling factor',
     )
+    subparser.add_argument(
+        '--camera-for-wfs',
+        nargs=3,
+        help=('simulate a camera which adds noise, discretized light levels, '
+              'and saturation; requires three arguments: <cam name> '
+              '<exposure time in s> <countrate>; noise will be added to the '
+              'input PSFs for all the data including the base field'),
+    )
 
 
 def create_response_matrix(cli_args):
@@ -100,23 +109,57 @@ def create_response_matrix(cli_args):
     step_ri('Loading in the data')
     (intensity, zernike_amounts, zernike_terms,
      _) = load_raw_sim_data_chunks(data_tag)
+    # ==========================================================================
+    camera_for_wfs = cli_args.get('camera_for_wfs')
+    if camera_for_wfs:
+        step_ri('Using a camera for the wfs')
+        cam_name, exposure_time, countrate = camera_for_wfs
+        exposure_time = float(exposure_time)
+        countrate = float(countrate)
+        print(f'Camera: {cam_name}')
+        print(f'Exposure time: {exposure_time} s ({1/exposure_time} Hz)')
+        print(f'Countrate: {countrate} photons/s')
+        # Add noise to the PSFs
+        intensity = simulate_camera(
+            intensity,
+            cam_name,
+            exposure_time,
+            countrate,
+        )
+    # ==========================================================================
     # The shape of this data is (fields, pixels, pixels) and should be
     # converted to (flattened_pixels, fields)
     intensity = intensity.reshape(intensity.shape[0], -1).T
+    # ==========================================================================
     wfs_sum_to_one = cli_args.get('wfs_sum_to_one')
     if wfs_sum_to_one:
         step_ri('Making pixel values in each wavefront sum to 1')
         intensity = sum_to_one(intensity, (0))
+    # ==========================================================================
     base_field_tag = cli_args.get('base_field_tag')
     # The base field is being passed in separately
     if base_field_tag:
         (base_field, _, _, _) = load_raw_sim_data_chunks(base_field_tag)
+        # ======================================================================
+        if camera_for_wfs:
+            print('Using the camera for the base field too')
+            # Add noise to the basefield
+            base_field = simulate_camera(
+                base_field,
+                cam_name,
+                exposure_time,
+                countrate,
+            )
+            print(f'Max electrons in pixel: {np.max(base_field)}')
+        # ======================================================================
         # Like above, the base field(s) must be flattened
         base_field = base_field.reshape(base_field.shape[0], -1).T
+        # ======================================================================
         wfs_sum_to_one = cli_args.get('wfs_sum_to_one')
         if wfs_sum_to_one:
             step_ri('Making pixel values in each base field sum to 1')
             base_field = sum_to_one(base_field, (0))
+        # ======================================================================
         differential_fields = intensity
         perturbation_amounts = zernike_amounts
         # All the rows may not use the same base field
@@ -229,6 +272,8 @@ def create_response_matrix(cli_args):
     M_matrix_inv = np.linalg.pinv(M_matrix)
 
     step_ri('Saving M_inv')
+    if camera_for_wfs:
+        data_tag += '_sim_cam'
     output_path = f'{RESPONSE_MATRICES_P}/{data_tag}.h5'
     print(f'Outputting to {output_path}')
     HDFWriteModule(output_path).create_and_write_hdf_simple({

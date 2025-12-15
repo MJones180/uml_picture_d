@@ -14,9 +14,11 @@ import numpy as np
 from utils.constants import PLOT_STYLE_FILE
 from utils.idl_rainbow_cmap import idl_rainbow_colors
 
-MODEL = 'RM'
-MODEL = 'Capture CNN'
-MODEL = 'Stabilization CNN'
+MODELS = {
+    0: 'RM',
+    1: 'Capture CNN',
+    2: 'Stabilization CNN',
+}
 LABEL_DECIMALS = 2
 
 
@@ -25,13 +27,14 @@ def paper_plot_zernike_response(
     perturbation_grid,
     pred_groupings,
     plot_path,
+    model_idx,
 ):
     # Load in the style file
     plt.style.use(PLOT_STYLE_FILE)
 
     # Set the figure size and add the title + axes labels
     fig, ax = plt.subplots(figsize=(8, 8))
-    plot_title = f'Zernike Response ({MODEL})'
+    plot_title = f'Zernike Response ({MODELS[model_idx]})'
     ax.set_title(plot_title)
     ax.set_xlabel('Truth [nm RMS]')
     ax.set_ylabel('Output [nm RMS]')

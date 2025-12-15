@@ -13,9 +13,11 @@ Requirements:
 import matplotlib.pyplot as plt
 from utils.constants import PLOT_STYLE_FILE
 
-MODEL = 'RM'
-MODEL = 'Capture CNN'
-MODEL = 'Stabilization CNN'
+MODELS = {
+    0: 'RM',
+    1: 'Capture CNN',
+    2: 'Stabilization CNN',
+}
 N_ROWS = N_COLS = 2
 # (row idx, col idx, zernike idx)
 # For terms 2, 4, 11, 22
@@ -27,7 +29,8 @@ def paper_plot_model_scatters(
     model_data,
     truth_data,
     starting_zernike,
-    plot_path=None,
+    plot_path,
+    model_idx,
 ):
     # Load in the style file
     plt.style.use(PLOT_STYLE_FILE)
@@ -38,7 +41,7 @@ def paper_plot_model_scatters(
         sharex=True,
         sharey=True,
     )
-    plt.suptitle(f'Truth vs {MODEL}')
+    plt.suptitle(f'Truth vs {MODELS[model_idx]}')
     for plot_row, plot_col, zernike_col in CELLS:
         # Grab the data for the current cell, put it in nm
         model_col = model_data[:, zernike_col] * 1e9

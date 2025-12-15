@@ -15,26 +15,27 @@ from utils.constants import PLOT_STYLE_FILE
 from utils.idl_rainbow_cmap import idl_rainbow_colors
 from utils.stats_and_error import rss
 
-MODEL = 'RM'
-MODEL = 'Capture CNN'
-MODEL = 'Stabilization CNN'
+MODELS = {
+    0: 'RM',
+    1: 'Capture CNN',
+    2: 'Stabilization CNN',
+}
 LABEL_DECIMALS = 2
-# Y_MAX = 1.4  # For [-1, 1] nm
-Y_MAX = 80  # For [-50, 50] nm
 
 
 def paper_plot_total_crosstalk(
     zernike_terms,
     perturbation_grid,
     pred_groupings,
-    plot_path=None,
+    plot_path,
+    model_idx,
 ):
     # Load in the style file
     plt.style.use(PLOT_STYLE_FILE)
 
     # Set the figure size and add the title + axes labels
     fig, ax = plt.subplots(figsize=(8, 8))
-    title = f'Zernike Total Cross Coupling ({MODEL})'
+    title = f'Zernike Total Cross Coupling ({MODELS[model_idx]})'
     ax.set_title(title)
     ax.set_xlabel(r'Input Zernike Amplitude, $a$ [nm RMS]')
     ax.set_ylabel(r'RSS Total Cross Coupling, $\gamma$ [nm RMS]')
@@ -85,8 +86,16 @@ def paper_plot_total_crosstalk(
     )
     # Remove margin on top and bottom of plot
     ax.set_ymargin(0)
+
+    # Set the max value along the y-axis so the plots have the same bounds;
+    # this value is determined by just looking at the model results
+    if np.max(perturbation_grid) > 45e-9:
+        y_max = 80  # For [-50, 50] nm
+    else:
+        y_max = 1.4  # For [-1, 1] nm
+
     # Set the maximum y-value
-    ax.set_ylim(0, Y_MAX)
+    ax.set_ylim(0, y_max)
     # Display the legend to the right middle of the plot
     ax.legend(loc='center left', bbox_to_anchor=(1.01, 0.5))
 

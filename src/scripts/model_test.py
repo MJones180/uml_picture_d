@@ -96,8 +96,9 @@ def model_test_parser(subparsers):
     )
     subparser.add_argument(
         '--enable-paper-plots',
-        action='store_true',
-        help='plot the paper plots too',
+        type=int,
+        help=('plot the paper plots too; the index passed is the model '
+              'being used as determined by the plotting script'),
     )
     shared_argparser_args(subparser, ['force_cpu'])
 
@@ -217,7 +218,9 @@ def model_test(cli_args):
     plot_identifier = f'{tag}, epoch {epoch}'
 
     # Enable paper specific plots
-    enable_paper_plots = cli_args.get('enable_paper_plots')
+    enable_paper_plots = cli_args.get('enable_paper_plots') is not None
+    if enable_paper_plots:
+        paper_plot_model_idx = cli_args.get('enable_paper_plots')
 
     scatter_plot = cli_args.get('scatter_plot')
     if scatter_plot is not None:
@@ -260,6 +263,7 @@ def model_test(cli_args):
                 outputs_truth,
                 starting_zernike,
                 f'{analysis_path}/paper_scatter.png',
+                paper_plot_model_idx,
             )
 
     if cli_args.get('zernike_plots'):
@@ -300,6 +304,7 @@ def model_test(cli_args):
                 perturbation_grid,
                 outputs_model_gr,
                 f'{analysis_path}/paper_zernike_response.png',
+                paper_plot_model_idx,
             )
 
         step_ri('Generating a Zernike total cross coupling plot')
@@ -317,6 +322,7 @@ def model_test(cli_args):
                 perturbation_grid,
                 outputs_model_gr,
                 f'{analysis_path}/paper_total_cross_coupling.png',
+                paper_plot_model_idx,
             )
 
         step_ri('Generating a Zernike cross coupling animation')

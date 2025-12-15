@@ -98,7 +98,7 @@ def run_response_matrix_parser(subparsers):
     )
     subparser.add_argument(
         '--enable-paper-plots',
-        action='store_true',
+        type=int,
         help='plot the paper plots too',
     )
 
@@ -220,7 +220,9 @@ def run_response_matrix(cli_args):
     plot_identifier = response_matrix
 
     # Enable paper specific plots
-    enable_paper_plots = cli_args.get('enable_paper_plots')
+    enable_paper_plots = cli_args.get('enable_paper_plots') is not None
+    if enable_paper_plots:
+        paper_plot_model_idx = cli_args.get('enable_paper_plots')
 
     scatter_plot = cli_args.get('scatter_plot')
     if scatter_plot is not None:
@@ -263,6 +265,7 @@ def run_response_matrix(cli_args):
                 outputs_truth,
                 starting_zernike,
                 f'{analysis_path}/paper_scatter.png',
+                paper_plot_model_idx,
             )
 
     if cli_args.get('zernike_plots'):
@@ -303,6 +306,7 @@ def run_response_matrix(cli_args):
                 perturbation_grid,
                 outputs_resp_mat_gr,
                 f'{analysis_path}/paper_zernike_response.png',
+                paper_plot_model_idx,
             )
 
         step_ri('Generating a Zernike total cross coupling plot')
@@ -320,6 +324,7 @@ def run_response_matrix(cli_args):
                 perturbation_grid,
                 outputs_resp_mat_gr,
                 f'{analysis_path}/paper_total_cross_coupling.png',
+                paper_plot_model_idx,
             )
 
         step_ri('Generating a Zernike cross coupling animation')
