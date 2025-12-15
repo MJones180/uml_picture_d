@@ -432,9 +432,15 @@ This data can be used to generate the `zernike` plots:
     python3 main.py preprocess_data_bare fixed_50nm_range fixed_50nm_range_processed
     python3 main.py preprocess_data_bare fixed_50nm_range_approx fixed_50nm_range_approx_processed
     python3 main.py preprocess_data_bare \
+        fixed_50nm_range_approx fixed_50nm_range_approx_processed_sim_cam \
+        --camera-for-wfs imperx_b0620 0.0025 2.1e8
+    python3 main.py preprocess_data_bare \
         fixed_10nm_range_401_approx fixed_10nm_range_401_approx_processed --remove-last-row
     python3 main.py preprocess_data_bare \
         fixed_1nm_range_301_approx fixed_1nm_range_301_approx_processed --remove-last-row
+    python3 main.py preprocess_data_bare \
+        fixed_1nm_range_301_approx fixed_1nm_range_301_approx_processed_sim_cam \
+        --remove-last-row --camera-for-wfs imperx_b0620 0.0025 2.1e8
 
 Can be used for model training/validation:
 
@@ -829,6 +835,8 @@ Can be used for testing:
 
     # 2 nm
     python3 main.py preprocess_data_bare random_2nm_med_approx random_2nm_med_processed
+    python3 main.py preprocess_data_bare random_2nm_med_approx random_2nm_med_processed_sim_cam \
+        --camera-for-wfs imperx_b0620 0.0025 2.1e8
 
     # 10 nm
     python3 main.py preprocess_data_bare random_10nm_med random_10nm_med_processed
@@ -858,6 +866,9 @@ Averaged response matrix:
 
     python3 main.py create_response_matrix \
         --simulated-data-tag-average fixed_pm_40nm
+    python3 main.py create_response_matrix \
+        --simulated-data-tag-average fixed_pm_40nm \
+        --camera-for-wfs imperx_b0620 0.0025 2.1e8
 
     python3 main.py create_response_matrix \
         --simulated-data-tag-average random_50nm_single_each_large
@@ -891,6 +902,17 @@ Averaged response matrix:
 
     python3 main.py run_response_matrix fixed_pm_40nm \
         fixed_50nm_range_approx_processed --scatter-plot 4 6 2 1e-7 15 --zernike-plots
+
+`fixed_pm_40nm_sim_cam` response matrix:
+
+    python3 main.py run_response_matrix fixed_pm_40nm_sim_cam \
+        fixed_1nm_range_301_approx_processed_sim_cam --zernike-plots --enable-paper-plots 0
+
+    python3 main.py run_response_matrix fixed_pm_40nm_sim_cam \
+        fixed_50nm_range_approx_processed_sim_cam --zernike-plots --enable-paper-plots 0
+
+    python3 main.py run_response_matrix fixed_pm_40nm_sim_cam \
+        random_2nm_med_processed_sim_cam --scatter-plot 4 6 2 1e-7 15 --enable-paper-plots 0
 
 `random_50nm_single_each_large` response matrix:
 

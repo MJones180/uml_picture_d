@@ -2098,16 +2098,16 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py model_test \
         smaller_aberrations_c_faster_model last fixed_1nm_range_301_approx_processed \
-        --zernike-plots --inputs-need-norm --inputs-need-diff --enable-paper-plots
+        --zernike-plots --inputs-need-norm --inputs-need-diff --enable-paper-plots 2
 
     python3 main.py model_test \
         smaller_aberrations_c_faster_model last fixed_50nm_range_approx_processed \
-        --zernike-plots --inputs-need-norm --inputs-need-diff --enable-paper-plots
+        --zernike-plots --inputs-need-norm --inputs-need-diff --enable-paper-plots 2
 
     python3 main.py model_test \
         smaller_aberrations_c_faster_model last random_2nm_med_processed \
         --inputs-need-norm --inputs-need-diff \
-        --scatter-plot 4 6 2 1e-7 15 --enable-paper-plots
+        --scatter-plot 4 6 2 1e-7 15 --enable-paper-plots 2
 
     python3 main.py model_test \
         smaller_aberrations_c_faster_model last \
@@ -2185,16 +2185,16 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py model_test \
         wavefront_capture_faster_model last fixed_1nm_range_301_approx_processed \
-        --zernike-plots --inputs-need-norm --inputs-need-diff --enable-paper-plots
+        --zernike-plots --inputs-need-norm --inputs-need-diff --enable-paper-plots 1
 
     python3 main.py model_test \
         wavefront_capture_faster_model last fixed_50nm_range_approx_processed \
-        --zernike-plots --inputs-need-norm --inputs-need-diff --enable-paper-plots
+        --zernike-plots --inputs-need-norm --inputs-need-diff --enable-paper-plots 1
 
     python3 main.py model_test \
         wavefront_capture_faster_model last random_2nm_med_processed \
         --inputs-need-norm --inputs-need-diff \
-        --scatter-plot 4 6 2 1e-7 15 --enable-paper-plots
+        --scatter-plot 4 6 2 1e-7 15 --enable-paper-plots 1
 
     python3 main.py model_test \
         wavefront_capture_faster_model last \
@@ -2219,17 +2219,17 @@ After model testing, it is useful to rank the model analyses:
         --init-weights wavefront_stabilization_with_cam_round_one last
 
     python3 main.py model_test \
-        wavefront_stabilization_with_cam last fixed_1nm_range_301_approx_processed \
-        --zernike-plots --inputs-need-norm --inputs-need-diff --enable-paper-plots
+        wavefront_stabilization_with_cam last fixed_1nm_range_301_approx_processed_sim_cam \
+        --zernike-plots --inputs-need-norm --inputs-need-diff --enable-paper-plots 2
 
     python3 main.py model_test \
-        wavefront_stabilization_with_cam last fixed_50nm_range_approx_processed \
-        --zernike-plots --inputs-need-norm --inputs-need-diff --enable-paper-plots
+        wavefront_stabilization_with_cam last fixed_50nm_range_approx_processed_sim_cam \
+        --zernike-plots --inputs-need-norm --inputs-need-diff --enable-paper-plots 2
 
     python3 main.py model_test \
-        wavefront_stabilization_with_cam last random_2nm_med_processed \
+        wavefront_stabilization_with_cam last random_2nm_med_processed_sim_cam \
         --inputs-need-norm --inputs-need-diff \
-        --scatter-plot 4 6 2 1e-7 15 --enable-paper-plots
+        --scatter-plot 4 6 2 1e-7 15 --enable-paper-plots 2
 
     python3 main.py model_test \
         wavefront_stabilization_with_cam last \
@@ -2254,17 +2254,17 @@ After model testing, it is useful to rank the model analyses:
         --init-weights wavefront_capture_with_cam_round_one last
 
     python3 main.py model_test \
-        wavefront_capture_with_cam last fixed_1nm_range_301_approx_processed \
-        --zernike-plots --inputs-need-norm --inputs-need-diff --enable-paper-plots
+        wavefront_capture_with_cam last fixed_1nm_range_301_approx_processed_sim_cam \
+        --zernike-plots --inputs-need-norm --inputs-need-diff --enable-paper-plots 1
 
     python3 main.py model_test \
-        wavefront_capture_with_cam last fixed_50nm_range_approx_processed \
-        --zernike-plots --inputs-need-norm --inputs-need-diff --enable-paper-plots
+        wavefront_capture_with_cam last fixed_50nm_range_approx_processed_sim_cam \
+        --zernike-plots --inputs-need-norm --inputs-need-diff --enable-paper-plots 1
 
     python3 main.py model_test \
-        wavefront_capture_with_cam last random_2nm_med_processed \
+        wavefront_capture_with_cam last random_2nm_med_processed_sim_cam \
         --inputs-need-norm --inputs-need-diff \
-        --scatter-plot 4 6 2 1e-7 15 --enable-paper-plots
+        --scatter-plot 4 6 2 1e-7 15 --enable-paper-plots 1
 
     python3 main.py model_test \
         wavefront_capture_with_cam last \
