@@ -381,7 +381,7 @@ After model testing, it is useful to rank the model analyses:
     python3 main_scnp.py batch_model_train \
         train_dh_both_hodms_efc_final_dh_lg_3iter val_dh_both_hodms_efc_final_dh_lg_3iter \
         dh_v28_ 1000 \
-        --networks dh_t21 dh_t21_dsc dh_t21_dsc_lg dh_t21_no_max_pool dh_t21_lrelu \
+        --networks dh_t21 dh_t21_dsc \
         --losses mse --optimizers adam \
         --lrs 1e-5 --batch-sizes 256 \
         --overwrite-existing --only-best-epoch --early-stopping 25
