@@ -21,6 +21,7 @@ from utils.hdf_read_and_write import HDFWriteModule
 from utils.load_raw_sim_data import load_raw_sim_data_chunks
 from utils.path import make_dir
 from utils.printing_and_logging import step_ri, title
+from utils.simulate_camera import simulate_camera
 
 
 def preprocess_data_bare_parser(subparsers):
@@ -54,6 +55,13 @@ def preprocess_data_bare_parser(subparsers):
         help=('remove the last row from the data '
               '(useful if the last row has no aberrations)'),
     )
+    subparser.add_argument(
+        '--camera-for-wfs',
+        nargs=3,
+        help=('simulate a camera which adds noise, discretized light levels, '
+              'and saturation; requires three arguments: <cam name> '
+              '<exposure time in s> <countrate>'),
+    )
 
 
 def preprocess_data_bare(cli_args):
@@ -66,6 +74,23 @@ def preprocess_data_bare(cli_args):
     print(f'Input shape: {input_data.shape}')
     print(f'Output shape: {output_data.shape}')
     print(f'Zernike terms: {zernike_terms}')
+
+    camera_for_wfs = cli_args.get('camera_for_wfs')
+    if camera_for_wfs:
+        step_ri('Using a camera for the wfs')
+        cam_name, exposure_time, countrate = camera_for_wfs
+        exposure_time = float(exposure_time)
+        countrate = float(countrate)
+        print(f'Camera: {cam_name}')
+        print(f'Exposure time: {exposure_time} s ({1/exposure_time} Hz)')
+        print(f'Countrate: {countrate} photons/s')
+        # Add noise to the PSFs
+        input_data = simulate_camera(
+            input_data,
+            cam_name,
+            exposure_time,
+            countrate,
+        )
 
     step_ri('Adding in dimension for the channels')
     # Since this is a grayscale image, there is only one channel
