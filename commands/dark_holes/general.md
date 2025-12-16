@@ -399,6 +399,14 @@ Preprocess the datasets:
         --norm-inputs --norm-outputs
 
     python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_final_dh_14k_ch1 \
+        train_dh_both_hodms_efc_final_dh_lg_6iter_half val_dh_both_hodms_efc_final_dh_lg_6iter_half \
+        test_dh_both_hodms_efc_final_dh_lg_6iter_half 88 6 6 \
+        --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
+        --additional-raw-data-tags dh_both_hodms_efc_final_dh_9k_ch1 dh_both_hodms_efc_30k_6iter_ch1 \
+        --norm-inputs --norm-outputs
+
+    python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_final_dh_14k_ch1 \
         train_dh_both_hodms_efc_final_dh_lg_6iter_fl val_dh_both_hodms_efc_final_dh_lg_6iter_fl \
         test_dh_both_hodms_efc_final_dh_lg_6iter_fl 88 6 6 \
         --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
@@ -434,3 +442,17 @@ Analysis results for models trained on SVD basis outputs can be converted to act
         --svd-modes-tags hodm1_756_modes hodm2_756_modes \
         --svd-modes-table-names dm1_modes dm2_modes \
         --svd-modes-count 300
+
+## Random Commands
+
+Export a model so it can be run in `piccsim`:
+
+    python3 main.py export_model dh_v29_1 last val_dh_both_hodms_efc_final_dh_lg_6iter --benchmark 50 --no-base-field
+
+Run EF reconstruction:
+
+    python3 piccsim_pipelines/sim_dh_ef.py dh_v25_6 150 val_dh_both_hodms_efc_final_dh_lg_6iter --full-dh
+
+Plot the DM comparison:
+
+    python3 main.py dm_comparison dh_v29_1 148 test_dh_both_hodms_efc_final_dh_lg_6iter 10 34

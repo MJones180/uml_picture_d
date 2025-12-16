@@ -405,3 +405,14 @@ After model testing, it is useful to rank the model analyses:
         test_dh_both_hodms_efc_final_dh_lg_6iter \
         --epoch-and-tag-range last dh_v29_ 1 2 \
         --force-cpu --max-rows-per-model-call 10000
+
+[V30] The `dh_v30` tag:
+
+    python3 main_scnp.py model_train \
+        dh_v30 train_dh_both_hodms_efc_final_dh_lg_6iter_half val_dh_both_hodms_efc_final_dh_lg_6iter_half \
+        dh_t21_no_max_pool mse adam 1e-5 1000 --batch-size 256 \
+        --overwrite-existing --only-best-epoch --early-stopping 25
+
+    python3 main.py model_test \
+        dh_v27 last test_dh_both_hodms_efc_final_dh_lg_6iter_half \
+        --force-cpu --max-rows-per-model-call 10000
