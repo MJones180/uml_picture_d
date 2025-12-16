@@ -12,8 +12,11 @@ The following Conda command will create the environment and install the necessar
     # CPU only
     conda env create -f environment.yml 
 
-    # GPU [NVIDIA CUDA]
-    conda env create -f environment_cuda.yml 
+    # GPU [NVIDIA CUDA 12.6] - Used on Unity
+    conda env create -f environment_cuda_126.yml 
+
+    # GPU [NVIDIA CUDA 13.0] - Used on Workstation
+    conda env create -f environment_cuda_13.yml 
 
 Then, to activate the environment:
 
@@ -25,7 +28,8 @@ If the dependencies change at any point, the environment file can be updated via
     conda env export --no-builds | grep -v "^prefix: " > environment.yml
 
     # GPU env
-    conda env export --no-builds | grep -v "^prefix: " > environment_cuda.yml
+    conda env export --no-builds | grep -v "^prefix: " > environment_cuda_126.yml
+    conda env export --no-builds | grep -v "^prefix: " > environment_cuda_13.yml
 
 A helpful cheatsheet with useful Conda commands: docs.conda.io/projects/conda/en/4.6.0/_downloads/52a95608c49671267e40c689e0bc00ca/conda-cheatsheet.pdf
 
