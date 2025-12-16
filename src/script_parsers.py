@@ -9,6 +9,7 @@ from scripts.convert_piccsim_fits_data import convert_piccsim_fits_data_parser
 from scripts.convert_picd_instrument_data import convert_picd_instrument_data_parser  # noqa: E501
 from scripts.create_response_matrix import create_response_matrix_parser
 from scripts.dataset_info import dataset_info_parser
+from scripts.dm_comparison import dm_comparison_parser
 from scripts.export_model import export_model_parser
 from scripts.export_zernike_inputs_to_binary import export_zernike_inputs_to_binary_parser  # noqa: E501
 from scripts.gen_zernike_time_steps import gen_zernike_time_steps_parser
@@ -40,6 +41,7 @@ script_parsers = [
     convert_picd_instrument_data_parser,
     create_response_matrix_parser,
     dataset_info_parser,
+    dm_comparison_parser,
     export_model_parser,
     export_zernike_inputs_to_binary_parser,
     gen_zernike_time_steps_parser,
