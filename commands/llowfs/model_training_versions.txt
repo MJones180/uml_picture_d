@@ -2359,15 +2359,15 @@ After model testing, it is useful to rank the model analyses:
         --init-weights wavefront_capture_with_cam_v2_round_one last
 
     python3 main.py model_test \
-        wavefront_capture_with_cam_v2 last fixed_1nm_range_301_approx_processed \
+        wavefront_capture_with_cam_v2 last fixed_1nm_range_301_approx_processed_sim_cam \
         --zernike-plots --inputs-need-norm --inputs-need-diff --enable-paper-plots 1
 
     python3 main.py model_test \
-        wavefront_capture_with_cam_v2 last fixed_50nm_range_approx_processed \
+        wavefront_capture_with_cam_v2 last fixed_50nm_range_approx_processed_sim_cam \
         --zernike-plots --inputs-need-norm --inputs-need-diff --enable-paper-plots 1
 
     python3 main.py model_test \
-        wavefront_capture_with_cam_v2 last random_2nm_med_processed \
+        wavefront_capture_with_cam_v2 last random_2nm_med_processed_sim_cam \
         --inputs-need-norm --inputs-need-diff \
         --scatter-plot 4 6 2 1e-7 15 --enable-paper-plots 1
 
@@ -2394,19 +2394,89 @@ After model testing, it is useful to rank the model analyses:
         --init-weights wavefront_stabilization_with_cam_v2_round_one last
 
     python3 main.py model_test \
-        wavefront_stabilization_with_cam_v2 last fixed_1nm_range_301_approx_processed \
+        wavefront_stabilization_with_cam_v2 last fixed_1nm_range_301_approx_processed_sim_cam \
         --zernike-plots --inputs-need-norm --inputs-need-diff --enable-paper-plots 2
 
     python3 main.py model_test \
-        wavefront_stabilization_with_cam_v2 last fixed_50nm_range_approx_processed \
+        wavefront_stabilization_with_cam_v2 last fixed_50nm_range_approx_processed_sim_cam \
         --zernike-plots --inputs-need-norm --inputs-need-diff --enable-paper-plots 2
 
     python3 main.py model_test \
-        wavefront_stabilization_with_cam_v2 last random_2nm_med_processed \
+        wavefront_stabilization_with_cam_v2 last random_2nm_med_processed_sim_cam \
         --inputs-need-norm --inputs-need-diff \
         --scatter-plot 4 6 2 1e-7 15 --enable-paper-plots 2
 
     python3 main.py model_test \
         wavefront_stabilization_with_cam_v2 last \
         test_fixed_2000_and_random_weighted_group_ranges_local_v5_c_sim_cam \
+        --scatter-plot 4 6 2 0 15
+
+[V66a] The `wavefront_stabilization_v3_1` tag:
+
+    python3 main_scnp.py model_train \
+        wavefront_stabilization_v3_1_round_one \
+        train_fixed_2000_and_random_weighted_group_ranges_local_v5_c \
+        val_fixed_2000_and_random_weighted_group_ranges_local_v5_c \
+        llowfs_cnn_2 mae adam 1e-5 1000 --batch-size 256 \
+        --overwrite-existing --only-best-epoch --early-stopping 15
+
+    python3 main_scnp.py model_train \
+        wavefront_stabilization_v3_1 \
+        train_fixed_2000_and_random_weighted_group_ranges_local_v5_c \
+        val_fixed_2000_and_random_weighted_group_ranges_local_v5_c \
+        llowfs_cnn_2 mae adam 1e-8 200 --batch-size 128 \
+        --overwrite-existing --only-best-epoch --early-stopping 15 \
+        --init-weights wavefront_stabilization_v3_1_round_one last
+
+    python3 main.py model_test \
+        wavefront_stabilization_v3_1 last fixed_1nm_range_301_approx_processed \
+        --zernike-plots --inputs-need-norm --inputs-need-diff --enable-paper-plots 2
+
+    python3 main.py model_test \
+        wavefront_stabilization_v3_1 last fixed_50nm_range_approx_processed \
+        --zernike-plots --inputs-need-norm --inputs-need-diff --enable-paper-plots 2
+
+    python3 main.py model_test \
+        wavefront_stabilization_v3_1 last random_2nm_med_processed \
+        --inputs-need-norm --inputs-need-diff \
+        --scatter-plot 4 6 2 1e-7 15 --enable-paper-plots 2
+
+    python3 main.py model_test \
+        wavefront_stabilization_v3_1 last \
+        test_fixed_2000_and_random_weighted_group_ranges_local_v5_c \
+        --scatter-plot 4 6 2 0 15
+
+[V66b] The `wavefront_stabilization_v3_2` tag:
+
+    python3 main_scnp.py model_train \
+        wavefront_stabilization_v3_2_round_one \
+        train_fixed_2000_and_random_weighted_group_ranges_local_v5_c \
+        val_fixed_2000_and_random_weighted_group_ranges_local_v5_c \
+        llowfs_cnn_3 mae adam 1e-5 1000 --batch-size 256 \
+        --overwrite-existing --only-best-epoch --early-stopping 15
+
+    python3 main_scnp.py model_train \
+        wavefront_stabilization_v3_2 \
+        train_fixed_2000_and_random_weighted_group_ranges_local_v5_c \
+        val_fixed_2000_and_random_weighted_group_ranges_local_v5_c \
+        llowfs_cnn_3 mae adam 1e-8 200 --batch-size 128 \
+        --overwrite-existing --only-best-epoch --early-stopping 15 \
+        --init-weights wavefront_stabilization_v3_2_round_one last
+
+    python3 main.py model_test \
+        wavefront_stabilization_v3_2 last fixed_1nm_range_301_approx_processed \
+        --zernike-plots --inputs-need-norm --inputs-need-diff --enable-paper-plots 2
+
+    python3 main.py model_test \
+        wavefront_stabilization_v3_2 last fixed_50nm_range_approx_processed \
+        --zernike-plots --inputs-need-norm --inputs-need-diff --enable-paper-plots 2
+
+    python3 main.py model_test \
+        wavefront_stabilization_v3_2 last random_2nm_med_processed \
+        --inputs-need-norm --inputs-need-diff \
+        --scatter-plot 4 6 2 1e-7 15 --enable-paper-plots 2
+
+    python3 main.py model_test \
+        wavefront_stabilization_v3_2 last \
+        test_fixed_2000_and_random_weighted_group_ranges_local_v5_c \
         --scatter-plot 4 6 2 0 15
