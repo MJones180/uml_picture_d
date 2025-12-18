@@ -90,6 +90,11 @@ def preprocess_data_complete_parser(subparsers):
               'globally or individually'),
     )
     subparser.add_argument(
+        '--norm-outputs-round',
+        type=int,
+        help='round the norm values to the nearest n decimal place',
+    )
+    subparser.add_argument(
         '--norm-range-ones',
         action='store_true',
         help=('normalize data between -1 and 1 instead of 0 to 1; applies to '
@@ -390,16 +395,26 @@ def preprocess_data_complete(cli_args):
 
     step_ri('Normalizing outputs')
     output_normalization = True
+    norm_outputs_round = cli_args.get('norm_outputs_round')
+    if norm_outputs_round:
+        print('Will round min_x and max_min_diff to '
+              f'{norm_outputs_round} decimal places')
     norm_outputs = cli_args.get('norm_outputs')
     if norm_outputs == 'individually':
         print('Individually normalizing outputs of training data')
-        train_outputs, max_min_diff, min_x = find_min_max_norm(train_outputs,
-                                                               ones_range=nro)
+        train_outputs, max_min_diff, min_x = find_min_max_norm(
+            train_outputs,
+            ones_range=nro,
+            round_values=norm_outputs_round,
+        )
     elif norm_outputs == 'globally':
         print('Globally normalizing outputs of training data')
-        train_outputs, max_min_diff, min_x = find_min_max_norm(train_outputs,
-                                                               globally=True,
-                                                               ones_range=nro)
+        train_outputs, max_min_diff, min_x = find_min_max_norm(
+            train_outputs,
+            globally=True,
+            ones_range=nro,
+            round_values=norm_outputs_round,
+        )
         # For the output normalization, it is easier if there is a norm value
         # for every single element
         min_x = np.repeat(min_x, train_outputs.shape[1])
