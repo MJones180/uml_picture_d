@@ -483,8 +483,11 @@ def model_train(cli_args):
                 next_lr = upcoming_lrs.pop(0)
                 print(f'Updating learning rate from {current_lr} -> {next_lr}')
                 optimizer.param_groups[0]['lr'] = next_lr
-                # This epoch may not be the best val loss, but the learning rate
-                # has changed, so make this epoch a new starting point
+                # Load in the weights from the previous model
+                print(f'Reverting to weights from epoch {best_val_loss_epoch}')
+                previous_model = Model(tag, best_val_loss_epoch, True).model
+                model.load_state_dict(previous_model.state_dict())
+                # Update to the current epoch
                 best_val_loss_epoch = epoch_idx
             else:
                 print('Ending training due to early stopping')
