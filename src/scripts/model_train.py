@@ -100,6 +100,18 @@ def model_train_parser(subparsers):
         help=('stop training if performance does not improve after n epochs, '
               'this is based on the validation loss'),
     )
+
+    subparser.add_argument(
+        '--lr-auto-annealing',
+        nargs=2,
+        type=float,
+        help=('auto change the learning rate when progress begins to plateau; '
+              'the initial learning rate is taken from the '
+              '`learning_rate` arg; the learning rate is reduced each time '
+              'the `early_stopping` arg is met; two variables should be '
+              'passed: final learning rate, learning rate divide factor'),
+    )
+
     subparser.add_argument(
         '--loss-improvement-threshold',
         type=float,
@@ -285,8 +297,31 @@ def model_train(cli_args):
     step_ri('Setting the optimizer')
     optimizer = getattr(torch.optim, OPTIMIZERS[cli_args['optimizer']])
     # Currently, the only configurable parameter for each optimizer is the lr
-    optimizer = optimizer(model.parameters(), lr=cli_args['learning_rate'])
+    base_learning_rate = cli_args['learning_rate']
+    optimizer = optimizer(model.parameters(), lr=base_learning_rate)
     print(optimizer)
+
+    early_stopping = cli_args['early_stopping']
+    if early_stopping:
+        step_ri('Early stopping enabled')
+        print('Will stop if loss does not improve '
+              f'after {early_stopping} epochs')
+
+    lr_auto_annealing = cli_args.get('lr_auto_annealing')
+    if lr_auto_annealing:
+        step_ri('Will use learning rate annealing')
+        final_lr = lr_auto_annealing[0]
+        lr_scale_factor = lr_auto_annealing[1]
+        print(f'Final learning rate: {final_lr}')
+        print(f'Learning rate scale factor: {lr_scale_factor}')
+        print('Will switch learning rate every time loss does not '
+              f'improve after {early_stopping} epochs')
+        upcoming_lrs = []
+        next_lr = base_learning_rate / lr_scale_factor
+        while next_lr > final_lr:
+            upcoming_lrs.append(next_lr)
+            next_lr /= lr_scale_factor
+        print(f'Will use the following learning rates: {upcoming_lrs}')
 
     step_ri('Setting the image transforms')
     image_transforms = None
@@ -330,15 +365,11 @@ def model_train(cli_args):
     best_val_loss = 1e10
     epoch_save_steps = cli_args.get('epoch_save_steps')
     only_best_epoch = cli_args['only_best_epoch']
-    early_stopping = cli_args['early_stopping']
     if epoch_save_steps:
         print(f'Will save every {epoch_save_steps} epochs')
     if only_best_epoch:
         best_epoch_path = None
         print('Will save only best epoch based on the loss function')
-    if early_stopping:
-        print('Early stopping enabled - will stop if loss does not improve '
-              f'after {early_stopping} epochs')
 
     step_ri('Beginning training')
     for epoch_idx in range(1, epoch_count + 1):
@@ -447,8 +478,14 @@ def model_train(cli_args):
 
         # Handle the early stopping
         if early_stopping and epochs_since_improvement >= early_stopping:
-            print('Ending training due to early stopping')
-            break
+            if lr_auto_annealing and len(upcoming_lrs) > 0:
+                current_lr = optimizer.param_groups[0]['lr']
+                next_lr = upcoming_lrs.pop(0)
+                print(f'Updating learning rate from {current_lr} -> {next_lr}')
+                optimizer.param_groups[0]['lr'] = next_lr
+            else:
+                print('Ending training due to early stopping')
+                break
 
         print(f'Time: {time() - start_time}')
         dec_print_indent()
