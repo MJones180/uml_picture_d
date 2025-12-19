@@ -489,6 +489,10 @@ def model_train(cli_args):
                 model.load_state_dict(previous_model.state_dict())
                 # Update to the current epoch
                 best_val_loss_epoch = epoch_idx
+                # Rename the saved epoch to the current epoch
+                _save_epoch()
+                delete_file(best_epoch_path, True)
+                best_epoch_path = current_epoch_path
             else:
                 print('Ending training due to early stopping')
                 break
