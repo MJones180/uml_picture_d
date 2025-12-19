@@ -465,12 +465,11 @@ def model_train(cli_args):
         print('Validation Loss: ', float(avg_val_loss))
         epochs_since_improvement = epoch_idx - best_val_loss_epoch
         difference_from_best = abs(float(best_val_loss - avg_val_loss))
-
-        # Pretty logs for loss
         if loss_improved:
             print(f'{difference_from_best} from best')
             best_val_loss_epoch = epoch_idx
             best_val_loss = avg_val_loss
+            epochs_since_improvement = 0
         else:
             print(f'{difference_from_best} off best')
             print('Performance has not increased in '
