@@ -45,6 +45,10 @@ class Model():
         if not path_exists(dir_path):
             terminate_with_message(f'Directory not found: {dir_path}')
 
+        # The epoch must be a string
+        if isinstance(epoch, int):
+            epoch = str(epoch)
+
         if epoch.lower() == 'last':
             _step('Epoch set to `last` mode, so finding last epoch')
             # The base path of the model to find the epochs within
