@@ -100,7 +100,6 @@ def model_train_parser(subparsers):
         help=('stop training if performance does not improve after n epochs, '
               'this is based on the validation loss'),
     )
-
     subparser.add_argument(
         '--lr-auto-annealing',
         nargs=2,
@@ -111,7 +110,6 @@ def model_train_parser(subparsers):
               'the `early_stopping` arg is met; two variables should be '
               'passed: final learning rate, learning rate divide factor'),
     )
-
     subparser.add_argument(
         '--loss-improvement-threshold',
         type=float,
