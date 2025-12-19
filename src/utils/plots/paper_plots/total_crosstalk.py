@@ -92,7 +92,7 @@ def paper_plot_total_crosstalk(
     if np.max(perturbation_grid) > 45e-9:
         y_max = 80  # For [-50, 50] nm
     else:
-        y_max = 1.4  # For [-1, 1] nm
+        y_max = 0.5  # For [-1, 1] nm
 
     # Set the maximum y-value
     ax.set_ylim(0, y_max)
