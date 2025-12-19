@@ -318,7 +318,7 @@ def model_train(cli_args):
               f'improve after {early_stopping} epochs')
         upcoming_lrs = []
         next_lr = base_learning_rate / lr_scale_factor
-        while next_lr > final_lr:
+        while next_lr >= final_lr:
             upcoming_lrs.append(next_lr)
             next_lr /= lr_scale_factor
         print(f'Will use the following learning rates: {upcoming_lrs}')
