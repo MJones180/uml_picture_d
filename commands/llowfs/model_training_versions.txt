@@ -2627,8 +2627,8 @@ After model testing, it is useful to rank the model analyses:
         wavefront_capture_v4 \
         train_fixed_2000_and_random_weighted_group_ranges_local_v6 \
         val_fixed_2000_and_random_weighted_group_ranges_local_v6 \
-        llowfs_cnn_4 mae adam 1e-4 1000 --batch-size 256 \
-        --lr-auto-annealing 1e-8 10 --early-stopping 15 \
+        llowfs_cnn_4 mae adam 10e-5 1000 --batch-size 256 \
+        --lr-auto-annealing 10e-7 10 --early-stopping 15 \
         --overwrite-existing --only-best-epoch
 
     python3 main.py model_test \
@@ -2655,8 +2655,8 @@ After model testing, it is useful to rank the model analyses:
         wavefront_stabilization_v4 \
         train_fixed_2000_and_random_weighted_group_ranges_local_v5_c \
         val_fixed_2000_and_random_weighted_group_ranges_local_v5_c \
-        llowfs_cnn_4 mae adam 1e-4 1000 --batch-size 256 \
-        --lr-auto-annealing 1e-8 10 --early-stopping 15 \
+        llowfs_cnn_4 mae adam 10e-5 1000 --batch-size 256 \
+        --lr-auto-annealing 10e-7 10 --early-stopping 15 \
         --overwrite-existing --only-best-epoch
 
     python3 main.py model_test \
@@ -2683,8 +2683,8 @@ After model testing, it is useful to rank the model analyses:
         wavefront_capture_sim_cam_v4 \
         train_fixed_2000_and_random_weighted_group_ranges_local_v6_sim_cam \
         val_fixed_2000_and_random_weighted_group_ranges_local_v6_sim_cam \
-        llowfs_cnn_4 mae adam 1e-4 1000 --batch-size 256 \
-        --lr-auto-annealing 1e-8 10 --early-stopping 15 \
+        llowfs_cnn_4 mae adam 10e-5 1000 --batch-size 256 \
+        --lr-auto-annealing 10e-7 10 --early-stopping 15 \
         --overwrite-existing --only-best-epoch
 
     python3 main.py model_test \
@@ -2711,8 +2711,8 @@ After model testing, it is useful to rank the model analyses:
         wavefront_stabilization_sim_cam_v4 \
         train_fixed_2000_and_random_weighted_group_ranges_local_v5_c_sim_cam \
         val_fixed_2000_and_random_weighted_group_ranges_local_v5_c_sim_cam \
-        llowfs_cnn_4 mae adam 1e-4 1000 --batch-size 256 \
-        --lr-auto-annealing 1e-8 10 --early-stopping 15 \
+        llowfs_cnn_4 mae adam 10e-5 1000 --batch-size 256 \
+        --lr-auto-annealing 10e-7 10 --early-stopping 15 \
         --overwrite-existing --only-best-epoch
 
     python3 main.py model_test \
