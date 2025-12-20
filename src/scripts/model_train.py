@@ -484,11 +484,13 @@ def model_train(cli_args):
                 print(f'Reverting to weights from epoch {best_val_loss_epoch}')
                 previous_model = Model(tag, best_val_loss_epoch, True).model
                 model.load_state_dict(previous_model.state_dict())
+                print(f'Not deleting epoch {best_val_loss_epoch}')
+                print(f'Saving a copy of epoch {best_val_loss_epoch} as '
+                      'the current epoch')
                 # Update to the current epoch
                 best_val_loss_epoch = epoch_idx
                 # Rename the saved epoch to the current epoch
                 _save_epoch()
-                delete_file(best_epoch_path, True)
                 best_epoch_path = current_epoch_path
             else:
                 print('Ending training due to early stopping')
