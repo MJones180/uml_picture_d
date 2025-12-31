@@ -449,7 +449,19 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py model_test \
         dh_v33_1 last test_dh_both_hodms_efc_final_dh_lg_6iter \
-        --force-cpu --max-rows-per-model-call 10000
+        --max-rows-per-model-call 1000
+
+[V33a2] The `dh_v33_1_cont` tag:
+
+    python3 main_scnp.py model_train \
+        dh_v33_1_cont train_dh_both_hodms_efc_final_dh_lg_6iter val_dh_both_hodms_efc_final_dh_lg_6iter \
+        dh_t21_no_max_pool mse adam 10e-8 1000 --batch-size 256 \
+        --init-weights dh_v33_1 last \
+        --early-stopping 15 --overwrite-existing --only-best-epoch
+
+    python3 main.py model_test \
+        dh_v33_1_cont last test_dh_both_hodms_efc_final_dh_lg_6iter \
+        --max-rows-per-model-call 1000
 
 [V33b] The `dh_v33_2` tag:
 
@@ -461,7 +473,19 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py model_test \
         dh_v33_2 last test_dh_both_hodms_efc_final_dh_lg_6iter \
-        --force-cpu --max-rows-per-model-call 10000
+        --max-rows-per-model-call 1000
+
+[V33b2] The `dh_v33_2_cont` tag:
+
+    python3 main_scnp.py model_train \
+        dh_v33_2_cont train_dh_both_hodms_efc_final_dh_lg_6iter val_dh_both_hodms_efc_final_dh_lg_6iter \
+        dh_t22 mse adam 10e-8 1000 --batch-size 256 \
+        --init-weights dh_v33_2 last \
+        --early-stopping 15 --overwrite-existing --only-best-epoch
+
+    python3 main.py model_test \
+        dh_v33_2_cont last test_dh_both_hodms_efc_final_dh_lg_6iter \
+        --max-rows-per-model-call 1000
 
 [V33c] The `dh_v33_3` tag:
 
@@ -473,7 +497,7 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py model_test \
         dh_v33_3 last test_dh_both_hodms_efc_final_dh_lg_6iter \
-        --force-cpu --max-rows-per-model-call 10000
+        --max-rows-per-model-call 1000
 
 [V34a] The `dh_v34_1` tag:
 
@@ -485,7 +509,7 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py model_test \
         dh_v34_1 last test_dh_both_hodms_efc_final_dh_lg_6iter \
-        --force-cpu --max-rows-per-model-call 10000
+        --max-rows-per-model-call 1000
 
 [V34b] The `dh_v34_2` tag:
 
@@ -497,7 +521,7 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py model_test \
         dh_v34_2 last test_dh_both_hodms_efc_final_dh_lg_6iter \
-        --force-cpu --max-rows-per-model-call 10000
+        --max-rows-per-model-call 1000
 
 [V34c] The `dh_v34_3` tag:
 
@@ -509,7 +533,7 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py model_test \
         dh_v34_3 last test_dh_both_hodms_efc_final_dh_lg_6iter \
-        --force-cpu --max-rows-per-model-call 10000
+        --max-rows-per-model-call 1000
 
 [V35a] The `dh_v35_1` tag:
 
@@ -521,7 +545,19 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py model_test \
         dh_v35_1 last test_dh_both_hodms_efc_final_dh_lg_1iter \
-        --force-cpu --max-rows-per-model-call 10000
+        --max-rows-per-model-call 1000
+
+[V35a2] The `dh_v35_1_cont` tag:
+
+    python3 main_scnp.py model_train \
+        dh_v35_1_cont train_dh_both_hodms_efc_final_dh_lg_1iter val_dh_both_hodms_efc_final_dh_lg_1iter \
+        dh_t21_no_max_pool mse adam 10e-8 1000 --batch-size 256 \
+        --init-weights dh_v35_1 last \
+        --early-stopping 15 --overwrite-existing --only-best-epoch
+
+    python3 main.py model_test \
+        dh_v35_1_cont last test_dh_both_hodms_efc_final_dh_lg_1iter \
+        --max-rows-per-model-call 1000
 
 [V35b] The `dh_v35_2` tag:
 
@@ -533,7 +569,19 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py model_test \
         dh_v35_2 last test_dh_both_hodms_efc_final_dh_lg_1iter \
-        --force-cpu --max-rows-per-model-call 10000
+        --max-rows-per-model-call 1000
+
+[V35b2] The `dh_v35_2_cont` tag:
+
+    python3 main_scnp.py model_train \
+        dh_v35_2_cont train_dh_both_hodms_efc_final_dh_lg_1iter val_dh_both_hodms_efc_final_dh_lg_1iter \
+        dh_t22 mse adam 10e-8 1000 --batch-size 256 \
+        --init-weights dh_v35_2 last \
+        --early-stopping 15 --overwrite-existing --only-best-epoch
+
+    python3 main.py model_test \
+        dh_v35_2_cont last test_dh_both_hodms_efc_final_dh_lg_1iter \
+        --max-rows-per-model-call 1000
 
 [V35c] The `dh_v35_3` tag:
 
@@ -545,4 +593,16 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py model_test \
         dh_v35_3 last test_dh_both_hodms_efc_final_dh_lg_1iter \
-        --force-cpu --max-rows-per-model-call 10000
+        --max-rows-per-model-call 1000
+
+[V36] The `dh_v36` tag:
+
+    python3 main_scnp.py model_train \
+        dh_v36 train_dh_both_hodms_efc_final_dh_xlg_6iter val_dh_both_hodms_efc_final_dh_xlg_6iter \
+        dh_t22 mse adam 10e-6 1000 --batch-size 256 \
+        --lr-auto-annealing 10e-8 10 --early-stopping 15 \
+        --overwrite-existing --only-best-epoch
+
+    python3 main.py model_test \
+        dh_v36 last test_dh_both_hodms_efc_final_dh_xlg_6iter \
+        --max-rows-per-model-call 1000
