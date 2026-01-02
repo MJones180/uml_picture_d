@@ -18,7 +18,8 @@ training dataset.
 
 import numpy as np
 from utils.cli_args import save_cli_args
-from utils.constants import (DARK_ZONE_MASK, DATA_F, DM_ACTIVE_IDXS, DM_SIZE,
+from utils.constants import (DARK_ZONE_MASK, DATA_F, DM_ACTIVE_COL_IDXS,
+                             DM_ACTIVE_IDXS, DM_ACTIVE_ROW_IDXS, DM_SIZE,
                              EF_ACTIVE_IDXS, EXTRA_VARS_F, INPUT_MAX_MIN_DIFF,
                              INPUT_MIN_X, INPUTS, INPUTS_ARCSINH,
                              NORM_RANGE_ONES_OUTPUT, OUTPUTS,
@@ -159,6 +160,11 @@ def preprocess_data_dark_hole_parser(subparsers):
         help=('flatten the 2D electric field into a 1D array; multiple '
               'channels are flattened into one channel; the imaginary part '
               'is added after the real part; all inactive pixels are removed'),
+    )
+    subparser.add_argument(
+        '--do-not-flatten-output',
+        action='store_true',
+        help='do not flatten the output data, keep it as a 2D array',
     )
     subparser.add_argument(
         '--disable-shuffle',
@@ -421,31 +427,57 @@ def preprocess_data_dark_hole(cli_args):
 
     # ==========================================================================
 
-    step_ri('Flattening the DM actuator height data')
-    for dm_table, dm_data in all_dm_data.items():
-        dm_shape = dm_data.shape
-        all_dm_data[dm_table] = np.reshape(dm_data, (dm_shape[0], -1))
-        print(f'DM {dm_table} shape: {all_dm_data[dm_table].shape}')
-        if not extend_existing_data:
-            _save_var(DM_SIZE(dm_idx_lookup[dm_table]), dm_shape[1:])
-
-    # ==========================================================================
-
-    step_ri('Finding and removing inactive actuators on the DM(s)')
-    for dm_table, dm_data in all_dm_data.items():
-        if extend_existing_data:
-            active_idxs = _use_var(DM_ACTIVE_IDXS(dm_idx_lookup[dm_table]))
-        else:
-            # Create an array where each actuator will say if it is nonzero
-            # across any of the simulations
-            nonzero_acts = (dm_data != 0).any(axis=0)
-            print(f'DM {dm_table} has {nonzero_acts.sum()} active actuators')
-            # Idxs where there is at least one actuator that has a nonzero value
-            active_idxs = np.where(nonzero_acts)[0]
-            _save_var(DM_ACTIVE_IDXS(dm_idx_lookup[dm_table]), active_idxs)
-        # Filter out the inactive actuators
-        all_dm_data[dm_table] = dm_data[:, active_idxs]
-        print(f'DM {dm_table} shape: {all_dm_data[dm_table].shape}')
+    if cli_args['do_not_flatten_output']:
+        step_ri('Will not flatten the output data')
+        print('Chopping off zero padded pixels in the outputs')
+        for dm_table, dm_data in all_dm_data.items():
+            # The index of the current DM
+            dm_idx = dm_idx_lookup[dm_table]
+            if extend_existing_data:
+                active_col_idxs = _use_var(DM_ACTIVE_COL_IDXS(dm_idx))
+                active_row_idxs = _use_var(DM_ACTIVE_ROW_IDXS(dm_idx))
+            else:
+                # Create an array where each pixel will say if it is nonzero
+                # across any of the simulations
+                nonzero_pixels = (dm_data != 0).any(axis=(0, 1))
+                # Indexes of the rows and columns in the input where there is at
+                # least one pixel in that row or column that has a nonzero value
+                active_col_idxs = np.where(nonzero_pixels.any(axis=(0)))[0]
+                active_row_idxs = np.where(nonzero_pixels.any(axis=(1)))[0]
+                _save_var(DM_ACTIVE_COL_IDXS(dm_idx), active_col_idxs)
+                _save_var(DM_ACTIVE_ROW_IDXS(dm_idx), active_row_idxs)
+            # Chop off the padding rows and columns
+            dm_data = dm_data[:, :, active_col_idxs]
+            dm_data = dm_data[:, active_row_idxs]
+            all_dm_data[dm_table] = dm_data[:, active_idxs]
+            print(f'DM {dm_table} shape: {all_dm_data[dm_table].shape}')
+    else:
+        step_ri('Flattening the DM actuator height data')
+        for dm_table, dm_data in all_dm_data.items():
+            dm_shape = dm_data.shape
+            all_dm_data[dm_table] = np.reshape(dm_data, (dm_shape[0], -1))
+            print(f'DM {dm_table} shape: {all_dm_data[dm_table].shape}')
+            if not extend_existing_data:
+                _save_var(DM_SIZE(dm_idx_lookup[dm_table]), dm_shape[1:])
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        step_ri('Finding and removing inactive actuators on the DM(s)')
+        for dm_table, dm_data in all_dm_data.items():
+            # The index of the current DM
+            dm_idx = dm_idx_lookup[dm_table]
+            if extend_existing_data:
+                active_idxs = _use_var(DM_ACTIVE_IDXS(dm_idx))
+            else:
+                # Create an array where each actuator will say if it is nonzero
+                # across any of the simulations
+                nonzero_acts = (dm_data != 0).any(axis=0)
+                print(
+                    f'DM {dm_table} has {nonzero_acts.sum()} active actuators')
+                # Idxs where there is >= 1 actuator with a nonzero value
+                active_idxs = np.where(nonzero_acts)[0]
+                _save_var(DM_ACTIVE_IDXS(dm_idx), active_idxs)
+            # Filter out the inactive actuators
+            all_dm_data[dm_table] = dm_data[:, active_idxs]
+            print(f'DM {dm_table} shape: {all_dm_data[dm_table].shape}')
 
     # ==========================================================================
 
