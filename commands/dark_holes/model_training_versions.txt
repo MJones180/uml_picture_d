@@ -606,3 +606,35 @@ After model testing, it is useful to rank the model analyses:
     python3 main.py model_test \
         dh_v36 last test_dh_both_hodms_efc_final_dh_xlg_6iter \
         --max-rows-per-model-call 1000
+
+[V37] The `dh_v37_` tag:
+
+    python3 main_scnp.py model_train \
+        dh_v37_1 train_dh_both_hodms_efc_final_dh_lg_6iter_2d val_dh_both_hodms_efc_final_dh_lg_6iter_2d \
+        dh_t22_2d_t1 mse adam 10e-6 1000 --batch-size 256 \
+        --lr-auto-annealing 10e-8 10 --early-stopping 15 \
+        --overwrite-existing --only-best-epoch
+
+    python3 main.py model_test \
+        dh_v37_1 last test_dh_both_hodms_efc_final_dh_lg_6iter_2d \
+        --max-rows-per-model-call 1000
+
+    python3 main_scnp.py model_train \
+        dh_v37_2 train_dh_both_hodms_efc_final_dh_lg_6iter_2d val_dh_both_hodms_efc_final_dh_lg_6iter_2d \
+        dh_t22_2d_t2 mse adam 10e-6 1000 --batch-size 256 \
+        --lr-auto-annealing 10e-8 10 --early-stopping 15 \
+        --overwrite-existing --only-best-epoch
+
+    python3 main.py model_test \
+        dh_v37_2 last test_dh_both_hodms_efc_final_dh_lg_6iter_2d \
+        --max-rows-per-model-call 1000
+
+    python3 main_scnp.py model_train \
+        dh_v37_3 train_dh_both_hodms_efc_final_dh_lg_6iter_2d val_dh_both_hodms_efc_final_dh_lg_6iter_2d \
+        dh_t22_2d_t3 mse adam 10e-6 1000 --batch-size 256 \
+        --lr-auto-annealing 10e-8 10 --early-stopping 15 \
+        --overwrite-existing --only-best-epoch
+
+    python3 main.py model_test \
+        dh_v37_3 last test_dh_both_hodms_efc_final_dh_lg_6iter_2d \
+        --max-rows-per-model-call 1000
