@@ -427,7 +427,8 @@ def preprocess_data_dark_hole(cli_args):
 
     # ==========================================================================
 
-    if cli_args['do_not_flatten_output']:
+    do_not_flatten_output = cli_args['do_not_flatten_output']
+    if do_not_flatten_output:
         step_ri('Will not flatten the output data')
         print('Chopping off zero padded pixels in the outputs')
         for dm_table, dm_data in all_dm_data.items():
@@ -439,7 +440,7 @@ def preprocess_data_dark_hole(cli_args):
             else:
                 # Create an array where each pixel will say if it is nonzero
                 # across any of the simulations
-                nonzero_pixels = (dm_data != 0).any(axis=(0, 1))
+                nonzero_pixels = (dm_data != 0).any(axis=0)
                 # Indexes of the rows and columns in the input where there is at
                 # least one pixel in that row or column that has a nonzero value
                 active_col_idxs = np.where(nonzero_pixels.any(axis=(0)))[0]
@@ -449,7 +450,7 @@ def preprocess_data_dark_hole(cli_args):
             # Chop off the padding rows and columns
             dm_data = dm_data[:, :, active_col_idxs]
             dm_data = dm_data[:, active_row_idxs]
-            all_dm_data[dm_table] = dm_data[:, active_idxs]
+            all_dm_data[dm_table] = dm_data
             print(f'DM {dm_table} shape: {all_dm_data[dm_table].shape}')
     else:
         step_ri('Flattening the DM actuator height data')
@@ -515,11 +516,13 @@ def preprocess_data_dark_hole(cli_args):
     step_ri('Creating the output array (dm actuator height coeffs)')
     output_data = None
     for dm_table, dm_data in all_dm_data.items():
-        print(f'Appending DM {dm_table} data')
         if output_data is None:
             output_data = dm_data
         else:
-            output_data = np.hstack((output_data, dm_data))
+            if do_not_flatten_output:
+                output_data = np.stack((output_data, dm_data), axis=1)
+            else:
+                output_data = np.hstack((output_data, dm_data))
     print(f'Output shape: {output_data.shape}')
 
     # ==========================================================================
