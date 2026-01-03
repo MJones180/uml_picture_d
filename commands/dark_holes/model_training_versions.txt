@@ -598,7 +598,8 @@ After model testing, it is useful to rank the model analyses:
 [V36] The `dh_v36` tag:
 
     python3 main_scnp.py model_train \
-        dh_v36 train_dh_both_hodms_efc_final_dh_xlg_6iter val_dh_both_hodms_efc_final_dh_xlg_6iter \
+        dh_v36 train_dh_both_hodms_efc_final_dh_xlg_6iter \
+        val_dh_both_hodms_efc_final_dh_xlg_6iter \
         dh_t22 mse adam 10e-6 1000 --batch-size 256 \
         --lr-auto-annealing 10e-8 10 --early-stopping 15 \
         --overwrite-existing --only-best-epoch
@@ -610,7 +611,8 @@ After model testing, it is useful to rank the model analyses:
 [V37] The `dh_v37` tag:
 
     python3 main_scnp.py model_train \
-        dh_v37 train_dh_both_hodms_efc_final_dh_lg_6iter_new_norm val_dh_both_hodms_efc_final_dh_lg_6iter_new_norm \
+        dh_v37 train_dh_both_hodms_efc_final_dh_lg_6iter_new_norm \
+        val_dh_both_hodms_efc_final_dh_lg_6iter_new_norm \
         dh_t22 mse adam 10e-6 1000 --batch-size 256 \
         --lr-auto-annealing 10e-8 10 --early-stopping 15 \
         --overwrite-existing --only-best-epoch
@@ -622,7 +624,8 @@ After model testing, it is useful to rank the model analyses:
 [V38] The `dh_v38_` tag:
 
     python3 main_scnp.py model_train \
-        dh_v38_1 train_dh_both_hodms_efc_final_dh_lg_6iter_2d val_dh_both_hodms_efc_final_dh_lg_6iter_2d \
+        dh_v38_1 train_dh_both_hodms_efc_final_dh_lg_6iter_2d \
+        val_dh_both_hodms_efc_final_dh_lg_6iter_2d \
         dh_t22_2d_t1 mse adam 10e-6 1000 --batch-size 256 \
         --lr-auto-annealing 10e-8 10 --early-stopping 15 \
         --overwrite-existing --only-best-epoch
@@ -632,7 +635,8 @@ After model testing, it is useful to rank the model analyses:
         --max-rows-per-model-call 1000
 
     python3 main_scnp.py model_train \
-        dh_v38_2 train_dh_both_hodms_efc_final_dh_lg_6iter_2d val_dh_both_hodms_efc_final_dh_lg_6iter_2d \
+        dh_v38_2 train_dh_both_hodms_efc_final_dh_lg_6iter_2d \
+        val_dh_both_hodms_efc_final_dh_lg_6iter_2d \
         dh_t22_2d_t2 mse adam 10e-6 1000 --batch-size 256 \
         --lr-auto-annealing 10e-8 10 --early-stopping 15 \
         --overwrite-existing --only-best-epoch
@@ -642,7 +646,8 @@ After model testing, it is useful to rank the model analyses:
         --max-rows-per-model-call 1000
 
     python3 main_scnp.py model_train \
-        dh_v38_3 train_dh_both_hodms_efc_final_dh_lg_6iter_2d val_dh_both_hodms_efc_final_dh_lg_6iter_2d \
+        dh_v38_3 train_dh_both_hodms_efc_final_dh_lg_6iter_2d \
+        val_dh_both_hodms_efc_final_dh_lg_6iter_2d \
         dh_t22_2d_t3 mse adam 10e-6 1000 --batch-size 256 \
         --lr-auto-annealing 10e-8 10 --early-stopping 15 \
         --overwrite-existing --only-best-epoch
@@ -652,7 +657,8 @@ After model testing, it is useful to rank the model analyses:
         --max-rows-per-model-call 1000
 
     python3 main_scnp.py model_train \
-        dh_v38_4 train_dh_both_hodms_efc_final_dh_lg_6iter_2d val_dh_both_hodms_efc_final_dh_lg_6iter_2d \
+        dh_v38_4 train_dh_both_hodms_efc_final_dh_lg_6iter_2d \
+        val_dh_both_hodms_efc_final_dh_lg_6iter_2d \
         dh_t22_2d_t3 mse adam 10e-5 1000 --batch-size 256 \
         --lr-auto-annealing 10e-8 10 --early-stopping 15 \
         --overwrite-existing --only-best-epoch
@@ -662,7 +668,8 @@ After model testing, it is useful to rank the model analyses:
         --max-rows-per-model-call 1000
 
     python3 main_scnp.py model_train \
-        dh_v38_3_tl train_dh_both_hodms_efc_final_dh_lg_6iter_2d val_dh_both_hodms_efc_final_dh_lg_6iter_2d \
+        dh_v38_3_tl train_dh_both_hodms_efc_final_dh_lg_6iter_2d \
+        val_dh_both_hodms_efc_final_dh_lg_6iter_2d \
         dh_t22_2d_t3 mse adam 10e-6 1000 --batch-size 256 \
         --lr-auto-annealing 10e-8 10 --early-stopping 15 \
         --init-weights-select dh_v37 last conv_block \
