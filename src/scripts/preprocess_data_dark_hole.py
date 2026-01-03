@@ -22,9 +22,10 @@ from utils.constants import (DARK_ZONE_MASK, DATA_F, DM_ACTIVE_COL_IDXS,
                              DM_ACTIVE_IDXS, DM_ACTIVE_ROW_IDXS, DM_SIZE,
                              EF_ACTIVE_IDXS, EXTRA_VARS_F, INPUT_MAX_MIN_DIFF,
                              INPUT_MIN_X, INPUTS, INPUTS_ARCSINH,
-                             NORM_RANGE_ONES_OUTPUT, OUTPUTS,
-                             OUTPUT_MAX_MIN_DIFF, OUTPUT_MIN_X, PROC_DATA_P,
-                             SCI_CAM_ACTIVE_COL_IDXS, SCI_CAM_ACTIVE_ROW_IDXS)
+                             NORM_RANGE_ONES_INPUT, NORM_RANGE_ONES_OUTPUT,
+                             OUTPUTS, OUTPUT_MAX_MIN_DIFF, OUTPUT_MIN_X,
+                             PROC_DATA_P, SCI_CAM_ACTIVE_COL_IDXS,
+                             SCI_CAM_ACTIVE_ROW_IDXS)
 from utils.group_data_from_list import group_data_from_list
 from utils.hdf_read_and_write import HDFWriteModule, read_hdf
 from utils.load_raw_sim_data import raw_sim_data_chunk_paths
@@ -144,9 +145,21 @@ def preprocess_data_dark_hole_parser(subparsers):
               'between 0 and 1'),
     )
     subparser.add_argument(
+        '--norm-inputs-ones',
+        action='store_true',
+        help=('normalize training, validation, and test input values globally '
+              'between -1 and 1'),
+    )
+    subparser.add_argument(
         '--norm-outputs',
         action='store_true',
         help=('normalize training and validation output values individually '
+              'between -1 and 1'),
+    )
+    subparser.add_argument(
+        '--norm-outputs-globally',
+        action='store_true',
+        help=('normalize training and validation output values globally '
               'between -1 and 1'),
     )
     subparser.add_argument(
@@ -574,15 +587,24 @@ def preprocess_data_dark_hole(cli_args):
 
     # ==========================================================================
 
-    if cli_args['norm_inputs']:
-        step_ri('Normalizing training inputs globally between 0 and 1')
+    norm_inputs_ones = cli_args['norm_inputs_ones']
+    if cli_args['norm_inputs'] or norm_inputs_ones:
+        step_ri('Normalizing training inputs globally')
+        if norm_inputs_ones:
+            print('Using range [-1, 1]')
+            _save_var(NORM_RANGE_ONES_INPUT, True)
+        else:
+            print('Using range [0, 1]')
         if extend_existing_data:
             max_min_diff = _use_var(INPUT_MAX_MIN_DIFF, True)
             min_x = _use_var(INPUT_MIN_X, True)
-            train_inputs = min_max_norm(train_inputs, max_min_diff, min_x)
+            train_inputs = min_max_norm(train_inputs,
+                                        max_min_diff,
+                                        min_x,
+                                        ones_range=norm_inputs_ones)
         else:
             train_inputs, max_min_diff, min_x = find_min_max_norm(
-                train_inputs, globally=True)
+                train_inputs, globally=True, ones_range=norm_inputs_ones)
             _save_var(INPUT_MAX_MIN_DIFF, max_min_diff)
             _save_var(INPUT_MIN_X, min_x)
         print('Normalizing inputs of validation data and test data based on '
@@ -592,16 +614,24 @@ def preprocess_data_dark_hole(cli_args):
 
     # ==========================================================================
 
-    if cli_args['norm_outputs']:
-        step_ri('Normalizing training outputs individually between -1 and 1')
+    norm_outputs_globally = cli_args['norm_outputs_globally']
+    if cli_args['norm_outputs'] or norm_outputs_globally:
+        step_ri('Normalizing training outputs between -1 and 1')
+        if norm_outputs_globally:
+            print('Normalizing globally')
+        else:
+            print('Normalizing individually')
         if extend_existing_data:
             max_min_diff = _use_var(OUTPUT_MAX_MIN_DIFF)
             min_x = _use_var(OUTPUT_MIN_X)
-            train_outputs = min_max_norm(train_outputs, max_min_diff, min_x,
-                                         True)
+            train_outputs = min_max_norm(train_outputs,
+                                         max_min_diff,
+                                         min_x,
+                                         ones_range=True)
         else:
             train_outputs, max_min_diff, min_x = find_min_max_norm(
-                train_outputs, ones_range=True)
+                train_outputs, globally=norm_outputs_globally, ones_range=True)
+            print(max_min_diff)
             _save_var(OUTPUT_MAX_MIN_DIFF, max_min_diff)
             _save_var(OUTPUT_MIN_X, min_x)
             _save_var(NORM_RANGE_ONES_OUTPUT, True)
