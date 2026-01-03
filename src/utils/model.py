@@ -62,7 +62,8 @@ class Model():
                 for path in glob(f'{epoch_path_part}[0-9]*')
             ])
             _print(f'Using epoch {epoch}')
-            dec_print_indent()
+            if not suppress_logs:
+                dec_print_indent()
             print()
 
         # Set the instance variables
@@ -106,13 +107,14 @@ class Model():
         self.network_name = self.training_args['network_name']
         _print(f'Loading in the network (`{self.network_name}`) '
                'and setting weights')
-        self.device = torch_grab_device(force_cpu)
+        self.device = torch_grab_device(force_cpu, suppress_logs)
         # Need to first load in the network
         self.network = load_network(self.network_name)
         self._load_model()
         # Set to evaluation mode
         self.model.eval()
-        dec_print_indent()
+        if not suppress_logs:
+            dec_print_indent()
         # Max number of rows that can fit in memory at a time for a model call.
         # A value of None means there have been no memory issues so far, so as
         # many rows as needed can be passed. Sometimes, this needs to be set

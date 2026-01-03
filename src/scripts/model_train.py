@@ -256,6 +256,7 @@ def model_train(cli_args):
                 # If the passed layer's name is contained in the new layer's
                 # name then use its data
                 if layer in k:
+                    print(f'Init weights for {k}')
                     model_state[k] = pt_state[k]
                     break
         # Set the new state
