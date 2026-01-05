@@ -3,9 +3,8 @@ This script plots a comparison between actual and predicted DM commands.
 """
 
 import numpy as np
-from utils.constants import (ANALYSIS_P, DM_ACTIVE_COL_IDXS, DM_ACTIVE_IDXS,
-                             DM_ACTIVE_ROW_IDXS, DM_COMPARISONS_P,
-                             EXTRA_VARS_F, PROC_DATA_P, RESULTS_F)
+from utils.constants import (ANALYSIS_P, DM_ACTIVE_IDXS, DM_COMPARISONS_P,
+                             EXTRA_VARS_F, OUTPUT_MASK, PROC_DATA_P, RESULTS_F)
 from utils.hdf_read_and_write import read_hdf
 from utils.path import delete_dir, get_abs_path, make_dir
 from utils.plots.plot_dm_comparison import plot_dm_comparison
@@ -31,7 +30,7 @@ def dm_comparison_parser(subparsers):
         help='the number of rows to plot',
     )
     subparser.add_argument(
-        'dm_size',
+        '--dm-size',
         type=int,
         help=('number of pixels per row on the DM; it is expected that both '
               'DMs are square and are the same size'),
@@ -83,27 +82,22 @@ def dm_comparison(cli_args):
 
     if cli_args['output_shape_correct']:
         step_ri('Grabbing active regions on the DM')
-
-        def grab_dm_active_idxs(idx):
-            return (extra_vars_data[DM_ACTIVE_ROW_IDXS(idx)][:],
-                    extra_vars_data[DM_ACTIVE_COL_IDXS(idx)][:])
+        output_mask = extra_vars_data[OUTPUT_MASK][:]
 
         def _prep_dm_cmd(row_data, dm_idx):
-            row_idxs, col_idxs = grab_dm_active_idxs(dm_idx)
             values_2d = row_data[dm_idx]
-            dm_cmd = values_2d[row_idxs]
-            dm_cmd = dm_cmd[:, col_idxs]
-            return dm_cmd
+            values_2d[~output_mask] = 0
+            return values_2d
 
     else:
         step_ri('Grabbing active actuators on the DM')
 
-        def grab_dm_active_idxs(idx):
-            return extra_vars_data[DM_ACTIVE_ROW_IDXS(idx)][:]
+        def _grab_dm_active_idxs(idx):
+            return extra_vars_data[DM_ACTIVE_IDXS(idx)][:]
 
         step_ri('Validating data')
-        active_actuators = grab_dm_active_idxs(0).shape[0]
-        if active_actuators != grab_dm_active_idxs(1).shape[0]:
+        active_actuators = _grab_dm_active_idxs(0).shape[0]
+        if active_actuators != _grab_dm_active_idxs(1).shape[0]:
             terminate_with_message('DMs must be the same size')
         elif 2 * active_actuators != outputs_model.shape[1]:
             terminate_with_message(
@@ -112,19 +106,17 @@ def dm_comparison(cli_args):
             terminate_with_message(
                 'Truth outputs have the wrong number of actuators')
 
-        def _prep_dm_cmd(row_data, dm_idx):
-            if dm_idx == 0:
-                values_1d = row_data[:active_actuators]
-            else:
-                values_1d = row_data[active_actuators:]
-            dm_cmd = np.zeros(dm_size**2)
-            dm_cmd[grab_dm_active_idxs(dm_idx)] = values_1d
-            return dm_cmd.reshape(dm_size, dm_size)
+        step_ri('DM specs')
+        dm_size = cli_args['dm_size']
+        print(f'Actuators per row/col: {dm_size}')
+        print(f'Active actuators: {active_actuators}')
 
-    step_ri('DM specs')
-    dm_size = cli_args['dm_size']
-    print(f'Actuators per row/col: {dm_size}')
-    print(f'Active actuators: {active_actuators}')
+        def _prep_dm_cmd(row_data, dm_idx):
+            values_1d = row_data[active_actuators * dm_idx:active_actuators *
+                                 (dm_idx + 1)]
+            dm_cmd = np.zeros(dm_size**2)
+            dm_cmd[_grab_dm_active_idxs(dm_idx)] = values_1d
+            return dm_cmd.reshape(dm_size, dm_size)
 
     step_ri('Generating comparison plots')
 
