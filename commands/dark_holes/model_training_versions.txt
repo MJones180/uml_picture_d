@@ -613,7 +613,7 @@ After model testing, it is useful to rank the model analyses:
     python3 main_scnp.py model_train \
         dh_v37 train_dh_both_hodms_efc_final_dh_lg_6iter_new_norm \
         val_dh_both_hodms_efc_final_dh_lg_6iter_new_norm \
-        dh_t22 mse adam 10e-6 1000 --batch-size 256 \
+        dh_t22 mse adam 10e-5 1000 --batch-size 256 \
         --lr-auto-annealing 10e-8 10 --early-stopping 15 \
         --overwrite-existing --only-best-epoch
 
@@ -624,61 +624,83 @@ After model testing, it is useful to rank the model analyses:
 [V38] The `dh_v38_` tag:
 
     python3 main_scnp.py model_train \
-        dh_v38_1 train_dh_both_hodms_efc_final_dh_lg_6iter_2d \
-        val_dh_both_hodms_efc_final_dh_lg_6iter_2d \
-        dh_t22_2d_t1 mse adam 10e-6 1000 --batch-size 256 \
-        --lr-auto-annealing 10e-8 10 --early-stopping 15 \
-        --overwrite-existing --only-best-epoch
+        dh_v38_1 train_dh_both_hodms_efc_final_dh_lg_6iter_2d_global \
+        val_dh_both_hodms_efc_final_dh_lg_6iter_2d_global \
+        dh_t22_2d_t1 mse adam 10e-5 1000 --batch-size 256 \
+        --lr-auto-annealing 10e-7 10 --early-stopping 15 \
+        --overwrite-existing --only-best-epoch --use-output-mask
 
     python3 main.py model_test \
-        dh_v38_1 last test_dh_both_hodms_efc_final_dh_lg_6iter_2d \
+        dh_v38_1 last test_dh_both_hodms_efc_final_dh_lg_6iter_2d_global \
         --max-rows-per-model-call 1000
 
     python3 main_scnp.py model_train \
-        dh_v38_2 train_dh_both_hodms_efc_final_dh_lg_6iter_2d \
-        val_dh_both_hodms_efc_final_dh_lg_6iter_2d \
-        dh_t22_2d_t2 mse adam 10e-6 1000 --batch-size 256 \
-        --lr-auto-annealing 10e-8 10 --early-stopping 15 \
-        --overwrite-existing --only-best-epoch
+        dh_v38_2 train_dh_both_hodms_efc_final_dh_lg_6iter_2d_global \
+        val_dh_both_hodms_efc_final_dh_lg_6iter_2d_global \
+        dh_t22_2d_t2 mse adam 10e-5 1000 --batch-size 256 \
+        --lr-auto-annealing 10e-7 10 --early-stopping 15 \
+        --overwrite-existing --only-best-epoch --use-output-mask
 
     python3 main.py model_test \
-        dh_v38_2 last test_dh_both_hodms_efc_final_dh_lg_6iter_2d \
+        dh_v38_2 last test_dh_both_hodms_efc_final_dh_lg_6iter_2d_global \
         --max-rows-per-model-call 1000
 
     python3 main_scnp.py model_train \
-        dh_v38_3 train_dh_both_hodms_efc_final_dh_lg_6iter_2d \
-        val_dh_both_hodms_efc_final_dh_lg_6iter_2d \
-        dh_t22_2d_t3 mse adam 10e-6 1000 --batch-size 256 \
-        --lr-auto-annealing 10e-8 10 --early-stopping 15 \
-        --overwrite-existing --only-best-epoch
-
-    python3 main.py model_test \
-        dh_v38_3 last test_dh_both_hodms_efc_final_dh_lg_6iter_2d \
-        --max-rows-per-model-call 1000
-
-    python3 main_scnp.py model_train \
-        dh_v38_4 train_dh_both_hodms_efc_final_dh_lg_6iter_2d \
-        val_dh_both_hodms_efc_final_dh_lg_6iter_2d \
+        dh_v38_3 train_dh_both_hodms_efc_final_dh_lg_6iter_2d_global \
+        val_dh_both_hodms_efc_final_dh_lg_6iter_2d_global \
         dh_t22_2d_t3 mse adam 10e-5 1000 --batch-size 256 \
-        --lr-auto-annealing 10e-8 10 --early-stopping 15 \
-        --overwrite-existing --only-best-epoch
+        --lr-auto-annealing 10e-7 10 --early-stopping 15 \
+        --overwrite-existing --only-best-epoch --use-output-mask
 
     python3 main.py model_test \
-        dh_v38_4 last test_dh_both_hodms_efc_final_dh_lg_6iter_2d \
+        dh_v38_3 last test_dh_both_hodms_efc_final_dh_lg_6iter_2d_global \
         --max-rows-per-model-call 1000
 
     python3 main_scnp.py model_train \
-        dh_v38_3_tl train_dh_both_hodms_efc_final_dh_lg_6iter_2d \
-        val_dh_both_hodms_efc_final_dh_lg_6iter_2d \
-        dh_t22_2d_t3 mse adam 10e-6 1000 --batch-size 256 \
-        --lr-auto-annealing 10e-8 10 --early-stopping 15 \
+        dh_v38_3_tl train_dh_both_hodms_efc_final_dh_lg_6iter_2d_global \
+        val_dh_both_hodms_efc_final_dh_lg_6iter_2d_global \
+        dh_t22_2d_t3 mse adam 10e-5 1000 --batch-size 256 \
+        --lr-auto-annealing 10e-7 10 --early-stopping 15 \
         --init-weights-select dh_v37 last conv_block \
         --transfer-learning-train-layers dense_block1 dense_block2 \
             deconv_block1  deconv_block2  deconv_block3  deconv_block4  deconv_block5 \
             deconv_block6  deconv_block7  deconv_block8  deconv_block9  deconv_block10 \
             deconv_block11 deconv_block12 deconv_block13 deconv_block14 deconv_block15 \
-        --overwrite-existing --only-best-epoch
+        --overwrite-existing --only-best-epoch --use-output-mask
 
     python3 main.py model_test \
-        dh_v38_3_tl last test_dh_both_hodms_efc_final_dh_lg_6iter_2d \
+        dh_v38_3_tl last test_dh_both_hodms_efc_final_dh_lg_6iter_2d_global \
+        --max-rows-per-model-call 1000
+
+    python3 main_scnp.py model_train \
+        dh_v38_4 train_dh_both_hodms_efc_final_dh_lg_6iter_2d_local \
+        val_dh_both_hodms_efc_final_dh_lg_6iter_2d_local \
+        dh_t22_2d_t1 mse adam 10e-6 1000 --batch-size 256 \
+        --lr-auto-annealing 10e-8 10 --early-stopping 15 \
+        --overwrite-existing --only-best-epoch --use-output-mask
+
+    python3 main.py model_test \
+        dh_v38_4 last test_dh_both_hodms_efc_final_dh_lg_6iter_2d_local \
+        --max-rows-per-model-call 1000
+
+    python3 main_scnp.py model_train \
+        dh_v38_5 train_dh_both_hodms_efc_final_dh_lg_6iter_2d_local \
+        val_dh_both_hodms_efc_final_dh_lg_6iter_2d_local \
+        dh_t22_2d_t2 mse adam 10e-6 1000 --batch-size 256 \
+        --lr-auto-annealing 10e-8 10 --early-stopping 15 \
+        --overwrite-existing --only-best-epoch --use-output-mask
+
+    python3 main.py model_test \
+        dh_v38_5 last test_dh_both_hodms_efc_final_dh_lg_6iter_2d_local \
+        --max-rows-per-model-call 1000
+
+    python3 main_scnp.py model_train \
+        dh_v38_6 train_dh_both_hodms_efc_final_dh_lg_6iter_2d_local \
+        val_dh_both_hodms_efc_final_dh_lg_6iter_2d_local \
+        dh_t22_2d_t3 mse adam 10e-6 1000 --batch-size 256 \
+        --lr-auto-annealing 10e-8 10 --early-stopping 15 \
+        --overwrite-existing --only-best-epoch --use-output-mask
+
+    python3 main.py model_test \
+        dh_v38_6 last test_dh_both_hodms_efc_final_dh_lg_6iter_2d_local \
         --max-rows-per-model-call 1000
