@@ -634,7 +634,6 @@ def preprocess_data_dark_hole(cli_args):
         else:
             train_outputs, max_min_diff, min_x = find_min_max_norm(
                 train_outputs, globally=norm_outputs_globally, ones_range=True)
-            print(max_min_diff)
             _save_var(OUTPUT_MAX_MIN_DIFF, max_min_diff)
             _save_var(OUTPUT_MIN_X, min_x)
             _save_var(NORM_RANGE_ONES_OUTPUT, True)
