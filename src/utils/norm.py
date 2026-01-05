@@ -38,11 +38,15 @@ def min_max_norm(data, max_min_diff, min_x, ones_range=False):
     -----
     np.array
         The normalized data.
+
+    Notes
+    -----
+    A value of 1e-10 is added to the denominator for numerical stability.
     """
 
     # (data - min_x) / (max_x - min_x)
     # -> (data - min_x) / max_min_diff
-    norm = (data - min_x) / max_min_diff
+    norm = (data - min_x) / (max_min_diff + 1e-10)
     if ones_range:
         # -> 2 * [ (data - min_x) / max_min_diff ] - 1
         return 2 * norm - 1
