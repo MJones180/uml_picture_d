@@ -23,9 +23,9 @@ from utils.constants import (DARK_ZONE_MASK, DATA_F, DM_ACTIVE_COL_IDXS,
                              EF_ACTIVE_IDXS, EXTRA_VARS_F, INPUT_MAX_MIN_DIFF,
                              INPUT_MIN_X, INPUTS, INPUTS_ARCSINH,
                              NORM_RANGE_ONES_INPUT, NORM_RANGE_ONES_OUTPUT,
-                             OUTPUTS, OUTPUT_MAX_MIN_DIFF, OUTPUT_MIN_X,
-                             PROC_DATA_P, SCI_CAM_ACTIVE_COL_IDXS,
-                             SCI_CAM_ACTIVE_ROW_IDXS)
+                             OUTPUTS, OUTPUT_MASK, OUTPUT_MAX_MIN_DIFF,
+                             OUTPUT_MIN_X, PROC_DATA_P,
+                             SCI_CAM_ACTIVE_COL_IDXS, SCI_CAM_ACTIVE_ROW_IDXS)
 from utils.group_data_from_list import group_data_from_list
 from utils.hdf_read_and_write import HDFWriteModule, read_hdf
 from utils.load_raw_sim_data import raw_sim_data_chunk_paths
@@ -464,6 +464,9 @@ def preprocess_data_dark_hole(cli_args):
             dm_data = dm_data[:, :, active_col_idxs]
             dm_data = dm_data[:, active_row_idxs]
             all_dm_data[dm_table] = dm_data
+            # Create a mask of all the active actuator locations
+            output_mask = (dm_data[0] != 0).astype(bool)
+            _save_var(OUTPUT_MASK, output_mask)
             print(f'DM {dm_table} shape: {all_dm_data[dm_table].shape}')
     else:
         step_ri('Flattening the DM actuator height data')

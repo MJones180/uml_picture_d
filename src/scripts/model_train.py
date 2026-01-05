@@ -12,8 +12,9 @@ import torch
 from torchvision.transforms import v2
 from utils.cli_args import save_cli_args
 from utils.constants import (EPOCH_LOSS_F, EXTRA_VARS_F, LOSS_FUNCTIONS,
-                             OPTIMIZERS, OUTPUT_P, PROC_DATA_P, TAG_LOOKUP_F,
-                             TRAINED_MODELS_P)
+                             OPTIMIZERS, OUTPUT_MASK, OUTPUT_P, PROC_DATA_P,
+                             TAG_LOOKUP_F, TRAINED_MODELS_P)
+from utils.hdf_read_and_write import read_hdf
 from utils.json import json_load, json_write
 from utils.load_network import load_network
 from utils.model import Model
@@ -155,6 +156,13 @@ def model_train_parser(subparsers):
               'time as all the training batches will have to be iterated '
               'over again'),
     )
+    subparser.add_argument(
+        '--use-output-mask',
+        action='store_true',
+        help=('use an output mask to only take the loss of the selected '
+              'output pixels; this mask must be in the extra variables from '
+              'the training data (created during preprocessing)'),
+    )
     shared_argparser_args(subparser, ['force_cpu'])
     epoch_save_group = subparser.add_mutually_exclusive_group()
     epoch_save_group.add_argument(
@@ -199,8 +207,9 @@ def model_train(cli_args):
 
     step_ri('Copying over the extra variables from the training dataset')
     train_ds_tag = cli_args['training_ds']
+    output_extra_vars_path = f'{output_model_path}/{EXTRA_VARS_F}'
     copy_files(f'{PROC_DATA_P}/{train_ds_tag}/{EXTRA_VARS_F}',
-               f'{output_model_path}/{EXTRA_VARS_F}')
+               output_extra_vars_path)
 
     step_ri('Saving all CLI args')
     save_cli_args(output_model_path, cli_args, 'model_train')
@@ -290,7 +299,24 @@ def model_train(cli_args):
 
     step_ri('Setting the loss function')
     loss_name = cli_args['loss']
-    loss_function = getattr(torch.nn, LOSS_FUNCTIONS[loss_name])()
+    loss_func_attr = getattr(torch.nn, LOSS_FUNCTIONS[loss_name])
+    if cli_args['use_output_mask']:
+        print('Using an output mask')
+        pytorch_loss_function = loss_func_attr(reduction='none')
+        print('Loading in the mask from the extra variables')
+        extra_vars = read_hdf(output_extra_vars_path)
+        output_mask = torch.from_numpy(extra_vars[OUTPUT_MASK][:]).to(device)
+
+        def loss_function(model_outputs, truth_outputs):
+            loss = pytorch_loss_function(model_outputs, truth_outputs)
+            # To create the average, need to divide by the
+            #   rows * channels * active pixels
+            total_pixels = (model_outputs.shape[0] * model_outputs.shape[1] *
+                            output_mask.sum())
+            return (loss * output_mask).sum() / total_pixels
+    else:
+        loss_function = loss_func_attr()
+
     print(f'{loss_name} [{loss_function}]')
 
     step_ri('Setting the optimizer')
