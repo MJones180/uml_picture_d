@@ -622,11 +622,13 @@ def preprocess_data_dark_hole(cli_args):
         step_ri('Normalizing training outputs between -1 and 1')
         if norm_outputs_globally:
             print('Normalizing globally')
+            scalar_values = True
         else:
             print('Normalizing individually')
+            scalar_values = False
         if extend_existing_data:
-            max_min_diff = _use_var(OUTPUT_MAX_MIN_DIFF)
-            min_x = _use_var(OUTPUT_MIN_X)
+            max_min_diff = _use_var(OUTPUT_MAX_MIN_DIFF, scalar_values)
+            min_x = _use_var(OUTPUT_MIN_X, scalar_values)
             train_outputs = min_max_norm(train_outputs,
                                          max_min_diff,
                                          min_x,
