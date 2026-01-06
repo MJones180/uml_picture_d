@@ -31,9 +31,12 @@ from utils.hdf_read_and_write import HDFWriteModule, read_hdf
 from utils.load_raw_sim_data import raw_sim_data_chunk_paths
 from utils.norm import find_min_max_norm, min_max_norm
 from utils.path import make_dir, path_exists
-from utils.printing_and_logging import step_ri, title
+from utils.printing_and_logging import dec_print_indent, step, step_ri, title
+from utils.response_matrix import ResponseMatrix
 from utils.stats_and_error import mse
 from utils.terminate_with_message import terminate_with_message
+
+import matplotlib.pyplot as plt
 
 
 def preprocess_data_dark_hole_parser(subparsers):
@@ -178,6 +181,12 @@ def preprocess_data_dark_hole_parser(subparsers):
         '--do-not-flatten-output',
         action='store_true',
         help='do not flatten the output data, keep it as a 2D array',
+    )
+    subparser.add_argument(
+        '--use-rm-residuals',
+        help=('have the output be the residuals of the DM actuator '
+              'heights after a RM prediction; the passed RM tag is '
+              'loaded in and then used to create the residuals'),
     )
     subparser.add_argument(
         '--disable-shuffle',
@@ -416,12 +425,10 @@ def preprocess_data_dark_hole(cli_args):
 
     # ==========================================================================
 
-    flatten_input = cli_args['flatten_input']
-    if flatten_input:
-        step_ri('Flattening the input data into a 1D array')
+    def _grab_flattened_ef_data():
         orig_shape = input_data.shape
-        input_data = input_data.reshape(orig_shape[0], -1)
-        updated_shape = input_data.shape
+        data_flat = input_data.reshape(orig_shape[0], -1)
+        updated_shape = data_flat.shape
         print(f'Shape: {orig_shape} -> {updated_shape}')
         print('Removing inactive pixels')
         if extend_existing_data:
@@ -429,14 +436,55 @@ def preprocess_data_dark_hole(cli_args):
         else:
             # Create an array where each pixel will say if it is nonzero
             # across any of the simulations
-            nonzero_pixels = (input_data != 0).any(axis=0)
+            nonzero_pixels = (data_flat != 0).any(axis=0)
             print(f'EF has {nonzero_pixels.sum()} active pixels')
             # Idxs where there is at least one pixel that has a nonzero value
             active_idxs = np.where(nonzero_pixels)[0]
             _save_var(EF_ACTIVE_IDXS, nonzero_pixels)
         # Filter out the inactive pixels
-        input_data = input_data[:, active_idxs]
-        print(f'Shape: {updated_shape} -> {input_data.shape}')
+        data_flat = data_flat[:, active_idxs]
+        print(f'Shape: {updated_shape} -> {data_flat.shape}')
+        return data_flat
+
+    flatten_input = cli_args['flatten_input']
+    if flatten_input:
+        step_ri('Flattening the input data into a 1D array')
+        input_data = _grab_flattened_ef_data()
+
+    # ==========================================================================
+
+    use_rm_residuals = cli_args.get('use_rm_residuals')
+    if use_rm_residuals is not None:
+        step_ri('Will use RM residuals for the output')
+        resp_mat = ResponseMatrix(use_rm_residuals)
+        if flatten_input:
+            input_data_flat = input_data
+        else:
+            step('Flattening the input data for the RM')
+            input_data_flat = _grab_flattened_ef_data()
+            dec_print_indent()
+        print('Calling the RM')
+        rm_output = resp_mat(ef=input_data_flat)
+        # The DM command output by the RM is what would produces the EF;
+        # need to multiply by -1 to produce the command which cancels the EF.
+        # Need to multiply by 1e9 to put in nanometers from meters.
+        rm_output *= -1e9
+        print('Reshaping the data to 2D and creating the residuals')
+        for dm_table, dm_data in all_dm_data.items():
+            # Create a 2D template which the RM command will be filled in on
+            rm_data_2d = np.zeros_like(dm_data)
+            # Find the indexes for each of the DM actuators
+            idxs_of_actuators = np.where(dm_data[0] != 0)
+            # Grab the total number of actuators on the DM
+            numb_of_actuators = len(idxs_of_actuators[0])
+            # Grab the actuators associated with this DM
+            rm_output_for_dm = rm_output[:, :numb_of_actuators]
+            # Remove the actuators so they are not grabbed for the next DM
+            rm_output = rm_output[:, numb_of_actuators:]
+            # Put the actuators on the 2D grid
+            rm_data_2d[:, *idxs_of_actuators] = rm_output_for_dm
+            # Have the DM data store just the residuals
+            dm_data -= rm_data_2d
 
     # ==========================================================================
 

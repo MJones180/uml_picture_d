@@ -20,10 +20,16 @@ class ResponseMatrix():
             terminate_with_message(f'Response matrix not found at {path}')
 
         data = read_hdf(f'{RESPONSE_MATRICES_P}/{tag}.h5')
-        self.base_int_field = data[BASE_INT_FIELD][:]
-        self.resp_mat_inv = data[RESPONSE_MATRIX_INV][:]
-        self.pert_amounts = data[PERTURBATION_AMOUNTS][:]
-        self.zernike_terms = data[ZERNIKE_TERMS][:]
+
+        def _grab_field(table):
+            if table in data:
+                return data[table][:]
+            return None
+
+        self.resp_mat_inv = _grab_field(RESPONSE_MATRIX_INV)
+        self.base_int_field = _grab_field(BASE_INT_FIELD)
+        self.pert_amounts = _grab_field(PERTURBATION_AMOUNTS)
+        self.zernike_terms = _grab_field(ZERNIKE_TERMS)
 
         dec_print_indent()
 
@@ -31,9 +37,10 @@ class ResponseMatrix():
         self,
         total_int_field=None,
         diff_int_field=None,
+        ef=None,
     ):
         """
-        Obtain the Zernike coefficients using a response matrix.
+        Obtain the Zernike coefficients or DM commands using a response matrix.
 
         Parameters
         ----------
@@ -43,12 +50,19 @@ class ResponseMatrix():
             The difference of the intensity field with the 2D dimensions of
             (rows, pixels). This represents the `delta_intensity` because the
             base field has already been subtracted from the aberrated field.
+        ef : np.array, optional
+            The flattened electric field with the real part followed by the
+            imaginary part. Must be 2D with the dimensions (rows, EF).
 
         Returns
         -------
         no.array
-            2D array with dimensions of (rows, Zernike coefficients).
+            2D array with dimensions of (rows, Zernike coeffs or DM commands).
         """
+        # For the dark hole RMs
+        if ef is not None:
+            return ef @ self.resp_mat_inv
+
         if total_int_field is not None:
             delta_intensity = total_int_field - self.base_int_field
         else:
