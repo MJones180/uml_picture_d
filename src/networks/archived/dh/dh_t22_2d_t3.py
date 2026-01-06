@@ -1,5 +1,7 @@
-# `dh_t22_2d_t2` network { 2x59x59 -> 2x30x30 }.
-# Trainable parameters: 142,954,944
+# `dh_t22_2d_t3` network { 2x59x59 -> 2x30x30 }.
+# Trainable parameters: 143,188,256
+# Leads to checkboard artifacts. Also, should use normal Conv2D after
+# each deconv block.
 
 import torch
 import torch.nn as nn
@@ -116,18 +118,23 @@ class Network(nn.Module):
         # Pixels: 4x4 -> 6x6
         self.deconv_block1 = _deconv_block_and_upsize_two(128, 128)
         self.deconv_block2 = _deconv_block(128, 128)
+        self.deconv_block3 = _deconv_block(128, 128)
         # Pixels: 6x6 -> 12x12
-        self.deconv_block3 = _deconv_block_and_upsize_double(128, 64)
-        self.deconv_block4 = _deconv_block(64, 64)
-        # Pixels: 12x12 -> 14x14
-        self.deconv_block5 = _deconv_block_and_upsize_two(64, 64)
+        self.deconv_block4 = _deconv_block_and_upsize_double(128, 64)
+        self.deconv_block5 = _deconv_block(64, 64)
         self.deconv_block6 = _deconv_block(64, 64)
+        # Pixels: 12x12 -> 14x14
+        self.deconv_block7 = _deconv_block_and_upsize_two(64, 64)
+        self.deconv_block8 = _deconv_block(64, 64)
+        self.deconv_block9 = _deconv_block(64, 64)
         # Pixels: 14x14 -> 28x28
-        self.deconv_block7 = _deconv_block_and_upsize_double(64, 32)
-        self.deconv_block8 = _deconv_block(32, 32)
+        self.deconv_block10 = _deconv_block_and_upsize_double(64, 32)
+        self.deconv_block11 = _deconv_block(32, 32)
+        self.deconv_block12 = _deconv_block(32, 32)
         # Pixels: 28x28 -> 30x30
-        self.deconv_block9 = _deconv_block_and_upsize_two(32, 16)
-        self.deconv_block10 = _deconv(16, 2)
+        self.deconv_block13 = _deconv_block_and_upsize_two(32, 16)
+        self.deconv_block14 = _deconv_block(16, 16)
+        self.deconv_block15 = _deconv(16, 2)
 
     def forward(self, x):
         x = self.conv_block1(x)
@@ -161,4 +168,9 @@ class Network(nn.Module):
         x = self.deconv_block8(x)
         x = self.deconv_block9(x)
         x = self.deconv_block10(x)
+        x = self.deconv_block11(x)
+        x = self.deconv_block12(x)
+        x = self.deconv_block13(x)
+        x = self.deconv_block14(x)
+        x = self.deconv_block15(x)
         return x

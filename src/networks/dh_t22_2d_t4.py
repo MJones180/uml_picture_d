@@ -1,5 +1,5 @@
-# `dh_t22_2d_t1` network { 2x59x59 -> 2x30x30 }.
-# Trainable parameters: 142,908,672
+# `dh_t22_2d_t4` network { 2x59x59 -> 2x30x30 }.
+# Trainable parameters: 152,165,120
 
 import torch
 import torch.nn as nn
@@ -24,18 +24,6 @@ def _conv(in_features, out_features, stride=1):
     )
 
 
-def _deconv(in_features, out_features, stride=1, padding=1, output_padding=0):
-    return nn.ConvTranspose2d(
-        in_channels=in_features,
-        out_channels=out_features,
-        kernel_size=3,
-        bias=False,
-        stride=stride,
-        padding=padding,
-        output_padding=output_padding,
-    )
-
-
 def _conv_block(in_features, out_features):
     return _bn_lr_wrapper(
         _conv(in_features, out_features),
@@ -50,25 +38,16 @@ def _conv_block_and_downsize(in_features, out_features):
     )
 
 
-def _deconv_block(in_features, out_features):
+def _deconv_block_and_upsize(in_features, out_features, padding):
     return _bn_lr_wrapper(
-        _deconv(in_features, out_features),
-        out_features,
-    )
-
-
-# Doubles the pixels along each dimension
-def _deconv_block_and_upsize_double(in_features, out_features):
-    return _bn_lr_wrapper(
-        _deconv(in_features, out_features, stride=2, output_padding=1),
-        out_features,
-    )
-
-
-# Adds two pixels along each dimension
-def _deconv_block_and_upsize_two(in_features, out_features):
-    return _bn_lr_wrapper(
-        _deconv(in_features, out_features, padding=0),
+        nn.ConvTranspose2d(
+            in_channels=in_features,
+            out_channels=out_features,
+            kernel_size=4,
+            bias=False,
+            stride=2,
+            padding=padding,
+        ),
         out_features,
     )
 
@@ -113,19 +92,18 @@ class Network(nn.Module):
         self.dense_block1 = _dense_block(2048, 4096, 0.3)
         self.dense_block2 = _dense_block(4096, 2048, 0.3)
         # Reshape to (batch size, 128, 4, 4)
-        # Pixels: 4x4 -> 6x6
-        self.deconv_block1 = _deconv_block_and_upsize_two(128, 128)
-        self.deconv_block2 = _deconv_block(128, 128)
-        # Pixels: 6x6 -> 12x12
-        self.deconv_block3 = _deconv_block_and_upsize_double(128, 64)
-        # Pixels: 12x12 -> 14x14
-        self.deconv_block4 = _deconv_block_and_upsize_two(64, 64)
-        self.deconv_block5 = _deconv_block(64, 64)
-        # Pixels: 14x14 -> 28x28
-        self.deconv_block6 = _deconv_block_and_upsize_double(64, 32)
-        # Pixels: 28x28 -> 30x30
-        self.deconv_block7 = _deconv_block_and_upsize_two(32, 16)
-        self.deconv_block8 = _deconv(16, 2)
+        # Pixels: 4x4 -> 8x8
+        self.deconv_block1 = _deconv_block_and_upsize(128, 512, 1)
+        self.deconv_block2 = _conv_block(512, 512)
+        self.deconv_block3 = _conv_block(512, 512)
+        # Pixels: 8x8 -> 14x14
+        self.deconv_block4 = _deconv_block_and_upsize(512, 256, 2)
+        self.deconv_block5 = _conv_block(256, 256)
+        self.deconv_block6 = _conv_block(256, 256)
+        # Pixels: 14x14 -> 30x30
+        self.deconv_block7 = _deconv_block_and_upsize(256, 128, 0)
+        self.deconv_block8 = _conv_block(128, 128)
+        self.deconv_block9 = _conv(128, 2)
 
     def forward(self, x):
         x = self.conv_block1(x)
@@ -157,4 +135,5 @@ class Network(nn.Module):
         x = self.deconv_block6(x)
         x = self.deconv_block7(x)
         x = self.deconv_block8(x)
+        x = self.deconv_block9(x)
         return x

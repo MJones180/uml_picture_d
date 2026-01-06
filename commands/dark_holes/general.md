@@ -434,6 +434,23 @@ Preprocess the datasets:
         --extend-existing-preprocessed-data --norm-inputs --norm-outputs
 
     python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_final_dh_14k_ch1 \
+        train_dh_both_hodms_efc_final_dh_xlg_6iter_global_norm val_dh_both_hodms_efc_final_dh_xlg_6iter_global_norm \
+        test_dh_both_hodms_efc_final_dh_xlg_6iter_global_norm 88 6 6 \
+        --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
+        --additional-raw-data-tags dh_both_hodms_efc_final_dh_14k_ch2 \
+            dh_both_hodms_efc_final_dh_9k_ch1 dh_both_hodms_efc_final_dh_9k_ch2 \
+            dh_both_hodms_efc_30k_6iter_ch1 dh_both_hodms_efc_30k_6iter_ch2 \
+        --norm-inputs --norm-outputs-globally
+    python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_27k_6iter_ch1 \
+        train_dh_both_hodms_efc_final_dh_xlg_6iter_global_norm val_dh_both_hodms_efc_final_dh_xlg_6iter_global_norm \
+        test_dh_both_hodms_efc_final_dh_xlg_6iter_global_norm 88 6 6 \
+        --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
+        --additional-raw-data-tags dh_both_hodms_efc_27k_6iter_ch2 \
+        --extend-existing-preprocessed-data --norm-inputs --norm-outputs-globally
+
+    python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_final_dh_14k_ch1 \
         train_dh_both_hodms_efc_final_dh_lg_6iter val_dh_both_hodms_efc_final_dh_lg_6iter \
         test_dh_both_hodms_efc_final_dh_lg_6iter 88 6 6 \
         --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
@@ -472,6 +489,16 @@ Preprocess the datasets:
             dh_both_hodms_efc_final_dh_9k_ch1 dh_both_hodms_efc_final_dh_9k_ch2 \
             dh_both_hodms_efc_30k_6iter_ch1 dh_both_hodms_efc_30k_6iter_ch2 \
         --norm-inputs-ones --norm-outputs-globally --do-not-flatten-output
+
+    python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_final_dh_14k_ch1 \
+        train_dh_both_hodms_efc_final_dh_lg_6iter_2d_global_v2 val_dh_both_hodms_efc_final_dh_lg_6iter_2d_global_v2 \
+        test_dh_both_hodms_efc_final_dh_lg_6iter_2d_global_v2 88 6 6 \
+        --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
+        --additional-raw-data-tags dh_both_hodms_efc_final_dh_14k_ch2 \
+            dh_both_hodms_efc_final_dh_9k_ch1 dh_both_hodms_efc_final_dh_9k_ch2 \
+            dh_both_hodms_efc_30k_6iter_ch1 dh_both_hodms_efc_30k_6iter_ch2 \
+        --norm-inputs --norm-outputs-globally --do-not-flatten-output
 
     python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_final_dh_14k_ch1 \
         train_dh_both_hodms_efc_final_dh_lg_6iter_half val_dh_both_hodms_efc_final_dh_lg_6iter_half \
@@ -541,3 +568,8 @@ Run EF reconstruction:
 Plot the DM comparison:
 
     python3 main.py dm_comparison dh_v29_1 148 test_dh_both_hodms_efc_final_dh_lg_6iter 10 34
+
+Convert a `piccsim` RM to HDF:
+
+    python3 main.py convert_dh_rm \
+        dh_dm1_dm2 /home/michael-jones/Documents/piccsim/output/rx_picture_d_efcnn_sim_system_dm1_dm2_RM.fits

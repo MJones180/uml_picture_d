@@ -704,3 +704,29 @@ After model testing, it is useful to rank the model analyses:
     python3 main.py model_test \
         dh_v38_6 last test_dh_both_hodms_efc_final_dh_lg_6iter_2d_local \
         --max-rows-per-model-call 1000
+
+[V39] The `dh_v39` tag:
+
+    python3 main_scnp.py model_train \
+        dh_v39 train_dh_both_hodms_efc_final_dh_xlg_6iter_global_norm \
+        val_dh_both_hodms_efc_final_dh_xlg_6iter_global_norm \
+        dh_t22 mse adam 10e-6 1000 --batch-size 256 \
+        --lr-auto-annealing 10e-8 10 --early-stopping 15 \
+        --overwrite-existing --only-best-epoch
+
+    python3 main.py model_test \
+        dh_v39 last test_dh_both_hodms_efc_final_dh_xlg_6iter_global_norm \
+        --max-rows-per-model-call 1000
+
+[V40] The `dh_v40` tag:
+
+    python3 main_scnp.py model_train \
+        dh_v40 train_dh_both_hodms_efc_final_dh_lg_6iter_2d_global_v2 \
+        val_dh_both_hodms_efc_final_dh_lg_6iter_2d_global_v2 \
+        dh_t22_2d_t4 mse adam 10e-6 1000 --batch-size 256 \
+        --lr-auto-annealing 10e-8 10 --early-stopping 15 \
+        --overwrite-existing --only-best-epoch --use-output-mask
+
+    python3 main.py model_test \
+        dh_v40 last test_dh_both_hodms_efc_final_dh_lg_6iter_2d_global_v2 \
+        --max-rows-per-model-call 1000
