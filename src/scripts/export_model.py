@@ -8,8 +8,6 @@ In addition to the model, the norm and base field data are also saved.
 The following assumptions are made:
     - The model is trained on the difference (so a base field does exist)
         > This can be disabled via an argument
-    - There is only one norm value used for all the inputs (if any)
-    - Each output has its own norm value
     - The model expects one input array and outputs a single array
 
 Code for converting to ONNX and using ONNX Runtime taken from:
@@ -205,16 +203,21 @@ def export_model(cli_args):
         def _write_data(data):
             np.savetxt(out_file, [data], fmt='%e')
 
-        for key in (INPUT_MAX_MIN_DIFF, INPUT_MIN_X):
+        for key in (
+                INPUT_MAX_MIN_DIFF,
+                INPUT_MIN_X,
+                OUTPUT_MAX_MIN_DIFF,
+                OUTPUT_MIN_X,
+        ):
             if key in model_vars:
-                _write_data(model_vars[key][()])
+                table = model_vars[key]
+                if len(table.shape) == 0:
+                    _write_data(table[()])
+                else:
+                    _write_data(table[:])
             else:
                 _write_data(0)
-        for key in (OUTPUT_MAX_MIN_DIFF, OUTPUT_MIN_X):
-            if key in model_vars:
-                _write_data(model_vars[key][:])
-            else:
-                _write_data(0)
+
     dec_print_indent()
 
     no_base_field = cli_args['no_base_field']
