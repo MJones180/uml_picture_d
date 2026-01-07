@@ -592,9 +592,22 @@ Run EF reconstruction:
 
 Plot the DM comparison:
 
-    python3 main.py dm_comparison dh_v29_1 148 test_dh_both_hodms_efc_final_dh_lg_6iter 10 34
+    python3 main.py dm_comparison dh_v36 127 \
+        test_dh_both_hodms_efc_final_dh_xlg_6iter 10 --dm-size 34
+
+## Response Matrix
 
 Convert a `piccsim` RM to HDF:
 
     python3 main.py convert_dh_rm \
         dh_dm1_dm2 /home/michael-jones/Documents/piccsim/output/rx_picture_d_efcnn_sim_system_dm1_dm2_RM.fits
+
+Run a RM:
+
+    python3 main.py run_response_matrix dh_dm1_dm2 \
+        test_dh_both_hodms_efc_final_dh_lg_6iter --inputs-need-denorm --dh-rm
+
+Plot the DM comparison:
+
+    python3 main.py dm_comparison dh_dm1_dm2 0 \
+        test_dh_both_hodms_efc_final_dh_lg_6iter 10 --dm-size 34 --rm-not-nn
