@@ -36,8 +36,6 @@ from utils.response_matrix import ResponseMatrix
 from utils.stats_and_error import mse
 from utils.terminate_with_message import terminate_with_message
 
-import matplotlib.pyplot as plt
-
 
 def preprocess_data_dark_hole_parser(subparsers):
     subparser = subparsers.add_parser(
