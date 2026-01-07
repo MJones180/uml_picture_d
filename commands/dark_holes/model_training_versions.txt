@@ -730,3 +730,16 @@ After model testing, it is useful to rank the model analyses:
     python3 main.py model_test \
         dh_v40 last test_dh_both_hodms_efc_final_dh_lg_6iter_2d_global_v2 \
         --max-rows-per-model-call 1000
+
+[V41] The `dh_v41` tag:
+
+    python3 main_scnp.py model_train \
+        dh_v41 train_dh_both_hodms_efc_final_dh_lg_4iter_residuals \
+        val_dh_both_hodms_efc_final_dh_lg_4iter_residuals \
+        dh_t22 mse adam 10e-6 1000 --batch-size 256 \
+        --lr-auto-annealing 10e-8 10 --early-stopping 15 \
+        --overwrite-existing --only-best-epoch
+
+    python3 main.py model_test \
+        dh_v41 last test_dh_both_hodms_efc_final_dh_lg_4iter_residuals \
+        --max-rows-per-model-call 1000
