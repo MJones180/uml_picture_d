@@ -61,7 +61,10 @@ class ResponseMatrix():
         """
         # For the dark hole RMs
         if ef is not None:
-            return ef @ self.resp_mat_inv
+            # The DM command output by the RM is what would produces the EF;
+            # need to multiply by -1 to produce the command which cancels the EF
+            # Need to multiply by 1e9 to put in nanometers from meters.
+            return -1e9 * (ef @ self.resp_mat_inv)
 
         if total_int_field is not None:
             delta_intensity = total_int_field - self.base_int_field

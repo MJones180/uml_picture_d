@@ -3,6 +3,8 @@ This script tests a response matrix's performance against a testing dataset.
 
 Any prior results for a given response matrix will be deleted.
 
+This script can run DH RMs with the `--dh-rm` argument.
+
 For the Zernie plots, it is expected that the `testing_ds` was simulated with
 the `sim_data` script using the `--fixed-amount-per-zernike-range` arg and
 preprocessed with the `preprocess_data_bare` script.
@@ -101,6 +103,11 @@ def run_response_matrix_parser(subparsers):
         type=int,
         help='plot the paper plots too',
     )
+    subparser.add_argument(
+        '--dh-rm',
+        action='store_true',
+        help='this is a DH RM (not for LLOWFS Zernikes)',
+    )
 
 
 def run_response_matrix(cli_args):
@@ -109,6 +116,10 @@ def run_response_matrix(cli_args):
     step_ri('Loading in the response matrix')
     response_matrix = cli_args.get('response_matrix')
     response_matrix_obj = ResponseMatrix(response_matrix)
+
+    dh_rm = cli_args['dh_rm']
+    if dh_rm:
+        step_ri('This is a DH response matrix')
 
     step_ri('Creating the analysis directory')
     testing_ds_tag = cli_args['testing_ds']
@@ -123,8 +134,9 @@ def run_response_matrix(cli_args):
     outputs_truth = testing_dataset.get_outputs()
     base_path = f'{PROC_DATA_P}/{testing_ds_tag}'
     extra_vars = read_hdf(f'{base_path}/{EXTRA_VARS_F}')
-    zernike_terms = extra_vars[ZERNIKE_TERMS]
-    print(f'Using zernike terms: {zernike_terms}')
+    if not dh_rm:
+        zernike_terms = extra_vars[ZERNIKE_TERMS]
+        print(f'Using zernike terms: {zernike_terms}')
 
     if cli_args.get('inputs_need_denorm'):
         step_ri('Denormalizing the input values')
@@ -136,22 +148,37 @@ def run_response_matrix(cli_args):
             if NORM_RANGE_ONES in extra_vars else False,
         )
 
-    step_ri('Calling the response matrix')
-    # Ensure the Zernike terms matchup
-    zernike_terms_resp_mat = response_matrix_obj.zernike_terms
-    if not np.array_equal(zernike_terms, zernike_terms_resp_mat):
-        terminate_with_message('Zernike terms in response matrix do not '
-                               'match terms in dataset')
+    if not dh_rm:
+        step_ri('Validating Zernike terms')
+        # Ensure the Zernike terms matchup
+        zernike_terms_resp_mat = response_matrix_obj.zernike_terms
+        if not np.array_equal(zernike_terms, zernike_terms_resp_mat):
+            terminate_with_message('Zernike terms in response matrix do not '
+                                   'match terms in dataset')
+
+    step_ri('Flattening inputs')
     # Need to flatten out the pixels before calling the response matrix
     inputs_reshaped = inputs.reshape(inputs.shape[0], -1)
+
+    if dh_rm:
+        step_ri('Removing inactive actuators')
+        nonzero_acts = (inputs_reshaped != 0).any(axis=0)
+        # Idxs where there is >= 1 pixel with a nonzero value
+        active_idxs = np.where(nonzero_acts)[0]
+        # Filter out the inactive actuators
+        inputs_reshaped = inputs_reshaped[:, active_idxs]
 
     wfs_need_sum_to_one = cli_args.get('wfs_need_sum_to_one')
     if wfs_need_sum_to_one:
         step_ri('Summing the inputs to one')
         inputs_reshaped = sum_to_one(inputs_reshaped, (1))
 
+    step_ri('Running the response matrix')
     change_base_field = cli_args.get('change_base_field')
-    if cli_args.get('inputs_are_diff'):
+    if dh_rm:
+        print('Passing in the electric field')
+        outputs_resp_mat = response_matrix_obj(ef=inputs_reshaped)
+    elif cli_args.get('inputs_are_diff'):
         print('Passing in the difference of the intensity field')
         outputs_resp_mat = response_matrix_obj(diff_int_field=inputs_reshaped)
     elif change_base_field:

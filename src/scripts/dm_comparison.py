@@ -41,6 +41,12 @@ def dm_comparison_parser(subparsers):
         help=('the DM command output by the model is already in the correct '
               'shape: 2 channels of a 2D pixel grid'),
     )
+    subparser.add_argument(
+        '--rm-not-nn',
+        action='store_true',
+        help=('the model is an RM - not an NN; the `tag` argument should be '
+              'the RM name and the `epoch` argument can be any int'),
+    )
 
 
 def dm_comparison(cli_args):
@@ -48,7 +54,16 @@ def dm_comparison(cli_args):
 
     tag = cli_args['tag']
     epoch = cli_args['epoch']
-    model_str = f'{tag}_epoch_{epoch}'
+
+    rm_not_nn = cli_args['rm_not_nn']
+    if rm_not_nn:
+        step_ri('The model is an RM')
+        model_str = f'resp_mat_{tag}'
+        model_table = 'outputs_response_matrix'
+    else:
+        step_ri('The model is an NN')
+        model_str = f'{tag}_epoch_{epoch}'
+        model_table = 'outputs_model'
 
     step_ri('Creating the output directory')
     testing_ds_tag = cli_args['testing_ds']
@@ -63,7 +78,7 @@ def dm_comparison(cli_args):
     results_path = f'{ANALYSIS_P}/{testing_ds_tag}/{model_str}/{RESULTS_F}'
     results_path = get_abs_path(results_path)
     results_data = read_hdf(results_path)
-    outputs_model = results_data['outputs_model'][:]
+    outputs_model = results_data[model_table][:]
     outputs_truth = results_data['outputs_truth'][:]
     print(f'Model output shape: {outputs_model.shape}')
     print(f'Truth output shape: {outputs_truth.shape}')

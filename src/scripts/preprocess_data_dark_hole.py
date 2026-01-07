@@ -463,10 +463,6 @@ def preprocess_data_dark_hole(cli_args):
             dec_print_indent()
         print('Calling the RM')
         rm_output = resp_mat(ef=input_data_flat)
-        # The DM command output by the RM is what would produces the EF;
-        # need to multiply by -1 to produce the command which cancels the EF.
-        # Need to multiply by 1e9 to put in nanometers from meters.
-        rm_output *= -1e9
         print('Reshaping the data to 2D and creating the residuals')
         for dm_table, dm_data in all_dm_data.items():
             # Create a 2D template which the RM command will be filled in on
