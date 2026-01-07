@@ -605,9 +605,9 @@ Convert a `piccsim` RM to HDF:
 Run a RM:
 
     python3 main.py run_response_matrix dh_dm1_dm2 \
-        test_dh_both_hodms_efc_final_dh_lg_6iter --inputs-need-denorm --dh-rm
+        test_dh_both_hodms_efc_final_dh_xlg_6iter --inputs-need-denorm --dh-rm
 
 Plot the DM comparison:
 
     python3 main.py dm_comparison dh_dm1_dm2 0 \
-        test_dh_both_hodms_efc_final_dh_lg_6iter 10 --dm-size 34 --rm-not-nn
+        test_dh_both_hodms_efc_final_dh_xlg_6iter 10 --dm-size 34 --rm-not-nn
