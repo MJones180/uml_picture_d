@@ -158,21 +158,25 @@ class Model():
             terminate_with_message('Base field not present in extra variables')
         return input_data - self.base_field
 
+    def _grab_norm_values(self, max_min_diff_key, min_x_key):
+        max_min_diff = self.extra_vars[max_min_diff_key]
+        min_x = self.extra_vars[min_x_key]
+        # Return scalars if global
+        if len(max_min_diff.shape) == 0:
+            return max_min_diff[()], min_x[()]
+        return max_min_diff[:], min_x[:]
+
     def norm_data(self, input_data):
-        return min_max_norm(
-            input_data,
-            self.extra_vars[INPUT_MAX_MIN_DIFF],
-            self.extra_vars[INPUT_MIN_X],
-            self.norm_range_ones_input,
-        )
+        input_max_min_diff, input_min_x = self._grab_norm_values(
+            INPUT_MAX_MIN_DIFF, INPUT_MIN_X)
+        return min_max_norm(input_data, input_max_min_diff, input_min_x,
+                            self.norm_range_ones_input)
 
     def denorm_data(self, output_data):
-        return min_max_denorm(
-            output_data,
-            self.extra_vars[OUTPUT_MAX_MIN_DIFF],
-            self.extra_vars[OUTPUT_MIN_X],
-            self.norm_range_ones_output,
-        )
+        output_max_min_diff, output_min_x = self._grab_norm_values(
+            OUTPUT_MAX_MIN_DIFF, OUTPUT_MIN_X)
+        return min_max_denorm(output_data, output_max_min_diff, output_min_x,
+                              self.norm_range_ones_output)
 
     def call_model(self, data):
         # Convert from NumPy to Torch if needed
