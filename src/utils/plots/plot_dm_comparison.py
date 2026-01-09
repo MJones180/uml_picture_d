@@ -10,6 +10,7 @@ def plot_dm_comparison(
     row_identifiers,
     add_first_row_diff_comparison=False,
     fix_colorbars=False,
+    round_colorbars=False,
     plot_path=None,
 ):
     """
@@ -25,6 +26,8 @@ def plot_dm_comparison(
         Add comparisons to each subplot of their difference from the first row.
     fix_colorbars : bool
         Make the colorbars have the same scales in every column.
+    round_colorbars : bool
+        For every colorbar, ceil the vmax and floor the vmin.
     plot_path : str
         The path to output the plot.
     """
@@ -53,6 +56,9 @@ def plot_dm_comparison(
             vmax = np.max(cell_data)
             if fix_colorbars:
                 vmin, vmax = bounds[key]
+            if round_colorbars:
+                vmin = np.floor(vmin)
+                vmax = np.ceil(vmax)
             plot_im = cell_ax.imshow(
                 cell_data,
                 vmin=vmin,

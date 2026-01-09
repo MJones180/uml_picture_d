@@ -150,5 +150,6 @@ def dm_comparison(cli_args):
             ],
             ['Truth', model_str, 'Difference'],
             fix_colorbars=True,
+            round_colorbars=True,
             plot_path=f'{output_path}/{idx}.png',
         )
