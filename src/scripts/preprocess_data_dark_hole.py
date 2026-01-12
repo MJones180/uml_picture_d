@@ -368,14 +368,16 @@ def preprocess_data_dark_hole(cli_args):
     if cli_args['input_arcsinh']:
         step_ri('Taking the arcsinh of the input data')
         input_data = np.arcsinh(input_data)
-        _save_var(INPUTS_ARCSINH, True)
+        if not extend_existing_data:
+            _save_var(INPUTS_ARCSINH, True)
 
     # ==========================================================================
 
     if cli_args['input_modified_log']:
         step_ri('Taking the modified log10 of the input data')
         input_data = modified_log_transform(input_data, in_place=True)
-        _save_var(INPUTS_LOG10, True)
+        if not extend_existing_data:
+            _save_var(INPUTS_LOG10, True)
 
     # ==========================================================================
 
@@ -605,7 +607,8 @@ def preprocess_data_dark_hole(cli_args):
     if cli_args['output_modified_log']:
         step_ri('Taking the modified log10 of the output data')
         output_data = modified_log_transform(output_data, in_place=True)
-        _save_var(OUTPUTS_LOG10, True)
+        if not extend_existing_data:
+            _save_var(OUTPUTS_LOG10, True)
 
     # ==========================================================================
 
