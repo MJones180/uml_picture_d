@@ -743,3 +743,113 @@ After model testing, it is useful to rank the model analyses:
     python3 main.py model_test \
         dh_v41 last test_dh_both_hodms_efc_final_dh_lg_4iter_residuals \
         --max-rows-per-model-call 1000
+
+[V42] The `dh_v42_` tag:
+
+    python3 main_scnp.py model_train \
+        dh_v42_1 train_dh_both_hodms_efc_final_dh_lg_6iter \
+        val_dh_both_hodms_efc_final_dh_lg_6iter \
+        dh_t22 mae adam 10e-5 1000 --batch-size 256 \
+        --lr-auto-annealing 10e-7 10 --early-stopping 15 \
+        --overwrite-existing --only-best-epoch \
+        --init-weights dh_v33_2_cont last
+
+    python3 main.py model_test \
+        dh_v42_1 last test_dh_both_hodms_efc_final_dh_lg_6iter \
+        --max-rows-per-model-call 1000
+
+    python3 main_scnp.py model_train \
+        dh_v42_2 train_dh_both_hodms_efc_final_dh_lg_6iter \
+        val_dh_both_hodms_efc_final_dh_lg_6iter \
+        dh_t22 mae adam 10e-6 1000 --batch-size 256 \
+        --lr-auto-annealing 10e-8 10 --early-stopping 15 \
+        --overwrite-existing --only-best-epoch \
+        --init-weights dh_v33_2_cont last
+
+    python3 main.py model_test \
+        dh_v42_2 last test_dh_both_hodms_efc_final_dh_lg_6iter \
+        --max-rows-per-model-call 1000
+
+    python3 main_scnp.py model_train \
+        dh_v42_3 train_dh_both_hodms_efc_final_dh_lg_6iter \
+        val_dh_both_hodms_efc_final_dh_lg_6iter \
+        dh_t22 mae adam 10e-7 1000 --batch-size 256 \
+        --lr-auto-annealing 10e-8 10 --early-stopping 15 \
+        --overwrite-existing --only-best-epoch \
+        --init-weights dh_v33_2_cont last
+
+    python3 main.py model_test \
+        dh_v42_3 last test_dh_both_hodms_efc_final_dh_lg_6iter \
+        --max-rows-per-model-call 1000
+
+    python3 main_scnp.py model_train \
+        dh_v42_4 train_dh_both_hodms_efc_final_dh_lg_6iter \
+        val_dh_both_hodms_efc_final_dh_lg_6iter \
+        dh_t22 weighted_mse adam 10e-5 1000 --batch-size 256 \
+        --lr-auto-annealing 10e-7 10 --early-stopping 15 \
+        --overwrite-existing --only-best-epoch \
+        --init-weights dh_v33_2_cont last
+
+    python3 main.py model_test \
+        dh_v42_4 last test_dh_both_hodms_efc_final_dh_lg_6iter \
+        --max-rows-per-model-call 1000
+
+    python3 main_scnp.py model_train \
+        dh_v42_5 train_dh_both_hodms_efc_final_dh_lg_6iter \
+        val_dh_both_hodms_efc_final_dh_lg_6iter \
+        dh_t22 weighted_mse adam 10e-6 1000 --batch-size 256 \
+        --lr-auto-annealing 10e-8 10 --early-stopping 15 \
+        --overwrite-existing --only-best-epoch \
+        --init-weights dh_v33_2_cont last
+
+    python3 main.py model_test \
+        dh_v42_5 last test_dh_both_hodms_efc_final_dh_lg_6iter \
+        --max-rows-per-model-call 1000
+
+    python3 main_scnp.py model_train \
+        dh_v42_6 train_dh_both_hodms_efc_final_dh_lg_6iter \
+        val_dh_both_hodms_efc_final_dh_lg_6iter \
+        dh_t22 weighted_mse adam 10e-7 1000 --batch-size 256 \
+        --lr-auto-annealing 10e-8 10 --early-stopping 15 \
+        --overwrite-existing --only-best-epoch \
+        --init-weights dh_v33_2_cont last
+
+    python3 main.py model_test \
+        dh_v42_6 last test_dh_both_hodms_efc_final_dh_lg_6iter \
+        --max-rows-per-model-call 1000
+
+    python3 main_scnp.py model_train \
+        dh_v42_7 train_dh_both_hodms_efc_final_dh_lg_6iter \
+        val_dh_both_hodms_efc_final_dh_lg_6iter \
+        dh_t22 modified_log_mse adam 10e-5 1000 --batch-size 256 \
+        --lr-auto-annealing 10e-7 10 --early-stopping 15 \
+        --overwrite-existing --only-best-epoch \
+        --init-weights dh_v33_2_cont last
+
+    python3 main.py model_test \
+        dh_v42_7 last test_dh_both_hodms_efc_final_dh_lg_6iter \
+        --max-rows-per-model-call 1000
+
+    python3 main_scnp.py model_train \
+        dh_v42_8 train_dh_both_hodms_efc_final_dh_lg_6iter \
+        val_dh_both_hodms_efc_final_dh_lg_6iter \
+        dh_t22 modified_log_mse adam 10e-6 1000 --batch-size 256 \
+        --lr-auto-annealing 10e-8 10 --early-stopping 15 \
+        --overwrite-existing --only-best-epoch \
+        --init-weights dh_v33_2_cont last
+
+    python3 main.py model_test \
+        dh_v42_8 last test_dh_both_hodms_efc_final_dh_lg_6iter \
+        --max-rows-per-model-call 1000
+
+    python3 main_scnp.py model_train \
+        dh_v42_9 train_dh_both_hodms_efc_final_dh_lg_6iter \
+        val_dh_both_hodms_efc_final_dh_lg_6iter \
+        dh_t22 modified_log_mse adam 10e-7 1000 --batch-size 256 \
+        --lr-auto-annealing 10e-8 10 --early-stopping 15 \
+        --overwrite-existing --only-best-epoch \
+        --init-weights dh_v33_2_cont last
+
+    python3 main.py model_test \
+        dh_v42_9 last test_dh_both_hodms_efc_final_dh_lg_6iter \
+        --max-rows-per-model-call 1000
