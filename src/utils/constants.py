@@ -91,14 +91,8 @@ MSE = 'MSE'
 RMSE = 'RMSE'
 
 # ==============================================================================
-# Constants for the different available loss and optimizers functions.
+# Constants for the different available optimizer functions.
 # Each value should correspond to the function's name in PyTorch.
-
-# nn.<loss_function>
-LOSS_FUNCTIONS = {
-    'mae': 'L1Loss',
-    'mse': 'MSELoss',
-}
 # Optimizers are currently restricted to the learning rate (`lr`) parameter.
 # torch.optim.<optimizer_function>
 OPTIMIZERS = {

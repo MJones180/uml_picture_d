@@ -11,9 +11,9 @@ from time import time
 import torch
 from torchvision.transforms import v2
 from utils.cli_args import save_cli_args
-from utils.constants import (EPOCH_LOSS_F, EXTRA_VARS_F, LOSS_FUNCTIONS,
-                             OPTIMIZERS, OUTPUT_MASK, OUTPUT_P, PROC_DATA_P,
-                             TAG_LOOKUP_F, TRAINED_MODELS_P)
+from utils.constants import (EPOCH_LOSS_F, EXTRA_VARS_F, OPTIMIZERS,
+                             OUTPUT_MASK, OUTPUT_P, PROC_DATA_P, TAG_LOOKUP_F,
+                             TRAINED_MODELS_P)
 from utils.hdf_read_and_write import read_hdf
 from utils.json import json_load, json_write
 from utils.load_network import load_network
@@ -22,6 +22,7 @@ from utils.path import (copy_files, delete_dir, delete_file, make_dir,
                         path_exists)
 from utils.printing_and_logging import dec_print_indent, step, step_ri, title
 from utils.shared_argparser_args import shared_argparser_args
+from utils.terminate_with_message import terminate_with_message
 from utils.torch_grab_device import torch_grab_device
 from utils.torch_hdf_ds_loader import DSLoaderHDF
 
@@ -48,7 +49,6 @@ def model_train_parser(subparsers):
     subparser.add_argument(
         'loss',
         type=str.lower,
-        choices=LOSS_FUNCTIONS.keys(),
         help='loss function to use',
     )
     subparser.add_argument(
@@ -161,7 +161,8 @@ def model_train_parser(subparsers):
         action='store_true',
         help=('use an output mask to only take the loss of the selected '
               'output pixels; this mask must be in the extra variables from '
-              'the training data (created during preprocessing)'),
+              'the training data (created during preprocessing); this is '
+              'currently only supported for MAE and MSE loss'),
     )
     shared_argparser_args(subparser, ['force_cpu'])
     epoch_save_group = subparser.add_mutually_exclusive_group()
@@ -299,25 +300,54 @@ def model_train(cli_args):
 
     step_ri('Setting the loss function')
     loss_name = cli_args['loss']
-    loss_func_attr = getattr(torch.nn, LOSS_FUNCTIONS[loss_name])
-    if cli_args['use_output_mask']:
-        print('Using an output mask')
-        pytorch_loss_function = loss_func_attr(reduction='none')
-        print('Loading in the mask from the extra variables')
-        extra_vars = read_hdf(output_extra_vars_path)
-        output_mask = torch.from_numpy(extra_vars[OUTPUT_MASK][:]).to(device)
+    if loss_name in ('mae', 'mse'):
+        if loss_name == 'mae':
+            print('MAE')
+            loss_func_attr = torch.nn.L1Loss
+        else:
+            print('MSE')
+            loss_func_attr = torch.nn.MSELoss
+        # An output mask is currently only supported for MAE and MSE losses
+        if cli_args['use_output_mask']:
+            print('Using an output mask')
+            pytorch_loss_function = loss_func_attr(reduction='none')
+            print('Loading in the mask from the extra variables')
+            extra_vars = read_hdf(output_extra_vars_path)
+            out_mask = torch.from_numpy(extra_vars[OUTPUT_MASK][:]).to(device)
+
+            def loss_function(model_outputs, truth_outputs):
+                loss = pytorch_loss_function(model_outputs, truth_outputs)
+                # To create the average, need to divide by the
+                #   rows * channels * active pixels
+                total_pixels = (model_outputs.shape[0] *
+                                model_outputs.shape[1] * out_mask.sum())
+                return (loss * out_mask).sum() / total_pixels
+        else:
+            loss_function = loss_func_attr()
+    elif loss_name == 'weighted_mse':
+        print('Weighted MSE')
 
         def loss_function(model_outputs, truth_outputs):
-            loss = pytorch_loss_function(model_outputs, truth_outputs)
-            # To create the average, need to divide by the
-            #   rows * channels * active pixels
-            total_pixels = (model_outputs.shape[0] * model_outputs.shape[1] *
-                            output_mask.sum())
-            return (loss * output_mask).sum() / total_pixels
-    else:
-        loss_function = loss_func_attr()
+            weights = 1.0 / (torch.abs(truth_outputs))
+            # Normalize the weights
+            weights = weights / torch.mean(weights)
+            loss = weights * (model_outputs - truth_outputs)**2
+            return loss.mean()
 
-    print(f'{loss_name} [{loss_function}]')
+    elif loss_name == 'modified_log':
+        print('Modified Log')
+
+        # Takes the log10 of both positive and negative data;
+        # outputs values ranging from [0, inf]
+        def loss_function(model_outputs, truth_outputs):
+            loss = (torch.sign(truth_outputs) *
+                    torch.log10(torch.abs(truth_outputs) + 1) -
+                    torch.sign(model_outputs) *
+                    torch.log10(torch.abs(model_outputs) + 1))**2
+            return loss.mean()
+
+    else:
+        terminate_with_message('Loss function unknown')
 
     step_ri('Setting the optimizer')
     optimizer = getattr(torch.optim, OPTIMIZERS[cli_args['optimizer']])

@@ -14,7 +14,7 @@ Models will be saved like normal.
 """
 
 from scripts.model_train import model_train
-from utils.constants import LOSS_FUNCTIONS, OPTIMIZERS
+from utils.constants import OPTIMIZERS
 from utils.printing_and_logging import dec_print_indent, divider, step_ri, title
 
 
@@ -49,7 +49,6 @@ def batch_model_train_parser(subparsers):
     subparser.add_argument(
         '--losses',
         type=str.lower,
-        choices=LOSS_FUNCTIONS.keys(),
         help='loss functions to use',
         nargs='+',
     )
