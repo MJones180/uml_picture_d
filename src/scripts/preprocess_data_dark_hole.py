@@ -21,10 +21,10 @@ from utils.cli_args import save_cli_args
 from utils.constants import (DARK_ZONE_MASK, DATA_F, DM_ACTIVE_COL_IDXS,
                              DM_ACTIVE_IDXS, DM_ACTIVE_ROW_IDXS, DM_SIZE,
                              EF_ACTIVE_IDXS, EXTRA_VARS_F, INPUT_MAX_MIN_DIFF,
-                             INPUT_MIN_X, INPUTS, INPUTS_ARCSINH,
+                             INPUT_MIN_X, INPUTS, INPUTS_ARCSINH, INPUTS_LOG10,
                              NORM_RANGE_ONES_INPUT, NORM_RANGE_ONES_OUTPUT,
                              OUTPUTS, OUTPUT_MASK, OUTPUT_MAX_MIN_DIFF,
-                             OUTPUT_MIN_X, PROC_DATA_P,
+                             OUTPUTS_LOG10, OUTPUT_MIN_X, PROC_DATA_P,
                              SCI_CAM_ACTIVE_COL_IDXS, SCI_CAM_ACTIVE_ROW_IDXS)
 from utils.group_data_from_list import group_data_from_list
 from utils.hdf_read_and_write import HDFWriteModule, read_hdf
@@ -375,6 +375,7 @@ def preprocess_data_dark_hole(cli_args):
     if cli_args['input_modified_log']:
         step_ri('Taking the modified log10 of the input data')
         input_data = modified_log_transform(input_data)
+        _save_var(INPUTS_LOG10, True)
 
     # ==========================================================================
 
@@ -604,6 +605,7 @@ def preprocess_data_dark_hole(cli_args):
     if cli_args['output_modified_log']:
         step_ri('Taking the modified log10 of the output data')
         output_data = modified_log_transform(output_data)
+        _save_var(OUTPUTS_LOG10, True)
 
     # ==========================================================================
 

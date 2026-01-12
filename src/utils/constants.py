@@ -44,9 +44,11 @@ OUTPUTS = 'outputs'
 # Normalization values (belongs to the `EXTRA_VARS_F` file)
 
 INPUTS_ARCSINH = 'inputs_arcsinh'
+INPUTS_LOG10 = 'inputs_log10'
 INPUTS_SUM_TO_ONE = 'inputs_sum_to_one'
 INPUT_MIN_X = 'input_min_x'
 INPUT_MAX_MIN_DIFF = 'input_max_min_diff'
+OUTPUTS_LOG10 = 'outputs_log10'
 OUTPUT_MIN_X = 'output_min_x'
 OUTPUT_MAX_MIN_DIFF = 'output_max_min_diff'
 NORM_RANGE_ONES = 'norm_range_ones'

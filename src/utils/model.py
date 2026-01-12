@@ -3,14 +3,15 @@ import numpy as np
 import torch
 from utils.constants import (ARGS_F, BASE_INT_FIELD, CPU, EXTRA_VARS_F,
                              INPUT_MAX_MIN_DIFF, INPUT_MIN_X, INPUTS_ARCSINH,
-                             INPUTS_SUM_TO_ONE, NORM_RANGE_ONES,
+                             INPUTS_LOG10, INPUTS_SUM_TO_ONE, NORM_RANGE_ONES,
                              NORM_RANGE_ONES_INPUT, NORM_RANGE_ONES_OUTPUT,
                              OUTPUT_MAX_MIN_DIFF, OUTPUT_MIN_X,
                              TRAINED_MODELS_P)
 from utils.hdf_read_and_write import read_hdf
 from utils.json import json_load
 from utils.load_network import load_network
-from utils.norm import min_max_denorm, min_max_norm, sum_to_one
+from utils.norm import (min_max_denorm, min_max_norm, modified_log_transform,
+                        sum_to_one)
 from utils.path import path_exists
 from utils.printing_and_logging import dec_print_indent, step
 from utils.terminate_with_message import terminate_with_message
@@ -100,6 +101,8 @@ class Model():
         self.input_norm_done = _grab_ev_bool(INPUT_MIN_X) is not False
         # The arcsinh is taken for the input values
         self.inputs_archsinh = _grab_ev_bool(INPUTS_ARCSINH)
+        # The modified log10 is taken for the input values
+        self.inputs_log10 = _grab_ev_bool(INPUTS_LOG10)
         # The base field that will need to be subtracted off. If the field does
         # not exist, then this will just be set to None.
         self.base_field = self.extra_vars.get(BASE_INT_FIELD)
@@ -139,6 +142,8 @@ class Model():
     def preprocess_data(self, input_data, sub_basefield=False, sum_dims=None):
         if self.inputs_archsinh:
             input_data = self.arcsinh_inputs(input_data)
+        if self.inputs_log10:
+            input_data = self.log10_inputs(input_data)
         if self.inputs_sum_to_one:
             input_data = self.sum_inputs_to_one(input_data, sum_dims)
         if sub_basefield:
@@ -149,6 +154,9 @@ class Model():
 
     def arcsinh_inputs(self, input_data):
         return np.arcsinh(input_data)
+
+    def log10_inputs(self, input_data):
+        return modified_log_transform(input_data)
 
     def sum_inputs_to_one(self, input_data, sum_dims=None):
         return sum_to_one(input_data, sum_dims)

@@ -4,8 +4,10 @@ This script plots a comparison between actual and predicted DM commands.
 
 import numpy as np
 from utils.constants import (ANALYSIS_P, DM_ACTIVE_IDXS, DM_COMPARISONS_P,
-                             EXTRA_VARS_F, OUTPUT_MASK, PROC_DATA_P, RESULTS_F)
+                             EXTRA_VARS_F, OUTPUT_MASK, OUTPUTS_LOG10,
+                             PROC_DATA_P, RESULTS_F)
 from utils.hdf_read_and_write import read_hdf
+from utils.norm import undo_modified_log_transform
 from utils.path import delete_dir, get_abs_path, make_dir
 from utils.plots.plot_dm_comparison import plot_dm_comparison
 from utils.printing_and_logging import step_ri, title
@@ -132,6 +134,11 @@ def dm_comparison(cli_args):
             dm_cmd = np.zeros(dm_size**2)
             dm_cmd[_grab_dm_active_idxs(dm_idx)] = values_1d
             return dm_cmd.reshape(dm_size, dm_size)
+
+    if OUTPUTS_LOG10 in extra_vars_data:
+        step_ri('Undoing the log10 of the data')
+        outputs_truth = undo_modified_log_transform(outputs_truth)
+        outputs_model = undo_modified_log_transform(outputs_model)
 
     step_ri('Generating comparison plots')
 
