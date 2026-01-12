@@ -20,19 +20,32 @@ def sum_to_one(data, dims=None):
     return data / np.sum(data, axis=dims, keepdims=True)
 
 
-def modified_log_transform(data):
+def modified_log_transform(data, in_place=False):
     """Transforms postive and negative values with log10.
 
     Parameters
     ----------
     data : np.array
         The data to normalize.
+    in_place : bool
+        Whether to modify the array in place.
 
     Returns
     -----
     np.array
         The normalized data.
     """
+    if in_place:
+        signs = np.sign(data)
+        # Take the absolute value
+        np.absolute(data, out=data)
+        # Add 1 to the data
+        data += 1
+        # Take the log10
+        np.log10(data, out=data)
+        # Add back on the original sign
+        data *= signs
+        return data
     return np.sign(data) * np.log10(np.abs(data) + 1)
 
 
