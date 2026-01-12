@@ -20,6 +20,38 @@ def sum_to_one(data, dims=None):
     return data / np.sum(data, axis=dims, keepdims=True)
 
 
+def modified_log_transform(data):
+    """Transforms postive and negative values with log10.
+
+    Parameters
+    ----------
+    data : np.array
+        The data to normalize.
+
+    Returns
+    -----
+    np.array
+        The normalized data.
+    """
+    return np.sign(data) * np.log10(np.abs(data) + 1)
+
+
+def undo_modified_log_transform(data):
+    """Undoes the modified log10 transformation.
+
+    Parameters
+    ----------
+    data : np.array
+        The data to denormalize.
+
+    Returns
+    -----
+    np.array
+        The denormalized data.
+    """
+    return np.sign(data) * (10**np.abs(data) - 1)
+
+
 def min_max_norm(data, max_min_diff, min_x, ones_range=False):
     """Min max normalize values given the max_min_diff and min_x.
 
@@ -74,10 +106,10 @@ def min_max_denorm(data, max_min_diff, min_x, ones_range=False):
     """
 
     if ones_range:
-        return (((data + 1) / 2) * max_min_diff) + min_x
+        return (((data + 1) / 2) * (max_min_diff + 1e-10)) + min_x
     # norm = (original - min_x) / max_min_diff
     # -> original = (norm * max_min_diff) + min_x
-    return (data * max_min_diff) + min_x
+    return (data * (max_min_diff + 1e-10)) + min_x
 
 
 def find_min_max_norm(

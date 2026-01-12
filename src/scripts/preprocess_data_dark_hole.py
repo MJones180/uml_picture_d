@@ -29,7 +29,7 @@ from utils.constants import (DARK_ZONE_MASK, DATA_F, DM_ACTIVE_COL_IDXS,
 from utils.group_data_from_list import group_data_from_list
 from utils.hdf_read_and_write import HDFWriteModule, read_hdf
 from utils.load_raw_sim_data import raw_sim_data_chunk_paths
-from utils.norm import find_min_max_norm, min_max_norm
+from utils.norm import find_min_max_norm, min_max_norm, modified_log_transform
 from utils.path import make_dir, path_exists
 from utils.printing_and_logging import dec_print_indent, step, step_ri, title
 from utils.response_matrix import ResponseMatrix
@@ -167,6 +167,16 @@ def preprocess_data_dark_hole_parser(subparsers):
         '--input-arcsinh',
         action='store_true',
         help='take the arcsinh of the input data, done before norm',
+    )
+    subparser.add_argument(
+        '--input-modified-log',
+        action='store_true',
+        help='take a modified log10 of the input data, done before norm',
+    )
+    subparser.add_argument(
+        '--output-modified-log',
+        action='store_true',
+        help='take a modified log10 of the output data, done before norm',
     )
     subparser.add_argument(
         '--flatten-input',
@@ -359,6 +369,12 @@ def preprocess_data_dark_hole(cli_args):
         step_ri('Taking the arcsinh of the input data')
         input_data = np.arcsinh(input_data)
         _save_var(INPUTS_ARCSINH, True)
+
+    # ==========================================================================
+
+    if cli_args['input_modified_log']:
+        step_ri('Taking the modified log10 of the input data')
+        input_data = modified_log_transform(input_data)
 
     # ==========================================================================
 
@@ -582,6 +598,12 @@ def preprocess_data_dark_hole(cli_args):
             else:
                 output_data = np.hstack((output_data, dm_data))
     print(f'Output shape: {output_data.shape}')
+
+    # ==========================================================================
+
+    if cli_args['output_modified_log']:
+        step_ri('Taking the modified log10 of the output data')
+        output_data = modified_log_transform(output_data)
 
     # ==========================================================================
 
