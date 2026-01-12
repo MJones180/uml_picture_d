@@ -328,14 +328,14 @@ def model_train(cli_args):
         print('Weighted MSE')
 
         def loss_function(model_outputs, truth_outputs):
-            weights = 1.0 / (torch.abs(truth_outputs))
+            # Constant added in the denominator for stability
+            weights = 1.0 / (torch.abs(truth_outputs) + 1e-10)
             # Normalize the weights
             weights = weights / torch.mean(weights)
             loss = weights * (model_outputs - truth_outputs)**2
             return loss.mean()
-
-    elif loss_name == 'modified_log':
-        print('Modified Log')
+    elif loss_name == 'modified_log_mse':
+        print('Modified Log MSE')
 
         # Takes the log10 of both positive and negative data;
         # outputs values ranging from [0, inf]
