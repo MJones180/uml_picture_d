@@ -1,5 +1,5 @@
 .........................................................................................................
-NOTES AND CHANGES COMPARED TO `picture_d_llowfs.md`:
+NOTES AND CHANGES COMPARED TO `picture_d_llowfs_v1.md`:
 - Based on white light in the PICTURE-D testbed (obtained June 29, 2025; previously April 1, 2025).
 - Updated normalization so that the sum of all input pixels equal one instead of scaling between [-1, 1].
 - Instead of the more accurate model based on V49 (V55b), the model based on V54f (V55a) is used.

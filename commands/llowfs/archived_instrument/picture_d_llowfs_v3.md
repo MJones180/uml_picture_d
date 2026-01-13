@@ -1,5 +1,5 @@
 ....................................................................................................
-NOTES AND CHANGES COMPARED TO `picture_d_llowfs.md`:
+NOTES AND CHANGES COMPARED TO `picture_d_llowfs_v1.md`:
 - All the results in this file are based on simulations done in the `piccsim` library. The reason
   for this is that data obtained on the instrument drifts for Z2 and Z3, so to prevent this
   simulations are done instead. The simulations should align very well to the actual instrument.
