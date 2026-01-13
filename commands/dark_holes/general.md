@@ -474,6 +474,23 @@ Preprocess the datasets:
             dh_both_hodms_efc_30k_6iter_ch1 dh_both_hodms_efc_30k_6iter_ch2 \
         --norm-inputs --norm-outputs
 
+    python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_30k_6iter_ch1 \
+        train_dh_both_hodms_efc_final_dh_lg_6iter_log10 val_dh_both_hodms_efc_final_dh_lg_6iter_log10 \
+        test_dh_both_hodms_efc_final_dh_lg_6iter_log10 88 6 6 \
+        --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
+        --additional-raw-data-tags dh_both_hodms_efc_30k_6iter_ch2 \
+        --norm-inputs --norm-outputs-globally --input-modified-log --output-modified-log
+    python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_final_dh_14k_ch1 \
+        train_dh_both_hodms_efc_final_dh_lg_6iter_log10 val_dh_both_hodms_efc_final_dh_lg_6iter_log10 \
+        test_dh_both_hodms_efc_final_dh_lg_6iter_log10 88 6 6 \
+        --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
+        --additional-raw-data-tags dh_both_hodms_efc_final_dh_14k_ch2 \
+            dh_both_hodms_efc_final_dh_9k_ch1 dh_both_hodms_efc_final_dh_9k_ch2 \
+        --norm-inputs --norm-outputs-globally --input-modified-log --output-modified-log \
+        --extend-existing-preprocessed-data
+
     python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_final_dh_14k_ch1 \
         train_dh_both_hodms_efc_final_dh_lg_6iter_new_norm val_dh_both_hodms_efc_final_dh_lg_6iter_new_norm \
         test_dh_both_hodms_efc_final_dh_lg_6iter_new_norm 88 6 6 \
@@ -584,7 +601,8 @@ Analysis results for models trained on SVD basis outputs can be converted to act
 
 Export a model so it can be run in `piccsim`:
 
-    python3 main.py export_model dh_v29_1 last val_dh_both_hodms_efc_final_dh_lg_6iter --benchmark 50 --no-base-field
+    python3 main.py export_model dh_v29_1 last val_dh_both_hodms_efc_final_dh_lg_6iter \
+        --benchmark 50 --no-base-field --no-save-txt-files
 
 Run EF reconstruction:
 
