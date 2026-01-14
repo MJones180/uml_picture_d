@@ -49,6 +49,12 @@ def dm_comparison_parser(subparsers):
         help=('the model is an RM - not an NN; the `tag` argument should be '
               'the RM name and the `epoch` argument can be any int'),
     )
+    subparser.add_argument(
+        '--manually-undo-model-output-log',
+        action='store_true',
+        help=('undo the log transformation on the model output manually; '
+              'required if the dataset does not also use a log transform'),
+    )
 
 
 def dm_comparison(cli_args):
@@ -138,6 +144,9 @@ def dm_comparison(cli_args):
     if OUTPUTS_LOG10 in extra_vars_data:
         step_ri('Undoing the log10 of the data')
         outputs_truth = undo_modified_log_transform(outputs_truth)
+        outputs_model = undo_modified_log_transform(outputs_model)
+    elif cli_args.get('manually_undo_model_output_log'):
+        step_ri('Undoing the log10 of the model output')
         outputs_model = undo_modified_log_transform(outputs_model)
 
     step_ri('Generating comparison plots')
