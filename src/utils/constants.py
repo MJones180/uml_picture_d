@@ -98,6 +98,7 @@ RMSE = 'RMSE'
 OPTIMIZERS = {
     'adagrad': 'Adagrad',
     'adam': 'Adam',
+    'adamw': 'AdamW',
     'nadam': 'NAdam',
     'rmsprop': 'RMSprop',
     'sgd': 'SGD',
