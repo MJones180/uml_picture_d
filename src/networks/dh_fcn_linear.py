@@ -1,5 +1,5 @@
 # `dh_fcn_linear` network { 5312 -> 1512 }.
-# Trainable parameters: 27,956,712
+# Trainable parameters: 8,031,744
 
 import torch
 import torch.nn as nn
@@ -12,10 +12,7 @@ class Network(nn.Module):
 
     def __init__(self):
         super().__init__()
-        self.dense_block = nn.Linear(5312, 4096, bias=False)
-        self.out_layer = nn.Linear(4096, 1512, bias=False)
+        self.dense_layer = nn.Linear(5312, 1512, bias=False)
 
     def forward(self, x):
-        x = self.dense_block(x)
-        x = self.out_layer(x)
-        return x
+        return self.dense_layer(x)
