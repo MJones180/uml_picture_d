@@ -12,8 +12,8 @@ class Network(nn.Module):
 
     def __init__(self):
         super().__init__()
-        self.dense_block = nn.Linear(5312, 4096)
-        self.out_layer = nn.Linear(4096, 1512)
+        self.dense_block = nn.Linear(5312, 4096, bias=False)
+        self.out_layer = nn.Linear(4096, 1512, bias=False)
 
     def forward(self, x):
         x = self.dense_block(x)
