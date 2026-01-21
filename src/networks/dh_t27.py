@@ -1,5 +1,5 @@
-# `dh_t26` network { 2x59x59 -> 1512 }.
-# Trainable parameters: 163,316,712
+# `dh_t27` network { 2x59x59 -> 1512 }.
+# Trainable parameters: 149,684,200
 
 import torch
 import torch.nn as nn
@@ -68,10 +68,10 @@ class Network(nn.Module):
         # 8x8 -> 4x4
         self.conv_block13 = _make_conv_block_and_downsize(1024, 2048, 3)
         self.conv_block14 = _make_conv_block(2048, 2048, 3)
-        self.conv_block15 = _make_conv_block(2048, 3072, 3)
-        # 4x4 -> 1x1
-        self.avgpool1 = nn.AvgPool2d(4)
-        self.dense_block1 = _make_dense_block(3072, 4096, 0.3)
+        self.conv_block15 = _make_conv_block(2048, 2048, 3)
+        # 4x4 -> 2x2
+        self.conv_block16 = _make_conv_block_and_downsize(2048, 512, 3)
+        self.dense_block1 = _make_dense_block(2048, 4096, 0.3)
         self.out_layer = nn.Linear(4096, 1512)
 
     def forward(self, x):
@@ -94,9 +94,9 @@ class Network(nn.Module):
         x = self.conv_block13(x)
         x = self.conv_block14(x)
         x = self.conv_block15(x)
-        x = self.avgpool1(x)
-        x = torch.squeeze(x, 2)
-        x = torch.squeeze(x, 2)
+        # Downsize
+        x = self.conv_block16(x)
+        x = torch.flatten(x, start_dim=1)
         x = self.dense_block1(x)
         x = self.out_layer(x)
         return x
