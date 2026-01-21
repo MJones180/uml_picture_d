@@ -1328,3 +1328,16 @@ After model testing, it is useful to rank the model analyses:
     python3 main.py model_test \
         dh_v52_2 last test_dh_both_hodms_efc_final_dh_lg_6iter \
         --max-rows-per-model-call 1000
+
+[V53] The `dh_v53_` tag:
+
+    python3 main_scnp.py model_train \
+        dh_v53_1 train_dh_both_hodms_efc_final_dh_lg_6iter_fl \
+        val_dh_both_hodms_efc_final_dh_lg_6iter_fl \
+        dh_fcn_linear mse adamw 10e-6 1000 --batch-size 256 \
+        --lr-auto-annealing 10e-8 10 --early-stopping 15 \
+        --overwrite-existing --only-best-epoch
+
+    python3 main.py model_test \
+        dh_v53_1 last test_dh_both_hodms_efc_final_dh_lg_6iter_fl \
+        --max-rows-per-model-call 1000
