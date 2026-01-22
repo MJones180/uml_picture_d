@@ -1363,3 +1363,41 @@ After model testing, it is useful to rank the model analyses:
     python3 main.py model_test \
         dh_v53_3 last test_dh_both_hodms_efc_final_dh_lg_6iter_fl \
         --max-rows-per-model-call 1000
+
+[V54] The `dh_v54_` tag:
+
+    python3 main_scnp.py model_train \
+        dh_v54_1 train_dh_both_hodms_efc_final_dh_lg_6iter_fl_no_norm \
+        val_dh_both_hodms_efc_final_dh_lg_6iter_fl_no_norm  \
+        dh_with_rm_1 mse adamw 10e-5 1000 --batch-size 256 \
+        --lr-auto-annealing 10e-7 10 --early-stopping 15 \
+        --use-rm-weights-for-layer dh_dm1_dm2 rm_dense_layer " -1e9" \
+        --overwrite-existing --only-best-epoch
+
+    python3 main.py model_test \
+        dh_v54_1 last test_dh_both_hodms_efc_final_dh_lg_6iter_fl_no_norm \
+        --max-rows-per-model-call 1000
+
+    python3 main_scnp.py model_train \
+        dh_v54_2 train_dh_both_hodms_efc_final_dh_lg_6iter_fl_no_norm \
+        val_dh_both_hodms_efc_final_dh_lg_6iter_fl_no_norm  \
+        dh_with_rm_2 mse adamw 10e-5 1000 --batch-size 256 \
+        --lr-auto-annealing 10e-7 10 --early-stopping 15 \
+        --use-rm-weights-for-layer dh_dm1_dm2 rm_dense_layer " -1e9" \
+        --overwrite-existing --only-best-epoch
+
+    python3 main.py model_test \
+        dh_v54_2 last test_dh_both_hodms_efc_final_dh_lg_6iter_fl_no_norm \
+        --max-rows-per-model-call 1000
+
+    python3 main_scnp.py model_train \
+        dh_v54_3 train_dh_both_hodms_efc_final_dh_lg_6iter_fl_no_norm \
+        val_dh_both_hodms_efc_final_dh_lg_6iter_fl_no_norm  \
+        dh_with_rm_3 mse adamw 10e-5 1000 --batch-size 256 \
+        --lr-auto-annealing 10e-7 10 --early-stopping 15 \
+        --use-rm-weights-for-layer dh_dm1_dm2 rm_dense_layer " -1e9" \
+        --overwrite-existing --only-best-epoch
+
+    python3 main.py model_test \
+        dh_v54_3 last test_dh_both_hodms_efc_final_dh_lg_6iter_fl_no_norm \
+        --max-rows-per-model-call 1000

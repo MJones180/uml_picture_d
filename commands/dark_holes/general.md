@@ -577,6 +577,17 @@ Preprocess the datasets:
         --flatten-input --norm-inputs --norm-outputs
 
     python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_final_dh_14k_ch1 \
+        train_dh_both_hodms_efc_final_dh_lg_6iter_fl_no_norm \
+        val_dh_both_hodms_efc_final_dh_lg_6iter_fl_no_norm \
+        test_dh_both_hodms_efc_final_dh_lg_6iter_fl_no_norm 88 6 6 \
+        --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
+        --additional-raw-data-tags dh_both_hodms_efc_final_dh_14k_ch2 \
+            dh_both_hodms_efc_final_dh_9k_ch1 dh_both_hodms_efc_final_dh_9k_ch2 \
+            dh_both_hodms_efc_30k_6iter_ch1 dh_both_hodms_efc_30k_6iter_ch2 \
+        --flatten-input --norm-inputs --norm-outputs
+
+    python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_final_dh_14k_ch1 \
         train_dh_both_hodms_efc_final_dh_lg_3iter val_dh_both_hodms_efc_final_dh_lg_3iter \
         test_dh_both_hodms_efc_final_dh_lg_3iter 88 6 6 \
         --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
@@ -656,3 +667,13 @@ Plot the DM comparison:
 
     python3 main.py dm_comparison dh_dm1_dm2 0 \
         test_dh_both_hodms_efc_final_dh_xlg_6iter 10 --dm-size 34 --rm-not-nn
+
+A RM can also be added to the weights of a layer in a NN:
+
+    # The NN is just the RM - the datasets don't matter here, they just have to exist
+    python3 main_scnp.py model_train \
+        efc_rm_as_nn train_dh_both_hodms_efc_final_dh_lg_6iter_fl \
+        val_dh_both_hodms_efc_final_dh_lg_6iter_fl \
+        dh_fcn_linear mse adamw 0 1 \
+        --use-rm-weights-for-layer dh_dm1_dm2 dense_layer " -1e9" \
+        --quit-after-loading-rm
