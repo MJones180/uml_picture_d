@@ -313,7 +313,6 @@ def model_train(cli_args):
 
     use_rm_weights_for_layer = cli_args.get('use_rm_weights_for_layer')
     if use_rm_weights_for_layer:
-
         step_ri('Initializing weights for layer with RM')
         rm_name = use_rm_weights_for_layer[0]
         layer_name = use_rm_weights_for_layer[1]
