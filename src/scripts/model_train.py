@@ -21,6 +21,7 @@ from utils.model import Model
 from utils.path import (copy_files, delete_dir, delete_file, make_dir,
                         path_exists)
 from utils.printing_and_logging import dec_print_indent, step, step_ri, title
+from utils.response_matrix import ResponseMatrix
 from utils.shared_argparser_args import shared_argparser_args
 from utils.terminate_with_message import terminate_with_message
 from utils.torch_grab_device import torch_grab_device
@@ -164,6 +165,18 @@ def model_train_parser(subparsers):
               'the training data (created during preprocessing); this is '
               'currently only supported for MAE and MSE loss'),
     )
+    subparser.add_argument(
+        '--use-rm-weights-for-layer',
+        nargs=3,
+        help=('init the weights in a layer to the values of an RM; '
+              'three params expected: RM name, layer name, scaling factor'),
+    )
+    subparser.add_argument(
+        '--quit-after-loading-rm',
+        action='store_true',
+        help=('will quit after setting the weights in a layer with RM values; '
+              'must be used with the `--use-rm-weights-for-layer` arg'),
+    )
     shared_argparser_args(subparser, ['force_cpu'])
     epoch_save_group = subparser.add_mutually_exclusive_group()
     epoch_save_group.add_argument(
@@ -297,6 +310,41 @@ def model_train(cli_args):
             frozen_str = 'Unfrozen' if param.requires_grad else 'Frozen'
             print(f'Layer: {name} - {frozen_str}')
         dec_print_indent()
+
+    use_rm_weights_for_layer = cli_args.get('use_rm_weights_for_layer')
+    if use_rm_weights_for_layer:
+
+        step_ri('Initializing weights for layer with RM')
+        rm_name = use_rm_weights_for_layer[0]
+        layer_name = use_rm_weights_for_layer[1]
+        scaling_factor = float(use_rm_weights_for_layer[2])
+        print(f'RM: {rm_name}')
+        print(f'Values will go in weights of layer: {layer_name}')
+        print(f'Scaling factor of RM: {scaling_factor}')
+        # Load in the RM data
+        rm_data = ResponseMatrix(rm_name).resp_mat_inv
+        # Switch to native byte order, required by `from_numpy`; this is
+        # required because the HDF file was created by reading a FITS file
+        rm_data = rm_data.astype(rm_data.dtype.newbyteorder('='))
+        # Need to tranpose the data since the dims should be flipped
+        rm_data = rm_data.T
+        # Multiply by the scaling factor
+        rm_data *= scaling_factor
+        # Convert to a Torch tensor
+        rm_data = torch.from_numpy(rm_data)
+        # Grab the layer's weights
+        layer_weights = model.get_submodule(layer_name).weight
+        # Set the weights in the layer
+        with torch.no_grad():
+            layer_weights.copy_(rm_data)
+        # Freeze the weights
+        layer_weights.requires_grad = False
+        if cli_args['quit_after_loading_rm']:
+            step('Saving NN and exiting')
+            model_path = f'{output_model_path}/epoch_0'
+            print(f'Path: {model_path}')
+            torch.save(model.state_dict(), model_path)
+            quit()
 
     step_ri('Setting the loss function')
     loss_name = cli_args['loss']
