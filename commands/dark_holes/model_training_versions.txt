@@ -1425,3 +1425,73 @@ After model testing, it is useful to rank the model analyses:
     python3 main.py model_test \
         dh_v55_2 last test_dh_both_hodms_efc_final_dh_lg_6iter \
         --max-rows-per-model-call 1000
+
+    python3 main_scnp.py model_train \
+        dh_v55_3 train_dh_both_hodms_efc_final_dh_lg_6iter \
+        val_dh_both_hodms_efc_final_dh_lg_6iter \
+        dh_t22_no_dropout mse adamw 20e-6 1000 --batch-size 1024 \
+        --lr-auto-annealing 20e-8 10 --early-stopping 15 \
+        --overwrite-existing --only-best-epoch
+
+    python3 main.py model_test \
+        dh_v55_3 last test_dh_both_hodms_efc_final_dh_lg_6iter \
+        --max-rows-per-model-call 1000
+
+    python3 main_scnp.py model_train \
+        dh_v55_4 train_dh_both_hodms_efc_final_dh_lg_6iter \
+        val_dh_both_hodms_efc_final_dh_lg_6iter \
+        dh_t22_no_dropout mse adamw 5e-6 1000 --batch-size 256 \
+        --lr-auto-annealing 5e-8 10 --early-stopping 15 \
+        --overwrite-existing --only-best-epoch
+
+    python3 main.py model_test \
+        dh_v55_4 last test_dh_both_hodms_efc_final_dh_lg_6iter \
+        --max-rows-per-model-call 1000
+
+[V56] The `dh_v56` tag:
+
+    python3 main_scnp.py model_train \
+        dh_v56 train_dh_both_hodms_efc_final_dh_lg_8iter \
+        val_dh_both_hodms_efc_final_dh_lg_8iter \
+        dh_t22_no_dropout mse adamw 10e-6 1000 --batch-size 512 \
+        --lr-auto-annealing 10e-8 10 --early-stopping 15 \
+        --overwrite-existing --only-best-epoch
+
+    python3 main.py model_test \
+        dh_v56 last test_dh_both_hodms_efc_final_dh_lg_8iter \
+        --max-rows-per-model-call 1000
+
+[V57] The `dh_v57_` tag:
+
+    python3 main_scnp.py model_train \
+        dh_v57_1 train_dh_both_hodms_efc_final_dh_lg_6iter \
+        val_dh_both_hodms_efc_final_dh_lg_6iter \
+        dh_t24_no_dropout mse adamw 10e-6 1000 --batch-size 512 \
+        --lr-auto-annealing 10e-8 10 --early-stopping 15 \
+        --overwrite-existing --only-best-epoch
+
+    python3 main.py model_test \
+        dh_v57_1 last test_dh_both_hodms_efc_final_dh_lg_6iter \
+        --max-rows-per-model-call 1000
+
+    python3 main_scnp.py model_train \
+        dh_v57_2 train_dh_both_hodms_efc_final_dh_lg_6iter \
+        val_dh_both_hodms_efc_final_dh_lg_6iter \
+        dh_t25_no_dropout mse adamw 10e-6 1000 --batch-size 512 \
+        --lr-auto-annealing 10e-8 10 --early-stopping 15 \
+        --overwrite-existing --only-best-epoch
+
+    python3 main.py model_test \
+        dh_v57_2 last test_dh_both_hodms_efc_final_dh_lg_6iter \
+        --max-rows-per-model-call 1000
+
+    python3 main_scnp.py model_train \
+        dh_v57_3 train_dh_both_hodms_efc_final_dh_lg_6iter \
+        val_dh_both_hodms_efc_final_dh_lg_6iter \
+        dh_t26_no_dropout mse adamw 10e-6 1000 --batch-size 512 \
+        --lr-auto-annealing 10e-8 10 --early-stopping 15 \
+        --overwrite-existing --only-best-epoch
+
+    python3 main.py model_test \
+        dh_v57_3 last test_dh_both_hodms_efc_final_dh_lg_6iter \
+        --max-rows-per-model-call 1000
