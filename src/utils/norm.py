@@ -65,7 +65,13 @@ def undo_modified_log_transform(data):
     return np.sign(data) * (10**np.abs(data) - 1)
 
 
-def min_max_norm(data, max_min_diff, min_x, ones_range=False):
+def min_max_norm(
+    data,
+    max_min_diff,
+    min_x,
+    ones_range=False,
+    numerical_stability_constant=1e-10,
+):
     """Min max normalize values given the max_min_diff and min_x.
 
     Parameters
@@ -78,27 +84,31 @@ def min_max_norm(data, max_min_diff, min_x, ones_range=False):
         The minimum value.
     ones_range : bool
         If true, will normalize between -1 and 1 instead of 0 to 1.
+    numerical_stability_constant : float
+        A constant added to the denominator for numerical stability.
 
     Returns
     -----
     np.array
         The normalized data.
-
-    Notes
-    -----
-    A value of 1e-10 is added to the denominator for numerical stability.
     """
 
     # (data - min_x) / (max_x - min_x)
     # -> (data - min_x) / max_min_diff
-    norm = (data - min_x) / (max_min_diff + 1e-10)
+    norm = (data - min_x) / (max_min_diff + numerical_stability_constant)
     if ones_range:
         # -> 2 * [ (data - min_x) / max_min_diff ] - 1
         return 2 * norm - 1
     return norm
 
 
-def min_max_denorm(data, max_min_diff, min_x, ones_range=False):
+def min_max_denorm(
+    data,
+    max_min_diff,
+    min_x,
+    ones_range=False,
+    numerical_stability_constant=1e-10,
+):
     """Min max denormalize values given the max_min_diff and min_x.
 
     Parameters
@@ -111,6 +121,8 @@ def min_max_denorm(data, max_min_diff, min_x, ones_range=False):
         The minimum value.
     ones_range : bool
         If true, data was normalized between -1 and 1 instead of 0 to 1.
+    numerical_stability_constant : float
+        The constant added during normalization for numerical stability.
 
     Returns
     -----
@@ -119,10 +131,11 @@ def min_max_denorm(data, max_min_diff, min_x, ones_range=False):
     """
 
     if ones_range:
-        return (((data + 1) / 2) * (max_min_diff + 1e-10)) + min_x
+        return (((data + 1) / 2) *
+                (max_min_diff + numerical_stability_constant)) + min_x
     # norm = (original - min_x) / max_min_diff
     # -> original = (norm * max_min_diff) + min_x
-    return (data * (max_min_diff + 1e-10)) + min_x
+    return (data * (max_min_diff + numerical_stability_constant)) + min_x
 
 
 def find_min_max_norm(
