@@ -177,14 +177,24 @@ class Model():
     def norm_data(self, input_data):
         input_max_min_diff, input_min_x = self._grab_norm_values(
             INPUT_MAX_MIN_DIFF, INPUT_MIN_X)
-        return min_max_norm(input_data, input_max_min_diff, input_min_x,
-                            self.norm_range_ones_input)
+        return min_max_norm(
+            input_data,
+            input_max_min_diff,
+            input_min_x,
+            self.norm_range_ones_input,
+            numerical_stability_constant=0,
+        )
 
     def denorm_data(self, output_data):
         output_max_min_diff, output_min_x = self._grab_norm_values(
             OUTPUT_MAX_MIN_DIFF, OUTPUT_MIN_X)
-        return min_max_denorm(output_data, output_max_min_diff, output_min_x,
-                              self.norm_range_ones_output)
+        return min_max_denorm(
+            output_data,
+            output_max_min_diff,
+            output_min_x,
+            self.norm_range_ones_output,
+            numerical_stability_constant=0,
+        )
 
     def call_model(self, data):
         # Convert from NumPy to Torch if needed
