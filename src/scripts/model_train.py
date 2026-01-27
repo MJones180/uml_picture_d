@@ -7,6 +7,7 @@ Portions of the code from this file are adapted from:
 The training and validation dataset must have their inputs pre-normalized.
 """
 
+import numpy as np
 from time import time
 import torch
 from torchvision.transforms import v2
@@ -14,6 +15,7 @@ from utils.cli_args import save_cli_args
 from utils.constants import (EPOCH_LOSS_F, EXTRA_VARS_F, OPTIMIZERS,
                              OUTPUT_MASK, OUTPUT_P, PROC_DATA_P, TAG_LOOKUP_F,
                              TRAINED_MODELS_P)
+from utils.group_data_from_list import group_data_from_list
 from utils.hdf_read_and_write import read_hdf
 from utils.json import json_load, json_write
 from utils.load_network import load_network
@@ -170,6 +172,12 @@ def model_train_parser(subparsers):
         nargs=3,
         help=('init the weights in a layer to the values of an RM; '
               'three params expected: RM name, layer name, scaling factor'),
+    )
+    subparser.add_argument(
+        '--use-norm-values-for-layers',
+        nargs='*',
+        help=('init the values in one or more layers to norm values; '
+              'two params expected for each layer: table name and layer name'),
     )
     subparser.add_argument(
         '--quit-after-loading-rm',
@@ -344,6 +352,30 @@ def model_train(cli_args):
             print(f'Path: {model_path}')
             torch.save(model.state_dict(), model_path)
             quit()
+
+    use_norm_values_for_layers = cli_args.get('use_norm_values_for_layers')
+    if use_norm_values_for_layers:
+        step_ri('Initializing values for layers with norm values')
+        extra_vars = read_hdf(output_extra_vars_path)
+        for table_name, layer_name in group_data_from_list(
+                use_norm_values_for_layers, 2, 'Must be two params per group'):
+            print(f'Table name: {table_name}, Layer name: {layer_name}')
+            table_data = extra_vars[table_name]
+            if len(table_data.shape) == 0:
+                # The norm data is a scalar
+                table_data = np.array(table_data[()])
+            else:
+                # The norm data is an array
+                table_data = table_data[:]
+            # Convert to a Torch tensor
+            table_data = torch.from_numpy(table_data)
+            # Grab the layer's values
+            layer_values = getattr(model, layer_name)
+            # Set the values in the layer
+            with torch.no_grad():
+                layer_values.copy_(table_data)
+            # Freeze the values
+            layer_values.requires_grad = False
 
     step_ri('Setting the loss function')
     loss_name = cli_args['loss']

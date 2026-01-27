@@ -18,6 +18,12 @@ def create_grid_mask(size, circle_size=None):
     -------
     np.array
         The 2D array of type `int`.
+
+    Notes
+    -----
+    The full DH mask created by `piccsim` can be created with the following:
+        mask = create_grid_mask(59, 1.03) + create_grid_mask(59, 0.24)
+        mask[mask == 2] = 0
     """
 
     # Default to a square
