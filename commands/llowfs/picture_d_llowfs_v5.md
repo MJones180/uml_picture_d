@@ -3,7 +3,7 @@ NOTES AND CHANGES COMPARED TO `picture_d_llowfs_v4.md`:
 - In simulation, switched to a two CNN approach: a Capture CNN (large aberrations) and a
   Stabilization CNN (small aberrations). Additionally, created versions of both which are trained
   on wavefronts with simulated camera noise.
-- The CNNs now use the `llowfs_cnn_4` architecture.
+- The CNNs now use the `llowfs_cnn_4_no_dropout` architecture.
 - Obtained data on the PICTURE-D instrument and used it to extend train the CNN models with noise.
 ....................................................................................................
 
@@ -12,8 +12,8 @@ Most of the commands are based on the ones used to simulate data in this repo; t
 taken/referenced from the `general.md` and `model_training_versions.txt` files.
 The RM is for ±40 nm RMS error.
 The CNNs are based on:
-    - Capture CNN: [V70a] `wavefront_capture_sim_cam_v4`
-    - Stabilization CNN: [V70b] The `wavefront_stabilization_sim_cam_v4`.
+    - Capture CNN: [V72a] `wavefront_capture_sim_cam_v5`
+    - Stabilization CNN: [V72b] The `wavefront_stabilization_sim_cam_v5`.
 
 TABLE OF CONTENTS:
     SEC1 - INPUT ABERRATION CSV FILES
@@ -323,26 +323,26 @@ Train, test, and export the CNN models created from the instrument data.
     python3 main_scnp.py model_train instrument_llowfs_capture_v5a \
         train_instrument_llowfs_capture_v5 \
         val_instrument_llowfs_capture_v5 \
-        llowfs_cnn_4 mae adam 10e-5 1000 --batch-size 256 \
+        llowfs_cnn_4_no_dropout mae adam 10e-5 1000 --batch-size 256 \
         --lr-auto-annealing 10e-7 10 --early-stopping 15 \
-        --init-weights wavefront_capture_sim_cam_v4 last \
+        --init-weights wavefront_capture_sim_cam_v5 last \
         --overwrite-existing --only-best-epoch
 
     python3 main_scnp.py model_train instrument_llowfs_capture_v5b \
         train_instrument_llowfs_capture_v5 \
         val_instrument_llowfs_capture_v5 \
-        llowfs_cnn_4 mae adam 10e-5 1000 --batch-size 256 \
+        llowfs_cnn_4_no_dropout mae adam 10e-5 1000 --batch-size 256 \
         --lr-auto-annealing 10e-7 10 --early-stopping 15 \
-        --init-weights wavefront_capture_sim_cam_v4 last \
+        --init-weights wavefront_capture_sim_cam_v5 last \
         --overwrite-existing --only-best-epoch \
         --transfer-learning-train-layers dense_block1 out_layer
 
     python3 main_scnp.py model_train instrument_llowfs_capture_v5c \
         train_instrument_llowfs_capture_v5 \
         val_instrument_llowfs_capture_v5 \
-        llowfs_cnn_4 mae adam 10e-5 1000 --batch-size 256 \
+        llowfs_cnn_4_no_dropout mae adam 10e-5 1000 --batch-size 256 \
         --lr-auto-annealing 10e-7 10 --early-stopping 15 \
-        --init-weights wavefront_capture_sim_cam_v4 last \
+        --init-weights wavefront_capture_sim_cam_v5 last \
         --overwrite-existing --only-best-epoch \
         --transfer-learning-train-layers dense_block1 out_layer \
         --transfer-learning-batchnorm
@@ -350,18 +350,18 @@ Train, test, and export the CNN models created from the instrument data.
     python3 main_scnp.py model_train instrument_llowfs_capture_v5d \
         train_instrument_llowfs_capture_v5 \
         val_instrument_llowfs_capture_v5 \
-        llowfs_cnn_4 mae adam 10e-5 1000 --batch-size 256 \
+        llowfs_cnn_4_no_dropout mae adam 10e-5 1000 --batch-size 256 \
         --lr-auto-annealing 10e-7 10 --early-stopping 15 \
-        --init-weights wavefront_capture_sim_cam_v4 last \
+        --init-weights wavefront_capture_sim_cam_v5 last \
         --overwrite-existing --only-best-epoch \
         --transfer-learning-train-layers conv_block7 conv_block8 dense_block1 out_layer
 
     python3 main_scnp.py model_train instrument_llowfs_capture_v5e \
         train_instrument_llowfs_capture_v5 \
         val_instrument_llowfs_capture_v5 \
-        llowfs_cnn_4 mae adam 10e-5 1000 --batch-size 256 \
+        llowfs_cnn_4_no_dropout mae adam 10e-5 1000 --batch-size 256 \
         --lr-auto-annealing 10e-7 10 --early-stopping 15 \
-        --init-weights wavefront_capture_sim_cam_v4 last \
+        --init-weights wavefront_capture_sim_cam_v5 last \
         --overwrite-existing --only-best-epoch \
         --transfer-learning-train-layers conv_block7 conv_block8 dense_block1 out_layer \
         --transfer-learning-batchnorm
@@ -371,26 +371,26 @@ Train, test, and export the CNN models created from the instrument data.
     python3 main_scnp.py model_train instrument_llowfs_stabilization_v5a \
         train_instrument_llowfs_stabilization_v5 \
         val_instrument_llowfs_stabilization_v5 \
-        llowfs_cnn_4 mae adam 10e-5 1000 --batch-size 256 \
+        llowfs_cnn_4_no_dropout mae adam 10e-5 1000 --batch-size 256 \
         --lr-auto-annealing 10e-7 10 --early-stopping 15 \
-        --init-weights wavefront_stabilization_sim_cam_v4 last \
+        --init-weights wavefront_stabilization_sim_cam_v5 last \
         --overwrite-existing --only-best-epoch
 
     python3 main_scnp.py model_train instrument_llowfs_stabilization_v5b \
         train_instrument_llowfs_stabilization_v5 \
         val_instrument_llowfs_stabilization_v5 \
-        llowfs_cnn_4 mae adam 10e-5 1000 --batch-size 256 \
+        llowfs_cnn_4_no_dropout mae adam 10e-5 1000 --batch-size 256 \
         --lr-auto-annealing 10e-7 10 --early-stopping 15 \
-        --init-weights wavefront_stabilization_sim_cam_v4 last \
+        --init-weights wavefront_stabilization_sim_cam_v5 last \
         --overwrite-existing --only-best-epoch \
         --transfer-learning-train-layers dense_block1 out_layer
 
     python3 main_scnp.py model_train instrument_llowfs_stabilization_v5c \
         train_instrument_llowfs_stabilization_v5 \
         val_instrument_llowfs_stabilization_v5 \
-        llowfs_cnn_4 mae adam 10e-5 1000 --batch-size 256 \
+        llowfs_cnn_4_no_dropout mae adam 10e-5 1000 --batch-size 256 \
         --lr-auto-annealing 10e-7 10 --early-stopping 15 \
-        --init-weights wavefront_stabilization_sim_cam_v4 last \
+        --init-weights wavefront_stabilization_sim_cam_v5 last \
         --overwrite-existing --only-best-epoch \
         --transfer-learning-train-layers dense_block1 out_layer \
         --transfer-learning-batchnorm
@@ -398,18 +398,18 @@ Train, test, and export the CNN models created from the instrument data.
     python3 main_scnp.py model_train instrument_llowfs_stabilization_v5d \
         train_instrument_llowfs_stabilization_v5 \
         val_instrument_llowfs_stabilization_v5 \
-        llowfs_cnn_4 mae adam 10e-5 1000 --batch-size 256 \
+        llowfs_cnn_4_no_dropout mae adam 10e-5 1000 --batch-size 256 \
         --lr-auto-annealing 10e-7 10 --early-stopping 15 \
-        --init-weights wavefront_stabilization_sim_cam_v4 last \
+        --init-weights wavefront_stabilization_sim_cam_v5 last \
         --overwrite-existing --only-best-epoch \
         --transfer-learning-train-layers conv_block7 conv_block8 dense_block1 out_layer
 
     python3 main_scnp.py model_train instrument_llowfs_stabilization_v5e \
         train_instrument_llowfs_stabilization_v5 \
         val_instrument_llowfs_stabilization_v5 \
-        llowfs_cnn_4 mae adam 10e-5 1000 --batch-size 256 \
+        llowfs_cnn_4_no_dropout mae adam 10e-5 1000 --batch-size 256 \
         --lr-auto-annealing 10e-7 10 --early-stopping 15 \
-        --init-weights wavefront_stabilization_sim_cam_v4 last \
+        --init-weights wavefront_stabilization_sim_cam_v5 last \
         --overwrite-existing --only-best-epoch \
         --transfer-learning-train-layers conv_block7 conv_block8 dense_block1 out_layer \
         --transfer-learning-batchnorm
