@@ -1555,3 +1555,33 @@ After model testing, it is useful to rank the model analyses:
     python3 main.py model_test \
         dh_v59_2 last test_dh_both_hodms_efc_final_dh_lg_8iter_residuals \
         --max-rows-per-model-call 1000
+
+[V60] The `dh_v60_` tag:
+
+    python3 main_scnp.py model_train \
+        dh_v60_1 train_dh_both_hodms_efc_final_dh_lg_8iter \
+        val_dh_both_hodms_efc_final_dh_lg_8iter  \
+        dh_t22_with_rm mse adamw 10e-6 1000 --batch-size 512 \
+        --lr-auto-annealing 10e-8 10 --early-stopping 15 \
+        --use-rm-weights-for-layer dh_dm1_dm2 resp_mat_layer " -1e9" \
+        --use-norm-values-for-layers input_min_x input_min_x input_max_min_diff input_max_min_diff \
+            output_min_x output_min_x output_max_min_diff output_max_min_diff \
+        --overwrite-existing --only-best-epoch
+
+    python3 main.py model_test \
+        dh_v60_1 last test_dh_both_hodms_efc_final_dh_lg_8iter \
+        --max-rows-per-model-call 1000
+
+    python3 main_scnp.py model_train \
+        dh_v60_2 train_dh_both_hodms_efc_final_dh_lg_8iter \
+        val_dh_both_hodms_efc_final_dh_lg_8iter  \
+        dh_t22_with_rm mse adamw 10e-7 1000 --batch-size 512 \
+        --lr-auto-annealing 10e-8 10 --early-stopping 15 \
+        --use-rm-weights-for-layer dh_dm1_dm2 resp_mat_layer " -1e9" \
+        --use-norm-values-for-layers input_min_x input_min_x input_max_min_diff input_max_min_diff \
+            output_min_x output_min_x output_max_min_diff output_max_min_diff \
+        --overwrite-existing --only-best-epoch
+
+    python3 main.py model_test \
+        dh_v60_2 last test_dh_both_hodms_efc_final_dh_lg_8iter \
+        --max-rows-per-model-call 1000
