@@ -1,0 +1,59 @@
+When writing this, the two best models are:
+    dh_v56: Fully non-linear model
+    dh_v60_1: Trained on the residuals (overall best)
+However, neither model can fully dig a DH.
+Therefore, this file runs tests to check how well the models are able to learn.
+To keep things simple, only the first EFC iteration will be used (not 8 like in the models above).
+
+====================================================================================================
+Dig a DH using a CNN with surfaces that it was trained on.
+====================================================================================================
+
+First, 10 rows of data are simulated in `piccsim` and the surface files are saved for each one:
+    output/surface/rx_picture_d_efcnn_row[0-9]
+
+Once these rows are simulated, they must be converted to HDF:
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_10_row_saved_surfaces \
+        /home/michael-jones/Documents/piccsim_sim_data/dh_both_hodms_efc_10_row_saved_surfaces \
+        --fits-file-globs 'dm1_*' 'dm2_*' 'sci_*i' 'sci*r' \
+        --fits-table-names dm1 dm2 sci_i sci_r \
+        --save-difference-only 12 11 1 dm1 dm2
+
+Then, a dataset is created for training:
+    # No testing dataset is created since it is the ability of the CNN to dig a DH on some
+    # of the surfaces which it was trained on that is being tested
+    python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_final_dh_14k_ch1 \
+        train_dh_both_hodms_efc_final_dh_lg_1iter_w10rows \
+        val_dh_both_hodms_efc_final_dh_lg_1iter_w10rows \
+        none 92 8 0 \
+        --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
+        --additional-raw-data-tags dh_both_hodms_efc_final_dh_14k_ch2 \
+            dh_both_hodms_efc_final_dh_9k_ch1 dh_both_hodms_efc_final_dh_9k_ch2 \
+            dh_both_hodms_efc_30k_1iter_ch1 dh_both_hodms_efc_30k_1iter_ch2 \
+        --additional-raw-data-tags-train-only dh_both_hodms_efc_10_row_saved_surfaces \
+        --norm-inputs --norm-outputs
+
+Now, the models can train:
+    # Use the actual validation dataset
+    python3 main_scnp.py model_train \
+        dh_learning_ability_test_1 \
+        train_dh_both_hodms_efc_final_dh_lg_1iter_w10rows \
+        val_dh_both_hodms_efc_final_dh_lg_1iter_w10rows \
+        dh_t22_no_dropout mse adamw 10e-6 1000 --batch-size 512 \
+        --lr-auto-annealing 10e-8 10 --early-stopping 15 \
+        --overwrite-existing --only-best-epoch
+
+    python3 main_scnp.py model_train \
+        dh_learning_ability_test_2 \
+        train_dh_both_hodms_efc_final_dh_lg_1iter_w10rows \
+        train_dh_both_hodms_efc_final_dh_lg_1iter_w10rows \
+        dh_t22_no_dropout mse adamw 10e-6 1000 --batch-size 512 \
+        --lr-auto-annealing 10e-8 10 --early-stopping 15 \
+        --overwrite-existing --only-best-epoch
+
+Finally, export the models:
+    python3 main.py export_model dh_learning_ability_test_1 last \
+        train_dh_both_hodms_efc_final_dh_lg_1iter_w10rows --no-base-field --no-save-txt-files
+    python3 main.py export_model dh_learning_ability_test_2 last \
+        train_dh_both_hodms_efc_final_dh_lg_1iter_w10rows --no-base-field --no-save-txt-files
