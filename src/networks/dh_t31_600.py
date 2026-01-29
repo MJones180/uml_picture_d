@@ -1,4 +1,4 @@
-# `dh_t31` network { 2x59x59 -> 1512 }. (Based on `dh_t22_no_dropout`)
+# `dh_t31_600` network { 2x59x59 -> 600 }. (Based on `dh_t22_no_dropout`)
 # Trainable parameters: 140,245,992
 
 import torch
@@ -81,7 +81,7 @@ class Network(nn.Module):
         # 4x4 -> 1x1
         self.avgpool = nn.AvgPool2d(4)
         self.dense_block = _make_dense_block(2048, 4096)
-        self.out_layer = nn.Linear(4096, 1512)
+        self.out_layer = nn.Linear(4096, 600)
 
     def forward(self, x):
         x = self.initial_conv_block(x)

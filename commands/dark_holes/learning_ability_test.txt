@@ -52,7 +52,26 @@ Now, the models can train:
         --lr-auto-annealing 10e-8 10 --early-stopping 15 \
         --overwrite-existing --only-best-epoch
 
-Finally, export the models:
+Compare the DM comparisons for the training data:
+    python3 main.py model_test dh_learning_ability_test_1 last \
+        train_dh_both_hodms_efc_final_dh_lg_1iter_w10rows \
+        --outputs-no-denorm --max-rows-per-model-call 1000
+    python3 main.py dm_comparison dh_learning_ability_test_1 120 \
+        train_dh_both_hodms_efc_final_dh_lg_1iter_w10rows 12 --dm-size 34
+
+    python3 main.py model_test dh_learning_ability_test_1 last \
+        val_dh_both_hodms_efc_final_dh_lg_1iter_w10rows \
+        --outputs-no-denorm --max-rows-per-model-call 1000
+    python3 main.py dm_comparison dh_learning_ability_test_1 120 \
+        val_dh_both_hodms_efc_final_dh_lg_1iter_w10rows 12 --dm-size 34
+
+    python3 main.py model_test dh_learning_ability_test_2 last \
+        train_dh_both_hodms_efc_final_dh_lg_1iter_w10rows \
+        --outputs-no-denorm --max-rows-per-model-call 1000
+    python3 main.py dm_comparison dh_learning_ability_test_2 96 \
+        train_dh_both_hodms_efc_final_dh_lg_1iter_w10rows 12 --dm-size 34
+
+Finally, export the models to run in `piccsim`:
     python3 main.py export_model dh_learning_ability_test_1 last \
         train_dh_both_hodms_efc_final_dh_lg_1iter_w10rows --no-base-field --no-save-txt-files
     python3 main.py export_model dh_learning_ability_test_2 last \
