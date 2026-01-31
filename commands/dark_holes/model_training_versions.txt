@@ -1728,6 +1728,17 @@ After model testing, it is useful to rank the model analyses:
         dh_v65_7 last test_dh_both_hodms_efc_final_dh_lg_1iter \
         --max-rows-per-model-call 1000
 
+    python3 main_scnp.py model_train \
+        dh_v65_8 train_dh_both_hodms_efc_final_dh_lg_1iter \
+        val_dh_both_hodms_efc_final_dh_lg_1iter \
+        dh_t32_8 mse adamw 10e-6 1000 --batch-size 512 \
+        --lr-auto-annealing 10e-8 10 --early-stopping 15 \
+        --overwrite-existing --only-best-epoch
+
+    python3 main.py model_test \
+        dh_v65_8 last test_dh_both_hodms_efc_final_dh_lg_1iter \
+        --max-rows-per-model-call 1000
+
 [V66] The `dh_v66_` tag:
 
     python3 main_scnp.py model_train \
@@ -1807,6 +1818,17 @@ After model testing, it is useful to rank the model analyses:
         dh_v66_7 last test_dh_both_hodms_efc_final_dh_lg_1iter_svd_all \
         --max-rows-per-model-call 1000
 
+    python3 main_scnp.py model_train \
+        dh_v66_8 train_dh_both_hodms_efc_final_dh_lg_1iter_svd_all \
+        val_dh_both_hodms_efc_final_dh_lg_1iter_svd_all \
+        dh_t32_8 mse adamw 10e-6 1000 --batch-size 512 \
+        --lr-auto-annealing 10e-8 10 --early-stopping 15 \
+        --overwrite-existing --only-best-epoch
+
+    python3 main.py model_test \
+        dh_v66_8 last test_dh_both_hodms_efc_final_dh_lg_1iter_svd_all \
+        --max-rows-per-model-call 1000
+
 [V67] The `dh_v67_` tag:
 
     python3 main_scnp.py model_train \
@@ -1884,4 +1906,15 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py model_test \
         dh_v67_7 last test_dh_both_hodms_efc_final_dh_lg_1iter_svd \
+        --max-rows-per-model-call 1000
+
+    python3 main_scnp.py model_train \
+        dh_v67_8 train_dh_both_hodms_efc_final_dh_lg_1iter_svd \
+        val_dh_both_hodms_efc_final_dh_lg_1iter_svd \
+        dh_t32_8_600 mse adamw 10e-6 1000 --batch-size 512 \
+        --lr-auto-annealing 10e-8 10 --early-stopping 15 \
+        --overwrite-existing --only-best-epoch
+
+    python3 main.py model_test \
+        dh_v67_8 last test_dh_both_hodms_efc_final_dh_lg_1iter_svd \
         --max-rows-per-model-call 1000
