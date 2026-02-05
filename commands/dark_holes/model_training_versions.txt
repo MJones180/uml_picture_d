@@ -1829,6 +1829,17 @@ After model testing, it is useful to rank the model analyses:
         dh_v66_8 last test_dh_both_hodms_efc_final_dh_lg_1iter_svd_all \
         --max-rows-per-model-call 1000
 
+    python3 main_scnp.py model_train \
+        dh_v66_9 train_dh_both_hodms_efc_final_dh_lg_1iter_svd_all \
+        val_dh_both_hodms_efc_final_dh_lg_1iter_svd_all \
+        dh_t31 mse adamw 10e-6 1000 --batch-size 512 \
+        --lr-auto-annealing 10e-8 10 --early-stopping 15 \
+        --overwrite-existing --only-best-epoch
+
+    python3 main.py model_test \
+        dh_v66_9 last test_dh_both_hodms_efc_final_dh_lg_1iter_svd_all \
+        --max-rows-per-model-call 1000
+
 [V67] The `dh_v67_` tag:
 
     python3 main_scnp.py model_train \
@@ -1917,4 +1928,39 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py model_test \
         dh_v67_8 last test_dh_both_hodms_efc_final_dh_lg_1iter_svd \
+        --max-rows-per-model-call 1000
+
+[V68] The `dh_v68_` tag:
+
+    python3 main_scnp.py model_train \
+        dh_v68_1 train_dh_both_hodms_efc_final_dh_lg_1iter_svd \
+        val_dh_both_hodms_efc_final_dh_lg_1iter_svd \
+        dh_t31_600 weighted_mse_two_dms_linear10 adamw 10e-6 1000 --batch-size 512 \
+        --lr-auto-annealing 10e-8 10 --early-stopping 15 \
+        --overwrite-existing --only-best-epoch
+
+    python3 main.py model_test \
+        dh_v68_1 last test_dh_both_hodms_efc_final_dh_lg_1iter_svd \
+        --max-rows-per-model-call 1000
+
+    python3 main_scnp.py model_train \
+        dh_v68_2 train_dh_both_hodms_efc_final_dh_lg_1iter_svd \
+        val_dh_both_hodms_efc_final_dh_lg_1iter_svd \
+        dh_t31_600 weighted_mse_two_dms_linear50 adamw 10e-6 1000 --batch-size 512 \
+        --lr-auto-annealing 10e-8 10 --early-stopping 15 \
+        --overwrite-existing --only-best-epoch
+
+    python3 main.py model_test \
+        dh_v68_2 last test_dh_both_hodms_efc_final_dh_lg_1iter_svd \
+        --max-rows-per-model-call 1000
+
+    python3 main_scnp.py model_train \
+        dh_v68_3 train_dh_both_hodms_efc_final_dh_lg_1iter_svd \
+        val_dh_both_hodms_efc_final_dh_lg_1iter_svd \
+        dh_t31_600 weighted_mse_two_dms_exp99 adamw 10e-6 1000 --batch-size 512 \
+        --lr-auto-annealing 10e-8 10 --early-stopping 15 \
+        --overwrite-existing --only-best-epoch
+
+    python3 main.py model_test \
+        dh_v68_3 last test_dh_both_hodms_efc_final_dh_lg_1iter_svd \
         --max-rows-per-model-call 1000
