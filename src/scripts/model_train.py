@@ -379,6 +379,10 @@ def model_train(cli_args):
 
     step_ri('Setting the loss function')
     loss_name = cli_args['loss']
+
+    def unknown_loss_function():
+        terminate_with_message(f'Loss function unknown: {loss_name}')
+
     if loss_name in ('mae', 'mse'):
         if loss_name == 'mae':
             print('MAE')
@@ -424,9 +428,34 @@ def model_train(cli_args):
                     torch.sign(model_outputs) *
                     torch.log10(torch.abs(model_outputs) + 1))**2
             return loss.mean()
+    elif 'weighted_mse_two_dms' in loss_name:
+        print('Weighted MSE Two DMs')
+        # Grab the number of output neurons for each DM (two in total)
+        outputs_per_dm = validation_dataset.get_outputs().shape[1] // 2
+        # Grab the parameter; the meaning will change depending on the scaling
+        param_amount = float(f'0.{loss_name[-2:]}')
+        # The first declaration of `output_weights` gives the weight of each
+        # output neuron associated with the first DM
+        if '_linear' in loss_name:
+            print(f'Linear scaling from [1, {param_amount}]')
+            output_weights = np.linspace(1, param_amount, outputs_per_dm)
+        elif '_exp' in loss_name:
+            print(f'Exponential scaling with base {param_amount}')
+            output_weights = param_amount**np.arange(outputs_per_dm)
+        else:
+            unknown_loss_function()
+        # Create a copy of the output weights for the second DM
+        output_weights = np.tile(output_weights, 2)
+        # Normalize the weights to have a mean of 1
+        output_weights = output_weights / output_weights.mean()
+        # Move the output weights to torch
+        output_weights = torch.from_numpy(output_weights).to(device)
 
+        def loss_function(model_outputs, truth_outputs):
+            loss = output_weights * (model_outputs - truth_outputs)**2
+            return loss.mean()
     else:
-        terminate_with_message('Loss function unknown')
+        unknown_loss_function()
 
     step_ri('Setting the optimizer')
     optimizer = getattr(torch.optim, OPTIMIZERS[cli_args['optimizer']])
