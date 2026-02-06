@@ -106,13 +106,14 @@ def model_train_parser(subparsers):
     )
     subparser.add_argument(
         '--lr-auto-annealing',
-        nargs=2,
+        nargs='+',
         type=float,
         help=('auto change the learning rate when progress begins to plateau; '
               'the initial learning rate is taken from the '
               '`learning_rate` arg; the learning rate is reduced each time '
-              'the `early_stopping` arg is met; two variables should be '
-              'passed: final learning rate, learning rate divide factor'),
+              'the `early_stopping` arg is met; variables that should be '
+              'passed: final learning rate, learning rate divide factors that '
+              'should be iterated through'),
     )
     subparser.add_argument(
         '--loss-improvement-threshold',
@@ -474,16 +475,21 @@ def model_train(cli_args):
     if lr_auto_annealing:
         step_ri('Will use learning rate annealing')
         final_lr = lr_auto_annealing[0]
-        lr_scale_factor = lr_auto_annealing[1]
+        lr_scale_factors = lr_auto_annealing[1:]
         print(f'Final learning rate: {final_lr}')
-        print(f'Learning rate scale factor: {lr_scale_factor}')
+        print(f'Learning rate scale factors: {lr_scale_factors}')
         print('Will switch learning rate every time loss does not '
               f'improve after {early_stopping} epochs')
+        # The total number of scale factors to rotate through
+        scale_factors = len(lr_scale_factors)
+        # The current lr scale factor to use
+        current_scale_factor = 0
         upcoming_lrs = []
-        next_lr = base_learning_rate / lr_scale_factor
+        next_lr = base_learning_rate / lr_scale_factors[current_scale_factor]
         while next_lr >= final_lr:
+            current_scale_factor = (current_scale_factor + 1) % scale_factors
             upcoming_lrs.append(next_lr)
-            next_lr /= lr_scale_factor
+            next_lr /= lr_scale_factors[current_scale_factor]
         print(f'Will use the following learning rates: {upcoming_lrs}')
 
     step_ri('Setting the image transforms')
