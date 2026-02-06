@@ -2140,6 +2140,28 @@ After model testing, it is useful to rank the model analyses:
         dh_v71_3 last test_dh_both_hodms_efc_final_dh_lg_1iter_svd \
         --max-rows-per-model-call 1000
 
+    python3 main_scnp.py model_train \
+        dh_v71_4 train_dh_both_hodms_efc_final_dh_lg_1iter_svd \
+        val_dh_both_hodms_efc_final_dh_lg_1iter_svd \
+        dh_t33_4_600 mse adamw 10e-6 1000 --batch-size 512 \
+        --lr-auto-annealing 10e-8 10 --early-stopping 15 \
+        --overwrite-existing --only-best-epoch
+
+    python3 main.py model_test \
+        dh_v71_4 last test_dh_both_hodms_efc_final_dh_lg_1iter_svd \
+        --max-rows-per-model-call 1000
+
+    python3 main_scnp.py model_train \
+        dh_v71_5 train_dh_both_hodms_efc_final_dh_lg_1iter_svd \
+        val_dh_both_hodms_efc_final_dh_lg_1iter_svd \
+        dh_t33_5_600 mse adamw 10e-6 1000 --batch-size 512 \
+        --lr-auto-annealing 10e-8 10 --early-stopping 15 \
+        --overwrite-existing --only-best-epoch
+
+    python3 main.py model_test \
+        dh_v71_5 last test_dh_both_hodms_efc_final_dh_lg_1iter_svd \
+        --max-rows-per-model-call 1000
+
 [V72] The `dh_v72` tag:
 
     python3 main_scnp.py model_train \

@@ -6,12 +6,12 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-def _make_conv_block(in_features, out_features, kernel_size, return_relu=True):
+def _make_conv_block(in_features, out_features, return_relu=True):
     layers = [
         nn.Conv2d(
             in_features,
             out_features,
-            kernel_size,
+            3,
             padding='same',
             bias=False,
         ),
@@ -22,12 +22,12 @@ def _make_conv_block(in_features, out_features, kernel_size, return_relu=True):
     return nn.Sequential(*layers)
 
 
-def _make_conv_block_and_downsize(in_features, out_features, kernel_size):
+def _make_conv_block_and_downsize(in_features, out_features):
     return nn.Sequential(
         nn.Conv2d(
             in_features,
             out_features,
-            kernel_size,
+            3,
             padding=1,
             bias=False,
             stride=2,
@@ -41,8 +41,8 @@ class ResidualBlock(nn.Module):
 
     def __init__(self, channels):
         super().__init__()
-        self.conv_block1 = _make_conv_block(channels, channels, 3)
-        self.conv_block2 = _make_conv_block(channels, channels, 3, False)
+        self.conv_block1 = _make_conv_block(channels, channels)
+        self.conv_block2 = _make_conv_block(channels, channels, False)
 
     def forward(self, x):
         # Add the skip connection
@@ -64,19 +64,19 @@ class Network(nn.Module):
 
     def __init__(self):
         super().__init__()
-        self.initial_conv_block = _make_conv_block(2, 256, 3)
+        self.initial_conv_block = _make_conv_block(2, 256)
         self.conv_residual_1 = ResidualBlock(256)
         # 59x59 -> 30x30
-        self.conv_downsize_1 = _make_conv_block_and_downsize(256, 512, 3)
+        self.conv_downsize_1 = _make_conv_block_and_downsize(256, 512)
         self.conv_residual_2 = ResidualBlock(512)
         # 30x30 -> 15x15
-        self.conv_downsize_2 = _make_conv_block_and_downsize(512, 1024, 3)
+        self.conv_downsize_2 = _make_conv_block_and_downsize(512, 1024)
         self.conv_residual_3 = ResidualBlock(1024)
         # 15x15 -> 8x8
-        self.conv_downsize_3 = _make_conv_block_and_downsize(1024, 1024, 3)
+        self.conv_downsize_3 = _make_conv_block_and_downsize(1024, 1024)
         self.conv_residual_4 = ResidualBlock(1024)
         # 8x8 -> 4x4
-        self.conv_downsize_4 = _make_conv_block_and_downsize(1024, 2048, 3)
+        self.conv_downsize_4 = _make_conv_block_and_downsize(1024, 2048)
         self.conv_residual_5 = ResidualBlock(2048)
         # 4x4 -> 1x1
         self.maxpool = nn.MaxPool2d(4)
