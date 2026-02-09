@@ -1,4 +1,4 @@
-# `dh_t34_1000` network { 2x59x59 -> 1000 }. (Based on `dh_t32_8_1000.py`)
+# `dh_t34_1_1000` network { 2x59x59 -> 1000 }. (Based on `dh_t32_8_1000.py`)
 # Trainable parameters: 131,903,976
 
 import torch

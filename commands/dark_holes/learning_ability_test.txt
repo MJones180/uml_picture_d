@@ -6,7 +6,7 @@ Therefore, this file runs tests to check how well the models are able to learn.
 To keep things simple, only the first EFC iteration will be used (not 8 like in the models above).
 
 ====================================================================================================
-Dig a DH using a CNN with surfaces that it was trained on.
+[V1] Dig a DH using a CNN with surfaces that it was trained on.
 ====================================================================================================
 
 First, 10 rows of data are simulated in `piccsim` and the surface files are saved for each one:
@@ -92,3 +92,29 @@ Finally, export the models to run in `piccsim`:
         train_dh_both_hodms_efc_final_dh_lg_1iter_w10rows --no-base-field --no-save-txt-files
     python3 main.py export_model dh_learning_ability_test_3 last \
         train_dh_both_hodms_efc_final_dh_lg_1iter_w10rows --no-base-field --no-save-txt-files
+
+====================================================================================================
+[V2] Dig a DH using a CNN with surfaces that it was trained on.
+====================================================================================================
+
+python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_final_dh_14k_ch1 \
+    train_dh_both_hodms_efc_final_dh_lg_1iter_svd_500_w10rows none none 100 0 0 \
+    --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
+    --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
+    --additional-raw-data-tags dh_both_hodms_efc_final_dh_14k_ch2 \
+        dh_both_hodms_efc_final_dh_9k_ch1 dh_both_hodms_efc_final_dh_9k_ch2 \
+        dh_both_hodms_efc_30k_1iter_ch1 dh_both_hodms_efc_30k_1iter_ch2 \
+    --additional-raw-data-tags-train-only dh_both_hodms_efc_10_row_saved_surfaces \
+    --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
+    --norm-inputs --norm-outputs
+
+python3 main_scnp.py model_train \
+    dh_learning_ability_test_4 \
+    train_dh_both_hodms_efc_final_dh_lg_1iter_svd_500_w10rows \
+    train_dh_both_hodms_efc_final_dh_lg_1iter_svd_500_w10rows \
+    dh_t32_8_1000 weighted_mse_two_dms_linear10 adamw 10e-6 1000 --batch-size 512 \
+    --lr-auto-annealing 10e-8 10 --early-stopping 15 \
+    --overwrite-existing --only-best-epoch
+
+python3 main.py export_model dh_learning_ability_test_4 last \
+    train_dh_both_hodms_efc_final_dh_lg_1iter_svd_500_w10rows --no-base-field --no-save-txt-files

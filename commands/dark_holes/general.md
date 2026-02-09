@@ -260,6 +260,14 @@ Both HODMs:
         --save-difference-only 12 11 1 dm1 dm2 \
         --rows-per-chunk 24000
 
+    # 12 iterations of broadband EFC using the RM; saves first iteration with correct DM differentials
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_broadband_5689_1iter \
+        /home/michael-jones/Documents/piccsim_sim_data/dh_both_hodms_efc_broadband_5689 \
+        --fits-file-globs 'dm1_*' 'dm2_*' 'sci_*i' 'sci*r' \
+        --fits-table-names dm1 dm2 sci_i sci_r \
+        --save-difference-only 12 11 1 dm1 dm2 \
+        --rows-per-chunk 24000
+
 The DM SVD modes from the inverted matrix:
 
     python3 main.py convert_piccsim_fits_data hodm1_756_modes \
@@ -704,6 +712,41 @@ Preprocess the datasets:
             dh_both_hodms_efc_30k_1iter_ch1 dh_both_hodms_efc_30k_1iter_ch2 \
         --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
         --norm-inputs --norm-outputs
+
+    python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_final_dh_14k_ch1 \
+        train_dh_both_hodms_efc_final_dh_xlg_1iter_svd_500 \
+        val_dh_both_hodms_efc_final_dh_xlg_1iter_svd_500 \
+        test_dh_both_hodms_efc_final_dh_xlg_1iter_svd_500 88 6 6 \
+        --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
+        --additional-raw-data-tags dh_both_hodms_efc_final_dh_14k_ch2 \
+            dh_both_hodms_efc_final_dh_9k_ch1 dh_both_hodms_efc_final_dh_9k_ch2 \
+            dh_both_hodms_efc_30k_1iter_ch1 dh_both_hodms_efc_30k_1iter_ch2 \
+            dh_both_hodms_efc_27k_1iter_ch1 dh_both_hodms_efc_27k_1iter_ch2 \
+        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
+        --norm-inputs --norm-outputs
+
+    python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_final_dh_14k_ch1 \
+        train_dh_both_hodms_efc_final_dh_lg_8iter_svd_500 \
+        val_dh_both_hodms_efc_final_dh_lg_8iter_svd_500 \
+        test_dh_both_hodms_efc_final_dh_lg_8iter_svd_500 88 6 6 \
+        --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
+        --additional-raw-data-tags dh_both_hodms_efc_final_dh_9k_ch1 \
+            dh_both_hodms_efc_30k_8iter_ch1 \
+        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
+        --norm-inputs --norm-outputs
+    python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_final_dh_14k_ch2 \
+        train_dh_both_hodms_efc_final_dh_lg_8iter_svd_500 \
+        val_dh_both_hodms_efc_final_dh_lg_8iter_svd_500 \
+        test_dh_both_hodms_efc_final_dh_lg_8iter_svd_500 88 6 6 \
+        --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
+        --additional-raw-data-tags dh_both_hodms_efc_final_dh_9k_ch2 \
+            dh_both_hodms_efc_30k_8iter_ch2 \
+        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
+        --norm-inputs --norm-outputs \
+        --extend-existing-preprocessed-data
 
     python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_final_dh_14k_ch1 \
         train_dh_both_hodms_efc_final_dh_lg_1iter_svd_all \
