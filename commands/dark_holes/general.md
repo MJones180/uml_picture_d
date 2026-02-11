@@ -785,7 +785,7 @@ Preprocess the datasets:
         --additional-raw-data-tags dh_both_hodms_efc_final_dh_14k_ch2 \
             dh_both_hodms_efc_final_dh_9k_ch1 dh_both_hodms_efc_final_dh_9k_ch2 \
             dh_both_hodms_efc_30k_1iter_ch1 dh_both_hodms_efc_30k_1iter_ch2 \
-        --use-ef-svd-basis sci_r sci_i ef_modes_flat ef_modes 500 --flatten-input \
+        --use-ef-svd-basis ef_modes_flat ef_modes 500 --flatten-input \
         --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
         --norm-inputs-ones-individual --norm-outputs
 

@@ -129,8 +129,8 @@ def preprocess_data_dark_hole_parser(subparsers):
     )
     subparser.add_argument(
         '--use-ef-svd-basis',
-        nargs=5,
-        metavar=('[real ef table] [imag ef table] [datafile] [datafile table] '
+        nargs=3,
+        metavar=('[datafile] [datafile table] '
                  '[number of modes from the start for the real and imag EF]'),
         help=('use the SVD basis for the real and imaginary EF; the raw '
               'datafile must consist of the flattened SVD modes for the EF, '
@@ -522,8 +522,7 @@ def preprocess_data_dark_hole(cli_args):
     use_ef_svd_basis = cli_args.get('use_ef_svd_basis')
     if use_ef_svd_basis is not None:
         step_ri('Using the SVD basis functions for the EF')
-        (real_ef_table, imag_ef_table, modes_tag, modes_table_name,
-         max_modes) = use_ef_svd_basis
+        modes_tag, modes_table_name, max_modes = use_ef_svd_basis
         print(f'Using {max_modes} modes for both the real and imaginary EF')
         modes_path = raw_sim_data_chunk_paths(modes_tag)[0]
         modes = read_hdf(modes_path)[modes_table_name][:].astype(F32)
