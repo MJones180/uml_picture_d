@@ -10,6 +10,7 @@ def _make_dense_block(in_features, out_features):
         nn.Linear(in_features, out_features, bias=False),
         nn.BatchNorm1d(out_features),
         nn.LeakyReLU(),
+        nn.Dropout(0.5),
     )
 
 
