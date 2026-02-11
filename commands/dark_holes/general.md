@@ -268,7 +268,7 @@ Both HODMs:
         --save-difference-only 12 11 1 dm1 dm2 \
         --rows-per-chunk 24000
 
-The DM SVD modes from the inverted matrix:
+The 2D DM SVD modes from the inverted matrix:
 
     python3 main.py convert_piccsim_fits_data hodm1_756_modes \
         /home/michael-jones/Documents/piccsim/output/svd_modes/rx_picture_d_efcnn_dm1 \
@@ -282,9 +282,18 @@ The DM SVD modes from the inverted matrix:
 Convert a flat SVD matrix from FITS to HDF:
 
     # This matrix contains the science camera modes
-    python3 main.py convert_flat_svd_matrix sci_cam_modes \
+    python3 main.py convert_flat_svd_matrix sci_cam_modes_flat \
         /home/michael-jones/Documents/piccsim/output/svd_modes/dm1_u_matrix.fits \
         sci_modes
+
+    # These matrices contain the DM modes; these modes will be flattened instead
+    # of 2D which the above commands produce
+    python3 main.py convert_flat_svd_matrix dm1_modes_flat \
+        /home/michael-jones/Documents/piccsim/output/svd_modes/dm1_v_matrix.fits \
+        dm1_modes
+    python3 main.py convert_flat_svd_matrix dm2_modes_flat \
+        /home/michael-jones/Documents/piccsim/output/svd_modes/dm2_v_matrix.fits \
+        dm2_modes
 
 ## Data Preprocessing
 
