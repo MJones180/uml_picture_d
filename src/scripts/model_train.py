@@ -193,6 +193,11 @@ def model_train_parser(subparsers):
         help=('will quit after setting the weights in a layer with RM values; '
               'must be used with the `--use-rm-weights-for-layer` arg'),
     )
+    subparser.add_argument(
+        '--disable-tag-lookup',
+        action='store_true',
+        help='do not write to the tag lookup file',
+    )
     shared_argparser_args(subparser, ['force_cpu'])
     epoch_save_group = subparser.add_mutually_exclusive_group()
     epoch_save_group.add_argument(
@@ -543,16 +548,17 @@ def model_train(cli_args):
     with open(loss_file, 'w') as loss_writer:
         loss_writer.write(loss_keys)
 
-    step_ri('Writing to the tag lookup')
-    tag_lookup_path = f'{OUTPUT_P}/{TAG_LOOKUP_F}'
-    # Load in the current lookup if one already exists
-    if path_exists(tag_lookup_path):
-        tag_lookup = json_load(tag_lookup_path)
-    else:
-        tag_lookup = {}
-    # Add all the cli arguments associated with this tag for easy reference
-    tag_lookup[tag] = cli_args
-    json_write(tag_lookup_path, tag_lookup)
+    if not cli_args['disable_tag_lookup']:
+        step_ri('Writing to the tag lookup')
+        tag_lookup_path = f'{OUTPUT_P}/{TAG_LOOKUP_F}'
+        # Load in the current lookup if one already exists
+        if path_exists(tag_lookup_path):
+            tag_lookup = json_load(tag_lookup_path)
+        else:
+            tag_lookup = {}
+        # Add all the cli arguments associated with this tag for easy reference
+        tag_lookup[tag] = cli_args
+        json_write(tag_lookup_path, tag_lookup)
 
     step_ri('Epoch counts')
     epoch_count = cli_args['epochs']
