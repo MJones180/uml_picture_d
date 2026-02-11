@@ -10,7 +10,6 @@ The training and validation dataset must have their inputs pre-normalized.
 import numpy as np
 from time import time
 import torch
-from torchvision.transforms import v2
 from utils.cli_args import save_cli_args
 from utils.constants import (EPOCH_LOSS_F, EXTRA_VARS_F, OPTIMIZERS,
                              OUTPUT_MASK, OUTPUT_P, PROC_DATA_P, TAG_LOOKUP_F,
@@ -22,7 +21,8 @@ from utils.load_network import load_network
 from utils.model import Model
 from utils.path import (copy_files, delete_dir, delete_file, make_dir,
                         path_exists)
-from utils.printing_and_logging import dec_print_indent, step, step_ri, title
+from utils.printing_and_logging import (dec_print_indent, inc_print_indent,
+                                        step, step_ri, title)
 from utils.response_matrix import ResponseMatrix
 from utils.shared_argparser_args import shared_argparser_args
 from utils.terminate_with_message import terminate_with_message
@@ -92,12 +92,6 @@ def model_train_parser(subparsers):
         help='if existing model with tag, delete before training',
     )
     subparser.add_argument(
-        '--randomly-flip-images',
-        action='store_true',
-        help=('50%% chance of flipping images horizontally and '
-              '50%% chance of flipping images vertically'),
-    )
-    subparser.add_argument(
         '--early-stopping',
         type=int,
         metavar='n',
@@ -119,6 +113,12 @@ def model_train_parser(subparsers):
         '--loss-improvement-threshold',
         type=float,
         help='threshold to determine if loss has improved',
+    )
+    subparser.add_argument(
+        '--clip-gradient-norm',
+        type=float,
+        help=('clip the gradient norm to the specified value; '
+              'defaults to no clipping'),
     )
     subparser.add_argument(
         '--max-threads',
@@ -204,6 +204,8 @@ def model_train_parser(subparsers):
 
 def model_train(cli_args):
     title('Model train script')
+
+    INF_VAL = float('inf')
 
     max_threads = cli_args['max_threads']
     if max_threads:
@@ -492,14 +494,19 @@ def model_train(cli_args):
             next_lr /= lr_scale_factors[current_scale_factor]
         print(f'Will use the following learning rates: {upcoming_lrs}')
 
-    step_ri('Setting the image transforms')
-    image_transforms = None
-    if cli_args.get('randomly_flip_images'):
-        image_transforms = v2.Compose([
-            v2.RandomHorizontalFlip(p=0.5),
-            v2.RandomVerticalFlip(p=0.5),
-        ])
-    print(image_transforms)
+    clip_gradient_norm = cli_args.get('clip_gradient_norm')
+    step_ri('Gradient norm clipping')
+    if clip_gradient_norm is None:
+        print('No clipping')
+        clip_gradient_norm = INF_VAL
+    print(f'Value of {clip_gradient_norm}')
+
+    loss_improve_threshold = cli_args.get('loss_improvement_threshold')
+    step_ri('Loss improvement threshold')
+    if loss_improve_threshold is None:
+        print('Setting default')
+        loss_improve_threshold = 7.5e-6
+    print(f'Value of {loss_improve_threshold}')
 
     step_ri('Creating a CSV file to track loss')
     loss_file = f'{output_model_path}/{EPOCH_LOSS_F}'
@@ -531,7 +538,7 @@ def model_train(cli_args):
 
     step_ri('Saving preferences')
     best_val_loss_epoch = 0
-    best_val_loss = 1e10
+    best_val_loss = INF_VAL
     epoch_save_steps = cli_args.get('epoch_save_steps')
     only_best_epoch = cli_args['only_best_epoch']
     if epoch_save_steps:
@@ -544,15 +551,14 @@ def model_train(cli_args):
     for epoch_idx in range(1, epoch_count + 1):
         step(f'EPOCH {epoch_idx}/{epoch_count}')
         start_time = time()
-
+        # The gradient norm of each batch before clipping
+        batch_grad_norms = []
         # Turn gradient tracking on
         model.train(True)
         total_train_loss = 0
         for inputs, outputs_truth in train_loader:
             inputs = inputs.to(device)
             outputs_truth = outputs_truth.to(device)
-            if image_transforms is not None:
-                inputs = image_transforms(inputs)
             # Zero gradients for every batch
             optimizer.zero_grad(set_to_none=True)
             # Make predictions for this batch
@@ -561,10 +567,31 @@ def model_train(cli_args):
             # to floats (float32) so that the backward prop works for MSE
             loss = loss_function(outputs.float(), outputs_truth.float())
             loss.backward()
+            # Add the current batch's grad norm; value is from before clipping
+            batch_grad_norms.append(
+                torch.nn.utils.clip_grad_norm_(
+                    model.parameters(),
+                    clip_gradient_norm,
+                ).item())
             # Adjust learning weights
             optimizer.step()
             total_train_loss += loss.item()
         avg_train_loss = total_train_loss / training_batches
+
+        def _print_grad_norm_stats(clip_str, norms):
+            print(f'Gradient Norm ({clip_str}):')
+            inc_print_indent()
+            print(f'Average norm: {float(np.mean(norms))}')
+            print(f'Max norm: {float(np.max(norms))}')
+            print(f'Min norm: {float(np.min(norms))}')
+            dec_print_indent()
+
+        _print_grad_norm_stats('Unclipped', batch_grad_norms)
+        if clip_gradient_norm != INF_VAL:
+            # These clipped norms are just an approximation; for instance,
+            # clipping to 1 may result in a norm of 1 - epsilon
+            clipped_norms = np.clip(batch_grad_norms, None, clip_gradient_norm)
+            _print_grad_norm_stats('Clipped', clipped_norms)
 
         # Set the model to evaluation mode (disables dropout)
         model.eval()
@@ -607,11 +634,8 @@ def model_train(cli_args):
         def _save_epoch():
             torch.save(model.state_dict(), current_epoch_path)
 
-        threshold = cli_args.get('loss_improvement_threshold')
-        if threshold is None:
-            threshold = 7.5e-6
         # More stable version of = avg_val_loss < best_val_loss
-        loss_improved = best_val_loss - avg_val_loss > threshold
+        loss_improved = best_val_loss - avg_val_loss > loss_improve_threshold
 
         if epoch_save_steps is not None:
             # Always save the current epoch for progress
@@ -631,6 +655,7 @@ def model_train(cli_args):
         else:
             _save_epoch()
 
+        print('Train Loss: ', float(avg_train_loss))
         print('Validation Loss: ', float(avg_val_loss))
         epochs_since_improvement = epoch_idx - best_val_loss_epoch
         difference_from_best = abs(float(best_val_loss - avg_val_loss))
