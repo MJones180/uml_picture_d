@@ -128,14 +128,26 @@ def preprocess_data_dark_hole_parser(subparsers):
               'option only works with `--electric-field-handling channels`'),
     )
     subparser.add_argument(
+        '--use-ef-svd-basis',
+        nargs=5,
+        metavar=('[real ef table] [imag ef table] [datafile] [datafile table] '
+                 '[number of modes from the start for the real and imag EF]'),
+        help=('use the SVD basis for the real and imaginary EF; the raw '
+              'datafile must consist of the flattened SVD modes for the EF, '
+              'the modes will be inverted to find the new basis coeffs; the '
+              'EF modes must have the same number of pixels as the data; the '
+              'datafile must only be a single chunk of data; this argument '
+              'should be called with the `--flatten-input` argument'),
+    )
+    subparser.add_argument(
         '--use-dm-svd-basis',
         nargs='+',
         metavar=('[dm table] [datafile] [datafile table] '
                  '[max number of modes from the start]'),
         help=('use the SVD basis for the DM actuator height coeffs; the raw '
-              'datafile must consist of the SVD modes for the DM, the modes '
-              'will be inverted to find the new basis coeffs; the DM modes '
-              'must have the same number of actuators as the data; the '
+              'datafile must consist of the 2D SVD modes for the DM, the '
+              'modes will be inverted to find the new basis coeffs; the DM '
+              'modes must have the same number of actuators as the data; the '
               'datafile must only be a single chunk of data; the four '
               'arguments must be repeated for each DM that is being used'),
     )
@@ -498,6 +510,40 @@ def preprocess_data_dark_hole(cli_args):
             rm_data_2d[:, *idxs_of_actuators] = rm_output_for_dm
             # Have the DM data store just the residuals
             dm_data -= rm_data_2d
+
+    # ==========================================================================
+
+    use_ef_svd_basis = cli_args.get('use_ef_svd_basis')
+    if use_ef_svd_basis is not None:
+        step_ri('Using the SVD basis functions for the EF')
+        (real_ef_table, imag_ef_table, modes_tag, modes_table_name,
+         max_modes) = use_ef_svd_basis
+        print(f'Using {max_modes} modes for both the real and imaginary EF')
+        modes_path = raw_sim_data_chunk_paths(modes_tag)[0]
+        modes = read_hdf(modes_path)[modes_table_name][:].astype(F32)
+        # Pick out the correct number of modes from the start
+        modes = modes[:int(max_modes)]
+
+        def _switch_to_svd(input_data_chunk, modes_chunk, comp):
+            # Invert the modes
+            modes_inv = np.linalg.pinv(modes_chunk)
+            # The coefficients in the new basis
+            new_basis_coeffs = input_data_chunk @ modes_inv
+            # What the EF look like in the new basis
+            reconstructed_ef_values = new_basis_coeffs @ modes_chunk
+            # The error when switching to the new basis representation
+            error = mse(input_data_chunk, reconstructed_ef_values)
+            print(f'EF ({comp}) reconstruction MSE error of {error:0.3e}')
+            return new_basis_coeffs
+
+        # The number of pixels in the real and imaginary components
+        pixels_in_ef = input_data.shape[1] // 2
+        coeffs_real = _switch_to_svd(input_data[:, :pixels_in_ef],
+                                     modes[:, :pixels_in_ef], 'real')
+        coeffs_imag = _switch_to_svd(input_data[:, pixels_in_ef:],
+                                     modes[:, pixels_in_ef:], 'imag')
+        input_data = np.concatenate((coeffs_real, coeffs_imag), axis=1)
+        print(f'EF shape: {input_data.shape}')
 
     # ==========================================================================
 
