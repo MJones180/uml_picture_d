@@ -110,6 +110,13 @@ def model_train_parser(subparsers):
               'should be iterated through'),
     )
     subparser.add_argument(
+        '--lr-warmup',
+        nargs='+',
+        type=float,
+        help=('each passed value specifies the learning rate for the '
+              'corresponding training epoch (starting from epoch 0)'),
+    )
+    subparser.add_argument(
         '--loss-improvement-threshold',
         type=float,
         help='threshold to determine if loss has improved',
@@ -460,6 +467,12 @@ def model_train(cli_args):
     else:
         unknown_loss_function()
 
+    early_stopping = cli_args['early_stopping']
+    if early_stopping:
+        step_ri('Early stopping enabled')
+        print('Will stop if loss does not improve '
+              f'after {early_stopping} epochs')
+
     step_ri('Setting the optimizer')
     optimizer = getattr(torch.optim, OPTIMIZERS[cli_args['optimizer']])
     # Currently, the only configurable parameter for each optimizer is the lr
@@ -467,11 +480,13 @@ def model_train(cli_args):
     optimizer = optimizer(model.parameters(), lr=base_learning_rate)
     print(optimizer)
 
-    early_stopping = cli_args['early_stopping']
-    if early_stopping:
-        step_ri('Early stopping enabled')
-        print('Will stop if loss does not improve '
-              f'after {early_stopping} epochs')
+    # A function to easily grab the current lr from the optimizer
+    def _grab_current_lr():
+        return optimizer.param_groups[0]['lr']
+
+    # A function to easily set the current lr in the optimizer
+    def _set_lr(lr):
+        optimizer.param_groups[0]['lr'] = lr
 
     lr_auto_annealing = cli_args.get('lr_auto_annealing')
     if lr_auto_annealing:
@@ -493,6 +508,17 @@ def model_train(cli_args):
             upcoming_lrs.append(next_lr)
             next_lr /= lr_scale_factors[current_scale_factor]
         print(f'Will use the following learning rates: {upcoming_lrs}')
+
+    lr_warmup = cli_args.get('lr_warmup')
+    if lr_warmup:
+        step_ri('Will use a learning rate warmup')
+        # Add the base lr at the end so training can continue from there
+        upcoming_warmup_lrs = [*lr_warmup, base_learning_rate]
+        for idx, lr in enumerate(upcoming_warmup_lrs[:-1]):
+            print(f'Epoch {idx}, lr: {lr}')
+        print(f'Epochs {idx + 1}+, lr: {base_learning_rate}')
+        # Set the first warmup lr
+        _set_lr(upcoming_warmup_lrs.pop(0))
 
     clip_gradient_norm = cli_args.get('clip_gradient_norm')
     step_ri('Gradient norm clipping')
@@ -550,6 +576,7 @@ def model_train(cli_args):
     step_ri('Beginning training')
     for epoch_idx in range(1, epoch_count + 1):
         step(f'EPOCH {epoch_idx}/{epoch_count}')
+        print(f'Learning rate: {_grab_current_lr()}')
         start_time = time()
         # The gradient norm of each batch before clipping
         batch_grad_norms = []
@@ -581,9 +608,9 @@ def model_train(cli_args):
         def _print_grad_norm_stats(clip_str, norms):
             print(f'Gradient Norm ({clip_str}):')
             inc_print_indent()
-            print(f'Average norm: {float(np.mean(norms))}')
-            print(f'Max norm: {float(np.max(norms))}')
             print(f'Min norm: {float(np.min(norms))}')
+            print(f'Max norm: {float(np.max(norms))}')
+            print(f'Average norm: {float(np.mean(norms))}')
             dec_print_indent()
 
         _print_grad_norm_stats('Unclipped', batch_grad_norms)
@@ -659,23 +686,29 @@ def model_train(cli_args):
         print('Validation Loss: ', float(avg_val_loss))
         epochs_since_improvement = epoch_idx - best_val_loss_epoch
         difference_from_best = abs(float(best_val_loss - avg_val_loss))
+        inc_print_indent()
         if loss_improved:
-            print(f'{difference_from_best} from best')
+            print(f'Better by {difference_from_best}')
             best_val_loss_epoch = epoch_idx
             best_val_loss = avg_val_loss
             epochs_since_improvement = 0
         else:
-            print(f'{difference_from_best} off best')
+            print(f'Worse by {difference_from_best}')
             print('Performance has not increased in '
                   f'{epochs_since_improvement} epoch(s)')
+        dec_print_indent()
 
+        # Handle the warmup
+        if lr_warmup and len(upcoming_warmup_lrs) > 0:
+            next_lr = upcoming_warmup_lrs.pop(0)
+            print(f'Warmup: updating learning rate to {next_lr}')
+            _set_lr(next_lr)
         # Handle the early stopping
-        if early_stopping and epochs_since_improvement >= early_stopping:
+        elif early_stopping and epochs_since_improvement >= early_stopping:
             if lr_auto_annealing and len(upcoming_lrs) > 0:
-                current_lr = optimizer.param_groups[0]['lr']
                 next_lr = upcoming_lrs.pop(0)
-                print(f'Updating learning rate from {current_lr} -> {next_lr}')
-                optimizer.param_groups[0]['lr'] = next_lr
+                print(f'Annealing: updating learning rate to {next_lr}')
+                _set_lr(next_lr)
                 # Load in the weights from the previous model
                 print(f'Reverting to weights from epoch {best_val_loss_epoch}')
                 previous_model = Model(tag, best_val_loss_epoch, True).model
