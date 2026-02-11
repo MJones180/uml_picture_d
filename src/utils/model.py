@@ -97,12 +97,12 @@ class Model():
             self.norm_range_ones_output = True
         # True if the inputs should sum to one.
         self.inputs_sum_to_one = _grab_ev_bool(INPUTS_SUM_TO_ONE)
-        # True if any input normalization is done (other than summing to one).
-        self.input_norm_done = _grab_ev_bool(INPUT_MIN_X) is not False
         # The arcsinh is taken for the input values
         self.inputs_archsinh = _grab_ev_bool(INPUTS_ARCSINH)
         # The modified log10 is taken for the input values
         self.inputs_log10 = _grab_ev_bool(INPUTS_LOG10)
+        # True if any input normalization is done (other than summing to one).
+        self.input_norm_done = INPUT_MIN_X in self.extra_vars
         # The base field that will need to be subtracted off. If the field does
         # not exist, then this will just be set to None.
         self.base_field = self.extra_vars.get(BASE_INT_FIELD)
