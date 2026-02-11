@@ -164,6 +164,12 @@ def preprocess_data_dark_hole_parser(subparsers):
               'between -1 and 1'),
     )
     subparser.add_argument(
+        '--norm-inputs-ones-individual',
+        action='store_true',
+        help=('normalize training, validation, and test input values '
+              'individually between -1 and 1'),
+    )
+    subparser.add_argument(
         '--norm-outputs',
         action='store_true',
         help=('normalize training and validation output values individually '
@@ -705,24 +711,37 @@ def preprocess_data_dark_hole(cli_args):
 
     # ==========================================================================
 
+    norm_inputs = cli_args['norm_inputs']
     norm_inputs_ones = cli_args['norm_inputs_ones']
-    if cli_args['norm_inputs'] or norm_inputs_ones:
-        step_ri('Normalizing training inputs globally')
-        if norm_inputs_ones:
+    norm_inputs_ones_individual = cli_args['norm_inputs_ones_individual']
+    if norm_inputs or norm_inputs_ones or norm_inputs_ones_individual:
+        step_ri('Normalizing training inputs')
+        if norm_inputs_ones_individual:
+            print('Normalizing individually')
+            scalar_values = False
+        else:
+            print('Normalizing globally')
+            scalar_values = True
+        if norm_inputs_ones or norm_inputs_ones_individual:
             print('Using range [-1, 1]')
             _save_var(NORM_RANGE_ONES_INPUT, True)
         else:
             print('Using range [0, 1]')
         if extend_existing_data:
-            max_min_diff = _use_var(INPUT_MAX_MIN_DIFF, True)
-            min_x = _use_var(INPUT_MIN_X, True)
-            train_inputs = min_max_norm(train_inputs,
-                                        max_min_diff,
-                                        min_x,
-                                        ones_range=norm_inputs_ones)
+            max_min_diff = _use_var(INPUT_MAX_MIN_DIFF, scalar_values)
+            min_x = _use_var(INPUT_MIN_X, scalar_values)
+            train_inputs = min_max_norm(
+                train_inputs,
+                max_min_diff,
+                min_x,
+                ones_range=norm_inputs_ones or norm_inputs_ones_individual,
+            )
         else:
             train_inputs, max_min_diff, min_x = find_min_max_norm(
-                train_inputs, globally=True, ones_range=norm_inputs_ones)
+                train_inputs,
+                globally=not norm_inputs_ones_individual,
+                ones_range=norm_inputs_ones or norm_inputs_ones_individual,
+            )
             _save_var(INPUT_MAX_MIN_DIFF, max_min_diff)
             _save_var(INPUT_MIN_X, min_x)
         print('Normalizing inputs of validation data and test data based on '
@@ -744,13 +763,18 @@ def preprocess_data_dark_hole(cli_args):
         if extend_existing_data:
             max_min_diff = _use_var(OUTPUT_MAX_MIN_DIFF, scalar_values)
             min_x = _use_var(OUTPUT_MIN_X, scalar_values)
-            train_outputs = min_max_norm(train_outputs,
-                                         max_min_diff,
-                                         min_x,
-                                         ones_range=True)
+            train_outputs = min_max_norm(
+                train_outputs,
+                max_min_diff,
+                min_x,
+                ones_range=True,
+            )
         else:
             train_outputs, max_min_diff, min_x = find_min_max_norm(
-                train_outputs, globally=norm_outputs_globally, ones_range=True)
+                train_outputs,
+                globally=norm_outputs_globally,
+                ones_range=True,
+            )
             _save_var(OUTPUT_MAX_MIN_DIFF, max_min_diff)
             _save_var(OUTPUT_MIN_X, min_x)
             _save_var(NORM_RANGE_ONES_OUTPUT, True)
