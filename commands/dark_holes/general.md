@@ -279,6 +279,13 @@ The DM SVD modes from the inverted matrix:
         --fits-file-globs 'rx_picture_d_efcnn_sci_dm2_mode_*' \
         --fits-table-names dm2_modes
 
+Convert a flat SVD matrix from FITS to HDF:
+
+    # This matrix contains the science camera modes
+    python3 main.py convert_flat_svd_matrix sci_cam_modes \
+        /home/michael-jones/Documents/piccsim/output/svd_modes/dm1_u_matrix.fits \
+        sci_modes
+
 ## Data Preprocessing
 
 Preprocess the datasets:
