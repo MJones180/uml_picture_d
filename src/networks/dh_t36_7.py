@@ -1,5 +1,5 @@
-# `dh_t36_1` network { 1000 -> 1000 }.
-# Trainable parameters: 12,497,896
+# `dh_t36_7` network { 1000 -> 1000 }.
+# Trainable parameters: 24,986,600
 
 import torch
 import torch.nn as nn
@@ -31,14 +31,12 @@ class Network(nn.Module):
 
     def __init__(self):
         super().__init__()
-        self.in_layer = _make_dense_block(1000, 2048, 0)
-        self.res_block1 = ResidualBlock(2048, 0.2)
-        self.res_block2 = ResidualBlock(2048, 0.2)
-        self.out_layer = nn.Linear(2048, 1000)
+        self.in_layer = _make_dense_block(1000, 4096, 0)
+        self.res_block1 = ResidualBlock(4096, 0.2)
+        self.out_layer = nn.Linear(4096, 1000)
 
     def forward(self, x):
         x = self.in_layer(x)
         x = self.res_block1(x)
-        x = self.res_block2(x)
         x = self.out_layer(x)
         return x

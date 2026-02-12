@@ -29,7 +29,7 @@ class Network(nn.Module):
     def example_input():
         return torch.rand((2, 1000))
 
-    def __init__(self, hidden_dim=2048, num_blocks=4):
+    def __init__(self):
         super().__init__()
         self.in_layer = _make_dense_block(1000, 2048, 0)
         self.res_block1 = ResidualBlock(2048, 0.2)
