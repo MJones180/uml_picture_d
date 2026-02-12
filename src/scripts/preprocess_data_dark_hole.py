@@ -220,6 +220,22 @@ def preprocess_data_dark_hole_parser(subparsers):
         help='do not shuffle the rows',
     )
     subparser.add_argument(
+        '--bounding-input-rows-train-only',
+        action='store_true',
+        help=('put all input rows that have either the min or max value in '
+              'the dataset for a given col in the training data; this ensures '
+              'that values in the validation and testing datasets are within '
+              'the min-max norm range'),
+    )
+    subparser.add_argument(
+        '--bounding-output-rows-train-only',
+        action='store_true',
+        help=('put all output rows that have either the min or max value in '
+              'the dataset for a given col in the training data; this ensures '
+              'that values in the validation and testing datasets are within '
+              'the min-max norm range'),
+    )
+    subparser.add_argument(
         '--extend-existing-preprocessed-data',
         action='store_true',
         help=('add more data chunks to existing preprocessed datasets; the '
@@ -673,6 +689,30 @@ def preprocess_data_dark_hole(cli_args):
 
     # ==========================================================================
 
+    bounding_input_rows = cli_args['bounding_input_rows_train_only']
+    bounding_output_rows = cli_args['bounding_output_rows_train_only']
+    if bounding_input_rows or bounding_output_rows:
+        step_ri('Putting rows with min or max values in training only')
+        if train_only_mask is None:
+            train_only_mask = np.zeros(len(input_data)).astype(bool)
+
+        def _add_bounding_rows(data, name):
+            print(f'Adding bounding {name} rows')
+            # The total number of training only rows before
+            training_only_count = np.sum(train_only_mask)
+            # Find which rows have the min and max values for each column
+            train_only_mask[np.argmin(data, axis=0)] = True
+            train_only_mask[np.argmax(data, axis=0)] = True
+            rows_added = np.sum(train_only_mask) - training_only_count
+            print(f'Made {rows_added} rows train only')
+
+        if bounding_input_rows:
+            _add_bounding_rows(input_data, 'input')
+        if bounding_output_rows:
+            _add_bounding_rows(output_data, 'output')
+
+    # ==========================================================================
+
     step_ri('Splitting')
     training_percentage = cli_args['training_percentage']
     validation_percentage = cli_args['validation_percentage']
@@ -746,7 +786,11 @@ def preprocess_data_dark_hole(cli_args):
         print('Normalizing inputs of validation data and test data based on '
               'training normalization values')
         val_inputs = min_max_norm(val_inputs, max_min_diff, min_x)
+        print(f'Validation min: {np.min(val_inputs)}')
+        print(f'Validation max: {np.max(val_inputs)}')
         test_inputs = min_max_norm(test_inputs, max_min_diff, min_x)
+        print(f'Test min: {np.min(test_inputs)}')
+        print(f'Test max: {np.max(test_inputs)}')
 
     # ==========================================================================
 
@@ -780,6 +824,8 @@ def preprocess_data_dark_hole(cli_args):
         print('Normalizing outputs of validation data based on training '
               'normalization values')
         val_outputs = min_max_norm(val_outputs, max_min_diff, min_x, True)
+        print(f'Validation min: {np.min(val_outputs)}')
+        print(f'Validation max: {np.max(val_outputs)}')
 
     # ==========================================================================
 
