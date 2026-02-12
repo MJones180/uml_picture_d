@@ -74,7 +74,7 @@ def export_model(cli_args):
     validation_ds_data = DSLoaderHDF(cli_args['validation_ds'])
     inputs = validation_ds_data.get_inputs_torch()
     outputs = validation_ds_data.get_outputs_torch()
-    first_input_row = inputs[1][None, :, :, :]
+    first_input_row = inputs[1][None]
     first_output_row = outputs[1].numpy()
     # Just use the first 1k rows
     inputs = inputs[:1000]
@@ -185,8 +185,7 @@ def export_model(cli_args):
         return onnx_model.run(None, {'input': row.cpu().numpy()})
 
     # Run the ONNX model on the comparison rows
-    onnx_model_out = np.array(
-        [_run_onnx(row[None, :, :, :]) for row in inputs])
+    onnx_model_out = np.array([_run_onnx(row[None]) for row in inputs])
     # Remove the dimensions of size 1
     onnx_model_out = np.squeeze(onnx_model_out)
     avg_diff = np.sum(np.abs(pytorch_model_out - onnx_model_out)) / row_count
