@@ -2700,7 +2700,7 @@ After model testing, it is useful to rank the model analyses:
         dh_v83_1 train_dh_both_hodms_efc_final_dh_lg_1iter_svd_500_both \
         val_dh_both_hodms_efc_final_dh_lg_1iter_svd_500_both \
         dh_t36_5 weighted_mse_two_dms_linear10 adamw 1e-3 1000 --batch-size 512 \
-        --lr-auto-annealing 1e-6 5 --early-stopping 10 \
+        --lr-auto-annealing 8e-6 5 --early-stopping 10 \
         --lr-warmup 1e-5 2e-4 4e-4 6e-4 8e-4 --clip-gradient-norm 1 \
         --overwrite-existing --only-best-epoch --disable-tag-lookup
 
@@ -2712,7 +2712,7 @@ After model testing, it is useful to rank the model analyses:
         dh_v83_2 train_dh_both_hodms_efc_final_dh_lg_1iter_svd_500_both \
         val_dh_both_hodms_efc_final_dh_lg_1iter_svd_500_both \
         dh_t36_6 weighted_mse_two_dms_linear10 adamw 1e-3 1000 --batch-size 512 \
-        --lr-auto-annealing 1e-6 5 --early-stopping 10 \
+        --lr-auto-annealing 8e-6 5 --early-stopping 10 \
         --lr-warmup 1e-5 2e-4 4e-4 6e-4 8e-4 --clip-gradient-norm 1 \
         --overwrite-existing --only-best-epoch --disable-tag-lookup
 
@@ -2724,7 +2724,7 @@ After model testing, it is useful to rank the model analyses:
         dh_v83_3 train_dh_both_hodms_efc_final_dh_lg_1iter_svd_500_both \
         val_dh_both_hodms_efc_final_dh_lg_1iter_svd_500_both \
         dh_t36_7 weighted_mse_two_dms_linear10 adamw 1e-3 1000 --batch-size 512 \
-        --lr-auto-annealing 1e-6 5 --early-stopping 10 \
+        --lr-auto-annealing 8e-6 5 --early-stopping 10 \
         --lr-warmup 1e-5 2e-4 4e-4 6e-4 8e-4 --clip-gradient-norm 1 \
         --overwrite-existing --only-best-epoch --disable-tag-lookup
 
@@ -2736,7 +2736,7 @@ After model testing, it is useful to rank the model analyses:
         dh_v83_4 train_dh_both_hodms_efc_final_dh_lg_1iter_svd_500_both \
         val_dh_both_hodms_efc_final_dh_lg_1iter_svd_500_both \
         dh_t36_8 weighted_mse_two_dms_linear10 adamw 1e-3 1000 --batch-size 512 \
-        --lr-auto-annealing 1e-6 5 --early-stopping 10 \
+        --lr-auto-annealing 8e-6 5 --early-stopping 10 \
         --lr-warmup 1e-5 2e-4 4e-4 6e-4 8e-4 --clip-gradient-norm 1 \
         --overwrite-existing --only-best-epoch --disable-tag-lookup
 
@@ -2748,7 +2748,7 @@ After model testing, it is useful to rank the model analyses:
         dh_v83_5 train_dh_both_hodms_efc_final_dh_lg_1iter_svd_500_both \
         val_dh_both_hodms_efc_final_dh_lg_1iter_svd_500_both \
         dh_t36_9 weighted_mse_two_dms_linear10 adamw 1e-3 1000 --batch-size 512 \
-        --lr-auto-annealing 1e-6 5 --early-stopping 10 \
+        --lr-auto-annealing 8e-6 5 --early-stopping 10 \
         --lr-warmup 1e-5 2e-4 4e-4 6e-4 8e-4 --clip-gradient-norm 1 \
         --overwrite-existing --only-best-epoch --disable-tag-lookup
 
