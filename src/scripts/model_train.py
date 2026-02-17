@@ -92,6 +92,11 @@ def model_train_parser(subparsers):
         help='if existing model with tag, delete before training',
     )
     subparser.add_argument(
+        '--optimizer-weight-decay',
+        type=float,
+        help='set the weight decay parameter for the optimizer',
+    )
+    subparser.add_argument(
         '--early-stopping',
         type=int,
         metavar='n',
@@ -482,7 +487,12 @@ def model_train(cli_args):
     optimizer = getattr(torch.optim, OPTIMIZERS[cli_args['optimizer']])
     # Currently, the only configurable parameter for each optimizer is the lr
     base_learning_rate = cli_args['learning_rate']
+    print(f'Setting learning rate to {base_learning_rate}')
     optimizer = optimizer(model.parameters(), lr=base_learning_rate)
+    optimizer_weight_decay = cli_args.get('optimizer_weight_decay')
+    if optimizer_weight_decay is not None:
+        print(f'Setting weight decay to {optimizer_weight_decay}')
+        optimizer.param_groups[0]['weight_decay'] = optimizer_weight_decay
     print(optimizer)
 
     # A function to easily grab the current lr from the optimizer
