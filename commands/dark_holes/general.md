@@ -904,6 +904,19 @@ Plot the DM comparison:
     python3 main.py dm_comparison dh_v36 127 \
         test_dh_both_hodms_efc_final_dh_xlg_6iter 10 --dm-size 34
 
+Plot SVD basis modes:
+
+    # First four DM1 SVD modes
+    python3 main.py analyze_basis_modes \
+        dm1_modes_flat dm1_modes --transpose-modes \
+        --display-as-circle 30 1.08 --plot-modes-range 0 3
+
+    # First four EF SVD modes
+    python3 main.py analyze_basis_modes \
+        ef_modes_flat ef_modes --modes-are-complex 1 \
+        --display-as-circle 59 1.03 --display-with-hole 0.24 \
+        --plot-modes-range 0 3
+
 ## Response Matrix
 
 Convert a `piccsim` RM to HDF:
