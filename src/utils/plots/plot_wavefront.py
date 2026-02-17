@@ -14,6 +14,7 @@ def plot_wavefront(
     title,
     plot_path,
     use_log=False,
+    disable_plot_ticks=False,
 ):
     # Load in the style file
     plt.style.use(PLOT_STYLE_FILE)
@@ -45,6 +46,8 @@ def plot_wavefront(
     plt.xticks(tick_locations, tick_labels)
     # The y ticks get plotted from top to bottom, so flip them
     plt.yticks(tick_locations, tick_labels[::-1])
+    if disable_plot_ticks:
+        plt.axis('off')
     plt.colorbar(label=colorbar_label)
     plt.savefig(plot_path)
 
