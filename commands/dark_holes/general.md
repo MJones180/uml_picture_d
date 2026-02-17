@@ -917,6 +917,21 @@ Plot SVD basis modes:
         --display-as-circle 59 1.03 --display-with-hole 0.24 \
         --plot-modes-range 0 3
 
+Plot SVD basis reconstructions:
+
+    python3 main.py analyze_basis_modes \
+        dm1_modes_flat dm1_modes --transpose-modes \
+        --display-as-circle 30 1.08  \
+        --reconstruct-data dh_both_hodms_efc_10_row_saved_surfaces dm1 0 500 0 0 \
+        --reconstruct-data-plots
+
+    python3 main.py analyze_basis_modes \
+        ef_modes_flat ef_modes --modes-are-complex 1 \
+        --display-as-circle 59 1.03 --display-with-hole 0.24 \
+        --reconstruct-data dh_both_hodms_efc_10_row_saved_surfaces sci_r 0 500 1 0 \
+        --reconstruct-data-trim 21 80 21 80 \
+        --reconstruct-data-plots
+
 ## Response Matrix
 
 Convert a `piccsim` RM to HDF:

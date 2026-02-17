@@ -9,7 +9,8 @@ from utils.hdf_read_and_write import read_hdf
 from utils.load_raw_sim_data import raw_sim_data_chunk_paths
 from utils.path import make_dir
 from utils.plots.plot_wavefront import plot_wavefront
-from utils.printing_and_logging import step_ri, title
+from utils.printing_and_logging import dec_print_indent, step, step_ri, title
+from utils.stats_and_error import mse
 
 
 def analyze_basis_modes_parser(subparsers):
@@ -64,6 +65,28 @@ def analyze_basis_modes_parser(subparsers):
         type=int,
         help=('plot individual modes between the provided range; '
               'two arguments expected: low mode idx, high mode idx '),
+    )
+    subparser.add_argument(
+        '--reconstruct-data',
+        nargs=6,
+        help=('reconstruct data in terms of the basis being analyzed; six '
+              'arguments are expected: raw datafile tag, datafile table name, '
+              'row index to reconstruct, number of modes to use, whether the '
+              'circle mask needs to be applied, use the real (0) or imag (1) '
+              'component if the data is complex'),
+    )
+    subparser.add_argument(
+        '--reconstruct-data-trim',
+        nargs=4,
+        type=int,
+        help=('used in conjunction with the `--reconstruct-data` arg; '
+              'trim the data, four argument expected: x0, x1, y0, y1'),
+    )
+    subparser.add_argument(
+        '--reconstruct-data-plots',
+        action='store_true',
+        help=('used in conjunction with the `--reconstruct-data` arg; '
+              'plot the row and the reconstruction'),
     )
 
 
@@ -129,6 +152,22 @@ def analyze_basis_modes(cli_args):
         total_active_pixels = np.sum(grid_mask)
         print(f'Total of {total_active_pixels} active pixels')
 
+    def _plot_grid(plot_data, filename, plot_title, print_prefix):
+        mode_plot_path = f'{output_dir}/{filename}.png'
+        if display_as_circle is not None:
+            plot_data_2d = np.zeros((grid_size, grid_size))
+            plot_data_2d[active_pixel_idxs] = plot_data
+            plot_data = plot_data_2d
+        plot_wavefront(
+            plot_data,
+            '',
+            1,
+            plot_title,
+            mode_plot_path,
+            disable_plot_ticks=True,
+        )
+        print(f'{print_prefix}: {mode_plot_path}')
+
     plot_modes_specific = cli_args.get('plot_modes_specific')
     plot_modes_range = cli_args.get('plot_modes_range')
     if (plot_modes_specific is not None) or (plot_modes_range is not None):
@@ -146,38 +185,115 @@ def analyze_basis_modes(cli_args):
         modes_to_plot = list(set(modes_to_plot))
         print(f'Will plot {len(modes_to_plot)} modes in total')
         for mode_idx in modes_to_plot:
-
-            def _plot_mode(flat_mode_data, filename, plot_title):
-                mode_plot_path = f'{output_dir}/{filename}.png'
-                if display_as_circle is not None:
-                    mode_data = np.zeros((grid_size, grid_size))
-                    mode_data[active_pixel_idxs] = flat_mode_data
-                else:
-                    mode_data = flat_mode_data
-                plot_wavefront(
-                    mode_data,
-                    'Weight',
-                    1,
-                    plot_title,
-                    mode_plot_path,
-                    disable_plot_ticks=True,
-                )
-                print(f'Mode {mode_idx}: {mode_plot_path}')
-
+            print_prefix = f'Mode {mode_idx}'
             if modes_are_complex is not None:
-                _plot_mode(
+                _plot_grid(
                     modes_data_real[mode_idx],
                     f'mode_{mode_idx}_real',
                     f'Real Mode {mode_idx}',
+                    print_prefix,
                 )
-                _plot_mode(
+                _plot_grid(
                     modes_data_imag[mode_idx],
                     f'mode_{mode_idx}_imag',
                     f'Imag Mode {mode_idx}',
+                    print_prefix,
                 )
             else:
-                _plot_mode(
+                _plot_grid(
                     modes_data[mode_idx],
                     f'mode_{mode_idx}',
                     f'Mode {mode_idx}',
+                    print_prefix,
                 )
+
+    reconstruct_data = cli_args.get('reconstruct_data')
+    if reconstruct_data is not None:
+        step_ri('Data reconstruction')
+        (datafile_tag, table_name, row_idx, number_of_modes, apply_mask,
+         complex_component) = reconstruct_data
+        print(f'Datafile tag: {datafile_tag}')
+        print(f'Table name: {table_name}')
+        print(f'Row index: {row_idx}')
+        print(f'Number of modes: {number_of_modes}')
+        print(f'Apply mask: {apply_mask}')
+        print(f'Complex component: {complex_component}')
+
+        datafile_path = raw_sim_data_chunk_paths(datafile_tag)[0]
+        step('Loading data')
+        print(f'Path: {datafile_path}')
+        datafile_data = read_hdf(datafile_path)[table_name][:]
+        print(f'Datafile shape: {datafile_data.shape}')
+        row_data = datafile_data[int(row_idx)]
+        print(f'Row shape: {row_data.shape}')
+        dec_print_indent()
+
+        reconstruct_data_trim = cli_args.get('reconstruct_data_trim')
+        if reconstruct_data_trim is not None:
+            step('Trimming row')
+            x0, x1, y0, y1 = reconstruct_data_trim
+            row_data = row_data[x0:x1]
+            row_data = row_data[:, y0:y1]
+            print(f'Row shape: {row_data.shape}')
+            dec_print_indent()
+
+        if int(apply_mask):
+            step('Applying mask')
+            row_data[~active_pixel_idxs] = 0
+            dec_print_indent()
+
+        step('Formatting the data')
+        print('Flattening')
+        row_data = np.reshape(row_data, -1)
+        print('Removing inactive pixels')
+        row_data = row_data[row_data != 0]
+        print(f'Row shape: {row_data.shape}')
+        dec_print_indent()
+
+        if modes_are_complex is not None:
+            step('The data is complex')
+            if int(complex_component):
+                print('Using the imag component')
+                modes_data = modes_data_imag
+            else:
+                print('Using the real component')
+                modes_data = modes_data_real
+            dec_print_indent()
+
+        step('Taking desired number of modes')
+        modes_data = modes_data[:int(number_of_modes)]
+        print(f'Modes shape: {modes_data.shape}')
+        dec_print_indent()
+
+        step('Inverting the modes to find the new basis coeffs')
+        modes_inv = np.linalg.pinv(modes_data)
+        new_basis_coeffs = row_data @ modes_inv
+        print(f'New basis coeffs shape: {new_basis_coeffs.shape}')
+        reconstructed_row_data = new_basis_coeffs @ modes_data
+        # The error when switching to the new basis representation
+        error = mse(row_data, reconstructed_row_data)
+        print(f'Reconstruction MSE error of {error:0.3e}')
+        dec_print_indent()
+
+        if cli_args.get('reconstruct_data_plots'):
+            step('Plotting the reconstruction')
+            base_filename = f'{datafile_tag}_row{row_idx}'
+            _plot_grid(
+                row_data,
+                f'{base_filename}_orig',
+                f'Row {row_idx}: Original',
+                'Original',
+            )
+            _plot_grid(
+                reconstructed_row_data,
+                f'{base_filename}_reconstructed',
+                f'Row {row_idx}: Reconstructed',
+                'Reconstructed',
+            )
+            _plot_grid(
+                row_data - reconstructed_row_data,
+                f'{base_filename}_diff',
+                f'Row {row_idx}: Original - Reconstructed',
+                'Diff',
+            )
+            dec_print_indent()
