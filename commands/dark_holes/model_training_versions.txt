@@ -2755,3 +2755,55 @@ After model testing, it is useful to rank the model analyses:
     python3 main.py model_test \
         dh_v83_5 last test_dh_both_hodms_efc_final_dh_lg_1iter_svd_500_both \
         --max-rows-per-model-call 1000
+
+[V84] The `dh_v84_` tag:
+
+    python3 main_scnp.py model_train \
+        dh_v84_1 train_dh_both_hodms_efc_final_dh_lg_1iter_v2 \
+        val_dh_both_hodms_efc_final_dh_lg_1iter_v2 \
+        dh_t31 mse adamw 1e-4 1000 --batch-size 512 \
+        --lr-auto-annealing 3e-8 5 --early-stopping 10 \
+        --lr-warmup 1e-6 2e-5 4e-5 6e-5 8e-5 --clip-gradient-norm 1 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup
+
+    python3 main.py model_test \
+        dh_v84_1 last test_dh_both_hodms_efc_final_dh_lg_1iter_v2 \
+        --max-rows-per-model-call 1000
+
+    python3 main_scnp.py model_train \
+        dh_v84_2 train_dh_both_hodms_efc_final_dh_lg_1iter_v2 \
+        val_dh_both_hodms_efc_final_dh_lg_1iter_v2 \
+        dh_t31 mse adamw 1e-5 1000 --batch-size 512 \
+        --lr-auto-annealing 1e-7 10 --early-stopping 10 \
+        --lr-warmup 1e-7 1e-6 --clip-gradient-norm 1 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup
+
+    python3 main.py model_test \
+        dh_v84_2 last test_dh_both_hodms_efc_final_dh_lg_1iter_v2 \
+        --max-rows-per-model-call 1000
+
+[V85] The `dh_v85_` tag:
+
+    python3 main_scnp.py model_train \
+        dh_v85_1 train_dh_both_hodms_efc_final_dh_lg_1iter_svd_500 \
+        val_dh_both_hodms_efc_final_dh_lg_1iter_svd_500 \
+        dh_t32_8_1000 weighted_mse_two_dms_linear10 adamw 1e-4 1000 --batch-size 512 \
+        --lr-auto-annealing 3e-8 5 --early-stopping 10 \
+        --lr-warmup 1e-6 2e-5 4e-5 6e-5 8e-5 --clip-gradient-norm 1 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup
+
+    python3 main.py model_test \
+        dh_v85_1 last test_dh_both_hodms_efc_final_dh_lg_1iter_svd_500 \
+        --max-rows-per-model-call 1000
+
+    python3 main_scnp.py model_train \
+        dh_v85_2 train_dh_both_hodms_efc_final_dh_lg_1iter_svd_500 \
+        val_dh_both_hodms_efc_final_dh_lg_1iter_svd_500 \
+        dh_t32_8_1000 weighted_mse_two_dms_linear10 adamw 1e-5 1000 --batch-size 512 \
+        --lr-auto-annealing 1e-7 10 --early-stopping 10 \
+        --lr-warmup 1e-7 1e-6 --clip-gradient-norm 1 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup
+
+    python3 main.py model_test \
+        dh_v85_2 last test_dh_both_hodms_efc_final_dh_lg_1iter_svd_500 \
+        --max-rows-per-model-call 1000

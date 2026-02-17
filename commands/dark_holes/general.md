@@ -694,6 +694,17 @@ Preprocess the datasets:
         --norm-inputs --norm-outputs
 
     python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_final_dh_14k_ch1 \
+        train_dh_both_hodms_efc_final_dh_lg_1iter_v2 val_dh_both_hodms_efc_final_dh_lg_1iter_v2 \
+        test_dh_both_hodms_efc_final_dh_lg_1iter_v2 88 6 6 \
+        --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
+        --additional-raw-data-tags dh_both_hodms_efc_final_dh_14k_ch2 \
+            dh_both_hodms_efc_final_dh_9k_ch1 dh_both_hodms_efc_final_dh_9k_ch2 \
+            dh_both_hodms_efc_30k_1iter_ch1 dh_both_hodms_efc_30k_1iter_ch2 \
+        --norm-inputs --norm-outputs \
+        --bounding-input-rows-train-only --bounding-output-rows-train-only
+
+    python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_final_dh_14k_ch1 \
         train_dh_both_hodms_efc_final_dh_lg_1iter_svd val_dh_both_hodms_efc_final_dh_lg_1iter_svd \
         test_dh_both_hodms_efc_final_dh_lg_1iter_svd 88 6 6 \
         --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
