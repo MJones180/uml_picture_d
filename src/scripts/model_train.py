@@ -92,9 +92,10 @@ def model_train_parser(subparsers):
         help='if existing model with tag, delete before training',
     )
     subparser.add_argument(
-        '--optimizer-weight-decay',
-        type=float,
-        help='set the weight decay parameter for the optimizer',
+        '--optimizer-params',
+        nargs='+',
+        help=('pass params to the optimizer; three values expected for each '
+              'group: name, value, type (0 - str, 1 - float, 2 - int)'),
     )
     subparser.add_argument(
         '--early-stopping',
@@ -119,7 +120,9 @@ def model_train_parser(subparsers):
         nargs='+',
         type=float,
         help=('each passed value specifies the learning rate for the '
-              'corresponding training epoch (starting from epoch 0)'),
+              'corresponding training epoch (starting from epoch 0); '
+              'if the first value is a zero, then four argument should be '
+              'passed: 0, starting lr, ending lr, number of epochs'),
     )
     subparser.add_argument(
         '--loss-improvement-threshold',
@@ -152,6 +155,14 @@ def model_train_parser(subparsers):
         help=('init the weights from a pretrained model; each layer name '
               'listed will be checked if it is contained within a layer from '
               'the models state dict, if it is, then the layer will be used'),
+    )
+    subparser.add_argument(
+        '--init-weights-kaiming-normal',
+        nargs='+',
+        metavar='[a], *[layer names]',
+        help=('init the weights in the given layer names with the Kaiming '
+              'normal distribution; params expected: a value, *layer names; '
+              'this is to use LeakyRelu activations with different slopes'),
     )
     subparser.add_argument(
         '--transfer-learning-train-layers',
@@ -313,6 +324,21 @@ def model_train(cli_args):
         # Set the new state
         model.load_state_dict(model_state)
 
+    init_weights_kaiming_normal = cli_args.get('init_weights_kaiming_normal')
+    if init_weights_kaiming_normal is not None:
+        step_ri('Using Kaiming normal distribution to init weights')
+        a, *layer_names = init_weights_kaiming_normal
+        print(f'a: {a}')
+        for name, module in model.named_modules():
+            if name in layer_names:
+                print(f'Layer: {name}')
+                torch.nn.init.kaiming_normal_(
+                    module.weight,
+                    a=float(a),
+                    mode='fan_out',
+                    nonlinearity='leaky_relu',
+                )
+
     transfer_learn_layers = cli_args.get('transfer_learning_train_layers')
     if transfer_learn_layers:
         step_ri('Preparing network for transfer learning')
@@ -464,6 +490,9 @@ def model_train(cli_args):
             output_weights = param_amount**np.arange(outputs_per_dm)
         else:
             unknown_loss_function()
+        take_loss_sum = '_sum' in loss_name
+        if take_loss_sum:
+            print('Will take the sum across each row')
         # Create a copy of the output weights for the second DM
         output_weights = np.tile(output_weights, 2)
         # Normalize the weights to have a mean of 1
@@ -473,6 +502,8 @@ def model_train(cli_args):
 
         def loss_function(model_outputs, truth_outputs):
             loss = output_weights * (model_outputs - truth_outputs)**2
+            if take_loss_sum:
+                loss = loss.sum(axis=1)
             return loss.mean()
     else:
         unknown_loss_function()
@@ -489,10 +520,18 @@ def model_train(cli_args):
     base_learning_rate = cli_args['learning_rate']
     print(f'Setting learning rate to {base_learning_rate}')
     optimizer = optimizer(model.parameters(), lr=base_learning_rate)
-    optimizer_weight_decay = cli_args.get('optimizer_weight_decay')
-    if optimizer_weight_decay is not None:
-        print(f'Setting weight decay to {optimizer_weight_decay}')
-        optimizer.param_groups[0]['weight_decay'] = optimizer_weight_decay
+    optimizer_params = cli_args.get('optimizer_params')
+    if optimizer_params is not None:
+        step('Passing additional params to optimizer')
+        for param_name, param_value, param_type in group_data_from_list(
+                optimizer_params, 3, 'Must be three params per group'):
+            if int(param_type) == 1:
+                param_value = float(param_value)
+            elif int(param_type) == 2:
+                param_value = int(param_value)
+            print(f'Param: {param_name}, Value: {param_value}')
+            optimizer.param_groups[0][param_name] = param_value
+        dec_print_indent()
     print(optimizer)
 
     # A function to easily grab the current lr from the optimizer
@@ -527,6 +566,12 @@ def model_train(cli_args):
     lr_warmup = cli_args.get('lr_warmup')
     if lr_warmup:
         step_ri('Will use a learning rate warmup')
+        if lr_warmup[0] == 0:
+            starting_lr, ending_lr, warmup_epochs = lr_warmup[1:]
+            warmup_epochs = int(warmup_epochs)
+            print(f'{starting_lr} -> {ending_lr} over {warmup_epochs} epochs')
+            lr_warmup = np.linspace(starting_lr, ending_lr, warmup_epochs)
+            lr_warmup = list(lr_warmup)
         # Add the base lr at the end so training can continue from there
         upcoming_warmup_lrs = [*lr_warmup, base_learning_rate]
         for idx, lr in enumerate(upcoming_warmup_lrs[:-1]):
