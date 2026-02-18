@@ -1,4 +1,4 @@
-# `dh_t36_9d` network { 1000 -> 1000 }.
+# `dh_t37_1` network { 1000 -> 1000 }.
 # Trainable parameters: 12,501,992
 
 import torch
@@ -7,18 +7,16 @@ import torch.nn as nn
 
 class BottleneckResidualBlock(nn.Module):
 
-    def __init__(self, features, bottleneck_features, dropout):
+    def __init__(self, features, bottleneck_features):
         super().__init__()
 
         self.block = nn.Sequential(
             nn.BatchNorm1d(features),
             nn.LeakyReLU(0.2),
             nn.Linear(features, bottleneck_features, bias=False),
-            nn.Dropout(dropout),
             nn.BatchNorm1d(bottleneck_features),
             nn.LeakyReLU(0.2),
             nn.Linear(bottleneck_features, features, bias=False),
-            nn.Dropout(dropout),
         )
 
     def forward(self, x):
@@ -37,8 +35,8 @@ class Network(nn.Module):
             nn.BatchNorm1d(2048),
             nn.LeakyReLU(0.2),
         )
-        self.res_block1 = BottleneckResidualBlock(2048, 1024, 0.5)
-        self.res_block2 = BottleneckResidualBlock(2048, 1024, 0.5)
+        self.res_block1 = BottleneckResidualBlock(2048, 1024)
+        self.res_block2 = BottleneckResidualBlock(2048, 1024)
         self.out_layer = nn.Linear(2048, 1000)
 
     def forward(self, x):
