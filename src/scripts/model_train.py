@@ -476,23 +476,51 @@ def model_train(cli_args):
             return loss.mean()
     elif 'weighted_mse_two_dms' in loss_name:
         print('Weighted MSE Two DMs')
+        # Whether the sum or mean should be taken across each row
+        take_row_sum = '_sum' in loss_name
+        if take_row_sum:
+            print('Will take the sum across each row')
+        else:
+            print('Will take the mean across each row')
+
+        def number_after_string(substring):
+            # The starting index of the substring
+            starting_index = loss_name.index(substring)
+            number = ''
+            # Loop through every char after the substring
+            for char in loss_name[starting_index + len(substring):]:
+                # Valid characters which can be used for a number
+                if char in '.0123456789':
+                    number = number + char
+                else:
+                    break
+            return float(number)
+
         # Grab the number of output neurons for each DM (two in total)
         outputs_per_dm = validation_dataset.get_outputs().shape[1] // 2
-        # Grab the parameter; the meaning will change depending on the scaling
-        param_amount = float(f'0.{loss_name[-2:]}')
         # The first declaration of `output_weights` gives the weight of each
         # output neuron associated with the first DM
         if '_linear' in loss_name:
-            print(f'Linear scaling from [1, {param_amount}]')
-            output_weights = np.linspace(1, param_amount, outputs_per_dm)
+            loss_min = number_after_string('_linear')
+            end_mode = outputs_per_dm
+            use_tail_scaling = '_tail' in loss_name
+            if use_tail_scaling:
+                end_mode = int(number_after_string('_tail'))
+            print('Linear scaling from 1 (mode 0) to '
+                  f'{loss_min} (mode {end_mode - 1})')
+            output_weights = np.linspace(1, loss_min, end_mode)
+            if use_tail_scaling:
+                print(f'Constant scaling of {loss_min} from modes '
+                      f'{end_mode} to {outputs_per_dm - 1}')
+                output_weights_full = np.full(outputs_per_dm, loss_min)
+                output_weights_full[:end_mode] = output_weights
+                output_weights = output_weights_full
         elif '_exp' in loss_name:
-            print(f'Exponential scaling with base {param_amount}')
-            output_weights = param_amount**np.arange(outputs_per_dm)
+            base_val = number_after_string('_exp')
+            print(f'Exponential scaling with base {base_val}')
+            output_weights = base_val**np.arange(outputs_per_dm)
         else:
             unknown_loss_function()
-        take_loss_sum = '_sum' in loss_name
-        if take_loss_sum:
-            print('Will take the sum across each row')
         # Create a copy of the output weights for the second DM
         output_weights = np.tile(output_weights, 2)
         # Normalize the weights to have a mean of 1
@@ -502,7 +530,7 @@ def model_train(cli_args):
 
         def loss_function(model_outputs, truth_outputs):
             loss = output_weights * (model_outputs - truth_outputs)**2
-            if take_loss_sum:
+            if take_row_sum:
                 loss = loss.sum(axis=1)
             return loss.mean()
     else:
