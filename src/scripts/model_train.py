@@ -792,6 +792,9 @@ def model_train(cli_args):
             next_lr = upcoming_warmup_lrs.pop(0)
             print(f'Warmup: updating learning rate to {next_lr}')
             _set_lr(next_lr)
+            best_val_loss_epoch = epoch_idx
+            best_val_loss = avg_val_loss
+            epochs_since_improvement = 0
         # Handle the early stopping
         elif early_stopping and epochs_since_improvement >= early_stopping:
             if lr_auto_annealing and len(upcoming_lrs) > 0:
