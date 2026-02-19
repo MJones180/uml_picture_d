@@ -3116,5 +3116,5 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py batch_model_test \
         test_dh_both_hodms_efc_final_dh_lg_1iter_svd_500_both \
-        --epoch-and-tag-range last dh_v89_ 1 6 \
+        --epoch-and-tag-range last dh_v89_ 1 3 \
         --max-rows-per-model-call 1000
