@@ -56,7 +56,7 @@ for values in data.values():
         marker=values['marker'],
     )
 plt.legend(loc='upper center', ncol=4, bbox_to_anchor=(0.5, 1.12))
-plt.xlabel('DH Row (With Random Surface Errors)')
+plt.xlabel('DH Realization')
 plt.locator_params(axis='x', nbins=10)
 plt.ylabel('Contrast')
 plt.title('DH Contrast After First Iteration', pad=35)
