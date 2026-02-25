@@ -214,6 +214,11 @@ def model_train_parser(subparsers):
         action='store_true',
         help='do not write to the tag lookup file',
     )
+    subparser.add_argument(
+        '--fix-seed',
+        type=int,
+        help='fix the seed value for reproducible results',
+    )
     shared_argparser_args(subparser, ['force_cpu'])
     epoch_save_group = subparser.add_mutually_exclusive_group()
     epoch_save_group.add_argument(
@@ -232,6 +237,15 @@ def model_train_parser(subparsers):
 
 def model_train(cli_args):
     title('Model train script')
+
+    fix_seed = cli_args['fix_seed']
+    if fix_seed:
+        step_ri('Fixing the seed')
+        print(f'Seed value: {fix_seed}')
+        # random.seed(fix_seed)
+        np.random.seed(fix_seed)
+        torch.manual_seed(fix_seed)
+        torch.cuda.manual_seed(fix_seed)
 
     INF_VAL = float('inf')
 
