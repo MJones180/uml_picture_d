@@ -244,10 +244,21 @@ def preprocess_data_dark_hole_parser(subparsers):
               'and will not be written out a second time; the input and '
               'output norm from the training dataset will be used'),
     )
+    subparser.add_argument(
+        '--fix-seed',
+        type=int,
+        help='fix the seed value for reproducible results',
+    )
 
 
 def preprocess_data_dark_hole(cli_args):
     title('Preprocess data dark hole script')
+
+    fix_seed = cli_args['fix_seed']
+    if fix_seed:
+        step_ri('Fixing the seed')
+        print(f'Seed value: {fix_seed}')
+        np.random.seed(fix_seed)
 
     # ==========================================================================
 

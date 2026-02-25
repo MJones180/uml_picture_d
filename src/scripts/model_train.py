@@ -242,7 +242,6 @@ def model_train(cli_args):
     if fix_seed:
         step_ri('Fixing the seed')
         print(f'Seed value: {fix_seed}')
-        # random.seed(fix_seed)
         np.random.seed(fix_seed)
         torch.manual_seed(fix_seed)
         torch.cuda.manual_seed(fix_seed)
