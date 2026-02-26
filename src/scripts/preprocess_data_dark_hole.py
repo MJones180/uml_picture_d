@@ -796,10 +796,12 @@ def preprocess_data_dark_hole(cli_args):
             _save_var(INPUT_MIN_X, min_x)
         print('Normalizing inputs of validation data and test data based on '
               'training normalization values')
-        val_inputs = min_max_norm(val_inputs, max_min_diff, min_x)
+        val_inputs = min_max_norm(val_inputs, max_min_diff, min_x,
+                                  norm_inputs_ones)
         print(f'Validation min: {np.min(val_inputs)}')
         print(f'Validation max: {np.max(val_inputs)}')
-        test_inputs = min_max_norm(test_inputs, max_min_diff, min_x)
+        test_inputs = min_max_norm(test_inputs, max_min_diff, min_x,
+                                   norm_inputs_ones)
         print(f'Test min: {np.min(test_inputs)}')
         print(f'Test max: {np.max(test_inputs)}')
 
