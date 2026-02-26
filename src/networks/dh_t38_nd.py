@@ -1,4 +1,4 @@
-# `dh_t38` network { 1000 -> 1000 }.
+# `dh_t38_nd` network { 1000 -> 1000 }.
 # Trainable parameters: 8,305,640
 import torch
 import torch.nn as nn
@@ -11,7 +11,7 @@ BOTTLENECK_SIZE = 512
 
 # ----- LAYER PARAMS -----
 LEAKY_RELU = 0.2
-DROPOUT = 0.1
+DROPOUT = 0
 
 
 class BottleneckResidualBlock(nn.Module):
