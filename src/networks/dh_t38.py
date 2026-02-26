@@ -40,7 +40,7 @@ class BottleneckResidualBlock(nn.Module):
 class Network(nn.Module):
 
     def example_input():
-        return torch.rand((2, OUT_SIZE))
+        return torch.rand((2, IN_SIZE))
 
     def __init__(self):
         super().__init__()

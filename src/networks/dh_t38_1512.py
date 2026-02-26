@@ -1,17 +1,17 @@
-# `dh_t38_nd` network { 1000 -> 1000 }.
-# Trainable parameters: 8,305,640
+# `dh_t38_1512` network { 1000 -> 1512 }.
+# Trainable parameters: 9,354,728
 import torch
 import torch.nn as nn
 
 # ----- NEURON SIZES -----
 IN_SIZE = 1000
-OUT_SIZE = 1000
+OUT_SIZE = 1512
 HIDDEN_SIZE = 2048
 BOTTLENECK_SIZE = 512
 
 # ----- LAYER PARAMS -----
 LEAKY_RELU = 0.2
-DROPOUT = 0
+DROPOUT = 0.1
 
 
 class BottleneckResidualBlock(nn.Module):
