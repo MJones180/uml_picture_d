@@ -3204,3 +3204,65 @@ After model testing, it is useful to rank the model analyses:
     python3 main.py model_test \
         dh_v90_6 last test_dh_both_hodms_efc_final_dh_xlg_1iter_svd_500_both_ones \
         --max-rows-per-model-call 1000
+
+    python3 main_scnp.py model_train \
+        dh_v90_7 train_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
+        dh_t38 weighted_mse_two_dms_sum_linear0.1 adamw 1e-3 1000 --batch-size 512 \
+        --lr-auto-annealing 1e-6 5 --early-stopping 15 \
+        --lr-warmup 0 8e-6 1e-3 10 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal 0.2 in_layer.0 res_block1.block.0 \
+            res_block1.block.4 res_block2.block.2 res_block2.block.6 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main.py model_test \
+        dh_v90_7 last test_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
+        --max-rows-per-model-call 1000
+
+    python3 main_scnp.py model_train \
+        dh_v90_8 train_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
+        dh_t38_nd weighted_mse_two_dms_sum_linear0.1 adamw 1e-3 1000 --batch-size 512 \
+        --lr-auto-annealing 1e-6 5 --early-stopping 15 \
+        --lr-warmup 0 8e-6 1e-3 10 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal 0.2 in_layer.0 res_block1.block.0 \
+            res_block1.block.4 res_block2.block.2 res_block2.block.6 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main.py model_test \
+        dh_v90_8 last test_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
+        --max-rows-per-model-call 1000
+
+[V91] The `dh_v91_` tag:
+
+    python3 main_scnp.py model_train \
+        dh_v91_1 train_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
+        dh_t38 weighted_mse_two_dms_sum_linear0.1_mlog0.2 adamw 1e-4 1000 --batch-size 512 \
+        --lr-auto-annealing 1e-7 5 --early-stopping 15 \
+        --init-weights dh_v90_7 last --clip-gradient-norm 10 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v91_2 train_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
+        dh_t38 weighted_mse_two_dms_sum_linear0.1_mlog0.2 adamw 1e-5 1000 --batch-size 512 \
+        --lr-auto-annealing 1e-8 5 --early-stopping 15 \
+        --init-weights dh_v90_7 last --clip-gradient-norm 10 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v91_3 train_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
+        dh_t38 weighted_mse_two_dms_sum_linear0.1_mlog0.2 adamw 1e-4 1000 --batch-size 128 \
+        --lr-auto-annealing 1e-7 5 --early-stopping 15 \
+        --init-weights dh_v90_7 last --clip-gradient-norm 10 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v91_4 train_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
+        dh_t38 weighted_mse_two_dms_sum_linear0.1_mlog0.2 adamw 1e-5 1000 --batch-size 128 \
+        --lr-auto-annealing 1e-8 5 --early-stopping 15 \
+        --init-weights dh_v90_7 last --clip-gradient-norm 10 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314

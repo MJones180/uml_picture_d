@@ -509,6 +509,17 @@ def model_train(cli_args):
                     break
             return float(number)
 
+        # Whether a modified log should be applied before determining the loss
+        take_modified_log = '_mlog' in loss_name
+        if take_modified_log:
+            log_scaling = number_after_string('_mlog')
+            print('Will apply a modified log before calculating the '
+                  f'loss ({log_scaling} scaling)')
+
+            def apply_modified_log(values):
+                return (torch.sign(values) *
+                        torch.log10(1 + torch.abs(values) / log_scaling))
+
         # Grab the number of output neurons for each DM (two in total)
         outputs_per_dm = validation_dataset.get_outputs().shape[1] // 2
         # The first declaration of `output_weights` gives the weight of each
@@ -542,6 +553,9 @@ def model_train(cli_args):
         output_weights = torch.from_numpy(output_weights).to(device)
 
         def loss_function(model_outputs, truth_outputs):
+            if take_modified_log:
+                model_outputs = apply_modified_log(model_outputs)
+                truth_outputs = apply_modified_log(truth_outputs)
             loss = output_weights * (model_outputs - truth_outputs)**2
             if take_row_sum:
                 loss = loss.sum(axis=1)
