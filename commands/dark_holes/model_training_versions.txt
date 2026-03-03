@@ -3238,31 +3238,187 @@ After model testing, it is useful to rank the model analyses:
     python3 main_scnp.py model_train \
         dh_v91_1 train_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
         val_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
-        dh_t38 weighted_mse_two_dms_sum_linear0.1_mlog0.2 adamw 1e-4 1000 --batch-size 512 \
-        --lr-auto-annealing 1e-7 5 --early-stopping 15 \
-        --init-weights dh_v90_7 last --clip-gradient-norm 10 \
+        dh_t38 weighted_mse_two_dms_sum_linear0.1_mlog0.2 adamw 1e-3 1000 --batch-size 512 \
+        --lr-auto-annealing 1e-6 5 --early-stopping 15 \
+        --lr-warmup 0 8e-6 1e-3 10 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal 0.2 in_layer.0 res_block1.block.0 \
+            res_block1.block.4 res_block2.block.2 res_block2.block.6 \
         --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
 
     python3 main_scnp.py model_train \
         dh_v91_2 train_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
         val_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
-        dh_t38 weighted_mse_two_dms_sum_linear0.1_mlog0.2 adamw 1e-5 1000 --batch-size 512 \
-        --lr-auto-annealing 1e-8 5 --early-stopping 15 \
-        --init-weights dh_v90_7 last --clip-gradient-norm 10 \
+        dh_t38 weighted_mse_two_dms_sum_linear0.1_mlog0.3 adamw 1e-3 1000 --batch-size 512 \
+        --lr-auto-annealing 1e-6 5 --early-stopping 15 \
+        --lr-warmup 0 8e-6 1e-3 10 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal 0.2 in_layer.0 res_block1.block.0 \
+            res_block1.block.4 res_block2.block.2 res_block2.block.6 \
         --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
 
     python3 main_scnp.py model_train \
         dh_v91_3 train_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
         val_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
-        dh_t38 weighted_mse_two_dms_sum_linear0.1_mlog0.2 adamw 1e-4 1000 --batch-size 128 \
-        --lr-auto-annealing 1e-7 5 --early-stopping 15 \
-        --init-weights dh_v90_7 last --clip-gradient-norm 10 \
+        dh_t38 weighted_mse_two_dms_sum_linear0.1_mlog0.4 adamw 1e-3 1000 --batch-size 512 \
+        --lr-auto-annealing 1e-6 5 --early-stopping 15 \
+        --lr-warmup 0 8e-6 1e-3 10 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal 0.2 in_layer.0 res_block1.block.0 \
+            res_block1.block.4 res_block2.block.2 res_block2.block.6 \
         --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
 
     python3 main_scnp.py model_train \
         dh_v91_4 train_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
         val_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
-        dh_t38 weighted_mse_two_dms_sum_linear0.1_mlog0.2 adamw 1e-5 1000 --batch-size 128 \
-        --lr-auto-annealing 1e-8 5 --early-stopping 15 \
-        --init-weights dh_v90_7 last --clip-gradient-norm 10 \
+        dh_t38 weighted_mse_two_dms_sum_linear0.1_mexp0.05 adamw 1e-3 1000 --batch-size 512 \
+        --lr-auto-annealing 1e-6 5 --early-stopping 15 \
+        --lr-warmup 0 8e-6 1e-3 10 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal 0.2 in_layer.0 res_block1.block.0 \
+            res_block1.block.4 res_block2.block.2 res_block2.block.6 \
         --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v91_5 train_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
+        dh_t38 weighted_mse_two_dms_sum_linear0.1_mexp0.01 adamw 1e-3 1000 --batch-size 512 \
+        --lr-auto-annealing 1e-6 5 --early-stopping 15 \
+        --lr-warmup 0 8e-6 1e-3 10 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal 0.2 in_layer.0 res_block1.block.0 \
+            res_block1.block.4 res_block2.block.2 res_block2.block.6 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v91_6 train_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
+        dh_t38 weighted_mse_two_dms_sum_linear0.1_mexp0.0001 adamw 1e-3 1000 --batch-size 512 \
+        --lr-auto-annealing 1e-6 5 --early-stopping 15 \
+        --lr-warmup 0 8e-6 1e-3 10 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal 0.2 in_layer.0 res_block1.block.0 \
+            res_block1.block.4 res_block2.block.2 res_block2.block.6 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main.py batch_model_test \
+        test_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
+        --epoch-and-tag-range last dh_v91_ 1 6 \
+        --max-rows-per-model-call 1000
+
+[V92] The `dh_v92_` tag:
+
+    python3 main_scnp.py model_train \
+        dh_v92_1 train_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
+        dh_t39_1 weighted_mse_two_dms_sum_linear0.1 adamw 1e-3 1000 --batch-size 512 \
+        --lr-auto-annealing 1e-6 5 --early-stopping 15 \
+        --lr-warmup 0 8e-6 1e-3 10 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal 0.2 in_layer.0 res_block1.block.0 \
+            res_block1.block.4 res_block2.block.2 res_block2.block.6 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v92_2 train_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
+        dh_t39_2 weighted_mse_two_dms_sum_linear0.1 adamw 1e-3 1000 --batch-size 512 \
+        --lr-auto-annealing 1e-6 5 --early-stopping 15 \
+        --lr-warmup 0 8e-6 1e-3 10 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal 0.2 in_layer res_block1.block.2 \
+            res_block1.block.6 res_block2.block.2 res_block2.block.6 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v92_3 train_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
+        dh_t39_3 weighted_mse_two_dms_sum_linear0.1 adamw 1e-3 1000 --batch-size 512 \
+        --lr-auto-annealing 1e-6 5 --early-stopping 15 \
+        --lr-warmup 0 8e-6 1e-3 10 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal 0.2 in_layer res_block1.block.2 \
+            res_block1.block.6 res_block2.block.2 res_block2.block.6 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v92_4 train_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
+        dh_t39_4 weighted_mse_two_dms_sum_linear0.1 adamw 1e-3 1000 --batch-size 512 \
+        --lr-auto-annealing 1e-6 5 --early-stopping 15 \
+        --lr-warmup 0 8e-6 1e-3 10 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal 0.2 in_layer.0 res_block1.block.0 \
+            res_block1.block.4 res_block2.block.2 res_block2.block.6 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v92_5 train_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
+        dh_t39_5 weighted_mse_two_dms_sum_linear0.1 adamw 1e-3 1000 --batch-size 512 \
+        --lr-auto-annealing 1e-6 5 --early-stopping 15 \
+        --lr-warmup 0 8e-6 1e-3 10 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal 0.2 in_layer \
+            res_block1.block.2 res_block1.block.6 res_block2.block.2 res_block2.block.6 \
+            res_block3.block.2 res_block3.block.6 res_block4.block.2 res_block4.block.6 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v92_6 train_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
+        dh_t39_6 weighted_mse_two_dms_sum_linear0.1 adamw 1e-3 1000 --batch-size 512 \
+        --lr-auto-annealing 1e-6 5 --early-stopping 15 \
+        --lr-warmup 0 8e-6 1e-3 10 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal 0.2 in_layer \
+            res_block1.block.2 res_block1.block.6 res_block2.block.2 res_block2.block.6 \
+            res_block3.block.2 res_block3.block.6 res_block4.block.2 res_block4.block.6 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v92_7 train_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
+        dh_t39_7 weighted_mse_two_dms_sum_linear0.1 adamw 1e-3 1000 --batch-size 512 \
+        --lr-auto-annealing 1e-6 5 --early-stopping 15 \
+        --lr-warmup 0 8e-6 1e-3 10 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal 0.2 in_layer.0 \
+            res_block1.block.0 res_block1.block.4 res_block2.block.2 res_block2.block.6 \
+            res_block3.block.2 res_block3.block.6 res_block4.block.2 res_block4.block.6 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main.py batch_model_test \
+        test_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
+        --epoch-and-tag-range last dh_v92_ 1 7 \
+        --max-rows-per-model-call 1000
+
+[V93] The `dh_v93_` tag:
+
+    python3 main_scnp.py model_train \
+        dh_v93_1 train_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
+        dh_t38 weighted_mse_two_dms_sum_linear0.1 adamw 1e-5 1000 --batch-size 128 \
+        --lr-auto-annealing 1e-6 2 --early-stopping 15 \
+        --lr-warmup 0 8e-6 1e-3 10 --clip-gradient-norm 10 \
+        --init-weights dh_v90_7 last \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v93_2 train_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
+        dh_t38 weighted_mse_two_dms_sum_linear0.1 adamw 1e-5 1000 --batch-size 64 \
+        --lr-auto-annealing 1e-6 2 --early-stopping 15 \
+        --lr-warmup 0 8e-6 1e-3 10 --clip-gradient-norm 10 \
+        --init-weights dh_v90_7 last \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v93_3 train_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
+        dh_t38 weighted_mse_two_dms_sum_linear0.1_mexp0.0001 adamw 1e-5 1000 --batch-size 512 \
+        --lr-auto-annealing 1e-6 2 --early-stopping 15 \
+        --lr-warmup 0 8e-6 1e-3 10 --clip-gradient-norm 10 \
+        --init-weights dh_v90_7 last \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v93_4 train_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
+        dh_t38 weighted_mse_two_dms_sum_linear0.1_mexp0.0001 adamw 1e-5 1000 --batch-size 128 \
+        --lr-auto-annealing 1e-6 2 --early-stopping 15 \
+        --lr-warmup 0 8e-6 1e-3 10 --clip-gradient-norm 10 \
+        --init-weights dh_v90_7 last \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main.py batch_model_test \
+        test_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
+        --epoch-and-tag-range last dh_v93_ 1 4 \
+        --max-rows-per-model-call 1000

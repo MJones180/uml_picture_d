@@ -571,7 +571,7 @@ Preprocess the datasets:
         --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
         --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
         --additional-raw-data-tags dh_both_hodms_efc_30k_6iter_ch2 \
-        --norm-inputs --norm-outputs-globally --input-modified-log --output-modified-log
+        --norm-inputs --norm-outputs-globally --input-modified-log 1 --output-modified-log 1
     python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_final_dh_14k_ch1 \
         train_dh_both_hodms_efc_final_dh_lg_6iter_log10 val_dh_both_hodms_efc_final_dh_lg_6iter_log10 \
         test_dh_both_hodms_efc_final_dh_lg_6iter_log10 88 6 6 \
@@ -579,7 +579,7 @@ Preprocess the datasets:
         --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
         --additional-raw-data-tags dh_both_hodms_efc_final_dh_14k_ch2 \
             dh_both_hodms_efc_final_dh_9k_ch1 dh_both_hodms_efc_final_dh_9k_ch2 \
-        --norm-inputs --norm-outputs-globally --input-modified-log --output-modified-log \
+        --norm-inputs --norm-outputs-globally --input-modified-log 1 --output-modified-log 1 \
         --extend-existing-preprocessed-data
 
     python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_30k_6iter_ch1 \
@@ -588,7 +588,7 @@ Preprocess the datasets:
         --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
         --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
         --additional-raw-data-tags dh_both_hodms_efc_30k_6iter_ch2 \
-        --norm-inputs --norm-outputs-globally --output-modified-log
+        --norm-inputs --norm-outputs-globally --output-modified-log 1
     python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_final_dh_14k_ch1 \
         train_dh_both_hodms_efc_final_dh_lg_6iter_log10_out val_dh_both_hodms_efc_final_dh_lg_6iter_log10_out \
         test_dh_both_hodms_efc_final_dh_lg_6iter_log10_out 88 6 6 \
@@ -596,7 +596,7 @@ Preprocess the datasets:
         --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
         --additional-raw-data-tags dh_both_hodms_efc_final_dh_14k_ch2 \
             dh_both_hodms_efc_final_dh_9k_ch1 dh_both_hodms_efc_final_dh_9k_ch2 \
-        --norm-inputs --norm-outputs-globally --output-modified-log \
+        --norm-inputs --norm-outputs-globally --output-modified-log 1 \
         --extend-existing-preprocessed-data
 
     python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_final_dh_14k_ch1 \
@@ -887,6 +887,21 @@ Preprocess the datasets:
         --bounding-input-rows-train-only --bounding-output-rows-train-only --fix-seed 314
 
     python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_final_dh_14k_ch1 \
+        train_dh_both_hodms_efc_final_dh_xlg_1iter_svd_500_both_ones_out_log \
+        val_dh_both_hodms_efc_final_dh_xlg_1iter_svd_500_both_ones_out_log \
+        test_dh_both_hodms_efc_final_dh_xlg_1iter_svd_500_both_ones_out_log 88 6 6 \
+        --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
+        --additional-raw-data-tags dh_both_hodms_efc_final_dh_14k_ch2 \
+            dh_both_hodms_efc_final_dh_9k_ch1 dh_both_hodms_efc_final_dh_9k_ch2 \
+            dh_both_hodms_efc_30k_1iter_ch1 dh_both_hodms_efc_30k_1iter_ch2 \
+            dh_both_hodms_efc_27k_1iter_ch1 dh_both_hodms_efc_27k_1iter_ch2 \
+        --use-ef-svd-basis ef_modes_flat ef_modes 500 --flatten-input \
+        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
+        --norm-inputs-individual --norm-inputs-ones --norm-outputs --output-modified-log 0.3 \
+        --bounding-input-rows-train-only --bounding-output-rows-train-only --fix-seed 314
+
+    python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_final_dh_14k_ch1 \
         train_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
         val_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones \
         test_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones 88 6 6 \
@@ -900,6 +915,22 @@ Preprocess the datasets:
         --use-ef-svd-basis ef_modes_flat ef_modes 500 --flatten-input \
         --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
         --norm-inputs-individual --norm-inputs-ones --norm-outputs \
+        --bounding-input-rows-train-only --bounding-output-rows-train-only --fix-seed 314
+
+    python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_final_dh_14k_ch1 \
+        train_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones_out_log \
+        val_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones_out_log \
+        test_dh_both_hodms_efc_final_dh_xxlg_1iter_svd_500_both_ones_out_log 88 6 6 \
+        --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
+        --additional-raw-data-tags dh_both_hodms_efc_final_dh_14k_ch2 \
+            dh_both_hodms_efc_final_dh_9k_ch1 dh_both_hodms_efc_final_dh_9k_ch2 \
+            dh_both_hodms_efc_30k_1iter_ch1 dh_both_hodms_efc_30k_1iter_ch2 \
+            dh_both_hodms_efc_27k_1iter_ch1 dh_both_hodms_efc_27k_1iter_ch2 \
+            dh_both_hodms_efc_full_gain_24k_1iter_ch1 dh_both_hodms_efc_full_gain_24k_1iter_ch1 \
+        --use-ef-svd-basis ef_modes_flat ef_modes 500 --flatten-input \
+        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
+        --norm-inputs-individual --norm-inputs-ones --norm-outputs --output-modified-log 0.3 \
         --bounding-input-rows-train-only --bounding-output-rows-train-only --fix-seed 314
 
     python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_final_dh_14k_ch1 \
