@@ -448,7 +448,7 @@ def model_train(cli_args):
                 torch.log10(1 + torch.abs(values) / alpha))
 
     def apply_mexp_trans(values, alpha=1.0):
-        return torch.sign(values) * (1 - alpha**np.abs(values))
+        return torch.sign(values) * (1 - alpha**torch.abs(values))
 
     if loss_name in ('mae', 'mse'):
         if loss_name == 'mae':
