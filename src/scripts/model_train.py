@@ -442,6 +442,14 @@ def model_train(cli_args):
     def unknown_loss_function():
         terminate_with_message(f'Loss function unknown: {loss_name}')
 
+    # The same as `modified_log_transform` in the `norm` file, but with torch
+    def apply_mlog_trans(values, alpha=1.0):
+        return (torch.sign(values) *
+                torch.log10(1 + torch.abs(values) / alpha))
+
+    def apply_mexp_trans(values, alpha=1.0):
+        return torch.sign(values) * (1 - alpha**np.abs(values))
+
     if loss_name in ('mae', 'mse'):
         if loss_name == 'mae':
             print('MAE')
@@ -482,10 +490,9 @@ def model_train(cli_args):
         # Takes the log10 of both positive and negative data;
         # outputs values ranging from [0, inf]
         def loss_function(model_outputs, truth_outputs):
-            loss = (torch.sign(truth_outputs) *
-                    torch.log10(torch.abs(truth_outputs) + 1) -
-                    torch.sign(model_outputs) *
-                    torch.log10(torch.abs(model_outputs) + 1))**2
+            truth_outputs = apply_mlog_trans(truth_outputs)
+            model_outputs = apply_mlog_trans(model_outputs)
+            loss = (truth_outputs - model_outputs)**2
             return loss.mean()
     elif 'weighted_mse_two_dms' in loss_name:
         print('Weighted MSE Two DMs')
@@ -515,11 +522,12 @@ def model_train(cli_args):
             log_scaling = number_after_string('_mlog')
             print('Will apply a modified log before calculating the '
                   f'loss ({log_scaling} scaling)')
-
-            def apply_modified_log(values):
-                return (torch.sign(values) *
-                        torch.log10(1 + torch.abs(values) / log_scaling))
-
+        # Whether a modified exp should be applied before determining the loss
+        take_modified_exp = '_mexp' in loss_name
+        if take_modified_exp:
+            exp_base = number_after_string('_mexp')
+            print('Will apply a modified exp before calculating the '
+                  f'loss ({exp_base} base)')
         # Grab the number of output neurons for each DM (two in total)
         outputs_per_dm = validation_dataset.get_outputs().shape[1] // 2
         # The first declaration of `output_weights` gives the weight of each
@@ -554,8 +562,11 @@ def model_train(cli_args):
 
         def loss_function(model_outputs, truth_outputs):
             if take_modified_log:
-                model_outputs = apply_modified_log(model_outputs)
-                truth_outputs = apply_modified_log(truth_outputs)
+                model_outputs = apply_mlog_trans(model_outputs, log_scaling)
+                truth_outputs = apply_mlog_trans(truth_outputs, log_scaling)
+            if take_modified_exp:
+                model_outputs = apply_mexp_trans(model_outputs, exp_base)
+                truth_outputs = apply_mexp_trans(truth_outputs, exp_base)
             loss = output_weights * (model_outputs - truth_outputs)**2
             if take_row_sum:
                 loss = loss.sum(axis=1)
