@@ -20,13 +20,15 @@ def sum_to_one(data, dims=None):
     return data / np.sum(data, axis=dims, keepdims=True)
 
 
-def modified_log_transform(data, in_place=False):
+def modified_log_transform(data, alpha=1.0, in_place=False):
     """Transforms postive and negative values with log10.
 
     Parameters
     ----------
     data : np.array
         The data to normalize.
+    alpha : float
+        The alpha parameter - what the data is divided by inside the log.
     in_place : bool
         Whether to modify the array in place.
 
@@ -39,6 +41,8 @@ def modified_log_transform(data, in_place=False):
         signs = np.sign(data)
         # Take the absolute value
         np.absolute(data, out=data)
+        # Divide the data by alpha
+        data /= alpha
         # Add 1 to the data
         data += 1
         # Take the log10
@@ -46,23 +50,25 @@ def modified_log_transform(data, in_place=False):
         # Add back on the original sign
         data *= signs
         return data
-    return np.sign(data) * np.log10(np.abs(data) + 1)
+    return np.sign(data) * np.log10(np.abs(data) / alpha + 1)
 
 
-def undo_modified_log_transform(data):
+def undo_modified_log_transform(data, alpha=1.0):
     """Undoes the modified log10 transformation.
 
     Parameters
     ----------
     data : np.array
         The data to denormalize.
+    alpha : float
+        The alpha parameter - what the data was divided by inside the log.
 
     Returns
     -----
     np.array
         The denormalized data.
     """
-    return np.sign(data) * (10**np.abs(data) - 1)
+    return np.sign(data) * alpha * (10**np.abs(data) - 1)
 
 
 def min_max_norm(

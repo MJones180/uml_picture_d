@@ -51,9 +51,10 @@ def dm_comparison_parser(subparsers):
     )
     subparser.add_argument(
         '--manually-undo-model-output-log',
-        action='store_true',
+        type=float,
         help=('undo the log transformation on the model output manually; '
-              'required if the dataset does not also use a log transform'),
+              'required if the dataset does not also use a log transform; '
+              'one parameter expected: alpha'),
     )
 
 
@@ -143,11 +144,13 @@ def dm_comparison(cli_args):
 
     if OUTPUTS_LOG10 in extra_vars_data:
         step_ri('Undoing the log10 of the data')
-        outputs_truth = undo_modified_log_transform(outputs_truth)
-        outputs_model = undo_modified_log_transform(outputs_model)
+        alpha = extra_vars_data[OUTPUTS_LOG10][()]
+        outputs_truth = undo_modified_log_transform(outputs_truth, alpha)
+        outputs_model = undo_modified_log_transform(outputs_model, alpha)
     elif cli_args.get('manually_undo_model_output_log'):
         step_ri('Undoing the log10 of the model output')
-        outputs_model = undo_modified_log_transform(outputs_model)
+        alpha = cli_args['manually_undo_model_output_log']
+        outputs_model = undo_modified_log_transform(outputs_model, alpha)
 
     step_ri('Generating comparison plots')
 

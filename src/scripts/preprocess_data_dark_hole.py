@@ -188,13 +188,15 @@ def preprocess_data_dark_hole_parser(subparsers):
     )
     subparser.add_argument(
         '--input-modified-log',
-        action='store_true',
-        help='take a modified log10 of the input data, done before norm',
+        type=float,
+        help=('take a modified log10 of the input data, done before norm; '
+              'one parameter should be passed: alpha'),
     )
     subparser.add_argument(
         '--output-modified-log',
-        action='store_true',
-        help='take a modified log10 of the output data, done before norm',
+        type=float,
+        help=('take a modified log10 of the output data, done before norm; '
+              'one parameter should be passed: alpha'),
     )
     subparser.add_argument(
         '--flatten-input',
@@ -418,11 +420,17 @@ def preprocess_data_dark_hole(cli_args):
 
     # ==========================================================================
 
-    if cli_args['input_modified_log']:
+    input_modified_log = cli_args.get('input_modified_log')
+    if input_modified_log:
         step_ri('Taking the modified log10 of the input data')
-        input_data = modified_log_transform(input_data, in_place=True)
+        print(f'Alpha: {input_modified_log}')
+        input_data = modified_log_transform(
+            input_data,
+            input_modified_log,
+            in_place=True,
+        )
         if not extend_existing_data:
-            _save_var(INPUTS_LOG10, True)
+            _save_var(INPUTS_LOG10, input_modified_log)
 
     # ==========================================================================
 
@@ -682,11 +690,17 @@ def preprocess_data_dark_hole(cli_args):
 
     # ==========================================================================
 
-    if cli_args['output_modified_log']:
+    output_modified_log = cli_args.get('output_modified_log')
+    if output_modified_log:
         step_ri('Taking the modified log10 of the output data')
-        output_data = modified_log_transform(output_data, in_place=True)
+        print(f'Alpha: {output_modified_log}')
+        output_data = modified_log_transform(
+            output_data,
+            output_modified_log,
+            in_place=True,
+        )
         if not extend_existing_data:
-            _save_var(OUTPUTS_LOG10, True)
+            _save_var(OUTPUTS_LOG10, output_modified_log)
 
     # ==========================================================================
 

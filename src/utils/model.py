@@ -100,7 +100,7 @@ class Model():
         # The arcsinh is taken for the input values
         self.inputs_archsinh = _grab_ev_bool(INPUTS_ARCSINH)
         # The modified log10 is taken for the input values
-        self.inputs_log10 = _grab_ev_bool(INPUTS_LOG10)
+        self.inputs_log10 = self.extra_vars.get(INPUTS_LOG10)
         # True if any input normalization is done (other than summing to one).
         self.input_norm_done = INPUT_MIN_X in self.extra_vars
         # The base field that will need to be subtracted off. If the field does
@@ -156,7 +156,7 @@ class Model():
         return np.arcsinh(input_data)
 
     def log10_inputs(self, input_data):
-        return modified_log_transform(input_data)
+        return modified_log_transform(input_data, alpha=self.inputs_log10[()])
 
     def sum_inputs_to_one(self, input_data, sum_dims=None):
         return sum_to_one(input_data, sum_dims)
