@@ -159,10 +159,21 @@ def model_train_parser(subparsers):
     subparser.add_argument(
         '--init-weights-kaiming-normal',
         nargs='+',
-        metavar='[a], *[layer names]',
+        metavar='[slope], *[layer names]',
         help=('init the weights in the given layer names with the Kaiming '
-              'normal distribution; params expected: a value, *layer names; '
-              'this is to use LeakyRelu activations with different slopes'),
+              'normal distribution; params expected: slope, *layer names; '
+              'this is to use LeakyRelu activations with different slopes; '
+              'the layers being specified must be `Linear` layers'),
+    )
+    subparser.add_argument(
+        '--init-weights-kaiming-normal-simple',
+        nargs='+',
+        metavar='[slope], *[base layer names]',
+        help=(
+            'the same as the `--init-weights-kaiming-normal` argument, except '
+            'with simplified functionality; params expected: slope, *base '
+            'layer names; all `Linear` layers in a given base layer will be '
+            'set to init with the kaiming distribution'),
     )
     subparser.add_argument(
         '--transfer-learning-train-layers',
@@ -337,20 +348,26 @@ def model_train(cli_args):
         # Set the new state
         model.load_state_dict(model_state)
 
-    init_weights_kaiming_normal = cli_args.get('init_weights_kaiming_normal')
-    if init_weights_kaiming_normal is not None:
+    use_kaiming_normal = cli_args.get('init_weights_kaiming_normal')
+    use_kaiming_normal_v2 = cli_args.get('init_weights_kaiming_normal_simple')
+    if use_kaiming_normal is not None or use_kaiming_normal_v2 is not None:
         step_ri('Using Kaiming normal distribution to init weights')
-        a, *layer_names = init_weights_kaiming_normal
-        print(f'a: {a}')
+        slope, *layer_names = use_kaiming_normal or use_kaiming_normal_v2
+        print(f'Slope: {slope}')
         for name, module in model.named_modules():
-            if name in layer_names:
-                print(f'Layer: {name}')
-                torch.nn.init.kaiming_normal_(
-                    module.weight,
-                    a=float(a),
-                    mode='fan_out',
-                    nonlinearity='leaky_relu',
-                )
+            name_to_check = name
+            # For the simplified version, look at the first part of the name
+            if use_kaiming_normal_v2 is not None:
+                name_to_check = name.split('.')[0]
+            if name_to_check in layer_names:
+                if isinstance(module, torch.nn.Linear):
+                    print(f'Layer: {name}')
+                    torch.nn.init.kaiming_normal_(
+                        module.weight,
+                        a=float(slope),
+                        mode='fan_out',
+                        nonlinearity='leaky_relu',
+                    )
 
     transfer_learn_layers = cli_args.get('transfer_learning_train_layers')
     if transfer_learn_layers:
