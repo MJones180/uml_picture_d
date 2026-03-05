@@ -7,6 +7,7 @@ Portions of the code from this file are adapted from:
 The training and validation dataset must have their inputs pre-normalized.
 """
 
+from loss_functions.weighted_two_dms import WeightedTwoDMs
 import numpy as np
 from time import time
 import torch
@@ -96,6 +97,12 @@ def model_train_parser(subparsers):
         nargs='+',
         help=('pass params to the optimizer; three values expected for each '
               'group: name, value, type (0 - str, 1 - float, 2 - int)'),
+    )
+    subparser.add_argument(
+        '--loss-params',
+        nargs='+',
+        help=('pass params to the loss function; two values expected for each '
+              'group: name, value; types determined by loss function'),
     )
     subparser.add_argument(
         '--early-stopping',
@@ -467,6 +474,12 @@ def model_train(cli_args):
     def apply_mexp_trans(values, alpha=1.0):
         return torch.sign(values) * (1 - alpha**torch.abs(values))
 
+    loss_params = cli_args.get('loss_params')
+    if loss_params is not None:
+        print('Loss parameters')
+        for param_key, param_value in loss_params:
+            print(f'{param_key}: {param_value}')
+
     if loss_name in ('mae', 'mse'):
         if loss_name == 'mae':
             print('MAE')
@@ -511,6 +524,14 @@ def model_train(cli_args):
             model_outputs = apply_mlog_trans(model_outputs)
             loss = (truth_outputs - model_outputs)**2
             return loss.mean()
+    elif 'weighted_two_dms' in loss_name:
+        print('Weighted Two DMs')
+        loss_obj = WeightedTwoDMs(
+            validation_dataset.get_outputs().shape[1] // 2,
+            device,
+            **loss_params,
+        )
+        loss_function = loss_obj.forward
     elif 'weighted_mse_two_dms' in loss_name:
         print('Weighted MSE Two DMs')
         # Whether the sum or mean should be taken across each row
