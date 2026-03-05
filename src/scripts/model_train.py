@@ -579,12 +579,26 @@ def model_train(cli_args):
 
         def loss_function(model_outputs, truth_outputs):
             if take_modified_log:
-                model_outputs = apply_mlog_trans(model_outputs, log_scaling)
-                truth_outputs = apply_mlog_trans(truth_outputs, log_scaling)
+                model_outputs_trans = apply_mlog_trans(model_outputs,
+                                                       log_scaling)
+                truth_outputs_trans = apply_mlog_trans(truth_outputs,
+                                                       log_scaling)
             if take_modified_exp:
-                model_outputs = apply_mexp_trans(model_outputs, exp_base)
-                truth_outputs = apply_mexp_trans(truth_outputs, exp_base)
-            loss = output_weights * (model_outputs - truth_outputs)**2
+                model_outputs_trans = apply_mexp_trans(model_outputs, exp_base)
+                truth_outputs_trans = apply_mexp_trans(truth_outputs, exp_base)
+
+            # AM I APPLYING THE TRANSFORMATION IN THE CORRECT SPOT??
+            # SHOULDNT I BE APPLYING THE TRANSFORMATION TO THE DELTAS,
+            # NOT THE ACTUAL VALUES?
+            if bla:
+                mse_diff = (beta * (model_outputs - truth_outputs)**2 +
+                            (1 - beta) *
+                            (model_outputs_trans - truth_outputs_trans)**2)
+            else:
+                model_outputs = model_outputs_trans
+                truth_outputs = truth_outputs_trans
+                mse_diff = (model_outputs - truth_outputs)**2
+            loss = output_weights * mse_diff
             if take_row_sum:
                 loss = loss.sum(axis=1)
             return loss.mean()
