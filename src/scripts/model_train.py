@@ -466,14 +466,6 @@ def model_train(cli_args):
     def unknown_loss_function():
         terminate_with_message(f'Loss function unknown: {loss_name}')
 
-    # The same as `modified_log_transform` in the `norm` file, but with torch
-    def apply_mlog_trans(values, alpha=1.0):
-        return (torch.sign(values) *
-                torch.log10(1 + torch.abs(values) / alpha))
-
-    def apply_mexp_trans(values, alpha=1.0):
-        return torch.sign(values) * (1 - alpha**torch.abs(values))
-
     loss_params = cli_args.get('loss_params')
     if loss_params is not None:
         step('Loss parameters')
@@ -523,6 +515,11 @@ def model_train(cli_args):
             return loss.mean()
     elif loss_name == 'modified_log_mse':
         print('Modified Log MSE')
+
+        # Same as `modified_log_transform` in the `norm` file, but with torch
+        def apply_mlog_trans(values, alpha=1.0):
+            return (torch.sign(values) *
+                    torch.log10(1 + torch.abs(values) / alpha))
 
         # Takes the log10 of both positive and negative data;
         # outputs values ranging from [0, inf]
