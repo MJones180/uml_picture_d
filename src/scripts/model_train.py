@@ -545,6 +545,11 @@ def model_train(cli_args):
             exp_base = number_after_string('_mexp')
             print('Will apply a modified exp before calculating the '
                   f'loss ({exp_base} base)')
+        # Whether a combination of MAE and MSE loss should be used
+        use_with_mae = '_mae' in loss_name
+        if use_with_mae:
+            mae_percentage = number_after_string('_mae')
+            print(f'Will add {mae_percentage} MAE to the loss')
         # Grab the number of output neurons for each DM (two in total)
         outputs_per_dm = validation_dataset.get_outputs().shape[1] // 2
         # The first declaration of `output_weights` gives the weight of each
@@ -584,7 +589,11 @@ def model_train(cli_args):
             if take_modified_exp:
                 model_outputs = apply_mexp_trans(model_outputs, exp_base)
                 truth_outputs = apply_mexp_trans(truth_outputs, exp_base)
-            loss = output_weights * (model_outputs - truth_outputs)**2
+            difference = model_outputs - truth_outputs
+            loss_diff = difference**2
+            if use_with_mae:
+                loss_diff = loss_diff + mae_percentage * torch.abs(difference)
+            loss = output_weights * loss_diff
             if take_row_sum:
                 loss = loss.sum(axis=1)
             return loss.mean()
