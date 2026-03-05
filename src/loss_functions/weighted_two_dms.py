@@ -52,8 +52,8 @@ class WeightedTwoDMs(nn.Module):
 
         # The conditional block declaration of `output_weights` gives the weight
         # of each output neuron associated with the first DM
-        linear_scaling = _grab_param(take_row_sum, bool)
-        exp_scaling = _grab_param(take_row_sum, bool)
+        linear_scaling = _grab_param(linear_scaling, float)
+        exp_scaling = _grab_param(exp_scaling, float)
         if linear_scaling:
             end_mode = outputs_per_dm
             linear_scaling_tail = _grab_param(linear_scaling_tail, int)

@@ -476,15 +476,16 @@ def model_train(cli_args):
 
     loss_params = cli_args.get('loss_params')
     if loss_params is not None:
-        print('Loss parameters')
+        step('Loss parameters')
         # Group the data into key value pairs
         loss_params = {
             key: val
             for key, val in group_data_from_list(
                 loss_params, 2, 'Must be two params per group')
         }
-        for param_key, param_value in loss_params:
+        for param_key, param_value in loss_params.items():
             print(f'{param_key}: {param_value}')
+        dec_print_indent()
 
     if loss_name in ('mae', 'mse'):
         if loss_name == 'mae':
