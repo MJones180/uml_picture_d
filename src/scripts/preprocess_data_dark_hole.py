@@ -788,7 +788,8 @@ def preprocess_data_dark_hole(cli_args):
             scalar_values = True
         if norm_inputs_ones:
             print('Using range [-1, 1]')
-            _save_var(NORM_RANGE_ONES_INPUT, True)
+            if not extend_existing_data:
+                _save_var(NORM_RANGE_ONES_INPUT, True)
         else:
             print('Using range [0, 1]')
         if extend_existing_data:
