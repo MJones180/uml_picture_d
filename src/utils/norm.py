@@ -149,6 +149,7 @@ def find_min_max_norm(
     globally=False,
     ones_range=False,
     round_values=None,
+    scale_values=None,
 ):
     """Find the max_min_diff and min_x and then normalize the data.
 
@@ -163,6 +164,8 @@ def find_min_max_norm(
     round_values : int, optional
         Round the `max_min_diff` and `min_x` to n decimal places as given by
         this argument.
+    scale_values : float, optional
+        Multiply the `max_min_diff` and `min_x` by a scaling factor.
 
     Returns
     -----
@@ -188,5 +191,13 @@ def find_min_max_norm(
         max_min_diff = np.round(max_min_diff, round_values)
         print(f'Rounded min_x: {min_x}')
         print(f'Rounded max_min_diff: {max_min_diff}')
+    if scale_values is not None:
+        print(f'Original min_x: {min_x}')
+        print(f'Original max_min_diff: {max_min_diff}')
+        print(f'Scaling factor: {scale_values}')
+        min_x *= scale_values
+        max_min_diff *= scale_values
+        print(f'Scaled min_x: {min_x}')
+        print(f'Scaled max_min_diff: {max_min_diff}')
     normalized = min_max_norm(data, max_min_diff, min_x, ones_range)
     return normalized, max_min_diff, min_x

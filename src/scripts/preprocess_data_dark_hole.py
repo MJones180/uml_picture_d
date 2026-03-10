@@ -182,6 +182,11 @@ def preprocess_data_dark_hole_parser(subparsers):
               'between -1 and 1'),
     )
     subparser.add_argument(
+        '--norm-scaling-factor',
+        type=float,
+        help='scale the `min_x` and `max_min_diff` by a constant factor',
+    )
+    subparser.add_argument(
         '--input-arcsinh',
         action='store_true',
         help='take the arcsinh of the input data, done before norm',
@@ -778,6 +783,7 @@ def preprocess_data_dark_hole(cli_args):
     norm_inputs = cli_args['norm_inputs']
     norm_inputs_ones = cli_args['norm_inputs_ones']
     norm_inputs_individual = cli_args['norm_inputs_individual']
+    norm_scaling_factor = cli_args['norm_scaling_factor']
     if norm_inputs or norm_inputs_ones or norm_inputs_individual:
         step_ri('Normalizing training inputs')
         if norm_inputs_individual:
@@ -806,9 +812,12 @@ def preprocess_data_dark_hole(cli_args):
                 train_inputs,
                 globally=not norm_inputs_individual,
                 ones_range=norm_inputs_ones,
+                scale_values=norm_scaling_factor,
             )
             _save_var(INPUT_MAX_MIN_DIFF, max_min_diff)
             _save_var(INPUT_MIN_X, min_x)
+        print(f'Train min: {np.min(train_inputs)}')
+        print(f'Train max: {np.max(train_inputs)}')
         print('Normalizing inputs of validation data and test data based on '
               'training normalization values')
         val_inputs = min_max_norm(val_inputs, max_min_diff, min_x,
@@ -845,10 +854,13 @@ def preprocess_data_dark_hole(cli_args):
                 train_outputs,
                 globally=norm_outputs_globally,
                 ones_range=True,
+                scale_values=norm_scaling_factor,
             )
             _save_var(OUTPUT_MAX_MIN_DIFF, max_min_diff)
             _save_var(OUTPUT_MIN_X, min_x)
             _save_var(NORM_RANGE_ONES_OUTPUT, True)
+        print(f'Train min: {np.min(train_outputs)}')
+        print(f'Train max: {np.max(train_outputs)}')
         print('Normalizing outputs of validation data based on training '
               'normalization values')
         val_outputs = min_max_norm(val_outputs, max_min_diff, min_x, True)
