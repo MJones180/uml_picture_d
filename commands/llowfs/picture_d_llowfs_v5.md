@@ -46,7 +46,7 @@ corresponding fixed datasets must also be created.
     # ==== CNN Random Data ====
 
     # Set the number of rows in each random dataset
-    # SET VALUE: Small - 1000, Med - 10000
+    # SET VALUE: Small - 1000, Med - 10000, Full - 100000
     export NUMB_ROWS=1000
 
     # The tag in the dataset name is just divided by 1k
@@ -121,13 +121,17 @@ corresponding fixed datasets must also be created.
     python3 main.py sim_data f_50_501 no_prop 0 \
         --fixed-amount-per-zernike-range 2 24 " -50e-9" 50e-9 501 \
         --save-aberrations-csv-quit
+    # Full - [-50, 50] with 2000 points (46000 total)
+    python3 main.py sim_data f_50_2000 no_prop 0 \
+        --fixed-amount-per-zernike-range 2 24 " -50e-9" 50e-9 2000 \
+        --save-aberrations-csv-quit
 
     # Based on `fixed_1nm_range_301_approx` - used for the Stabilization CNN
     # Small - [-1, 1] with 51 points (1173 total)
     python3 main.py sim_data f_1_51 no_prop 0 \
         --fixed-amount-per-zernike-range 2 24 " -1e-9" 1e-9 51 \
         --save-aberrations-csv-quit
-    # Med - [-1, 1] with 301 points (6923 total)
+    # Med / Full - [-1, 1] with 301 points (6923 total)
     python3 main.py sim_data f_1_301 no_prop 0 \
         --fixed-amount-per-zernike-range 2 24 " -1e-9" 1e-9 301 \
         --save-aberrations-csv-quit
