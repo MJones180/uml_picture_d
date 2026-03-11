@@ -59,6 +59,11 @@ def convert_picd_instrument_data_parser(subparsers):
               'the rows from the PRIMARY table are used'),
     )
     subparser.add_argument(
+        '--n-base-field-rows',
+        type=int,
+        help='only average over the last n rows from the base field data',
+    )
+    subparser.add_argument(
         '--slice-row-ranges',
         type=int,
         nargs='*',
@@ -116,6 +121,10 @@ def convert_picd_instrument_data(cli_args):
                     else:
                         # This is the preferred method if there are extra rows
                         rows_to_average = hdul['IMAGE'].data[-row_count:]
+                    n_base_field_rows = cli_args.get('n_base_field_rows')
+                    if n_base_field_rows:
+                        print(f'Only taking the last {n_base_field_rows} rows')
+                        rows_to_average = rows_to_average[-n_base_field_rows:]
                     image_data = np.average(
                         rows_to_average,
                         axis=0,
