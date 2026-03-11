@@ -13,7 +13,7 @@ from utils.constants import (CAMERA_INTENSITY, CAMERA_SAMPLING, DATA_F,
 from utils.hdf_read_and_write import HDFWriteModule
 from utils.path import make_dir, path_exists
 from utils.printing_and_logging import (dec_print_indent, inc_print_indent,
-                                        step_ri, title)
+                                        step, step_ri, title)
 from utils.terminate_with_message import terminate_with_message
 
 
@@ -64,6 +64,13 @@ def convert_picd_instrument_data_parser(subparsers):
         nargs='*',
         help=('slice out rows from the given ranges in the form of '
               '[idx low, idx high]..., this will be done to each datafile'),
+    )
+    subparser.add_argument(
+        '--take-every-n-rows',
+        type=int,
+        nargs=2,
+        help=('take every n rows out of the data starting at row x; '
+              'expected parameters: n x'),
     )
 
 
@@ -127,8 +134,7 @@ def convert_picd_instrument_data(cli_args):
                     # Slice out specific rows from each datafile
                     slice_row_ranges = cli_args.get('slice_row_ranges')
                     if slice_row_ranges:
-                        print('Slicing out specific rows')
-                        inc_print_indent()
+                        step('Slicing out specific rows')
                         if len(slice_row_ranges) % 2 == 1:
                             terminate_with_message('Invalid row slice params')
                         # A mask of the rows to keep
@@ -141,6 +147,16 @@ def convert_picd_instrument_data(cli_args):
                         dec_print_indent()
                         image_data = image_data[row_mask]
                         zernike_data = zernike_data[row_mask]
+                    take_every_n_rows = cli_args.get('take_every_n_rows')
+                    if take_every_n_rows:
+                        skip_count, starting_row = take_every_n_rows
+                        print(f'Image data shape: {image_data.shape}')
+                        print(f'Zernike data shape: {zernike_data.shape}')
+                        step(f'Will take every {skip_count} rows '
+                             f'starting at row {starting_row}')
+                        image_data = image_data[starting_row::skip_count]
+                        zernike_data = zernike_data[starting_row::skip_count]
+                        dec_print_indent()
             if zernike_data.shape[1] != len(zernike_terms):
                 terminate_with_message('Incorrect number of Zernike terms')
             print(f'Image data shape: {image_data.shape}')
