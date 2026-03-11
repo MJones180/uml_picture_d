@@ -151,10 +151,21 @@ def preprocess_data_complete_parser(subparsers):
               '<exposure time in s> <countrate>; noise will be added to the '
               'input PSFs for all the data including the base field'),
     )
+    subparser.add_argument(
+        '--fix-seed',
+        type=int,
+        help='fix the seed value for reproducible results',
+    )
 
 
 def preprocess_data_complete(cli_args):
     title('Preprocess data complete script')
+
+    fix_seed = cli_args['fix_seed']
+    if fix_seed:
+        step_ri('Fixing the seed')
+        print(f'Seed value: {fix_seed}')
+        np.random.seed(fix_seed)
 
     # ==========================================================================
 
