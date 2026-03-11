@@ -4,7 +4,11 @@ NOTES AND CHANGES COMPARED TO `picture_d_llowfs_v4.md`:
   Stabilization CNN (small aberrations). Additionally, created versions of both which are trained
   on wavefronts with simulated camera noise.
 - The CNNs now use the `llowfs_cnn_4_no_dropout` architecture.
-- Obtained data on the PICTURE-D instrument and used it to extend train the CNN models with noise.
+- Obtained new PICTURE-D instrument data on March 11, 2026.
+    - ZIP of the data stored at `data/raw/llowfs_training_03_11_2026.zip`.
+    - Instrument did not have the 540-660 nm band pass on when data was collected;
+      instead, unfiltered white light was used.
+    - The data contains two frames for each row, but only the second frame should be used.
 ....................................................................................................
 
 These are the commands needed to obtain data on PICTURE-D and to create the associated models.
@@ -17,9 +21,8 @@ The CNNs are based on:
 
 TABLE OF CONTENTS:
     SEC1 - INPUT ABERRATION CSV FILES
-    SEC3 - MOVE FITS FILES
-    SEC4 - PREMERGE SOME FITS FILES
-    SEC5 - FITS TO HDF FILES
+    SEC2 - MOVE FITS FILES
+    SEC3 - FITS TO HDF FILES
     SEC6 - PREPROCESS DATAFILES
     SEC7 - CNN TRAINING AND TESTING
     SEC8 - RM CREATION AND TESTING
@@ -78,11 +81,11 @@ corresponding fixed datasets must also be created.
 
     # ---- Stabilization CNN Datasets ----
     # Based on `random_group_25_1_half` - (25, 1, 0.5)
-    python3 main.py sim_data r_group_25_1_half_coeffs_${NUMB_ROWS_TAG}k no_prop 0 \
+    python3 main.py sim_data r_25_1_half_coeffs_${NUMB_ROWS_TAG}k no_prop 0 \
         --rand-amount-per-zernike $NUMB_ROWS 2 3 " -25e-9" 25e-9 4 8 " -1e-9" 1e-9 9 24 " -5e-10" 5e-10 \
         --save-aberrations-csv-quit
     # Based on `random_group_15_2_1` - (15, 2, 1)
-    python3 main.py sim_data r_group_15_2_1_coeffs_${NUMB_ROWS_TAG}k no_prop 0 \
+    python3 main.py sim_data r_15_2_1_coeffs_${NUMB_ROWS_TAG}k no_prop 0 \
         --rand-amount-per-zernike $NUMB_ROWS 2 3 " -15e-9" 15e-9 4 8 " -2e-9" 2e-9 9 24 " -1e-9" 1e-9 \
         --save-aberrations-csv-quit
     # Based on `random_group_15_1_half` - (15, 1, 0.5)
@@ -136,181 +139,192 @@ corresponding fixed datasets must also be created.
         --fixed-amount-per-zernike-range 2 24 " -1e-9" 1e-9 301 \
         --save-aberrations-csv-quit
 
-SEC3 - MOVE FITS FILES +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-The FITS datafiles that were obtained on the instrument should be moved to the
-`data/raw` directory with new folder and file names.
+SEC2 - MOVE FITS FILES +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+The FITS datafiles containing instrument data should be moved to the `data/raw`
+directory with new folder and file names. Datafiles for the Small and Medium
+datasets can be found in the ZIP at `data/raw/llowfs_training_03_11_2026.zip`.
+All the `*_extra` datafiles contain the base fields and go in the corresponding
+`*_bf_*` folders. The shared data is duplicated in both the Capture and
+Stabilization datasets to make preprocessing easier.
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    mkdir lyt_100k_chunks_v4
-    # picture_d_aberrations_group_0, 4 chunks of 25k rows each
-    mv lyt_alp_train_lac_20250731_144138_caldata.fits lyt_100k_chunks_v4/0_data.fits
-    mv lyt_alp_train_lac_20250731_144547_caldata.fits lyt_100k_chunks_v4/1_data.fits
-    mv lyt_alp_train_lac_20250731_145113_caldata.fits lyt_100k_chunks_v4/2_data.fits
-    mv lyt_alp_train_lac_20250731_145508_caldata.fits lyt_100k_chunks_v4/3_data.fits
-    # picture_d_aberrations_group_1, 4 chunks of 25k rows each
-    mv lyt_alp_train_lac_20250731_145937_caldata.fits lyt_100k_chunks_v4/4_data.fits
-    mv lyt_alp_train_lac_20250731_150411_caldata.fits lyt_100k_chunks_v4/5_data.fits
-    mv lyt_alp_train_lac_20250731_150820_caldata.fits lyt_100k_chunks_v4/6_data.fits
-    mv lyt_alp_train_lac_20250731_151623_caldata.fits lyt_100k_chunks_v4/7_data.fits
-    # picture_d_aberrations_group_2, 4 chunks of 25k rows each
-    mv lyt_alp_train_lac_20250731_152146_caldata.fits lyt_100k_chunks_v4/8_data.fits
-    mv lyt_alp_train_lac_20250731_153135_caldata.fits lyt_100k_chunks_v4/9_data.fits
-    mv lyt_alp_train_lac_20250731_154039_caldata.fits lyt_100k_chunks_v4/10_data.fits
-    mv lyt_alp_train_lac_20250731_154441_caldata.fits lyt_100k_chunks_v4/11_data.fits
-    # picture_d_aberrations_group_3, 4 chunks of 25k rows each
-    mv lyt_alp_train_lac_20250731_154842_caldata.fits lyt_100k_chunks_v4/12_data.fits
-    mv lyt_alp_train_lac_20250731_155730_caldata.fits lyt_100k_chunks_v4/13_data.fits
-    mv lyt_alp_train_lac_20250731_160138_caldata.fits lyt_100k_chunks_v4/14_data.fits
-    mv lyt_alp_train_lac_20250731_160538_caldata.fits lyt_100k_chunks_v4/15_data.fits
-    # picture_d_aberrations_group_4, 4 chunks of 25k rows each
-    mv lyt_alp_train_lac_20250731_161411_caldata.fits lyt_100k_chunks_v4/16_data.fits
-    mv lyt_alp_train_lac_20250731_161813_caldata.fits lyt_100k_chunks_v4/17_data.fits
-    mv lyt_alp_train_lac_20250731_162310_caldata.fits lyt_100k_chunks_v4/18_data.fits
-    mv lyt_alp_train_lac_20250731_162727_caldata.fits lyt_100k_chunks_v4/19_data.fits
-    # picture_d_aberrations_group_5, 4 chunks of 25k rows each
-    mv lyt_alp_train_lac_20250731_163123_caldata.fits lyt_100k_chunks_v4/20_data.fits
-    mv lyt_alp_train_lac_20250731_163732_caldata.fits lyt_100k_chunks_v4/21_data.fits
-    mv lyt_alp_train_lac_20250731_165014_caldata.fits lyt_100k_chunks_v4/22_data.fits
-    mv lyt_alp_train_lac_20250731_165443_caldata.fits lyt_100k_chunks_v4/23_data.fits
-    # picture_d_aberrations_group_6, 4 chunks of 25k rows each
-    mv lyt_alp_train_lac_20250731_170019_caldata.fits lyt_100k_chunks_v4/24_data.fits
-    mv lyt_alp_train_lac_20250731_170457_caldata.fits lyt_100k_chunks_v4/25_data.fits
-    mv lyt_alp_train_lac_20250731_170930_caldata.fits lyt_100k_chunks_v4/26_data.fits
-    mv lyt_alp_train_lac_20250731_171411_caldata.fits lyt_100k_chunks_v4/27_data.fits
-    # picture_d_aberrations_group_7, 4 chunks of 25k rows each
-    mv lyt_alp_train_lac_20250731_171923_caldata.fits lyt_100k_chunks_v4/28_data.fits
-    mv lyt_alp_train_lac_20250731_172729_caldata.fits lyt_100k_chunks_v4/29_data.fits
-    mv lyt_alp_train_lac_20250731_173218_caldata.fits lyt_100k_chunks_v4/30_data.fits
-    mv lyt_alp_train_lac_20250731_173617_caldata.fits lyt_100k_chunks_v4/31_data.fits
+    # ---- RM ----
+    mkdir inst_llowfs_v5_rm
+    # f_pm_40
+    mv lyt_alp_train_lac_20260311_162642_caldata.fits       inst_llowfs_v5_rm/0_data.fits
 
-    mkdir lyt_single_zernikes_v4
-    # picture_d_aberrations_group_8, 2 chunks of 25k rows and 21k rows
-    mv lyt_alp_train_lac_20250731_174007_caldata.fits lyt_single_zernikes_v4/0_data.fits
-    mv lyt_alp_train_lac_20250731_174613_caldata.fits lyt_single_zernikes_v4/1_data.fits
+    # ---- Capture Data - Small ----
+    mkdir inst_llowfs_v5_cap_sm
+    mkdir inst_llowfs_v5_cap_bf_sm
+    # r_500_20_10_coeffs_1k
+    mv lyt_alp_train_lac_20260311_163233_caldata.fits       inst_llowfs_v5_cap_sm/0_data.fits
+    mv lyt_alp_train_lac_20260311_163233_caldata_extra.fits inst_llowfs_v5_cap_bf_sm/0_data.fits
+    # r_50_10_5_coeffs_1k
+    mv lyt_alp_train_lac_20260311_163304_caldata.fits       inst_llowfs_v5_cap_sm/1_data.fits
+    mv lyt_alp_train_lac_20260311_163304_caldata_extra.fits inst_llowfs_v5_cap_bf_sm/1_data.fits
+    # r_15_5_2_coeffs_1k
+    mv lyt_alp_train_lac_20260311_163123_caldata.fits       inst_llowfs_v5_cap_sm/2_data.fits
+    mv lyt_alp_train_lac_20260311_163123_caldata_extra.fits inst_llowfs_v5_cap_bf_sm/2_data.fits
+    # r_10_coeffs_1k
+    mv lyt_alp_train_lac_20260311_162942_caldata.fits       inst_llowfs_v5_cap_sm/3_data.fits
+    mv lyt_alp_train_lac_20260311_162942_caldata_extra.fits inst_llowfs_v5_cap_bf_sm/3_data.fits
+    # f_50_151
+    mv lyt_alp_train_lac_20260311_162755_caldata.fits       inst_llowfs_v5_cap_sm/4_data.fits
+    mv lyt_alp_train_lac_20260311_162755_caldata_extra.fits inst_llowfs_v5_cap_bf_sm/4_data.fits
+    # r_10_2_1_coeffs_1k
+    cp lyt_alp_train_lac_20260311_162907_caldata.fits       inst_llowfs_v5_cap_sm/5_data.fits
+    cp lyt_alp_train_lac_20260311_162907_caldata_extra.fits inst_llowfs_v5_cap_bf_sm/5_data.fits
 
-    mkdir lyt_10nm_testing_v4
-    # picture_d_aberrations_group_9, 1 chunk of 25k rows
-    mv lyt_alp_train_lac_20250731_175044_caldata.fits lyt_10nm_testing_v4/0_data.fits
+    # ---- Stabilization Data - Small ----
+    mkdir inst_llowfs_v5_sta_sm
+    mkdir inst_llowfs_v5_sta_bf_sm
+    # r_25_1_half_coeffs_1k
+    mv lyt_alp_train_lac_20260311_163346_caldata.fits       inst_llowfs_v5_sta_sm/0_data.fits
+    mv lyt_alp_train_lac_20260311_163346_caldata_extra.fits inst_llowfs_v5_sta_bf_sm/0_data.fits
+    # r_15_2_1_coeffs_1k
+    mv lyt_alp_train_lac_20260311_163326_caldata.fits       inst_llowfs_v5_sta_sm/1_data.fits
+    mv lyt_alp_train_lac_20260311_163326_caldata_extra.fits inst_llowfs_v5_sta_bf_sm/1_data.fits
+    # r_15_1_half_coeffs_1k
+    mv lyt_alp_train_lac_20260311_163058_caldata.fits       inst_llowfs_v5_sta_sm/2_data.fits
+    mv lyt_alp_train_lac_20260311_163058_caldata_extra.fits inst_llowfs_v5_sta_bf_sm/2_data.fits
+    # r_10_1_half_coeffs_1k
+    mv lyt_alp_train_lac_20260311_162837_caldata.fits       inst_llowfs_v5_sta_sm/3_data.fits
+    mv lyt_alp_train_lac_20260311_162837_caldata_extra.fits inst_llowfs_v5_sta_bf_sm/3_data.fits
+    # r_10_half_quarter_coeffs_1k
+    mv lyt_alp_train_lac_20260311_163034_caldata.fits       inst_llowfs_v5_sta_sm/4_data.fits
+    mv lyt_alp_train_lac_20260311_163034_caldata_extra.fits inst_llowfs_v5_sta_bf_sm/4_data.fits
+    # r_half_quarter_fifth_coeffs_1k
+    mv lyt_alp_train_lac_20260311_163418_caldata.fits       inst_llowfs_v5_sta_sm/5_data.fits
+    mv lyt_alp_train_lac_20260311_163418_caldata_extra.fits inst_llowfs_v5_sta_bf_sm/5_data.fits
+    # r_1_coeffs_1k
+    mv lyt_alp_train_lac_20260311_163149_caldata.fits       inst_llowfs_v5_sta_sm/6_data.fits
+    mv lyt_alp_train_lac_20260311_163149_caldata_extra.fits inst_llowfs_v5_sta_bf_sm/6_data.fits
+    # r_2_coeffs_1k
+    mv lyt_alp_train_lac_20260311_163212_caldata.fits       inst_llowfs_v5_sta_sm/7_data.fits
+    mv lyt_alp_train_lac_20260311_163212_caldata_extra.fits inst_llowfs_v5_sta_bf_sm/7_data.fits
+    # f_1_51
+    mv lyt_alp_train_lac_20260311_162726_caldata.fits       inst_llowfs_v5_sta_sm/8_data.fits
+    mv lyt_alp_train_lac_20260311_162726_caldata_extra.fits inst_llowfs_v5_sta_bf_sm/8_data.fits
+    # r_10_2_1_coeffs_1k
+    mv lyt_alp_train_lac_20260311_162907_caldata.fits       inst_llowfs_v5_sta_sm/9_data.fits
+    mv lyt_alp_train_lac_20260311_162907_caldata_extra.fits inst_llowfs_v5_sta_bf_sm/9_data.fits
 
-    # The base field (no aberrations) for each chunk
-    mkdir lyt_no_aberrations_v4
-    # picture_d_aberrations_group_0, 4 chunks of 25k rows each
-    mv lyt_alp_train_lac_20250731_144138_caldata_extra.fits lyt_no_aberrations_v4/0_data.fits
-    mv lyt_alp_train_lac_20250731_144547_caldata_extra.fits lyt_no_aberrations_v4/1_data.fits
-    mv lyt_alp_train_lac_20250731_145113_caldata_extra.fits lyt_no_aberrations_v4/2_data.fits
-    mv lyt_alp_train_lac_20250731_145508_caldata_extra.fits lyt_no_aberrations_v4/3_data.fits
-    # picture_d_aberrations_group_1, 4 chunks of 25k rows each
-    mv lyt_alp_train_lac_20250731_145937_caldata_extra.fits lyt_no_aberrations_v4/4_data.fits
-    mv lyt_alp_train_lac_20250731_150411_caldata_extra.fits lyt_no_aberrations_v4/5_data.fits
-    mv lyt_alp_train_lac_20250731_150820_caldata_extra.fits lyt_no_aberrations_v4/6_data.fits
-    mv lyt_alp_train_lac_20250731_151623_caldata_extra.fits lyt_no_aberrations_v4/7_data.fits
-    # picture_d_aberrations_group_2, 4 chunks of 25k rows each
-    mv lyt_alp_train_lac_20250731_152146_caldata_extra.fits lyt_no_aberrations_v4/8_data.fits
-    mv lyt_alp_train_lac_20250731_153135_caldata_extra.fits lyt_no_aberrations_v4/9_data.fits
-    mv lyt_alp_train_lac_20250731_154039_caldata_extra.fits lyt_no_aberrations_v4/10_data.fits
-    mv lyt_alp_train_lac_20250731_154441_caldata_extra.fits lyt_no_aberrations_v4/11_data.fits
-    # picture_d_aberrations_group_3, 4 chunks of 25k rows each
-    mv lyt_alp_train_lac_20250731_154842_caldata_extra.fits lyt_no_aberrations_v4/12_data.fits
-    mv lyt_alp_train_lac_20250731_155730_caldata_extra.fits lyt_no_aberrations_v4/13_data.fits
-    mv lyt_alp_train_lac_20250731_160138_caldata_extra.fits lyt_no_aberrations_v4/14_data.fits
-    mv lyt_alp_train_lac_20250731_160538_caldata_extra.fits lyt_no_aberrations_v4/15_data.fits
-    # picture_d_aberrations_group_4, 4 chunks of 25k rows each
-    mv lyt_alp_train_lac_20250731_161411_caldata_extra.fits lyt_no_aberrations_v4/16_data.fits
-    mv lyt_alp_train_lac_20250731_161813_caldata_extra.fits lyt_no_aberrations_v4/17_data.fits
-    mv lyt_alp_train_lac_20250731_162310_caldata_extra.fits lyt_no_aberrations_v4/18_data.fits
-    mv lyt_alp_train_lac_20250731_162727_caldata_extra.fits lyt_no_aberrations_v4/19_data.fits
-    # picture_d_aberrations_group_5, 4 chunks of 25k rows each
-    mv lyt_alp_train_lac_20250731_163123_caldata_extra.fits lyt_no_aberrations_v4/20_data.fits
-    mv lyt_alp_train_lac_20250731_163732_caldata_extra.fits lyt_no_aberrations_v4/21_data.fits
-    mv lyt_alp_train_lac_20250731_165014_caldata_extra.fits lyt_no_aberrations_v4/22_data.fits
-    mv lyt_alp_train_lac_20250731_165443_caldata_extra.fits lyt_no_aberrations_v4/23_data.fits
-    # picture_d_aberrations_group_6, 4 chunks of 25k rows each
-    mv lyt_alp_train_lac_20250731_170019_caldata_extra.fits lyt_no_aberrations_v4/24_data.fits
-    mv lyt_alp_train_lac_20250731_170457_caldata_extra.fits lyt_no_aberrations_v4/25_data.fits
-    mv lyt_alp_train_lac_20250731_170930_caldata_extra.fits lyt_no_aberrations_v4/26_data.fits
-    mv lyt_alp_train_lac_20250731_171411_caldata_extra.fits lyt_no_aberrations_v4/27_data.fits
-    # picture_d_aberrations_group_7, 4 chunks of 25k rows each
-    mv lyt_alp_train_lac_20250731_171923_caldata_extra.fits lyt_no_aberrations_v4/28_data.fits
-    mv lyt_alp_train_lac_20250731_172729_caldata_extra.fits lyt_no_aberrations_v4/29_data.fits
-    mv lyt_alp_train_lac_20250731_173218_caldata_extra.fits lyt_no_aberrations_v4/30_data.fits
-    mv lyt_alp_train_lac_20250731_173617_caldata_extra.fits lyt_no_aberrations_v4/31_data.fits
-    # picture_d_aberrations_group_8, 2 chunks of 25k rows and 21k rows
-    mv lyt_alp_train_lac_20250731_174007_caldata_extra.fits lyt_no_aberrations_v4/32_data.fits
-    mv lyt_alp_train_lac_20250731_174613_caldata_extra.fits lyt_no_aberrations_v4/33_data.fits
-    # picture_d_aberrations_group_9, 1 chunk of 25k rows
-    mv lyt_alp_train_lac_20250731_175044_caldata_extra.fits lyt_no_aberrations_v4/34_data.fits
+    # ---- Capture Data - Medium ----
+    mkdir inst_llowfs_v5_cap_md
+    mkdir inst_llowfs_v5_cap_bf_md
+    # r_500_20_10_coeffs_10k
+    mv lyt_alp_train_lac_20260311_161641_caldata.fits       inst_llowfs_v5_cap_md/0_data.fits
+    mv lyt_alp_train_lac_20260311_161641_caldata_extra.fits inst_llowfs_v5_cap_bf_md/0_data.fits
+    # r_50_10_5_coeffs_10k
+    mv lyt_alp_train_lac_20260311_162115_caldata.fits       inst_llowfs_v5_cap_md/1_data.fits
+    mv lyt_alp_train_lac_20260311_162115_caldata_extra.fits inst_llowfs_v5_cap_bf_md/1_data.fits
+    # r_15_5_2_coeffs_10k
+    mv lyt_alp_train_lac_20260311_161216_caldata.fits       inst_llowfs_v5_cap_md/2_data.fits
+    mv lyt_alp_train_lac_20260311_161216_caldata_extra.fits inst_llowfs_v5_cap_bf_md/2_data.fits
+    # r_10_coeffs_10k
+    mv lyt_alp_train_lac_20260311_160754_caldata.fits       inst_llowfs_v5_cap_md/3_data.fits
+    mv lyt_alp_train_lac_20260311_160754_caldata_extra.fits inst_llowfs_v5_cap_bf_md/3_data.fits
+    # f_50_501
+    mv lyt_alp_train_lac_20260311_160314_caldata.fits       inst_llowfs_v5_cap_md/4_data.fits
+    mv lyt_alp_train_lac_20260311_160314_caldata_extra.fits inst_llowfs_v5_cap_bf_md/4_data.fits
+    # r_10_2_1_coeffs_10k
+    cp lyt_alp_train_lac_20260311_160615_caldata.fits       inst_llowfs_v5_cap_md/5_data.fits
+    cp lyt_alp_train_lac_20260311_160615_caldata_extra.fits inst_llowfs_v5_cap_bf_md/5_data.fits
 
-SEC4 - PREMERGE SOME FITS FILES ++++++++++++++++++++++++++++++++++++++++++++++++
-For the datafiles in the `lyt_single_zernikes_v4` directory, there should be
-only a single FITS datafile, not two.
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    # ---- Stabilization Data - Medium ----
+    mkdir inst_llowfs_v5_sta_md
+    mkdir inst_llowfs_v5_sta_bf_md
+    # r_25_1_half_coeffs_10k
+    mv lyt_alp_train_lac_20260311_162400_caldata.fits       inst_llowfs_v5_sta_md/0_data.fits
+    mv lyt_alp_train_lac_20260311_162400_caldata_extra.fits inst_llowfs_v5_sta_bf_md/0_data.fits
+    # r_15_2_1_coeffs_10k
+    mv lyt_alp_train_lac_20260311_162240_caldata.fits       inst_llowfs_v5_sta_md/1_data.fits
+    mv lyt_alp_train_lac_20260311_162240_caldata_extra.fits inst_llowfs_v5_sta_bf_md/1_data.fits
+    # r_15_1_half_coeffs_10k
+    mv lyt_alp_train_lac_20260311_161026_caldata.fits       inst_llowfs_v5_sta_md/2_data.fits
+    mv lyt_alp_train_lac_20260311_161026_caldata_extra.fits inst_llowfs_v5_sta_bf_md/2_data.fits
+    # r_10_1_half_coeffs_10k
+    mv lyt_alp_train_lac_20260311_160447_caldata.fits       inst_llowfs_v5_sta_md/3_data.fits
+    mv lyt_alp_train_lac_20260311_160447_caldata_extra.fits inst_llowfs_v5_sta_bf_md/3_data.fits
+    # r_10_half_quarter_coeffs_10k
+    mv lyt_alp_train_lac_20260311_160908_caldata.fits       inst_llowfs_v5_sta_md/4_data.fits
+    mv lyt_alp_train_lac_20260311_160908_caldata_extra.fits inst_llowfs_v5_sta_bf_md/4_data.fits
+    # r_half_quarter_fifth_coeffs_10k
+    mv lyt_alp_train_lac_20260311_162518_caldata.fits       inst_llowfs_v5_sta_md/5_data.fits
+    mv lyt_alp_train_lac_20260311_162518_caldata_extra.fits inst_llowfs_v5_sta_bf_md/5_data.fits
+    # r_1_coeffs_10k
+    mv lyt_alp_train_lac_20260311_161325_caldata.fits       inst_llowfs_v5_sta_md/6_data.fits
+    mv lyt_alp_train_lac_20260311_161325_caldata_extra.fits inst_llowfs_v5_sta_bf_md/6_data.fits
+    # r_2_coeffs_10k
+    mv lyt_alp_train_lac_20260311_161525_caldata.fits       inst_llowfs_v5_sta_md/7_data.fits
+    mv lyt_alp_train_lac_20260311_161525_caldata_extra.fits inst_llowfs_v5_sta_bf_md/7_data.fits
+    # f_1_301
+    mv lyt_alp_train_lac_20260311_160209_caldata.fits       inst_llowfs_v5_sta_md/8_data.fits
+    mv lyt_alp_train_lac_20260311_160209_caldata_extra.fits inst_llowfs_v5_sta_bf_md/8_data.fits
+    # r_10_2_1_coeffs_10k
+    mv lyt_alp_train_lac_20260311_160615_caldata.fits       inst_llowfs_v5_sta_md/9_data.fits
+    mv lyt_alp_train_lac_20260311_160615_caldata_extra.fits inst_llowfs_v5_sta_bf_md/9_data.fits
 
-    cd lyt_single_zernikes_v4
-    
-    # -- In `python3` environment --------------------
-    from astropy.io import fits
-    import numpy as np
-
-    with fits.open('0_data.fits') as hdul:
-        image_data_0 = hdul['IMAGE'].data
-        zernike_data_0 = hdul['ZCMD'].data
-        print(hdul['PRIMARY'].data)
-
-    with fits.open('1_data.fits') as hdul:
-        image_data_1 = hdul['IMAGE'].data
-        zernike_data_1 = hdul['ZCMD'].data
-
-    image_data = np.vstack((image_data_0, image_data_1))
-    zernike_data = np.vstack((zernike_data_0, zernike_data_1))
-    primary_hdu = fits.PrimaryHDU(data=np.array([]))
-    image_hdu = fits.ImageHDU(data=image_data, name='IMAGE')
-    zernike_hdu = fits.ImageHDU(data=zernike_data, name='ZCMD')
-    hdul = fits.HDUList([primary_hdu, image_hdu, zernike_hdu])
-    hdul.writeto('2_data.fits')
-    # ------------------------------------------------
-
-    rm lyt_single_zernikes_v4/0_data.fits
-    rm lyt_single_zernikes_v4/1_data.fits
-    mv lyt_single_zernikes_v4/2_data.fits lyt_single_zernikes_v4/0_data.fits
-
-SEC5 - FITS TO HDF FILES +++++++++++++++++++++++++++++++++++++++++++++++++++++++
+SEC3 - FITS TO HDF FILES +++++++++++++++++++++++++++++++++++++++++++++++++++++++
 These FITS datafiles should be converted to HDF files. The format of the HDF
-datafiles should be the same as the raw simulation datafiles.
+datafiles should be the same as the raw simulation datafiles. When converting
+these datafiles, the duplicate rows are removed -- this is only for the actual
+data, not the base field data.
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    python3 main.py convert_picd_instrument_data picd_instrument_data_100k_groups_v4 2 24 \
-        --fits-data-tags lyt_100k_chunks_v4
-    python3 main.py convert_picd_instrument_data picd_instrument_data_25k_10nm_v4 2 24 \
-        --fits-data-tags lyt_10nm_testing_v4
-    python3 main.py convert_picd_instrument_data picd_instrument_data_no_aberrations_v4 2 24 \
-        --fits-data-tags lyt_no_aberrations_v4 --base-field-data 0
-    python3 main.py convert_picd_instrument_data picd_instrument_data_single_zernikes_v4 2 24 \
-        --fits-data-tags lyt_single_zernikes_v4
-    python3 main.py convert_picd_instrument_data picd_instrument_data_single_zernikes_pm40_v4 2 24 \
-        --fits-data-tags lyt_single_zernikes_v4 --slice-row-ranges 4600 4623 41377 41400
+    # ---- RM - 47 Rows ----
+    python3 main.py convert_picd_instrument_data inst_llowfs_v5_rm_proc 2 24 \
+        --fits-data-tags inst_llowfs_v5_rm --take-every-n-rows 2 1
+
+    # ---- Capture Data - Small - 8,473 Rows ----
+    python3 main.py convert_picd_instrument_data inst_llowfs_v5_cap_sm_proc 2 24 \
+        --fits-data-tags inst_llowfs_v5_cap_sm --take-every-n-rows 2 1
+    python3 main.py convert_picd_instrument_data inst_llowfs_v5_cap_bf_sm_proc 2 24 \
+        --fits-data-tags inst_llowfs_v5_cap_bf_sm --base-field-data 0 --n-base-field-rows 350
+
+    # ---- Stabilization Data - Small - 10,173 Rows ----
+    python3 main.py convert_picd_instrument_data inst_llowfs_v5_sta_sm_proc 2 24 \
+        --fits-data-tags inst_llowfs_v5_sta_sm --take-every-n-rows 2 1
+    python3 main.py convert_picd_instrument_data inst_llowfs_v5_sta_bf_sm_proc 2 24 \
+        --fits-data-tags inst_llowfs_v5_sta_bf_sm --base-field-data 0 --n-base-field-rows 350
+
+    # ---- Capture Data - Medium - 61,523 Rows ----
+    python3 main.py convert_picd_instrument_data inst_llowfs_v5_cap_md_proc 2 24 \
+        --fits-data-tags inst_llowfs_v5_cap_md --take-every-n-rows 2 1
+    python3 main.py convert_picd_instrument_data inst_llowfs_v5_cap_bf_md_proc 2 24 \
+        --fits-data-tags inst_llowfs_v5_cap_bf_md --base-field-data 0 --n-base-field-rows 350
+
+    # ---- Stabilization Data - Medium - 96,923 Rows ----
+    python3 main.py convert_picd_instrument_data inst_llowfs_v5_sta_md_proc 2 24 \
+        --fits-data-tags inst_llowfs_v5_sta_md --take-every-n-rows 2 1
+    python3 main.py convert_picd_instrument_data inst_llowfs_v5_sta_bf_md_proc 2 24 \
+        --fits-data-tags inst_llowfs_v5_sta_bf_md --base-field-data 0 --n-base-field-rows 350
 
 SEC6 - PREPROCESS DATAFILES ++++++++++++++++++++++++++++++++++++++++++++++++++++
 The newly converted HDF datafiles should be preprocessed.
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    # Preprocess the data for training, validation, and testing
+    # Preprocess the data for training and validation
     python3 main.py preprocess_data_complete \
-        picd_instrument_data_100k_groups_v4 \
-        train_picd_data_v4 val_picd_data_v4 test_picd_data_v4 \
-        80 15 5 \
+        inst_llowfs_v5_cap_md_proc \
+        train_picd_data_v5_cap val_picd_data_v5_cap none 90 10 0 \
         --disable-norm-inputs --inputs-sum-to-one \
         --norm-outputs individually --norm-range-ones \
-        --use-field-diff picd_instrument_data_no_aberrations_v4 \
-        --use-field-diff-mapping 0 0 25000 1 25000 50000 2 50000 75000 \
-            3 75000 100000 4 100000 125000 5 125000 150000 6 150000 175000 \
-            7 175000 200000 8 200000 225000 9 225000 250000 10 250000 275000 \
-            11 275000 300000 12 300000 325000 13 325000 350000 14 350000 375000 \
-            15 375000 400000 16 400000 425000 17 425000 450000 18 450000 475000 \
-            19 475000 500000 20 500000 525000 21 525000 550000 22 550000 575000 \
-            23 575000 600000 24 600000 625000 25 625000 650000 26 650000 675000 \
-            27 675000 700000 28 700000 725000 29 725000 750000 30 750000 775000 \
-            31 775000 800000 32 800000 825000 33 825000 846000 \
-        --additional-raw-data-tags-train-only picd_instrument_data_single_zernikes_v4
+        --use-field-diff inst_llowfs_v5_cap_bf_md_proc \
+        --use-field-diff-mapping 0 0     10000 1 10000 20000 2 20000 30000 \
+                                 3 30000 40000 4 40000 51523 5 51523 61523 \
+        --fix-seed 314
+
+    python3 main.py preprocess_data_complete \
+        inst_llowfs_v5_sta_md_proc \
+        train_picd_data_v5_sta val_picd_data_v5_sta none 90 10 0 \
+        --disable-norm-inputs --inputs-sum-to-one \
+        --norm-outputs individually --norm-range-ones \
+        --use-field-diff inst_llowfs_v5_sta_bf_md_proc \
+        --use-field-diff-mapping 0 0     10000 1 10000 20000 2 20000 30000 3 30000 40000 \
+                                 4 40000 50000 5 50000 60000 6 60000 70000 7 70000 80000 \
+                                 8 80000 86923 9 86923 96923 \
+        --fix-seed 314
 
     # Preprocess the testing data
     python3 main.py preprocess_data_bare picd_instrument_data_single_zernikes_v4 \
