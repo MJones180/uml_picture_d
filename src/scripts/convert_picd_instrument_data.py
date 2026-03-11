@@ -104,12 +104,12 @@ def convert_picd_instrument_data(cli_args):
     step_ri('Will begin looping through all tags')
 
     outfile_idx = 0
-    for fits_data_path in fits_data_paths:
+    for fits_data_path in sorted(fits_data_paths):
         step_ri(f'Tag path: {fits_data_path}')
         found_datafiles_paths = glob(f'{fits_data_path}/*_data.fits')
         if len(found_datafiles_paths) == 0:
             terminate_with_message('No datafiles found')
-        for datafile_path in found_datafiles_paths:
+        for datafile_path in sorted(found_datafiles_paths):
             print(f'Input FITS datafile: {datafile_path}')
             inc_print_indent()
             with fits.open(datafile_path) as hdul:
@@ -123,7 +123,7 @@ def convert_picd_instrument_data(cli_args):
                         rows_to_average = hdul['IMAGE'].data[-row_count:]
                     n_base_field_rows = cli_args.get('n_base_field_rows')
                     if n_base_field_rows:
-                        print(f'Only taking the last {n_base_field_rows} rows')
+                        print(f'Only using the last {n_base_field_rows} rows')
                         rows_to_average = rows_to_average[-n_base_field_rows:]
                     image_data = np.average(
                         rows_to_average,
@@ -161,11 +161,10 @@ def convert_picd_instrument_data(cli_args):
                         skip_count, starting_row = take_every_n_rows
                         print(f'Image data shape: {image_data.shape}')
                         print(f'Zernike data shape: {zernike_data.shape}')
-                        step(f'Will take every {skip_count} rows '
-                             f'starting at row {starting_row}')
+                        print(f'Will take every {skip_count} rows '
+                              f'starting at row {starting_row}')
                         image_data = image_data[starting_row::skip_count]
                         zernike_data = zernike_data[starting_row::skip_count]
-                        dec_print_indent()
             if zernike_data.shape[1] != len(zernike_terms):
                 terminate_with_message('Incorrect number of Zernike terms')
             print(f'Image data shape: {image_data.shape}')
