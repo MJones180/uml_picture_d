@@ -398,7 +398,7 @@ def model_train(cli_args):
         step_ri('Zeroing out weights in BatchNorm layers')
         print(f'Layer names must contain substrings: {init_weights_bn_zero}')
         for name, module in model.named_modules():
-            if [substring in name for substring in init_weights_bn_zero].any():
+            if any([substring in name for substring in init_weights_bn_zero]):
                 bn_types = (torch.nn.BatchNorm1d, torch.nn.BatchNorm2d)
                 if isinstance(module, bn_types):
                     print(f'Layer: {name}')
