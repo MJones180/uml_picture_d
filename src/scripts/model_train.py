@@ -176,11 +176,21 @@ def model_train_parser(subparsers):
         '--init-weights-kaiming-normal-simple',
         nargs='+',
         metavar='[slope], *[base layer names]',
-        help=(
-            'the same as the `--init-weights-kaiming-normal` argument, except '
-            'with simplified functionality; params expected: slope, *base '
-            'layer names; all `Linear` layers in a given base layer will be '
-            'set to init with the kaiming distribution'),
+        help=('the same as the `--init-weights-kaiming-normal` argument, '
+              'except with simplified functionality; params expected: slope, '
+              '*base layer names; all `Linear` layers in a given base layer '
+              'will be set to init with the kaiming distribution'),
+    )
+    subparser.add_argument(
+        '--use-kaiming-fan-in',
+        action='store_true',
+        help='use fan in for kaiming weight initalization instead of fan out',
+    )
+    subparser.add_argument(
+        '--init-weights-bn-zero',
+        nargs='+',
+        help=('inits a BatchNorm layer to have a weight of 0; only layer '
+              'names that contain the subtrings passed will be effected'),
     )
     subparser.add_argument(
         '--transfer-learning-train-layers',
@@ -357,10 +367,17 @@ def model_train(cli_args):
 
     use_kaiming_normal = cli_args.get('init_weights_kaiming_normal')
     use_kaiming_normal_v2 = cli_args.get('init_weights_kaiming_normal_simple')
+    use_kaiming_fan_in = cli_args['use_kaiming_fan_in']
     if use_kaiming_normal is not None or use_kaiming_normal_v2 is not None:
         step_ri('Using Kaiming normal distribution to init weights')
         slope, *layer_names = use_kaiming_normal or use_kaiming_normal_v2
         print(f'Slope: {slope}')
+        if use_kaiming_fan_in:
+            fan_mode = 'fan_in'
+            print('Will use fan in')
+        else:
+            fan_mode = 'fan_out'
+            print('Will use fan out')
         for name, module in model.named_modules():
             name_to_check = name
             # For the simplified version, look at the first part of the name
@@ -372,9 +389,20 @@ def model_train(cli_args):
                     torch.nn.init.kaiming_normal_(
                         module.weight,
                         a=float(slope),
-                        mode='fan_out',
+                        mode=fan_mode,
                         nonlinearity='leaky_relu',
                     )
+
+    init_weights_bn_zero = cli_args.get('init_weights_bn_zero')
+    if init_weights_bn_zero is not None:
+        step_ri('Zeroing out weights in BatchNorm layers')
+        print(f'Layer names must contain substrings: {init_weights_bn_zero}')
+        for name, module in model.named_modules():
+            if [substring in name for substring in init_weights_bn_zero].any():
+                bn_types = (torch.nn.BatchNorm1d, torch.nn.BatchNorm2d)
+                if isinstance(module, bn_types):
+                    print(f'Layer: {name}')
+                    torch.nn.init.constant_(module.weight, 0)
 
     transfer_learn_layers = cli_args.get('transfer_learning_train_layers')
     if transfer_learn_layers:
