@@ -27,10 +27,9 @@ class BottleneckResidualBlock(nn.Module):
             nn.Linear(bottleneck_features, features, bias=False),
             nn.BatchNorm1d(features),
         )
-        self.final_activation = nn.LeakyReLU(LEAKY_RELU)
 
     def forward(self, x):
-        return self.final_activation(x + self.block(x))
+        return x + self.block(x)
 
 
 class Network(nn.Module):
