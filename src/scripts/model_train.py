@@ -137,6 +137,17 @@ def model_train_parser(subparsers):
         help='threshold to determine if loss has improved',
     )
     subparser.add_argument(
+        '--use-cosine-annealing-lr-scheduler',
+        nargs='+',
+        type=float,
+        help=('use the Cosine Annealing learning rate scheduler - this starts '
+              'with a linear warm up (same as the `--lr-warmup` argument); '
+              'three parameters expected: warmup epoch count, starting '
+              'learning rate for warmup, final learning rate after annealing; '
+              'the `learning_rate` parameter specifies the max, peak learning '
+              'rate; the `epochs` parameter specifies the number of epochs'),
+    )
+    subparser.add_argument(
         '--clip-gradient-norm',
         type=float,
         help=('clip the gradient norm to the specified value; '
@@ -639,6 +650,46 @@ def model_train(cli_args):
         # Set the first warmup lr
         _set_lr(upcoming_warmup_lrs.pop(0))
 
+    step_ri('Epoch counts')
+    epoch_count = cli_args['epochs']
+    print(f'Epochs: {epoch_count}')
+    training_batches = len(train_loader)
+    print(f'Training batches per epoch: {training_batches}')
+    validation_batches = len(validation_loader)
+    print(f'Validation batches per epoch: {validation_batches}')
+
+    use_cos_annealing = cli_args.get('use_cosine_annealing_lr_scheduler')
+    scheduler = None
+    if use_cos_annealing is not None:
+        step_ri('Will use the Cosine Annealing learning rate scheduler')
+        warmup_epochs, starting_lr, final_lr = use_cos_annealing
+        warmup_epochs = int(warmup_epochs)
+        # The number of epochs the Cosine Annealing will run for
+        annealing_epochs = epoch_count - warmup_epochs,
+        print(f'Linear Warmup: {starting_lr} -> {base_learning_rate} '
+              f'({warmup_epochs} epochs)')
+        print(f'Cosine Annealing: {base_learning_rate} -> {final_lr} '
+              f'({annealing_epochs} epochs)')
+        scheduler = torch.optim.lr_scheduler.SequentialLR(
+            optimizer,
+            schedulers=[
+                # The linear warmup
+                torch.optim.lr_scheduler.LinearLR(
+                    optimizer,
+                    # The ratio needed to start with the starting learning rate
+                    starting_lr / base_learning_rate,
+                    total_iters=warmup_epochs,
+                ),
+                # The Cosine Annealing
+                torch.optim.lr_scheduler.CosineAnnealingLR(
+                    optimizer,
+                    annealing_epochs,
+                    final_lr,
+                )
+            ],
+            milestones=[warmup_epochs],
+        )
+
     clip_gradient_norm = cli_args.get('clip_gradient_norm')
     step_ri('Gradient norm clipping')
     if clip_gradient_norm is None:
@@ -673,14 +724,6 @@ def model_train(cli_args):
         # Add all the cli arguments associated with this tag for easy reference
         tag_lookup[tag] = cli_args
         json_write(tag_lookup_path, tag_lookup)
-
-    step_ri('Epoch counts')
-    epoch_count = cli_args['epochs']
-    print(f'Epochs: {epoch_count}')
-    training_batches = len(train_loader)
-    print(f'Training batches per epoch: {training_batches}')
-    validation_batches = len(validation_loader)
-    print(f'Validation batches per epoch: {validation_batches}')
 
     step_ri('Saving preferences')
     best_val_loss_epoch = 0
@@ -846,6 +889,9 @@ def model_train(cli_args):
             else:
                 print('Ending training due to early stopping')
                 break
+        # A scheduler is being used
+        elif scheduler is not None:
+            scheduler.step()
 
         print(f'Time: {time() - start_time}')
         dec_print_indent()
