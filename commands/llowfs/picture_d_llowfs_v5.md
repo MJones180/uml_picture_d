@@ -9,6 +9,9 @@ NOTES AND CHANGES COMPARED TO `picture_d_llowfs_v4.md`:
     - Instrument did not have the 540-660 nm band pass on when data was collected;
       instead, unfiltered white light was used.
     - The data contains two frames for each row, but only the second frame should be used.
+    - The coefficients written to the datafiles are incorrect, so the original coefficients
+      from the CSV files must be used.
+    - All the images need to be flipped horizontally to align with the simulated data.
 ....................................................................................................
 
 These are the commands needed to obtain data on PICTURE-D and to create the associated models.
@@ -481,100 +484,56 @@ SEC6 - CNN TRANSFER TRAINING AND TESTING +++++++++++++++++++++++++++++++++++++++
 Train, test, and export the CNN models created from the instrument data.
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    # ---- Capture CNN ----
-    python3 main_scnp.py model_train instrument_llowfs_capture_v5a \
+    # ---- Capture CNN Training ----
+    python3 main_scnp.py model_train instrument_llowfs_capture_v5_scratch \
         train_picd_data_v5_cap val_picd_data_v5_cap \
         llowfs_cnn_4_no_dropout mae adam 10e-5 1000 --batch-size 256 \
         --lr-auto-annealing 10e-7 10 --early-stopping 15 \
-        --overwrite-existing --only-best-epoch
-    python3 main_scnp.py model_train instrument_llowfs_capture_v5b \
-        train_picd_data_v5_cap val_picd_data_v5_cap \
-        llowfs_cnn_4_no_dropout mae adam 10e-5 1000 --batch-size 256 \
-        --lr-auto-annealing 10e-7 10 --early-stopping 15 \
-        --init-weights wavefront_capture_sim_cam_v5 last \
-        --overwrite-existing --only-best-epoch
-    python3 main_scnp.py model_train instrument_llowfs_capture_v5c \
+        --overwrite-existing --only-best-epoch --fix-seed 314
+    python3 main_scnp.py model_train instrument_llowfs_capture_v5_ext \
         train_picd_data_v5_cap val_picd_data_v5_cap \
         llowfs_cnn_4_no_dropout mae adam 10e-5 1000 --batch-size 256 \
         --lr-auto-annealing 10e-7 10 --early-stopping 15 \
         --init-weights wavefront_capture_sim_cam_v5 last \
-        --transfer-learning-train-layers dense_block1 out_layer \
-        --overwrite-existing --only-best-epoch
-    python3 main_scnp.py model_train instrument_llowfs_capture_v5d \
-        train_picd_data_v5_cap val_picd_data_v5_cap \
-        llowfs_cnn_4_no_dropout mae adam 10e-5 1000 --batch-size 256 \
-        --lr-auto-annealing 10e-7 10 --early-stopping 15 \
-        --init-weights wavefront_capture_sim_cam_v5 last \
-        --transfer-learning-train-layers dense_block1 out_layer \
-        --transfer-learning-batchnorm \
-        --overwrite-existing --only-best-epoch
-    python3 main_scnp.py model_train instrument_llowfs_capture_v5e \
-        train_picd_data_v5_cap val_picd_data_v5_cap \
-        llowfs_cnn_4_no_dropout mae adam 10e-5 1000 --batch-size 256 \
-        --lr-auto-annealing 10e-7 10 --early-stopping 15 \
-        --init-weights wavefront_capture_sim_cam_v5 last \
-        --transfer-learning-train-layers conv_block7 conv_block8 dense_block1 out_layer \
-        --overwrite-existing --only-best-epoch
-    python3 main_scnp.py model_train instrument_llowfs_capture_v5f \
-        train_picd_data_v5_cap val_picd_data_v5_cap \
-        llowfs_cnn_4_no_dropout mae adam 10e-5 1000 --batch-size 256 \
-        --lr-auto-annealing 10e-7 10 --early-stopping 15 \
-        --init-weights wavefront_capture_sim_cam_v5 last \
-        --transfer-learning-train-layers conv_block7 conv_block8 dense_block1 out_layer \
-        --transfer-learning-batchnorm \
-        --overwrite-existing --only-best-epoch
+        --overwrite-existing --only-best-epoch --fix-seed 314
 
-    # ---- Stabilization CNN ----
-    python3 main_scnp.py model_train instrument_llowfs_stabilization_v5a \
+    # ---- Stabilization CNN Training ----
+    python3 main_scnp.py model_train instrument_llowfs_stabilization_v5_scratch \
         train_picd_data_v5_sta val_picd_data_v5_sta \
         llowfs_cnn_4_no_dropout mae adam 10e-5 1000 --batch-size 256 \
         --lr-auto-annealing 10e-7 10 --early-stopping 15 \
-        --overwrite-existing --only-best-epoch
-    python3 main_scnp.py model_train instrument_llowfs_stabilization_v5b \
-        train_picd_data_v5_sta val_picd_data_v5_sta \
-        llowfs_cnn_4_no_dropout mae adam 10e-5 1000 --batch-size 256 \
-        --lr-auto-annealing 10e-7 10 --early-stopping 15 \
-        --init-weights wavefront_stabilization_sim_cam_v5 last \
-        --overwrite-existing --only-best-epoch
-    python3 main_scnp.py model_train instrument_llowfs_stabilization_v5c \
+        --overwrite-existing --only-best-epoch --fix-seed 314
+    python3 main_scnp.py model_train instrument_llowfs_stabilization_v5_ext \
         train_picd_data_v5_sta val_picd_data_v5_sta \
         llowfs_cnn_4_no_dropout mae adam 10e-5 1000 --batch-size 256 \
         --lr-auto-annealing 10e-7 10 --early-stopping 15 \
         --init-weights wavefront_stabilization_sim_cam_v5 last \
-        --transfer-learning-train-layers dense_block1 out_layer \
-        --overwrite-existing --only-best-epoch
-    python3 main_scnp.py model_train instrument_llowfs_stabilization_v5d \
-        train_picd_data_v5_sta val_picd_data_v5_sta \
-        llowfs_cnn_4_no_dropout mae adam 10e-5 1000 --batch-size 256 \
-        --lr-auto-annealing 10e-7 10 --early-stopping 15 \
-        --init-weights wavefront_stabilization_sim_cam_v5 last \
-        --transfer-learning-train-layers dense_block1 out_layer \
-        --transfer-learning-batchnorm \
-        --overwrite-existing --only-best-epoch
-    python3 main_scnp.py model_train instrument_llowfs_stabilization_v5e \
-        train_picd_data_v5_sta val_picd_data_v5_sta \
-        llowfs_cnn_4_no_dropout mae adam 10e-5 1000 --batch-size 256 \
-        --lr-auto-annealing 10e-7 10 --early-stopping 15 \
-        --init-weights wavefront_stabilization_sim_cam_v5 last \
-        --transfer-learning-train-layers conv_block7 conv_block8 dense_block1 out_layer \
-        --overwrite-existing --only-best-epoch
-    python3 main_scnp.py model_train instrument_llowfs_stabilization_v5f \
-        train_picd_data_v5_sta val_picd_data_v5_sta \
-        llowfs_cnn_4_no_dropout mae adam 10e-5 1000 --batch-size 256 \
-        --lr-auto-annealing 10e-7 10 --early-stopping 15 \
-        --init-weights wavefront_stabilization_sim_cam_v5 last \
-        --transfer-learning-train-layers conv_block7 conv_block8 dense_block1 out_layer \
-        --transfer-learning-batchnorm \
-        --overwrite-existing --only-best-epoch
+        --overwrite-existing --only-best-epoch --fix-seed 314
 
     # ---- Capture CNN Testing ----
-    python3 main.py model_test picd_cnn_v4 last \
+    python3 main.py model_test instrument_llowfs_capture_v5_scratch last \
         inst_llowfs_v5_cap_sm_hdf_proc \
         --inputs-need-norm --inputs-need-diff \
         --change-base-field inst_llowfs_v5_cap_bf_sm_hdf 0 0    1000 1 1000 2000 \
                                                          2 2000 3000 3 3000 4000 \
                                                          4 4000 7473 5 7473 8473 \
-    python3 main.py model_test picd_cnn_v4 last \
+    python3 main.py model_test instrument_llowfs_capture_v5_ext last \
+        inst_llowfs_v5_cap_sm_hdf_proc \
+        --inputs-need-norm --inputs-need-diff \
+        --change-base-field inst_llowfs_v5_cap_bf_sm_hdf 0 0    1000 1 1000 2000 \
+                                                         2 2000 3000 3 3000 4000 \
+                                                         4 4000 7473 5 7473 8473 \
+    python3 main.py model_test instrument_llowfs_capture_v5_scratch last \
+        inst_llowfs_v5_tst_fix_50nm_hdf_proc \
+        --zernike-plots --enable-paper-plots 1 --inputs-need-norm --inputs-need-diff \
+        --change-base-field inst_llowfs_v5_tst_fix_50nm_bf_hdf 0 0 3473
+    python3 main.py model_test instrument_llowfs_capture_v5_ext last \
+        inst_llowfs_v5_tst_fix_50nm_hdf_proc \
+        --zernike-plots --enable-paper-plots 1 --inputs-need-norm --inputs-need-diff \
+        --change-base-field inst_llowfs_v5_tst_fix_50nm_bf_hdf 0 0 3473
+
+    # ---- Stabilization CNN Testing ----
+    python3 main.py model_test instrument_llowfs_stabilization_v5_scratch last \
         inst_llowfs_v5_sta_sm_hdf_proc \
         --inputs-need-norm --inputs-need-diff \
         --change-base-field inst_llowfs_v5_sta_bf_sm_hdf 0 0    1000 1 1000 2000 \
@@ -582,51 +541,46 @@ Train, test, and export the CNN models created from the instrument data.
                                                          4 4000 5000 5 5000 6000 \
                                                          6 6000 7000 7 7000 8000 \
                                                          8 8000 9173 9 9173 10173
-    python3 main.py model_test picd_cnn_v4 last \
-        inst_llowfs_v5_tst_rnd_2nm_hdf_proc \
-        --scatter-plot 4 6 2 1e-7 15 --inputs-need-norm --inputs-need-diff \
-        --change-base-field inst_llowfs_v5_tst_rnd_2nm_bf_hdf 0 0 1000
-    python3 main.py model_test picd_cnn_v4 last \
+    python3 main.py model_test instrument_llowfs_stabilization_v5_ext last \
+        inst_llowfs_v5_sta_sm_hdf_proc \
+        --inputs-need-norm --inputs-need-diff \
+        --change-base-field inst_llowfs_v5_sta_bf_sm_hdf 0 0    1000 1 1000 2000 \
+                                                         2 2000 3000 3 3000 4000 \
+                                                         4 4000 5000 5 5000 6000 \
+                                                         6 6000 7000 7 7000 8000 \
+                                                         8 8000 9173 9 9173 10173
+    python3 main.py model_test instrument_llowfs_stabilization_v5_scratch last \
         inst_llowfs_v5_tst_fix_1nm_hdf_proc \
-        --zernike-plots --inputs-need-norm --inputs-need-diff \
+        --zernike-plots --enable-paper-plots 2 --inputs-need-norm --inputs-need-diff \
         --change-base-field inst_llowfs_v5_tst_fix_1nm_bf_hdf 0 0 1173
-    python3 main.py model_test picd_cnn_v4 last \
-        inst_llowfs_v5_tst_fix_50nm_hdf_proc \
-        --zernike-plots --inputs-need-norm --inputs-need-diff \
-        --change-base-field inst_llowfs_v5_tst_fix_50nm_bf_hdf 0 0 3473
-
-
-    # Export the model so that it can be used in the `pytorch_model_in_c` repo
-    # via ONNX runtime.
-    python3 main.py export_model picd_cnn_v4 last val_picd_data_v4 --benchmark 5000
-
-    # The following commands, when run in the newly exported model's directory,
-    # will prep the files to be run in the flight software.
-    mv example_data/first_input_row_norm.txt example_data/input_line.txt
-    mv example_data/first_output_row_truth.txt example_data/output_line.txt
-    mv example_data/first_output_row_onnx.txt example_data/model_output_line.txt
-    rm example_data/first_output_row_norm_onnx.txt
-    rm example_data/first_output_row_norm_truth.txt
-    rm example_data/first_output_row_norm_ts.txt
-    rm example_data/first_output_row_ts.txt
-    rm model.pt
-    rm README.txt
-    # Keep only the last two lines of the normalization data file.
-    tail -n 2 norm_data.txt > temp.txt && mv temp.txt norm_data.txt
+    python3 main.py model_test instrument_llowfs_stabilization_v5_ext last \
+        inst_llowfs_v5_tst_fix_1nm_hdf_proc \
+        --zernike-plots --enable-paper-plots 2 --inputs-need-norm --inputs-need-diff \
+        --change-base-field inst_llowfs_v5_tst_fix_1nm_bf_hdf 0 0 1173
+    python3 main.py model_test instrument_llowfs_stabilization_v5_scratch last \
+        inst_llowfs_v5_tst_rnd_2nm_hdf_proc \
+        --scatter-plot 4 6 2 1e-7 15 --enable-paper-plots 2 --inputs-need-norm --inputs-need-diff \
+        --change-base-field inst_llowfs_v5_tst_rnd_2nm_bf_hdf 0 0 1000
+    python3 main.py model_test instrument_llowfs_stabilization_v5_ext last \
+        inst_llowfs_v5_tst_rnd_2nm_hdf_proc \
+        --scatter-plot 4 6 2 1e-7 15 --enable-paper-plots 2 --inputs-need-norm --inputs-need-diff \
+        --change-base-field inst_llowfs_v5_tst_rnd_2nm_bf_hdf 0 0 1000
 
 SEC7 - RM CREATION AND TESTING +++++++++++++++++++++++++++++++++++++++++++++++++
 Create and test the RM model on the instrument data.
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     python3 main.py create_response_matrix \
-        --simulated-data-tag-average inst_llowfs_v5_rm_hdf \
-        --wfs-sum-to-one --base-field-mapping 32 0 23 33 23 46
-
-    python3 main.py run_response_matrix inst_llowfs_v5_rm \
-        picd_instrument_data_25k_10nm_raw_processed_v4 \
-        --scatter-plot 4 6 2 1e-8 15 --wfs-need-sum-to-one \
-        --change-base-field picd_instrument_data_no_aberrations_v4 31 0 25000
-    python3 main.py run_response_matrix inst_llowfs_v5_rm \
-        picd_instrument_data_single_zernikes_raw_processed_v4 --zernike-plots \
-        --wfs-need-sum-to-one \
-        --change-base-field picd_instrument_data_no_aberrations_v4 32 0 25000 33 25000 46000
+        --simulated-data-tag-average inst_llowfs_v5_rm_hdf --wfs-sum-to-one
+    python3 main.py run_response_matrix inst_llowfs_v5_rm_hdf \
+        inst_llowfs_v5_tst_fix_50nm_hdf_proc \
+        --zernike-plots --enable-paper-plots 0 --wfs-need-sum-to-one \
+        --change-base-field inst_llowfs_v5_tst_fix_50nm_bf_hdf 0 0 3473
+    python3 main.py run_response_matrix inst_llowfs_v5_rm_hdf \
+        inst_llowfs_v5_tst_fix_1nm_hdf_proc \
+        --zernike-plots --enable-paper-plots 0 --wfs-need-sum-to-one \
+        --change-base-field inst_llowfs_v5_tst_fix_1nm_bf_hdf 0 0 1173
+    python3 main.py run_response_matrix inst_llowfs_v5_rm_hdf \
+        inst_llowfs_v5_tst_rnd_2nm_hdf_proc \
+        --scatter-plot 4 6 2 1e-7 15 --enable-paper-plots 0 --wfs-need-sum-to-one \
+        --change-base-field inst_llowfs_v5_tst_rnd_2nm_bf_hdf 0 0 1000
