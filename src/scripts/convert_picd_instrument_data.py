@@ -195,9 +195,8 @@ def convert_picd_instrument_data(cli_args):
             if zernike_data.shape[1] != len(zernike_terms):
                 terminate_with_message('Incorrect number of Zernike terms')
             if cli_args['flip_images_horizontally']:
-                step('Flipping images horizontally')
+                print('Flipping images horizontally')
                 image_data = image_data[:, :, ::-1]
-                dec_print_indent()
             if use_coeffs_from_csv is not None:
                 step('Taking rows from CSV file')
                 number_of_rows = zernike_data.shape[0]
