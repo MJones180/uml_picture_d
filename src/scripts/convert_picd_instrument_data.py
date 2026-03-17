@@ -77,6 +77,20 @@ def convert_picd_instrument_data_parser(subparsers):
         help=('take every n rows out of the data starting at row x; '
               'expected parameters: n x'),
     )
+    subparser.add_argument(
+        '--flip-images-horizontally',
+        action='store_true',
+        help='flip each image horizontally',
+    )
+    subparser.add_argument(
+        '--use-coeffs-from-csv',
+        nargs='+',
+        help=('replace the datafile coeffs with coeffs from CSV files; '
+              'this is applied after all slicing is done; the following '
+              'parameters are expected: base path from `data/raw`, '
+              '*csv file names; the `.csv` extension will be added to '
+              'every file name by default'),
+    )
 
 
 def convert_picd_instrument_data(cli_args):
@@ -167,6 +181,21 @@ def convert_picd_instrument_data(cli_args):
                         zernike_data = zernike_data[starting_row::skip_count]
             if zernike_data.shape[1] != len(zernike_terms):
                 terminate_with_message('Incorrect number of Zernike terms')
+            if cli_args['flip_images_horizontally']:
+                step_ri('Flipping images horizontally')
+                image_data = image_data[:, :, ::-1]
+            use_coeffs_from_csv = cli_args.get('use_coeffs_from_csv')
+            if use_coeffs_from_csv is not None:
+                step_ri('Using coeffs from CSV files')
+                base_path, *filenames = use_coeffs_from_csv
+                all_csv_coeffs = []
+                for filename in filenames:
+                    filepath = f'{RAW_DATA_P}/{base_path}/{filename}.csv'
+                    print(f'Filepath: {filepath}')
+                    csv_coeffs = np.loadtxt(filepath, delimiter=',')
+                    print(f'Shape: {csv_coeffs.shape}')
+                    all_csv_coeffs.extend(all_csv_coeffs)
+                zernike_data = np.array(all_csv_coeffs)
             print(f'Image data shape: {image_data.shape}')
             print(f'Zernike data shape: {zernike_data.shape}')
             outfile = f'{output_path}/{outfile_idx}_{DATA_F}'
