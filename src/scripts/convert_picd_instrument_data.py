@@ -117,6 +117,20 @@ def convert_picd_instrument_data(cli_args):
 
     step_ri('Will begin looping through all tags')
 
+    use_coeffs_from_csv = cli_args.get('use_coeffs_from_csv')
+    if use_coeffs_from_csv is not None:
+        step_ri('Will use coeffs from CSV files')
+        base_path, *filenames = use_coeffs_from_csv
+        all_csv_coeffs = []
+        for filename in filenames:
+            filepath = f'{RAW_DATA_P}/{base_path}/{filename}.csv'
+            print(f'Filepath: {filepath}')
+            csv_coeffs = np.loadtxt(filepath, delimiter=',')
+            print(f'Shape: {csv_coeffs.shape}')
+            all_csv_coeffs.extend(csv_coeffs)
+        zernike_data_from_csv = np.array(all_csv_coeffs)
+        dec_print_indent()
+
     outfile_idx = 0
     for fits_data_path in sorted(fits_data_paths):
         step_ri(f'Tag path: {fits_data_path}')
@@ -184,18 +198,12 @@ def convert_picd_instrument_data(cli_args):
             if cli_args['flip_images_horizontally']:
                 step_ri('Flipping images horizontally')
                 image_data = image_data[:, :, ::-1]
-            use_coeffs_from_csv = cli_args.get('use_coeffs_from_csv')
             if use_coeffs_from_csv is not None:
-                step_ri('Using coeffs from CSV files')
-                base_path, *filenames = use_coeffs_from_csv
-                all_csv_coeffs = []
-                for filename in filenames:
-                    filepath = f'{RAW_DATA_P}/{base_path}/{filename}.csv'
-                    print(f'Filepath: {filepath}')
-                    csv_coeffs = np.loadtxt(filepath, delimiter=',')
-                    print(f'Shape: {csv_coeffs.shape}')
-                    all_csv_coeffs.extend(csv_coeffs)
-                zernike_data = np.array(all_csv_coeffs)
+                step_ri('Taking rows from CSV file')
+                number_of_rows = zernike_data.shape[0]
+                print(f'Number of rows: {number_of_rows}')
+                zernike_data = zernike_data_from_csv[:number_of_rows]
+                zernike_data_from_csv = zernike_data_from_csv[number_of_rows:]
                 dec_print_indent()
             print(f'Image data shape: {image_data.shape}')
             print(f'Zernike data shape: {zernike_data.shape}')
