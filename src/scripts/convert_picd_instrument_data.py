@@ -129,7 +129,6 @@ def convert_picd_instrument_data(cli_args):
             print(f'Shape: {csv_coeffs.shape}')
             all_csv_coeffs.extend(csv_coeffs)
         zernike_data_from_csv = np.array(all_csv_coeffs)
-        dec_print_indent()
 
     outfile_idx = 0
     for fits_data_path in sorted(fits_data_paths):
@@ -196,10 +195,11 @@ def convert_picd_instrument_data(cli_args):
             if zernike_data.shape[1] != len(zernike_terms):
                 terminate_with_message('Incorrect number of Zernike terms')
             if cli_args['flip_images_horizontally']:
-                step_ri('Flipping images horizontally')
+                step('Flipping images horizontally')
                 image_data = image_data[:, :, ::-1]
+                dec_print_indent()
             if use_coeffs_from_csv is not None:
-                step_ri('Taking rows from CSV file')
+                step('Taking rows from CSV file')
                 number_of_rows = zernike_data.shape[0]
                 print(f'Number of rows: {number_of_rows}')
                 zernike_data = zernike_data_from_csv[:number_of_rows]
