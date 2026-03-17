@@ -3,6 +3,7 @@ NOTES AND CHANGES COMPARED TO `picture_d_llowfs_v4.md`:
 - In simulation, switched to a two CNN approach: a Capture CNN (large aberrations) and a
   Stabilization CNN (small aberrations). Additionally, created versions of both which are trained
   on wavefronts with simulated camera noise.
+- CNNs are trained with transfer learning on the simulated models with camera noise.
 - The CNNs now use the `llowfs_cnn_4_no_dropout` architecture.
 - Obtained new PICTURE-D instrument data on March 11, 2026.
     - ZIP of the data stored at `data/raw/llowfs_training_03_11_2026.zip`.
