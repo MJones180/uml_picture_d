@@ -665,7 +665,7 @@ def model_train(cli_args):
         warmup_epochs, starting_lr, final_lr = use_cos_annealing
         warmup_epochs = int(warmup_epochs)
         # The number of epochs the Cosine Annealing will run for
-        annealing_epochs = epoch_count - warmup_epochs,
+        annealing_epochs = epoch_count - warmup_epochs
         print(f'Linear Warmup: {starting_lr} -> {base_learning_rate} '
               f'({warmup_epochs} epochs)')
         print(f'Cosine Annealing: {base_learning_rate} -> {final_lr} '
