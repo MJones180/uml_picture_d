@@ -198,12 +198,10 @@ def convert_picd_instrument_data(cli_args):
                 print('Flipping images horizontally')
                 image_data = image_data[:, :, ::-1]
             if use_coeffs_from_csv is not None:
-                step('Taking rows from CSV file')
                 number_of_rows = zernike_data.shape[0]
-                print(f'Number of rows: {number_of_rows}')
+                print(f'Taking Zernikes from CSV file ({number_of_rows} rows)')
                 zernike_data = zernike_data_from_csv[:number_of_rows]
                 zernike_data_from_csv = zernike_data_from_csv[number_of_rows:]
-                dec_print_indent()
             print(f'Image data shape: {image_data.shape}')
             print(f'Zernike data shape: {zernike_data.shape}')
             outfile = f'{output_path}/{outfile_idx}_{DATA_F}'
