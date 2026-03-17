@@ -194,8 +194,9 @@ def convert_picd_instrument_data(cli_args):
                     print(f'Filepath: {filepath}')
                     csv_coeffs = np.loadtxt(filepath, delimiter=',')
                     print(f'Shape: {csv_coeffs.shape}')
-                    all_csv_coeffs.extend(all_csv_coeffs)
+                    all_csv_coeffs.extend(csv_coeffs)
                 zernike_data = np.array(all_csv_coeffs)
+                dec_print_indent()
             print(f'Image data shape: {image_data.shape}')
             print(f'Zernike data shape: {zernike_data.shape}')
             outfile = f'{output_path}/{outfile_idx}_{DATA_F}'
