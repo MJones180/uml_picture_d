@@ -21,11 +21,12 @@ The CNNs are based on:
 
 TABLE OF CONTENTS:
     SEC1 - INPUT ABERRATION CSV FILES
-    SEC2 - MOVE FITS FILES
-    SEC3 - FITS TO HDF FILES
-    SEC4 - PREPROCESS DATAFILES
-    SEC5 - CNN TRANSFER TRAINING AND TESTING
-    SEC6 - RM CREATION AND TESTING
+    SEC2 - COPY CSV COEFFICIENTS
+    SEC3 - MOVE FITS FILES
+    SEC4 - FITS TO HDF FILES
+    SEC5 - PREPROCESS DATAFILES
+    SEC6 - CNN TRANSFER TRAINING AND TESTING
+    SEC7 - RM CREATION AND TESTING
 
 SEC1 - INPUT ABERRATION CSV FILES ++++++++++++++++++++++++++++++++++++++++++++++
 The CSV files containing the aberrations that will be run on the instrument.
@@ -42,7 +43,7 @@ corresponding fixed datasets must also be created.
     # ==== RM Data ====
 
     # Based on `fixed_pm_40nm` - +/- 40 nm (47 total)
-    python3 main.py sim_data f_pm_40 no_prop 0 \
+    python3 main.py sim_data f_pm_40_coeffs no_prop 0 \
         --fixed-amount-per-zernike-pm 2 24 40e-9 \
         --append-no-aberrations-row --save-aberrations-csv-quit
 
@@ -117,29 +118,106 @@ corresponding fixed datasets must also be created.
 
     # Based on `fixed_50nm_range_2000_approx` - used for the Capture CNN
     # Small - [-50, 50] with 151 points (3473 total)
-    python3 main.py sim_data f_50_151 no_prop 0 \
+    python3 main.py sim_data f_50_151_coeffs no_prop 0 \
         --fixed-amount-per-zernike-range 2 24 " -50e-9" 50e-9 151 \
         --save-aberrations-csv-quit
     # Med - [-50, 50] with 501 points (11523 total)
-    python3 main.py sim_data f_50_501 no_prop 0 \
+    python3 main.py sim_data f_50_501_coeffs no_prop 0 \
         --fixed-amount-per-zernike-range 2 24 " -50e-9" 50e-9 501 \
         --save-aberrations-csv-quit
     # Full - [-50, 50] with 2000 points (46000 total)
-    python3 main.py sim_data f_50_2000 no_prop 0 \
+    python3 main.py sim_data f_50_2000_coeffs no_prop 0 \
         --fixed-amount-per-zernike-range 2 24 " -50e-9" 50e-9 2000 \
         --save-aberrations-csv-quit
 
     # Based on `fixed_1nm_range_301_approx` - used for the Stabilization CNN
     # Small - [-1, 1] with 51 points (1173 total)
-    python3 main.py sim_data f_1_51 no_prop 0 \
+    python3 main.py sim_data f_1_51_coeffs no_prop 0 \
         --fixed-amount-per-zernike-range 2 24 " -1e-9" 1e-9 51 \
         --save-aberrations-csv-quit
     # Med / Full - [-1, 1] with 301 points (6923 total)
-    python3 main.py sim_data f_1_301 no_prop 0 \
+    python3 main.py sim_data f_1_301_coeffs no_prop 0 \
         --fixed-amount-per-zernike-range 2 24 " -1e-9" 1e-9 301 \
         --save-aberrations-csv-quit
 
-SEC2 - MOVE FITS FILES +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+SEC2 - COPY CSV COEFFICIENTS +++++++++++++++++++++++++++++++++++++++++++++++++++
+The CSV coefficients must be copied to the `data/raw/` folder so that they can
+be used when converting the data from FITS to HDF. The reason for this is that
+the incorrect coefficients were written out when obtaining the instrument data.
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+    cd data/raw
+    mkdir picd_inst_coeffs_v5
+    cd picd_inst_coeffs_v5
+
+    mkdir rm_data
+    mv f_pm_40_coeffs/aberrations.csv rm_data/f_pm_40_coeffs.csv
+    rm -rf f_pm_40_coeffs
+
+    mkdir sm_data
+    mv r_10_2_1_coeffs_1k/aberrations.csv sm_data/r_10_2_1_coeffs_1k.csv
+    mv r_500_20_10_coeffs_1k/aberrations.csv sm_data/r_500_20_10_coeffs_1k.csv
+    mv r_50_10_5_coeffs_1k/aberrations.csv sm_data/r_50_10_5_coeffs_1k.csv
+    mv r_15_5_2_coeffs_1k/aberrations.csv sm_data/r_15_5_2_coeffs_1k.csv
+    mv r_10_coeffs_1k/aberrations.csv sm_data/r_10_coeffs_1k.csv
+    mv r_25_1_half_coeffs_1k/aberrations.csv sm_data/r_25_1_half_coeffs_1k.csv
+    mv r_15_2_1_coeffs_1k/aberrations.csv sm_data/r_15_2_1_coeffs_1k.csv
+    mv r_15_1_half_coeffs_1k/aberrations.csv sm_data/r_15_1_half_coeffs_1k.csv
+    mv r_10_1_half_coeffs_1k/aberrations.csv sm_data/r_10_1_half_coeffs_1k.csv
+    mv r_10_half_quarter_coeffs_1k/aberrations.csv sm_data/r_10_half_quarter_coeffs_1k.csv
+    mv r_half_quarter_fifth_coeffs_1k/aberrations.csv sm_data/r_half_quarter_fifth_coeffs_1k.csv
+    mv r_1_coeffs_1k/aberrations.csv sm_data/r_1_coeffs_1k.csv
+    mv r_2_coeffs_1k/aberrations.csv sm_data/r_2_coeffs_1k.csv
+    mv f_50_151_coeffs/aberrations.csv sm_data/f_50_151_coeffs.csv
+    mv f_1_51_coeffs/aberrations.csv sm_data/f_1_51_coeffs.csv
+    rm -rf r_500_20_10_coeffs_1k
+    rm -rf r_50_10_5_coeffs_1k
+    rm -rf r_15_5_2_coeffs_1k
+    rm -rf r_10_coeffs_1k
+    rm -rf r_25_1_half_coeffs_1k
+    rm -rf r_15_2_1_coeffs_1k
+    rm -rf r_15_1_half_coeffs_1k
+    rm -rf r_10_1_half_coeffs_1k
+    rm -rf r_10_half_quarter_coeffs_1k
+    rm -rf r_half_quarter_fifth_coeffs_1k
+    rm -rf r_1_coeffs_1k
+    rm -rf r_2_coeffs_1k
+    rm -rf f_50_151_coeffs
+    rm -rf f_1_51_coeffs
+
+    mkdir md_data
+    mv r_10_2_1_coeffs_10k/aberrations.csv md_data/r_10_2_1_coeffs_10k.csv
+    mv r_500_20_10_coeffs_10k/aberrations.csv md_data/r_500_20_10_coeffs_10k.csv
+    mv r_50_10_5_coeffs_10k/aberrations.csv md_data/r_50_10_5_coeffs_10k.csv
+    mv r_15_5_2_coeffs_10k/aberrations.csv md_data/r_15_5_2_coeffs_10k.csv
+    mv r_10_coeffs_10k/aberrations.csv md_data/r_10_coeffs_10k.csv
+    mv r_25_1_half_coeffs_10k/aberrations.csv md_data/r_25_1_half_coeffs_10k.csv
+    mv r_15_2_1_coeffs_10k/aberrations.csv md_data/r_15_2_1_coeffs_10k.csv
+    mv r_15_1_half_coeffs_10k/aberrations.csv md_data/r_15_1_half_coeffs_10k.csv
+    mv r_10_1_half_coeffs_10k/aberrations.csv md_data/r_10_1_half_coeffs_10k.csv
+    mv r_10_half_quarter_coeffs_10k/aberrations.csv md_data/r_10_half_quarter_coeffs_10k.csv
+    mv r_half_quarter_fifth_coeffs_10k/aberrations.csv md_data/r_half_quarter_fifth_coeffs_10k.csv
+    mv r_1_coeffs_10k/aberrations.csv md_data/r_1_coeffs_10k.csv
+    mv r_2_coeffs_10k/aberrations.csv md_data/r_2_coeffs_10k.csv
+    mv f_50_501_coeffs/aberrations.csv md_data/f_50_501_coeffs.csv
+    mv f_1_301_coeffs/aberrations.csv md_data/f_1_301_coeffs.csv
+    rm -rf r_10_2_1_coeffs_10k
+    rm -rf r_500_20_10_coeffs_10k
+    rm -rf r_50_10_5_coeffs_10k
+    rm -rf r_15_5_2_coeffs_10k
+    rm -rf r_10_coeffs_10k
+    rm -rf r_25_1_half_coeffs_10k
+    rm -rf r_15_2_1_coeffs_10k
+    rm -rf r_15_1_half_coeffs_10k
+    rm -rf r_10_1_half_coeffs_10k
+    rm -rf r_10_half_quarter_coeffs_10k
+    rm -rf r_half_quarter_fifth_coeffs_10k
+    rm -rf r_1_coeffs_10k
+    rm -rf r_2_coeffs_10k
+    rm -rf f_50_501_coeffs
+    rm -rf f_1_301_coeffs
+
+SEC3 - MOVE FITS FILES +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 The FITS datafiles containing instrument data should be moved to the `data/raw`
 directory with new folder and file names. Datafiles for the Small and Medium
 datasets can be found in the ZIP at `data/raw/llowfs_training_03_11_2026.zip`.
@@ -150,7 +228,7 @@ Stabilization datasets to make preprocessing easier.
 
     # ---- RM ----
     mkdir inst_llowfs_v5_rm
-    # f_pm_40
+    # f_pm_40_coeffs
     mv lyt_alp_train_lac_20260311_162642_caldata.fits       inst_llowfs_v5_rm/0_data.fits
     # This row is already baked into the dataset
     rm lyt_alp_train_lac_20260311_162642_caldata_extra.fits
@@ -165,14 +243,14 @@ Stabilization datasets to make preprocessing easier.
     # ---- Fixed [-1, 1] nm Testing ----
     mkdir inst_llowfs_v5_tst_fix_1nm
     mkdir inst_llowfs_v5_tst_fix_1nm_bf
-    # f_1_51
+    # f_1_51_coeffs
     cp lyt_alp_train_lac_20260311_162726_caldata.fits       inst_llowfs_v5_tst_fix_1nm/0_data.fits
     cp lyt_alp_train_lac_20260311_162726_caldata_extra.fits inst_llowfs_v5_tst_fix_1nm_bf/0_data.fits
 
     # ---- Fixed [-50, 50] nm Testing ----
     mkdir inst_llowfs_v5_tst_fix_50nm
     mkdir inst_llowfs_v5_tst_fix_50nm_bf
-    # f_50_151
+    # f_50_151_coeffs
     cp lyt_alp_train_lac_20260311_162755_caldata.fits       inst_llowfs_v5_tst_fix_50nm/0_data.fits
     cp lyt_alp_train_lac_20260311_162755_caldata_extra.fits inst_llowfs_v5_tst_fix_50nm_bf/0_data.fits
 
@@ -191,7 +269,7 @@ Stabilization datasets to make preprocessing easier.
     # r_10_coeffs_1k
     mv lyt_alp_train_lac_20260311_162942_caldata.fits       inst_llowfs_v5_cap_sm/3_data.fits
     mv lyt_alp_train_lac_20260311_162942_caldata_extra.fits inst_llowfs_v5_cap_bf_sm/3_data.fits
-    # f_50_151
+    # f_50_151_coeffs
     mv lyt_alp_train_lac_20260311_162755_caldata.fits       inst_llowfs_v5_cap_sm/4_data.fits
     mv lyt_alp_train_lac_20260311_162755_caldata_extra.fits inst_llowfs_v5_cap_bf_sm/4_data.fits
     # r_10_2_1_coeffs_1k
@@ -225,7 +303,7 @@ Stabilization datasets to make preprocessing easier.
     # r_2_coeffs_1k
     mv lyt_alp_train_lac_20260311_163212_caldata.fits       inst_llowfs_v5_sta_sm/7_data.fits
     mv lyt_alp_train_lac_20260311_163212_caldata_extra.fits inst_llowfs_v5_sta_bf_sm/7_data.fits
-    # f_1_51
+    # f_1_51_coeffs
     mv lyt_alp_train_lac_20260311_162726_caldata.fits       inst_llowfs_v5_sta_sm/8_data.fits
     mv lyt_alp_train_lac_20260311_162726_caldata_extra.fits inst_llowfs_v5_sta_bf_sm/8_data.fits
     # r_10_2_1_coeffs_1k
@@ -247,7 +325,7 @@ Stabilization datasets to make preprocessing easier.
     # r_10_coeffs_10k
     mv lyt_alp_train_lac_20260311_160754_caldata.fits       inst_llowfs_v5_cap_md/3_data.fits
     mv lyt_alp_train_lac_20260311_160754_caldata_extra.fits inst_llowfs_v5_cap_bf_md/3_data.fits
-    # f_50_501
+    # f_50_501_coeffs
     mv lyt_alp_train_lac_20260311_160314_caldata.fits       inst_llowfs_v5_cap_md/4_data.fits
     mv lyt_alp_train_lac_20260311_160314_caldata_extra.fits inst_llowfs_v5_cap_bf_md/4_data.fits
     # r_10_2_1_coeffs_10k
@@ -281,14 +359,14 @@ Stabilization datasets to make preprocessing easier.
     # r_2_coeffs_10k
     mv lyt_alp_train_lac_20260311_161525_caldata.fits       inst_llowfs_v5_sta_md/7_data.fits
     mv lyt_alp_train_lac_20260311_161525_caldata_extra.fits inst_llowfs_v5_sta_bf_md/7_data.fits
-    # f_1_301
+    # f_1_301_coeffs
     mv lyt_alp_train_lac_20260311_160209_caldata.fits       inst_llowfs_v5_sta_md/8_data.fits
     mv lyt_alp_train_lac_20260311_160209_caldata_extra.fits inst_llowfs_v5_sta_bf_md/8_data.fits
     # r_10_2_1_coeffs_10k
     mv lyt_alp_train_lac_20260311_160615_caldata.fits       inst_llowfs_v5_sta_md/9_data.fits
     mv lyt_alp_train_lac_20260311_160615_caldata_extra.fits inst_llowfs_v5_sta_bf_md/9_data.fits
 
-SEC3 - FITS TO HDF FILES +++++++++++++++++++++++++++++++++++++++++++++++++++++++
+SEC4 - FITS TO HDF FILES +++++++++++++++++++++++++++++++++++++++++++++++++++++++
 These FITS datafiles should be converted to HDF files. The format of the HDF
 datafiles should be the same as the raw simulation datafiles. When converting
 these datafiles, the duplicate rows are removed -- this is only for the actual
@@ -297,51 +375,72 @@ data, not the base field data.
 
     # ---- RM - 47 Rows ----
     python3 main.py convert_picd_instrument_data inst_llowfs_v5_rm_hdf 2 24 \
-        --fits-data-tags inst_llowfs_v5_rm --take-every-n-rows 2 1
+        --fits-data-tags inst_llowfs_v5_rm --take-every-n-rows 2 1 --flip-images-horizontally \
+        --use-coeffs-from-csv picd_inst_coeffs_v5/rm_data f_pm_40_coeffs
 
     # ---- Random 2nm Testing - 1,000 Rows ----
     python3 main.py convert_picd_instrument_data inst_llowfs_v5_tst_rnd_2nm_hdf 2 24 \
-        --fits-data-tags inst_llowfs_v5_tst_rnd_2nm --take-every-n-rows 2 1
+        --fits-data-tags inst_llowfs_v5_tst_rnd_2nm --take-every-n-rows 2 1 --flip-images-horizontally \
+        --use-coeffs-from-csv picd_inst_coeffs_v5/sm_data r_2_coeffs_1k
     python3 main.py convert_picd_instrument_data inst_llowfs_v5_tst_rnd_2nm_bf_hdf 2 24 \
-        --fits-data-tags inst_llowfs_v5_tst_rnd_2nm_bf --base-field-data 0 --n-base-field-rows 350
+        --fits-data-tags inst_llowfs_v5_tst_rnd_2nm_bf --base-field-data 0 --n-base-field-rows 350 \
+        --flip-images-horizontally
 
     # ---- Fixed [-1, 1] nm Testing - 1,173 Rows ----
     python3 main.py convert_picd_instrument_data inst_llowfs_v5_tst_fix_1nm_hdf 2 24 \
-        --fits-data-tags inst_llowfs_v5_tst_fix_1nm --take-every-n-rows 2 1
+        --fits-data-tags inst_llowfs_v5_tst_fix_1nm --take-every-n-rows 2 1 --flip-images-horizontally \
+        --use-coeffs-from-csv picd_inst_coeffs_v5/sm_data f_1_51_coeffs
     python3 main.py convert_picd_instrument_data inst_llowfs_v5_tst_fix_1nm_bf_hdf 2 24 \
-        --fits-data-tags inst_llowfs_v5_tst_fix_1nm_bf --base-field-data 0 --n-base-field-rows 350
+        --fits-data-tags inst_llowfs_v5_tst_fix_1nm_bf --base-field-data 0 --n-base-field-rows 350 \
+        --flip-images-horizontally
 
     # ---- Fixed [-50, 50] nm Testing - 3,473 Rows ----
     python3 main.py convert_picd_instrument_data inst_llowfs_v5_tst_fix_50nm_hdf 2 24 \
-        --fits-data-tags inst_llowfs_v5_tst_fix_50nm --take-every-n-rows 2 1
+        --fits-data-tags inst_llowfs_v5_tst_fix_50nm --take-every-n-rows 2 1 --flip-images-horizontally \
+        --use-coeffs-from-csv picd_inst_coeffs_v5/sm_data f_50_151_coeffs
     python3 main.py convert_picd_instrument_data inst_llowfs_v5_tst_fix_50nm_bf_hdf 2 24 \
-        --fits-data-tags inst_llowfs_v5_tst_fix_50nm_bf --base-field-data 0 --n-base-field-rows 350
+        --fits-data-tags inst_llowfs_v5_tst_fix_50nm_bf --base-field-data 0 --n-base-field-rows 350 \
+        --flip-images-horizontally
 
     # ---- Capture Data - Small - 8,473 Rows ----
     python3 main.py convert_picd_instrument_data inst_llowfs_v5_cap_sm_hdf 2 24 \
-        --fits-data-tags inst_llowfs_v5_cap_sm --take-every-n-rows 2 1
+        --fits-data-tags inst_llowfs_v5_cap_sm --take-every-n-rows 2 1 --flip-images-horizontally \
+        --use-coeffs-from-csv picd_inst_coeffs_v5/sm_data r_500_20_10_coeffs_1k r_50_10_5_coeffs_1k \
+            r_15_5_2_coeffs_1k r_10_coeffs_1k f_50_151_coeffs r_10_2_1_coeffs_1k
     python3 main.py convert_picd_instrument_data inst_llowfs_v5_cap_bf_sm_hdf 2 24 \
-        --fits-data-tags inst_llowfs_v5_cap_bf_sm --base-field-data 0 --n-base-field-rows 350
+        --fits-data-tags inst_llowfs_v5_cap_bf_sm --base-field-data 0 --n-base-field-rows 350 \
+        --flip-images-horizontally
 
     # ---- Stabilization Data - Small - 10,173 Rows ----
     python3 main.py convert_picd_instrument_data inst_llowfs_v5_sta_sm_hdf 2 24 \
-        --fits-data-tags inst_llowfs_v5_sta_sm --take-every-n-rows 2 1
+        --fits-data-tags inst_llowfs_v5_sta_sm --take-every-n-rows 2 1 --flip-images-horizontally \
+        --use-coeffs-from-csv picd_inst_coeffs_v5/sm_data r_25_1_half_coeffs_1k r_15_2_1_coeffs_1k \
+            r_15_1_half_coeffs_1k r_10_1_half_coeffs_1k r_10_half_quarter_coeffs_1k \
+            r_half_quarter_fifth_coeffs_1k r_1_coeffs_1k r_2_coeffs_1k f_1_51_coeffs r_10_2_1_coeffs_1k
     python3 main.py convert_picd_instrument_data inst_llowfs_v5_sta_bf_sm_hdf 2 24 \
-        --fits-data-tags inst_llowfs_v5_sta_bf_sm --base-field-data 0 --n-base-field-rows 350
+        --fits-data-tags inst_llowfs_v5_sta_bf_sm --base-field-data 0 --n-base-field-rows 350 \
+        --flip-images-horizontally
 
     # ---- Capture Data - Medium - 61,523 Rows ----
     python3 main.py convert_picd_instrument_data inst_llowfs_v5_cap_md_hdf 2 24 \
-        --fits-data-tags inst_llowfs_v5_cap_md --take-every-n-rows 2 1
+        --fits-data-tags inst_llowfs_v5_cap_md --take-every-n-rows 2 1 --flip-images-horizontally \
+        --use-coeffs-from-csv picd_inst_coeffs_v5/md_data r_500_20_10_coeffs_10k r_50_10_5_coeffs_10k \
+            r_15_5_2_coeffs_10k r_10_coeffs_10k f_50_501_coeffs r_10_2_1_coeffs_10k
     python3 main.py convert_picd_instrument_data inst_llowfs_v5_cap_bf_md_hdf 2 24 \
-        --fits-data-tags inst_llowfs_v5_cap_bf_md --base-field-data 0 --n-base-field-rows 350
+        --fits-data-tags inst_llowfs_v5_cap_bf_md --base-field-data 0 --n-base-field-rows 350 \
+        --flip-images-horizontally
 
     # ---- Stabilization Data - Medium - 96,923 Rows ----
     python3 main.py convert_picd_instrument_data inst_llowfs_v5_sta_md_hdf 2 24 \
-        --fits-data-tags inst_llowfs_v5_sta_md --take-every-n-rows 2 1
+        --fits-data-tags inst_llowfs_v5_sta_md --take-every-n-rows 2 1 --flip-images-horizontally \
+        --use-coeffs-from-csv picd_inst_coeffs_v5/md_data r_25_1_half_coeffs_10k r_15_2_1_coeffs_10k \
+            r_15_1_half_coeffs_10k r_10_1_half_coeffs_10k r_10_half_quarter_coeffs_10k \
+            r_half_quarter_fifth_coeffs_10k r_1_coeffs_10k r_2_coeffs_10k f_1_301_coeffs r_10_2_1_coeffs_10k
     python3 main.py convert_picd_instrument_data inst_llowfs_v5_sta_bf_md_hdf 2 24 \
-        --fits-data-tags inst_llowfs_v5_sta_bf_md --base-field-data 0 --n-base-field-rows 350
+        --fits-data-tags inst_llowfs_v5_sta_bf_md --base-field-data 0 --n-base-field-rows 350 \
+        --flip-images-horizontally
 
-SEC4 - PREPROCESS DATAFILES ++++++++++++++++++++++++++++++++++++++++++++++++++++
+SEC5 - PREPROCESS DATAFILES ++++++++++++++++++++++++++++++++++++++++++++++++++++
 The newly converted HDF datafiles should be preprocessed.
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -378,7 +477,7 @@ The newly converted HDF datafiles should be preprocessed.
     python3 main.py preprocess_data_bare inst_llowfs_v5_tst_fix_50nm_hdf \
         inst_llowfs_v5_tst_fix_50nm_hdf_proc
 
-SEC5 - CNN TRANSFER TRAINING AND TESTING +++++++++++++++++++++++++++++++++++++++
+SEC6 - CNN TRANSFER TRAINING AND TESTING +++++++++++++++++++++++++++++++++++++++
 Train, test, and export the CNN models created from the instrument data.
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -468,15 +567,13 @@ Train, test, and export the CNN models created from the instrument data.
         --transfer-learning-batchnorm \
         --overwrite-existing --only-best-epoch
 
-
-
+    # ---- Capture CNN Testing ----
     python3 main.py model_test picd_cnn_v4 last \
         inst_llowfs_v5_cap_sm_hdf_proc \
         --inputs-need-norm --inputs-need-diff \
         --change-base-field inst_llowfs_v5_cap_bf_sm_hdf 0 0    1000 1 1000 2000 \
                                                          2 2000 3000 3 3000 4000 \
                                                          4 4000 7473 5 7473 8473 \
-
     python3 main.py model_test picd_cnn_v4 last \
         inst_llowfs_v5_sta_sm_hdf_proc \
         --inputs-need-norm --inputs-need-diff \
@@ -485,17 +582,14 @@ Train, test, and export the CNN models created from the instrument data.
                                                          4 4000 5000 5 5000 6000 \
                                                          6 6000 7000 7 7000 8000 \
                                                          8 8000 9173 9 9173 10173
-
     python3 main.py model_test picd_cnn_v4 last \
         inst_llowfs_v5_tst_rnd_2nm_hdf_proc \
         --scatter-plot 4 6 2 1e-7 15 --inputs-need-norm --inputs-need-diff \
         --change-base-field inst_llowfs_v5_tst_rnd_2nm_bf_hdf 0 0 1000
-
     python3 main.py model_test picd_cnn_v4 last \
         inst_llowfs_v5_tst_fix_1nm_hdf_proc \
         --zernike-plots --inputs-need-norm --inputs-need-diff \
         --change-base-field inst_llowfs_v5_tst_fix_1nm_bf_hdf 0 0 1173
-
     python3 main.py model_test picd_cnn_v4 last \
         inst_llowfs_v5_tst_fix_50nm_hdf_proc \
         --zernike-plots --inputs-need-norm --inputs-need-diff \
@@ -520,13 +614,12 @@ Train, test, and export the CNN models created from the instrument data.
     # Keep only the last two lines of the normalization data file.
     tail -n 2 norm_data.txt > temp.txt && mv temp.txt norm_data.txt
 
-SEC6 - RM CREATION AND TESTING +++++++++++++++++++++++++++++++++++++++++++++++++
+SEC7 - RM CREATION AND TESTING +++++++++++++++++++++++++++++++++++++++++++++++++
 Create and test the RM model on the instrument data.
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     python3 main.py create_response_matrix \
-        --simulated-data-tag-average inst_llowfs_v5_rm \
-        --base-field-tag picd_instrument_data_no_aberrations_v4 \
+        --simulated-data-tag-average inst_llowfs_v5_rm_hdf \
         --wfs-sum-to-one --base-field-mapping 32 0 23 33 23 46
 
     python3 main.py run_response_matrix inst_llowfs_v5_rm \
