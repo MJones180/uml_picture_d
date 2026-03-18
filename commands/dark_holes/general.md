@@ -279,27 +279,18 @@ Both HODMs:
         --fits-table-names dm1 dm2 sci_i sci_r \
         --save-difference-only 5 4 1 dm1 dm2 \
         --rows-per-chunk 10000
-    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_full_gain_XXk_1iter_ch1 \
-        /home/michael-jones/Documents/piccsim_sim_data/dh_both_hodms_efc_full_gain_XXk_ch1 \
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_full_gain_29k_1iter_ch1 \
+        /home/michael-jones/Documents/piccsim_sim_data/dh_both_hodms_efc_full_gain_29k_ch1 \
         --fits-file-globs 'dm1_*' 'dm2_*' 'sci_*i' 'sci*r' \
         --fits-table-names dm1 dm2 sci_i sci_r \
         --save-difference-only 5 4 1 dm1 dm2 \
         --rows-per-chunk 10000
-    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_full_gain_XXk_1iter_ch2 \
-        /home/michael-jones/Documents/piccsim_sim_data/dh_both_hodms_efc_full_gain_XXk_ch2 \
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_full_gain_29k_1iter_ch2 \
+        /home/michael-jones/Documents/piccsim_sim_data/dh_both_hodms_efc_full_gain_29k_ch2 \
         --fits-file-globs 'dm1_*' 'dm2_*' 'sci_*i' 'sci*r' \
         --fits-table-names dm1 dm2 sci_i sci_r \
         --save-difference-only 5 4 1 dm1 dm2 \
         --rows-per-chunk 10000
-
-    # 12 iterations of broadband EFC using the RM; saves first iteration with correct DM differentials
-    # This data may not have the best contrast ratios since the EFC matrix was run with a gain of -0.5
-    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_broadband_5689_1iter \
-        /home/michael-jones/Documents/piccsim_sim_data/dh_both_hodms_efc_broadband_5689 \
-        --fits-file-globs 'dm1_*' 'dm2_*' 'sci_*i' 'sci*r' \
-        --fits-table-names dm1 dm2 sci_i sci_r \
-        --save-difference-only 12 11 1 dm1 dm2 \
-        --rows-per-chunk 24000
 
     # 12 iterations of broadband EFC (gain -1) using the RM; saves first iteration with correct DM differentials
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_broadband_full_gain_2640_1iter_ch1 \
