@@ -4811,7 +4811,34 @@ After model testing, it is useful to rank the model analyses:
         --init-weights-kaiming-normal-simple 0.2 in_layer res_blocks --use-kaiming-fan-in \
         --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
 
+    python3 main_scnp.py model_train \
+        dh_v106_3 train_dh_both_hodms_efc_final_dh_xxxxlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_xxxxlg_1iter_svd_500_both_ones \
+        dh_t45_30do40 weighted_two_dms adamw 3e-3 650 --batch-size 1024 \
+        --loss-params linear_scaling 0.1 take_row_sum 1 \
+        --use-cosine-annealing-lr-scheduler 80 1e-6 1e-7 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal-simple 0.2 in_layer res_blocks --use-kaiming-fan-in \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v106_4 train_dh_both_hodms_efc_final_dh_xxxxlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_xxxxlg_1iter_svd_500_both_ones \
+        dh_t45_30do40 weighted_two_dms adamw 4e-3 650 --batch-size 1024 \
+        --loss-params linear_scaling 0.1 take_row_sum 1 \
+        --use-cosine-annealing-lr-scheduler 80 1e-6 1e-7 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal-simple 0.2 in_layer res_blocks --use-kaiming-fan-in \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v106_5 train_dh_both_hodms_efc_final_dh_xxxxlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_xxxxlg_1iter_svd_500_both_ones \
+        dh_t45_30do40 weighted_two_dms adamw 5e-3 650 --batch-size 1024 \
+        --loss-params linear_scaling 0.1 take_row_sum 1 \
+        --use-cosine-annealing-lr-scheduler 80 1e-6 1e-7 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal-simple 0.2 in_layer res_blocks --use-kaiming-fan-in \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
     python3 main.py batch_model_test \
         test_dh_both_hodms_efc_final_dh_xxxxlg_1iter_svd_500_both_ones \
-        --epoch-and-tag-range last dh_v106_ 1 2 \
+        --epoch-and-tag-range last dh_v106_ 1 5 \
         --max-rows-per-model-call 1000
