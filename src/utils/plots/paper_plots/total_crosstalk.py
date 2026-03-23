@@ -21,6 +21,10 @@ MODELS = {
     2: 'Stabilization CNN',
 }
 LABEL_DECIMALS = 2
+# Set the max value along the y-axis so the plots have the same bounds;
+# this value is determined by just looking at the model results;
+# for [-1, 1] nm and [-50, 50] nm, respectively
+Y_MAX = [0.5, 80]  # Simulation
 
 
 def paper_plot_total_crosstalk(
@@ -87,15 +91,8 @@ def paper_plot_total_crosstalk(
     # Remove margin on top and bottom of plot
     ax.set_ymargin(0)
 
-    # Set the max value along the y-axis so the plots have the same bounds;
-    # this value is determined by just looking at the model results
-    if np.max(perturbation_grid) > 45e-9:
-        y_max = 80  # For [-50, 50] nm
-    else:
-        y_max = 0.5  # For [-1, 1] nm
-
     # Set the maximum y-value
-    ax.set_ylim(0, y_max)
+    ax.set_ylim(0, Y_MAX[1] if np.max(perturbation_grid) > 45e-9 else Y_MAX[0])
     # Display the legend to the right middle of the plot
     ax.legend(loc='center left', bbox_to_anchor=(1.01, 0.5))
 

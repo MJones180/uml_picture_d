@@ -2844,3 +2844,115 @@ After model testing, it is useful to rank the model analyses:
         wavefront_stabilization_sim_cam_v5 last \
         test_fixed_2000_and_random_weighted_group_ranges_local_v5_c_sim_cam \
         --scatter-plot 4 6 2 0 15
+
+[V73a] The `wavefront_capture_v6` tag:
+
+    python3 main_scnp.py model_train \
+        wavefront_capture_v6 \
+        train_fixed_2000_and_random_weighted_group_ranges_local_v6 \
+        val_fixed_2000_and_random_weighted_group_ranges_local_v6 \
+        llowfs_cnn_4_no_dropout mae adamw 1e-3 400 --batch-size 512 \
+        --use-cosine-annealing-lr-scheduler 30 1e-6 5e-8 --clip-gradient-norm 10 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main.py model_test \
+        wavefront_capture_v6 last fixed_1nm_range_301_approx_processed \
+        --zernike-plots --inputs-need-norm --inputs-need-diff --enable-paper-plots 1
+
+    python3 main.py model_test \
+        wavefront_capture_v6 last fixed_50nm_range_approx_processed \
+        --zernike-plots --inputs-need-norm --inputs-need-diff --enable-paper-plots 1
+
+    python3 main.py model_test \
+        wavefront_capture_v6 last random_2nm_med_processed \
+        --inputs-need-norm --inputs-need-diff \
+        --scatter-plot 4 6 2 1e-7 15 --enable-paper-plots 1
+
+    python3 main.py model_test \
+        wavefront_capture_v6 last \
+        test_fixed_2000_and_random_weighted_group_ranges_local_v6 \
+        --scatter-plot 4 6 2 0 15
+
+[V73b] The `wavefront_stabilization_v6` tag:
+
+    python3 main_scnp.py model_train \
+        wavefront_stabilization_v6 \
+        train_fixed_2000_and_random_weighted_group_ranges_local_v5_c \
+        val_fixed_2000_and_random_weighted_group_ranges_local_v5_c \
+        llowfs_cnn_4_no_dropout mae adamw 1e-3 400 --batch-size 512 \
+        --use-cosine-annealing-lr-scheduler 30 1e-6 5e-8 --clip-gradient-norm 10 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main.py model_test \
+        wavefront_stabilization_v6 last fixed_1nm_range_301_approx_processed \
+        --zernike-plots --inputs-need-norm --inputs-need-diff --enable-paper-plots 2
+
+    python3 main.py model_test \
+        wavefront_stabilization_v6 last fixed_50nm_range_approx_processed \
+        --zernike-plots --inputs-need-norm --inputs-need-diff --enable-paper-plots 2
+
+    python3 main.py model_test \
+        wavefront_stabilization_v6 last random_2nm_med_processed \
+        --inputs-need-norm --inputs-need-diff \
+        --scatter-plot 4 6 2 1e-7 15 --enable-paper-plots 2
+
+    python3 main.py model_test \
+        wavefront_stabilization_v6 last \
+        test_fixed_2000_and_random_weighted_group_ranges_local_v6_c \
+        --scatter-plot 4 6 2 0 15
+
+[V74a] The `wavefront_capture_sim_cam_v6` tag:
+
+    python3 main_scnp.py model_train \
+        wavefront_capture_sim_cam_v6 \
+        train_fixed_2000_and_random_weighted_group_ranges_local_v6_sim_cam \
+        val_fixed_2000_and_random_weighted_group_ranges_local_v6_sim_cam \
+        llowfs_cnn_4_no_dropout mae adamw 1e-3 400 --batch-size 512 \
+        --use-cosine-annealing-lr-scheduler 30 1e-6 5e-8 --clip-gradient-norm 10 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main.py model_test \
+        wavefront_capture_sim_cam_v6 last fixed_1nm_range_301_approx_processed_sim_cam \
+        --zernike-plots --inputs-need-norm --inputs-need-diff --enable-paper-plots 1
+
+    python3 main.py model_test \
+        wavefront_capture_sim_cam_v6 last fixed_50nm_range_approx_processed_sim_cam \
+        --zernike-plots --inputs-need-norm --inputs-need-diff --enable-paper-plots 1
+
+    python3 main.py model_test \
+        wavefront_capture_sim_cam_v6 last random_2nm_med_processed_sim_cam \
+        --inputs-need-norm --inputs-need-diff \
+        --scatter-plot 4 6 2 1e-7 15 --enable-paper-plots 1
+
+    python3 main.py model_test \
+        wavefront_capture_sim_cam_v6 last \
+        test_fixed_2000_and_random_weighted_group_ranges_local_v6_sim_cam \
+        --scatter-plot 4 6 2 0 15
+
+[V74b] The `wavefront_stabilization_sim_cam_v6` tag:
+
+    python3 main_scnp.py model_train \
+        wavefront_stabilization_sim_cam_v6 \
+        train_fixed_2000_and_random_weighted_group_ranges_local_v5_c_sim_cam \
+        val_fixed_2000_and_random_weighted_group_ranges_local_v5_c_sim_cam \
+        llowfs_cnn_4_no_dropout mae adamw 1e-3 400 --batch-size 512 \
+        --use-cosine-annealing-lr-scheduler 30 1e-6 5e-8 --clip-gradient-norm 10 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main.py model_test \
+        wavefront_stabilization_sim_cam_v6 last fixed_1nm_range_301_approx_processed_sim_cam \
+        --zernike-plots --inputs-need-norm --inputs-need-diff --enable-paper-plots 2
+
+    python3 main.py model_test \
+        wavefront_stabilization_sim_cam_v6 last fixed_50nm_range_approx_processed_sim_cam \
+        --zernike-plots --inputs-need-norm --inputs-need-diff --enable-paper-plots 2
+
+    python3 main.py model_test \
+        wavefront_stabilization_sim_cam_v6 last random_2nm_med_processed_sim_cam \
+        --inputs-need-norm --inputs-need-diff \
+        --scatter-plot 4 6 2 1e-7 15 --enable-paper-plots 2
+
+    python3 main.py model_test \
+        wavefront_stabilization_sim_cam_v6 last \
+        test_fixed_2000_and_random_weighted_group_ranges_local_v5_c_sim_cam \
+        --scatter-plot 4 6 2 0 15
