@@ -213,8 +213,12 @@ must be run from within the `data/raw/` directory.
     mv lyt_alp_train_lac_20260324_180754_caldata.fits       inst_llowfs_v6_cap/4_data.fits
     mv lyt_alp_train_lac_20260324_180754_caldata_extra.fits inst_llowfs_v6_cap_bf/4_data.fits
     # f_50_2000_coeffs
-    mv lyt_alp_train_lac_20260324_174150_caldata.fits       inst_llowfs_v6_cap/5_data.fits
     mv lyt_alp_train_lac_20260324_174150_caldata_extra.fits inst_llowfs_v6_cap_bf/5_data.fits
+
+    # ---- Capture Data - Train Only ----
+    mkdir inst_llowfs_v6_cap_to
+    # f_50_2000_coeffs
+    mv lyt_alp_train_lac_20260324_174150_caldata.fits       inst_llowfs_v6_cap_to/0_data.fits
 
     # ---- Stabilization Data ----
     mkdir inst_llowfs_v6_sta
@@ -247,8 +251,12 @@ must be run from within the `data/raw/` directory.
     mv lyt_alp_train_lac_20260324_191627_caldata.fits       inst_llowfs_v6_sta/8_data.fits
     mv lyt_alp_train_lac_20260324_191627_caldata_extra.fits inst_llowfs_v6_sta_bf/8_data.fits
     # f_1_301_coeffs
-    mv lyt_alp_train_lac_20260324_174101_caldata.fits       inst_llowfs_v6_sta/9_data.fits
     mv lyt_alp_train_lac_20260324_174101_caldata_extra.fits inst_llowfs_v6_sta_bf/9_data.fits
+
+    # ---- Stabilization Data - Train Only ----
+    mkdir inst_llowfs_v6_sta_to
+    # f_1_301_coeffs
+    mv lyt_alp_train_lac_20260324_174101_caldata.fits       inst_llowfs_v6_sta_to/0_data.fits
 
     # ---- Random 2nm Testing ----
     mkdir inst_llowfs_v6_tst_2nm_rnd
@@ -282,17 +290,23 @@ base field data.
     python3 main.py convert_picd_instrument_data inst_llowfs_v6_rm_hdf 2 24 \
         --fits-data-tags inst_llowfs_v6_rm --take-every-n-rows 2 1
 
-    # ---- Capture Data - 546,000 Rows ----
+    # ---- Capture Data - 500,000 Rows ----
     python3 main.py convert_picd_instrument_data inst_llowfs_v6_cap_hdf 2 24 \
         --fits-data-tags inst_llowfs_v6_cap --take-every-n-rows 2 1
     python3 main.py convert_picd_instrument_data inst_llowfs_v6_cap_bf_hdf 2 24 \
         --fits-data-tags inst_llowfs_v6_cap_bf --base-field-data 0 --n-base-field-rows 350
+    # ---- Capture Data - Train Only - 46,000 Rows ----
+    python3 main.py convert_picd_instrument_data inst_llowfs_v6_cap_to_hdf 2 24 \
+        --fits-data-tags inst_llowfs_v6_cap_to --take-every-n-rows 2 1
 
-    # ---- Stabilization Data - 906,923 Rows ----
+    # ---- Stabilization Data - 900,000 Rows ----
     python3 main.py convert_picd_instrument_data inst_llowfs_v6_sta_hdf 2 24 \
         --fits-data-tags inst_llowfs_v6_sta --take-every-n-rows 2 1
     python3 main.py convert_picd_instrument_data inst_llowfs_v6_sta_bf_hdf 2 24 \
         --fits-data-tags inst_llowfs_v6_sta_bf --base-field-data 0 --n-base-field-rows 350
+    # ---- Stabilization Data - Train Only - 6,923 Rows ----
+    python3 main.py convert_picd_instrument_data inst_llowfs_v6_sta_to_hdf 2 24 \
+        --fits-data-tags inst_llowfs_v6_sta_to --take-every-n-rows 2 1
 
     # ---- Random 2nm Testing - 50,000 Rows ----
     python3 main.py convert_picd_instrument_data inst_llowfs_v6_tst_2nm_rnd_hdf 2 24 \
@@ -322,6 +336,7 @@ The newly converted HDF datafiles should be preprocessed.
         train_picd_data_v6_cap val_picd_data_v6_cap none 90 10 0 \
         --disable-norm-inputs --inputs-sum-to-one \
         --norm-outputs individually --norm-range-ones \
+        --additional-raw-data-tags-train-only inst_llowfs_v6_cap_to_hdf \
         --use-field-diff inst_llowfs_v6_cap_bf_hdf \
         --use-field-diff-mapping 0 0      100000 1 100000 200000 2 200000 300000 \
                                  3 300000 400000 4 400000 500000 5 500000 546000 \
@@ -331,6 +346,7 @@ The newly converted HDF datafiles should be preprocessed.
         train_picd_data_v6_sta val_picd_data_v6_sta none 90 10 0 \
         --disable-norm-inputs --inputs-sum-to-one \
         --norm-outputs individually --norm-range-ones \
+        --additional-raw-data-tags-train-only inst_llowfs_v6_sta_to_hdf \
         --use-field-diff inst_llowfs_v6_sta_bf_hdf \
         --use-field-diff-mapping 0 0      100000 1 100000 200000 2 200000 300000 3 300000 400000 \
                                  4 400000 500000 5 500000 600000 6 600000 700000 7 700000 800000 \
