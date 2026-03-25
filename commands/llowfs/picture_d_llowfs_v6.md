@@ -4,8 +4,8 @@ NOTES AND CHANGES COMPARED TO `picture_d_llowfs_v5.md`:
 - The models are based on simulated V74 CNNs (was V72).
 - Obtained new PICTURE-D instrument data on March 24, 2026.
     - Data stored on the Samsung SSD under `llowfs_instrument_data/v6/llowfs_training_03_24_2026`.
-    - Instrument did not have the 540-660 nm band pass on when data was collected;
-      instead, unfiltered white light was used.
+    - Using filtered white light: bandpass of 540-660nm.
+    - The purge tank was slightly on the whole time.
     - The data contains two frames for each row, but only the second frame should be used.
 ....................................................................................................
 
@@ -294,7 +294,7 @@ base field data.
     python3 main.py convert_picd_instrument_data inst_llowfs_v6_cap_hdf 2 24 \
         --fits-data-tags inst_llowfs_v6_cap --take-every-n-rows 2 1
     python3 main.py convert_picd_instrument_data inst_llowfs_v6_cap_bf_hdf 2 24 \
-        --fits-data-tags inst_llowfs_v6_cap_bf --base-field-data 0 --n-base-field-rows 350
+        --fits-data-tags inst_llowfs_v6_cap_bf --base-field-data 0
     # ---- Capture Data - Train Only - 46,000 Rows ----
     python3 main.py convert_picd_instrument_data inst_llowfs_v6_cap_to_hdf 2 24 \
         --fits-data-tags inst_llowfs_v6_cap_to --take-every-n-rows 2 1
@@ -303,7 +303,7 @@ base field data.
     python3 main.py convert_picd_instrument_data inst_llowfs_v6_sta_hdf 2 24 \
         --fits-data-tags inst_llowfs_v6_sta --take-every-n-rows 2 1
     python3 main.py convert_picd_instrument_data inst_llowfs_v6_sta_bf_hdf 2 24 \
-        --fits-data-tags inst_llowfs_v6_sta_bf --base-field-data 0 --n-base-field-rows 350
+        --fits-data-tags inst_llowfs_v6_sta_bf --base-field-data 0
     # ---- Stabilization Data - Train Only - 6,923 Rows ----
     python3 main.py convert_picd_instrument_data inst_llowfs_v6_sta_to_hdf 2 24 \
         --fits-data-tags inst_llowfs_v6_sta_to --take-every-n-rows 2 1
@@ -312,19 +312,19 @@ base field data.
     python3 main.py convert_picd_instrument_data inst_llowfs_v6_tst_2nm_rnd_hdf 2 24 \
         --fits-data-tags inst_llowfs_v6_tst_2nm_rnd --take-every-n-rows 2 1
     python3 main.py convert_picd_instrument_data inst_llowfs_v6_tst_2nm_rnd_bf_hdf 2 24 \
-        --fits-data-tags inst_llowfs_v6_tst_2nm_rnd_bf --base-field-data 0 --n-base-field-rows 350
+        --fits-data-tags inst_llowfs_v6_tst_2nm_rnd_bf --base-field-data 0
 
     # ---- Fixed [-50, 50] nm Testing - 483 Rows ----
     python3 main.py convert_picd_instrument_data inst_llowfs_v6_tst_50nm_fix_hdf 2 24 \
         --fits-data-tags inst_llowfs_v6_tst_50nm_fix --take-every-n-rows 2 1
     python3 main.py convert_picd_instrument_data inst_llowfs_v6_tst_50nm_fix_bf_hdf 2 24 \
-        --fits-data-tags inst_llowfs_v6_tst_50nm_fix_bf --base-field-data 0 --n-base-field-rows 350
+        --fits-data-tags inst_llowfs_v6_tst_50nm_fix_bf --base-field-data 0
 
     # ---- Fixed [-1, 1] nm Testing - 483 Rows ----
     python3 main.py convert_picd_instrument_data inst_llowfs_v6_tst_1nm_fix_hdf 2 24 \
         --fits-data-tags inst_llowfs_v6_tst_1nm_fix --take-every-n-rows 2 1
     python3 main.py convert_picd_instrument_data inst_llowfs_v6_tst_1nm_fix_bf_hdf 2 24 \
-        --fits-data-tags inst_llowfs_v6_tst_1nm_fix_bf --base-field-data 0 --n-base-field-rows 350
+        --fits-data-tags inst_llowfs_v6_tst_1nm_fix_bf --base-field-data 0
 
 SEC5 - PREPROCESS DATAFILES ++++++++++++++++++++++++++++++++++++++++++++++++++++
 The newly converted HDF datafiles should be preprocessed.
