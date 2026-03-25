@@ -291,6 +291,18 @@ Both HODMs:
         --fits-table-names dm1 dm2 sci_i sci_r \
         --save-difference-only 5 4 1 dm1 dm2 \
         --rows-per-chunk 10000
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_full_gain_24k_1iter_ch3 \
+        /home/michael-jones/Documents/piccsim_sim_data/dh_both_hodms_efc_full_gain_24k_ch3 \
+        --fits-file-globs 'dm1_*' 'dm2_*' 'sci_*i' 'sci*r' \
+        --fits-table-names dm1 dm2 sci_i sci_r \
+        --save-difference-only 5 4 1 dm1 dm2 \
+        --rows-per-chunk 10000
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_full_gain_24k_1iter_ch4 \
+        /home/michael-jones/Documents/piccsim_sim_data/dh_both_hodms_efc_full_gain_24k_ch4 \
+        --fits-file-globs 'dm1_*' 'dm2_*' 'sci_*i' 'sci*r' \
+        --fits-table-names dm1 dm2 sci_i sci_r \
+        --save-difference-only 5 4 1 dm1 dm2 \
+        --rows-per-chunk 10000
 
     # 12 iterations of broadband EFC (gain -1) using the RM; saves first iteration with correct DM differentials
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_broadband_full_gain_2640_1iter_ch1 \
