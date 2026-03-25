@@ -64,6 +64,11 @@ def convert_picd_instrument_data_parser(subparsers):
         help='only average over the last n rows from the base field data',
     )
     subparser.add_argument(
+        '--use-only-first-base-field-row',
+        action='store_true',
+        help='use only the first row of the base field data',
+    )
+    subparser.add_argument(
         '--slice-row-ranges',
         type=int,
         nargs='*',
@@ -152,6 +157,9 @@ def convert_picd_instrument_data(cli_args):
                     if n_base_field_rows:
                         print(f'Only using the last {n_base_field_rows} rows')
                         rows_to_average = rows_to_average[-n_base_field_rows:]
+                    if cli_args.get('use_only_first_base_field_row'):
+                        print('Only using the first row')
+                        rows_to_average = rows_to_average[0][None, :, :]
                     image_data = np.average(
                         rows_to_average,
                         axis=0,
