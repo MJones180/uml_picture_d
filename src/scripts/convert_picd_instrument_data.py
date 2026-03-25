@@ -153,13 +153,16 @@ def convert_picd_instrument_data(cli_args):
                     else:
                         # This is the preferred method if there are extra rows
                         rows_to_average = hdul['IMAGE'].data[-row_count:]
+                    print('Shape: ', rows_to_average.shape)
                     n_base_field_rows = cli_args.get('n_base_field_rows')
                     if n_base_field_rows:
                         print(f'Only using the last {n_base_field_rows} rows')
                         rows_to_average = rows_to_average[-n_base_field_rows:]
+                        print('Updated Shape: ', rows_to_average.shape)
                     if cli_args.get('use_only_first_base_field_row'):
                         print('Only using the first row')
                         rows_to_average = rows_to_average[0][None, :, :]
+                        print('Updated Shape: ', rows_to_average.shape)
                     image_data = np.average(
                         rows_to_average,
                         axis=0,
