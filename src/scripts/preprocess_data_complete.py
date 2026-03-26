@@ -21,6 +21,7 @@ from utils.constants import (BASE_INT_FIELD, CAMERA_SAMPLING, DATA_F,
                              NORM_RANGE_ONES_INPUT, NORM_RANGE_ONES_OUTPUT,
                              OUTPUTS, OUTPUT_MIN_X, OUTPUT_MAX_MIN_DIFF,
                              PROC_DATA_P, ZERNIKE_TERMS)
+from utils.group_data_from_list import group_data_from_list
 from utils.hdf_read_and_write import HDFWriteModule
 from utils.load_raw_sim_data import load_raw_sim_data_chunks
 from utils.norm import find_min_max_norm, min_max_norm, sum_to_one
@@ -116,6 +117,12 @@ def preprocess_data_complete_parser(subparsers):
               'should specify <base field index> <starting row> <ending row>'),
     )
     subparser.add_argument(
+        '--use-field-diff-corresponding',
+        action='store_true',
+        help=('every row of data has its own corresponding base field; there '
+              'must be an equal number of base field and input data rows'),
+    )
+    subparser.add_argument(
         '--additional-raw-data-tags',
         nargs='*',
         help='additional raw simulated data to preprocess and merge together',
@@ -126,6 +133,12 @@ def preprocess_data_complete_parser(subparsers):
         help=('additional raw simulated data to preprocess and merge '
               'together, however, this data will only go in the '
               'training dataset'),
+    )
+    subparser.add_argument(
+        '--set-slices-train-only',
+        nargs='*',
+        help=('will set rows of data, specified by indices, to be train only; '
+              'each slice should have two arguments: idx low, idx high'),
     )
     subparser.add_argument(
         '--outputs-in-surface-error',
@@ -216,6 +229,17 @@ def preprocess_data_complete(cli_args):
 
     # ==========================================================================
 
+    set_slices_train_only = cli_args.get('set_slices_train_only')
+    if set_slices_train_only is not None:
+        step_ri('Setting rows to be train only based on indices')
+        if train_only_mask is None:
+            train_only_mask = np.zeros(input_data.shape[0]).astype(bool)
+        for idx_l, idx_h in group_data_from_list(set_slices_train_only, 2):
+            print(f'Train only slice: {idx_l} - {idx_h}')
+            train_only_mask[idx_l:idx_h] = 1
+
+    # ==========================================================================
+
     camera_for_wfs = cli_args.get('camera_for_wfs')
     if camera_for_wfs:
         step_ri('Using a camera for the wfs')
@@ -302,14 +326,8 @@ def preprocess_data_complete(cli_args):
         # All rows may not use the same base field
         use_field_diff_mapping = cli_args.get('use_field_diff_mapping')
         if use_field_diff_mapping:
-            elements = len(use_field_diff_mapping)
-            if elements % 3 != 0:
-                terminate_with_message('Incorrect number of mapping arguments')
-            for arg_idx in range(elements // 3):
-                starting_arg = arg_idx * 3
-                base_field_idx = use_field_diff_mapping[starting_arg]
-                idx_low = use_field_diff_mapping[starting_arg + 1]
-                idx_high = use_field_diff_mapping[starting_arg + 2]
+            for base_field_idx, idx_low, idx_high in group_data_from_list(
+                    use_field_diff_mapping, 3):
                 print(f'Using base field at index {base_field_idx} on '
                       f'rows {idx_low} - {idx_high}')
                 input_data[idx_low:idx_high] -= base_field[base_field_idx]
@@ -318,6 +336,11 @@ def preprocess_data_complete(cli_args):
             base_field = np.sum(base_field[base_field_idxs], axis=0)
             base_field /= len(base_field_idxs)
             base_field = base_field[None]
+        elif cli_args['use_field_diff_corresponding']:
+            print('Every row of data has its own base field')
+            print(f'Input data shape: {input_data.shape}')
+            print(f'Base field shape: {base_field.shape}')
+            input_data -= base_field
         else:
             step_ri('Taking the difference between the inputs and base field')
             # Diff between the base field and each of the individual fields
@@ -331,7 +354,6 @@ def preprocess_data_complete(cli_args):
     output_data = output_data[random_shuffle_idxs]
     if train_only_mask is not None:
         train_only_mask = train_only_mask[random_shuffle_idxs]
-
         step_ri('Splitting apart the train only data')
         input_data_train_only = input_data[train_only_mask]
         output_data_train_only = output_data[train_only_mask]
