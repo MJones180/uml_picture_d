@@ -10,6 +10,7 @@ import numpy as np
 from utils.cli_args import save_cli_args
 from utils.constants import (CAMERA_INTENSITY, CAMERA_SAMPLING, DATA_F,
                              RAW_DATA_P, ZERNIKE_COEFFS, ZERNIKE_TERMS)
+from utils.group_data_from_list import group_data_from_list
 from utils.hdf_read_and_write import HDFWriteModule
 from utils.path import make_dir, path_exists
 from utils.printing_and_logging import (dec_print_indent, inc_print_indent,
@@ -182,13 +183,10 @@ def convert_picd_instrument_data(cli_args):
                     slice_row_ranges = cli_args.get('slice_row_ranges')
                     if slice_row_ranges:
                         step('Slicing out specific rows')
-                        if len(slice_row_ranges) % 2 == 1:
-                            terminate_with_message('Invalid row slice params')
                         # A mask of the rows to keep
                         row_mask = np.full(image_data.shape[0], False)
-                        for range_idx in range(len(slice_row_ranges) // 2):
-                            idx_low = slice_row_ranges[range_idx * 2]
-                            idx_high = slice_row_ranges[range_idx * 2 + 1]
+                        for idx_low, idx_high in group_data_from_list(
+                                slice_row_ranges, 2):
                             print(f'Index low, high: {idx_low}, {idx_high}')
                             row_mask[idx_low:idx_high] = True
                         dec_print_indent()
