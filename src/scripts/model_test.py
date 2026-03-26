@@ -66,6 +66,11 @@ def model_test_parser(subparsers):
               '`--inputs-need-norm` and `--inputs-need-diff` args are set'),
     )
     subparser.add_argument(
+        '--change-base-field-corresponding',
+        help=('raw datafile containing the base fields to use; '
+              'every row of data has its own corresponding base field'),
+    )
+    subparser.add_argument(
         '--outputs-no-denorm',
         action='store_true',
         help='the outputs do not need to be denormalized',
@@ -136,30 +141,44 @@ def model_test(cli_args):
 
     if cli_args.get('inputs_need_norm'):
         step_ri('Preprocessing the inputs')
-        change_base_field = cli_args.get('change_base_field')
-        if change_base_field:
+        inputs_need_diff = cli_args.get('inputs_need_diff')
+
+        def _norm_inputs(input_chunk, updated_base_field=None):
+            if updated_base_field is not None:
+                model.change_base_field(updated_base_field)
+            return model.preprocess_data(
+                input_chunk,
+                sub_basefield=inputs_need_diff,
+                sum_dims=(1, 2, 3),
+            )
+
+        if cli_args.get('change_base_field'):
             print('Changing the base field')
-            base_field_tag, *base_field_args = change_base_field
-            base_field, _, _, _ = load_raw_sim_data_chunks(base_field_tag)
+            bf_tag, *base_field_args = cli_args.get('change_base_field')
+            base_fields, _, _, _ = load_raw_sim_data_chunks(bf_tag)
             if model.inputs_sum_to_one:
                 print('Making pixel values in the base field(s) sum to 1')
-                base_field = model.sum_inputs_to_one(base_field, (1, 2))
+                base_fields = model.sum_inputs_to_one(base_fields, (1, 2))
             for base_field_idx, idx_low, idx_high in group_data_from_list(
                     base_field_args, 3):
                 print(f'Using base field at index {base_field_idx} on '
                       f'rows {idx_low} - {idx_high}')
-                model.change_base_field(base_field[base_field_idx])
-                inputs[idx_low:idx_high] = model.preprocess_data(
+                inputs[idx_low:idx_high] = _norm_inputs(
                     inputs[idx_low:idx_high],
-                    sub_basefield=cli_args.get('inputs_need_diff'),
-                    sum_dims=(1, 2, 3),
+                    base_fields[base_field_idx],
                 )
+        elif cli_args.get('change_base_field_corresponding'):
+            print('Changing the base field')
+            base_fields, _, _, _ = load_raw_sim_data_chunks(
+                cli_args.get('change_base_field_corresponding'))
+            if model.inputs_sum_to_one:
+                print('Making pixel values in the base field(s) sum to 1')
+                base_fields = model.sum_inputs_to_one(base_fields, (1, 2))
+            print('Each row has its own base field')
+            for idx in range(inputs.shape[0]):
+                inputs[idx] = _norm_inputs(inputs[idx], base_fields[idx])
         else:
-            inputs = model.preprocess_data(
-                inputs,
-                sub_basefield=cli_args.get('inputs_need_diff'),
-                sum_dims=(1, 2, 3),
-            )
+            inputs = _norm_inputs(inputs)
 
     step_ri('Calling the model and obtaining its outputs')
     outputs_model = model(inputs)
