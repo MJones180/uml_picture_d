@@ -137,6 +137,7 @@ def preprocess_data_complete_parser(subparsers):
     subparser.add_argument(
         '--set-slices-train-only',
         nargs='*',
+        type=int,
         help=('will set rows of data, specified by indices, to be train only; '
               'each slice should have two arguments: idx low, idx high'),
     )
@@ -338,6 +339,7 @@ def preprocess_data_complete(cli_args):
             base_field = base_field[None]
         elif cli_args['use_field_diff_corresponding']:
             print('Every row of data has its own base field')
+            base_field = base_field[:, None, :, :]
             print(f'Input data shape: {input_data.shape}')
             print(f'Base field shape: {base_field.shape}')
             input_data -= base_field
