@@ -341,6 +341,9 @@ def preprocess_data_complete(cli_args):
             print(f'Input data shape: {input_data.shape}')
             print(f'Base field shape: {base_field.shape}')
             input_data -= base_field
+            print('Creating an averaged base field that will be saved')
+            base_field = np.sum(base_field, axis=0)
+            base_field /= input_data.shape[0]
         else:
             step_ri('Taking the difference between the inputs and base field')
             # Diff between the base field and each of the individual fields

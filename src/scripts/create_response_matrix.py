@@ -22,6 +22,7 @@ import numpy as np
 from utils.constants import (BASE_INT_FIELD, INPUTS_SUM_TO_ONE,
                              PERTURBATION_AMOUNTS, RESPONSE_MATRICES_P,
                              RESPONSE_MATRIX_INV, ZERNIKE_TERMS)
+from utils.group_data_from_list import group_data_from_list
 from utils.hdf_read_and_write import HDFWriteModule
 from utils.load_raw_sim_data import load_raw_sim_data_chunks
 from utils.norm import sum_to_one
@@ -68,6 +69,11 @@ def create_response_matrix_parser(subparsers):
         help=('map specific base fields to different portions of the data; '
               'the arguments can be repeated as many times as necessary and '
               'should specify <base field index> <starting row> <ending row>'),
+    )
+    subparser.add_argument(
+        '--base-field-mapping-corresponding',
+        action='store_true',
+        help='every row of data has its own corresponding base field',
     )
     subparser.add_argument(
         '--outputs-in-surface-error',
@@ -165,14 +171,8 @@ def create_response_matrix(cli_args):
         # All the rows may not use the same base field
         base_field_mapping = cli_args.get('base_field_mapping')
         if base_field_mapping:
-            elements = len(base_field_mapping)
-            if elements % 3 != 0:
-                terminate_with_message('Incorrect number of mapping arguments')
-            for arg_idx in range(elements // 3):
-                starting_arg = arg_idx * 3
-                base_field_idx = base_field_mapping[starting_arg]
-                idx_low = base_field_mapping[starting_arg + 1]
-                idx_high = base_field_mapping[starting_arg + 2]
+            for base_field_idx, idx_low, idx_high in group_data_from_list(
+                    base_field_mapping, 3):
                 print(f'Using base field at index {base_field_idx} on '
                       f'rows {idx_low} - {idx_high}')
                 differential_fields[:, idx_low:idx_high] -= (
@@ -182,6 +182,14 @@ def create_response_matrix(cli_args):
             base_field = np.sum(base_field[:, base_field_idxs], axis=1)
             base_field /= len(base_field_idxs)
             base_field = base_field[None]
+        elif cli_args['base_field_mapping_corresponding']:
+            print('Every row of data has its own base field')
+            print(f'Differential data shape: {differential_fields.shape}')
+            print(f'Base field shape: {base_field.shape}')
+            differential_fields -= base_field
+            print('Creating an averaged base field that will be saved')
+            base_field = np.sum(base_field, axis=1)
+            base_field /= differential_fields.shape[1]
         else:
             differential_fields -= base_field
     else:
