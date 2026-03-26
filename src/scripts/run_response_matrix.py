@@ -95,6 +95,11 @@ def run_response_matrix_parser(subparsers):
               'that the `--inputs-are-diff` arg is not set'),
     )
     subparser.add_argument(
+        '--change-base-field-corresponding',
+        help=('raw datafile containing the base fields to use; '
+              'every row of data has its own corresponding base field'),
+    )
+    subparser.add_argument(
         '--print-outputs',
         action='store_true',
         help='print out the truth and response matrix outputs',
@@ -175,16 +180,15 @@ def run_response_matrix(cli_args):
         inputs_reshaped = sum_to_one(inputs_reshaped, (1))
 
     step_ri('Running the response matrix')
-    change_base_field = cli_args.get('change_base_field')
     if dh_rm:
         print('Passing in the electric field')
         outputs_resp_mat = response_matrix_obj(ef=inputs_reshaped)
     elif cli_args.get('inputs_are_diff'):
         print('Passing in the difference of the intensity field')
         outputs_resp_mat = response_matrix_obj(diff_int_field=inputs_reshaped)
-    elif change_base_field:
+    elif cli_args.get('change_base_field'):
         print('Using a different base field')
-        base_field_tag, *base_field_args = change_base_field
+        base_field_tag, *base_field_args = cli_args.get('change_base_field')
         base_field, _, _, _ = load_raw_sim_data_chunks(base_field_tag)
         base_field = base_field.reshape(base_field.shape[0], -1)
         if wfs_need_sum_to_one:
@@ -197,6 +201,17 @@ def run_response_matrix(cli_args):
             print(f'Using base field at index {base_field_idx} on '
                   f'rows {idx_low} - {idx_high}')
             inputs_reshaped[idx_low:idx_high] -= base_field[base_field_idx]
+        outputs_resp_mat = response_matrix_obj(diff_int_field=inputs_reshaped)
+    elif cli_args.get('change_base_field_corresponding'):
+        print('Changing the base field')
+        base_fields, _, _, _ = load_raw_sim_data_chunks(
+            cli_args.get('change_base_field_corresponding'))
+        base_field = base_field.reshape(base_field.shape[0], -1)
+        if wfs_need_sum_to_one:
+            print('Making pixel values in the base field(s) sum to 1')
+            base_field = sum_to_one(base_field, (1))
+        print('Each row has its own base field')
+        inputs_reshaped -= base_field
         outputs_resp_mat = response_matrix_obj(diff_int_field=inputs_reshaped)
     else:
         print('Passing in the total intensity field')
