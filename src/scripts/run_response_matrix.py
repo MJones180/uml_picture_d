@@ -204,7 +204,7 @@ def run_response_matrix(cli_args):
         outputs_resp_mat = response_matrix_obj(diff_int_field=inputs_reshaped)
     elif cli_args.get('change_base_field_corresponding'):
         print('Changing the base field')
-        base_fields, _, _, _ = load_raw_sim_data_chunks(
+        base_field, _, _, _ = load_raw_sim_data_chunks(
             cli_args.get('change_base_field_corresponding'))
         base_field = base_field.reshape(base_field.shape[0], -1)
         if wfs_need_sum_to_one:
