@@ -189,60 +189,104 @@ is duplicated across datasets to make preprocessing easier.
     # ---- RM ----
     mkdir inst_llowfs_v7_rm
     # f_pm_40_coeffs
-    mv lyt_alp_train_lac_20260324_175028_caldata.fits       inst_llowfs_v7_rm/0_data.fits
+    mv lyt_alp_train_lac_20260326_155834_caldata.fits       inst_llowfs_v7_rm/0_data.fits
 
     # ---- Capture Data ----
     mkdir inst_llowfs_v7_cap
     # r_10_2_1_coeffs_100k
-    cp lyt_alp_train_lac_20260324_175919_caldata.fits       inst_llowfs_v7_cap/0_data.fits
+    cp lyt_alp_train_lac_20260326_162546_caldata.fits       inst_llowfs_v7_cap/0_data.fits
+    cp lyt_alp_train_lac_20260326_163011_caldata.fits       inst_llowfs_v7_cap/1_data.fits
+    cp lyt_alp_train_lac_20260326_163435_caldata.fits       inst_llowfs_v7_cap/2_data.fits
+    cp lyt_alp_train_lac_20260326_163859_caldata.fits       inst_llowfs_v7_cap/3_data.fits
     # r_500_20_10_coeffs_100k
-    mv lyt_alp_train_lac_20260324_192925_caldata.fits       inst_llowfs_v7_cap/1_data.fits
+    mv lyt_alp_train_lac_20260326_194304_caldata.fits       inst_llowfs_v7_cap/4_data.fits
+    mv lyt_alp_train_lac_20260326_194728_caldata.fits       inst_llowfs_v7_cap/5_data.fits
+    mv lyt_alp_train_lac_20260326_195152_caldata.fits       inst_llowfs_v7_cap/6_data.fits
+    mv lyt_alp_train_lac_20260326_195617_caldata.fits       inst_llowfs_v7_cap/7_data.fits
     # r_50_10_5_coeffs_100k
-    mv lyt_alp_train_lac_20260324_193759_caldata.fits       inst_llowfs_v7_cap/2_data.fits
+    mv lyt_alp_train_lac_20260326_200041_caldata.fits       inst_llowfs_v7_cap/8_data.fits
+    mv lyt_alp_train_lac_20260326_200505_caldata.fits       inst_llowfs_v7_cap/9_data.fits
+    mv lyt_alp_train_lac_20260326_200929_caldata.fits       inst_llowfs_v7_cap/10_data.fits
+    mv lyt_alp_train_lac_20260326_201353_caldata.fits       inst_llowfs_v7_cap/11_data.fits
     # r_15_5_2_coeffs_100k
-    mv lyt_alp_train_lac_20260324_185044_caldata.fits       inst_llowfs_v7_cap/3_data.fits
+    mv lyt_alp_train_lac_20260326_180909_caldata.fits       inst_llowfs_v7_cap/12_data.fits
+    mv lyt_alp_train_lac_20260326_181333_caldata.fits       inst_llowfs_v7_cap/13_data.fits
+    mv lyt_alp_train_lac_20260326_181758_caldata.fits       inst_llowfs_v7_cap/14_data.fits
+    mv lyt_alp_train_lac_20260326_182222_caldata.fits       inst_llowfs_v7_cap/15_data.fits
     # r_10_coeffs_100k
-    mv lyt_alp_train_lac_20260324_180754_caldata.fits       inst_llowfs_v7_cap/4_data.fits
+    mv lyt_alp_train_lac_20260326_164323_caldata.fits       inst_llowfs_v7_cap/16_data.fits
+    mv lyt_alp_train_lac_20260326_164747_caldata.fits       inst_llowfs_v7_cap/17_data.fits
+    mv lyt_alp_train_lac_20260326_165212_caldata.fits       inst_llowfs_v7_cap/18_data.fits
+    mv lyt_alp_train_lac_20260326_165636_caldata.fits       inst_llowfs_v7_cap/19_data.fits
     # f_50_2000_coeffs
-    mv lyt_alp_train_lac_20260324_174150_caldata.fits       inst_llowfs_v7_cap/5_data.fits
+    mv lyt_alp_train_lac_20260326_155008_caldata.fits       inst_llowfs_v7_cap/20_data.fits
+    mv lyt_alp_train_lac_20260326_155432_caldata.fits       inst_llowfs_v7_cap/21_data.fits
 
     # ---- Stabilization Data ----
     mkdir inst_llowfs_v7_sta
     # r_10_2_1_coeffs_100k
-    mv lyt_alp_train_lac_20260324_175919_caldata.fits       inst_llowfs_v7_sta/0_data.fits
+    mv lyt_alp_train_lac_20260326_162546_caldata.fits       inst_llowfs_v7_sta/0_data.fits
+    mv lyt_alp_train_lac_20260326_163011_caldata.fits       inst_llowfs_v7_sta/1_data.fits
+    mv lyt_alp_train_lac_20260326_163435_caldata.fits       inst_llowfs_v7_sta/2_data.fits
+    mv lyt_alp_train_lac_20260326_163859_caldata.fits       inst_llowfs_v7_sta/3_data.fits
     # r_25_1_half_coeffs_100k
-    mv lyt_alp_train_lac_20260324_190752_caldata.fits       inst_llowfs_v7_sta/1_data.fits
+    mv lyt_alp_train_lac_20260326_184423_caldata.fits       inst_llowfs_v7_sta/4_data.fits
+    mv lyt_alp_train_lac_20260326_184847_caldata.fits       inst_llowfs_v7_sta/5_data.fits
+    mv lyt_alp_train_lac_20260326_190056_caldata.fits       inst_llowfs_v7_sta/6_data.fits
+    mv lyt_alp_train_lac_20260326_190520_caldata.fits       inst_llowfs_v7_sta/7_data.fits
     # r_15_2_1_coeffs_100k
-    mv lyt_alp_train_lac_20260324_183337_caldata.fits       inst_llowfs_v7_sta/2_data.fits
+    mv lyt_alp_train_lac_20260326_174353_caldata.fits       inst_llowfs_v7_sta/8_data.fits
+    mv lyt_alp_train_lac_20260326_174817_caldata.fits       inst_llowfs_v7_sta/9_data.fits
+    mv lyt_alp_train_lac_20260326_175242_caldata.fits       inst_llowfs_v7_sta/10_data.fits
+    mv lyt_alp_train_lac_20260326_175706_caldata.fits       inst_llowfs_v7_sta/11_data.fits
     # r_15_1_half_coeffs_100k
-    mv lyt_alp_train_lac_20260324_182502_caldata.fits       inst_llowfs_v7_sta/3_data.fits
+    mv lyt_alp_train_lac_20260326_172616_caldata.fits       inst_llowfs_v7_sta/12_data.fits
+    mv lyt_alp_train_lac_20260326_173040_caldata.fits       inst_llowfs_v7_sta/13_data.fits
+    mv lyt_alp_train_lac_20260326_173505_caldata.fits       inst_llowfs_v7_sta/14_data.fits
+    mv lyt_alp_train_lac_20260326_173929_caldata.fits       inst_llowfs_v7_sta/15_data.fits
     # r_10_1_half_coeffs_100k
-    mv lyt_alp_train_lac_20260324_175045_caldata.fits       inst_llowfs_v7_sta/4_data.fits
+    mv lyt_alp_train_lac_20260326_155851_caldata.fits       inst_llowfs_v7_sta/16_data.fits
+    mv lyt_alp_train_lac_20260326_160316_caldata.fits       inst_llowfs_v7_sta/17_data.fits
+    mv lyt_alp_train_lac_20260326_160740_caldata.fits       inst_llowfs_v7_sta/18_data.fits
+    mv lyt_alp_train_lac_20260326_161204_caldata.fits       inst_llowfs_v7_sta/19_data.fits
     # r_10_half_quarter_coeffs_100k
-    mv lyt_alp_train_lac_20260324_181628_caldata.fits       inst_llowfs_v7_sta/5_data.fits
+    mv lyt_alp_train_lac_20260326_170100_caldata.fits       inst_llowfs_v7_sta/20_data.fits
+    mv lyt_alp_train_lac_20260326_170523_caldata.fits       inst_llowfs_v7_sta/21_data.fits
+    mv lyt_alp_train_lac_20260326_171728_caldata.fits       inst_llowfs_v7_sta/22_data.fits
+    mv lyt_alp_train_lac_20260326_172152_caldata.fits       inst_llowfs_v7_sta/23_data.fits
     # r_half_quarter_fifth_coeffs_100k
-    mv lyt_alp_train_lac_20260324_194634_caldata.fits       inst_llowfs_v7_sta/6_data.fits
+    mv lyt_alp_train_lac_20260326_202446_caldata.fits       inst_llowfs_v7_sta/24_data.fits
+    mv lyt_alp_train_lac_20260326_202910_caldata.fits       inst_llowfs_v7_sta/25_data.fits
+    mv lyt_alp_train_lac_20260326_203334_caldata.fits       inst_llowfs_v7_sta/26_data.fits
+    mv lyt_alp_train_lac_20260326_203758_caldata.fits       inst_llowfs_v7_sta/27_data.fits
     # r_1_coeffs_100k
-    mv lyt_alp_train_lac_20260324_185918_caldata.fits       inst_llowfs_v7_sta/7_data.fits
+    mv lyt_alp_train_lac_20260326_182646_caldata.fits       inst_llowfs_v7_sta/28_data.fits
+    mv lyt_alp_train_lac_20260326_183110_caldata.fits       inst_llowfs_v7_sta/29_data.fits
+    mv lyt_alp_train_lac_20260326_183535_caldata.fits       inst_llowfs_v7_sta/30_data.fits
+    mv lyt_alp_train_lac_20260326_183959_caldata.fits       inst_llowfs_v7_sta/31_data.fits
     # r_2_coeffs_100k
-    mv lyt_alp_train_lac_20260324_191627_caldata.fits       inst_llowfs_v7_sta/8_data.fits
+    mv lyt_alp_train_lac_20260326_190945_caldata.fits       inst_llowfs_v7_sta/32_data.fits
+    mv lyt_alp_train_lac_20260326_191409_caldata.fits       inst_llowfs_v7_sta/33_data.fits
+    mv lyt_alp_train_lac_20260326_191833_caldata.fits       inst_llowfs_v7_sta/34_data.fits
+    mv lyt_alp_train_lac_20260326_192257_caldata.fits       inst_llowfs_v7_sta/35_data.fits
     # f_1_301_coeffs
-    mv lyt_alp_train_lac_20260324_174101_caldata.fits       inst_llowfs_v7_sta/9_data.fits
+    mv lyt_alp_train_lac_20260326_154844_caldata.fits       inst_llowfs_v7_sta/36_data.fits
 
     # ---- Random 2nm Testing ----
     mkdir inst_llowfs_v7_tst_2nm_rnd
     # r_2_coeffs_50k
-    mv lyt_alp_train_lac_20260324_192501_caldata.fits       inst_llowfs_v7_tst_2nm_rnd/0_data.fits
+    mv lyt_alp_train_lac_20260326_192721_caldata.fits       inst_llowfs_v7_tst_2nm_rnd/0_data.fits
+    mv lyt_alp_train_lac_20260326_193146_caldata.fits       inst_llowfs_v7_tst_2nm_rnd/1_data.fits
 
     # ---- Fixed [-50, 50] nm Testing ----
     mkdir inst_llowfs_v7_tst_50nm_fix
     # f_50_21_coeffs
-    mv lyt_alp_train_lac_20260324_175011_caldata.fits       inst_llowfs_v7_tst_50nm_fix/0_data.fits
+    mv lyt_alp_train_lac_20260326_155816_caldata.fits       inst_llowfs_v7_tst_50nm_fix/0_data.fits
 
     # ---- Fixed [-1, 1] nm Testing ----
     mkdir inst_llowfs_v7_tst_1nm_fix
     # f_1_21_coeffs
-    mv lyt_alp_train_lac_20260324_174044_caldata.fits       inst_llowfs_v7_tst_1nm_fix/0_data.fits
+    mv lyt_alp_train_lac_20260326_154825_caldata.fits       inst_llowfs_v7_tst_1nm_fix/0_data.fits
 
 SEC4 - FITS TO HDF FILES +++++++++++++++++++++++++++++++++++++++++++++++++++++++
 These FITS datafiles should be converted to HDF files. The format of the HDF
@@ -298,7 +342,6 @@ The newly converted HDF datafiles should be preprocessed.
         train_picd_data_v7_cap val_picd_data_v7_cap none 90 10 0 \
         --disable-norm-inputs --inputs-sum-to-one \
         --norm-outputs individually --norm-range-ones \
-        --additional-raw-data-tags-train-only inst_llowfs_v7_cap_to_hdf \
         --use-field-diff inst_llowfs_v7_cap_bf_hdf \
         --use-field-diff-corresponding \
         --set-slices-train-only 500000 546000 \
@@ -308,7 +351,6 @@ The newly converted HDF datafiles should be preprocessed.
         train_picd_data_v7_sta val_picd_data_v7_sta none 90 10 0 \
         --disable-norm-inputs --inputs-sum-to-one \
         --norm-outputs individually --norm-range-ones \
-        --additional-raw-data-tags-train-only inst_llowfs_v7_sta_to_hdf \
         --use-field-diff inst_llowfs_v7_sta_bf_hdf \
         --use-field-diff-corresponding \
         --set-slices-train-only 900000 906923 \
@@ -373,7 +415,7 @@ Create and test the RM model on the instrument data.
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     python3 main.py create_response_matrix \
-        --simulated-data-tag-average inst_llowfs_v7_rm_hdf --wfs-sum-to-one
+        --simulated-data-tag-average inst_llowfs_v7_rm_hdf --wfs-sum-to-one \
         --base-field-tag inst_llowfs_v7_rm_bf_hdf --base-field-mapping-corresponding
     python3 main.py run_response_matrix inst_llowfs_v7_rm_hdf \
         inst_llowfs_v7_tst_2nm_rnd_hdf_proc \
