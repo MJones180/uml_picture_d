@@ -139,10 +139,19 @@ def convert_picd_instrument_data(cli_args):
     outfile_idx = 0
     for fits_data_path in sorted(fits_data_paths):
         step_ri(f'Tag path: {fits_data_path}')
-        found_datafiles_paths = glob(f'{fits_data_path}/*_data.fits')
-        if len(found_datafiles_paths) == 0:
-            terminate_with_message('No datafiles found')
-        for datafile_path in sorted(found_datafiles_paths):
+        FILE_EXT = '_data.fits'
+        file_numbers = sorted([
+            # Grab the number associated with each datafile
+            int(path.split('/')[-1][:-len(FILE_EXT)])
+            # All datafiles should follow the format
+            for path in glob(f'{fits_data_path}/*{FILE_EXT}')
+        ])
+        # The path to each file; this ensures the order of files stays the same
+        found_datafiles_paths = [
+            f'{fits_data_path}/{file_idx}{FILE_EXT}'
+            for file_idx, _ in enumerate(file_numbers)
+        ]
+        for datafile_path in found_datafiles_paths:
             print(f'Input FITS datafile: {datafile_path}')
             inc_print_indent()
             with fits.open(datafile_path) as hdul:
