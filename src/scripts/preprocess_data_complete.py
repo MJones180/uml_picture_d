@@ -339,8 +339,11 @@ def preprocess_data_complete(cli_args):
             base_field = base_field[None]
         elif cli_args['use_field_diff_corresponding']:
             print('Every row of data has its own base field')
-            base_field = base_field[:, None, :, :]
             print(f'Input data shape: {input_data.shape}')
+            if no_aber_rows.any():
+                print('Removing unused base fields')
+                base_field = base_field[~no_aber_rows]
+            base_field = base_field[:, None, :, :]
             print(f'Base field shape: {base_field.shape}')
             input_data -= base_field
             print('Creating an averaged base field that will be saved')
