@@ -159,8 +159,10 @@ def model_test(cli_args):
             if model.inputs_sum_to_one:
                 print('Making pixel values in the base field(s) sum to 1')
                 base_fields = model.sum_inputs_to_one(base_fields, (1, 2))
-            for base_field_idx, idx_low, idx_high in group_data_from_list(
-                    base_field_args, 3):
+            for group_args in group_data_from_list(base_field_args, 3):
+                base_field_idx = int(group_args[0])
+                idx_low = int(group_args[1])
+                idx_high = int(group_args[2])
                 print(f'Using base field at index {base_field_idx} on '
                       f'rows {idx_low} - {idx_high}')
                 inputs[idx_low:idx_high] = _norm_inputs(
