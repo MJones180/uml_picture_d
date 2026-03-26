@@ -18,6 +18,7 @@ import numpy as np
 from utils.constants import (ANALYSIS_P, EXTRA_VARS_F, INPUT_MAX_MIN_DIFF,
                              INPUT_MIN_X, MAE, MSE, NORM_RANGE_ONES,
                              PROC_DATA_P, RESULTS_F, ZERNIKE_TERMS)
+from utils.group_data_from_list import group_data_from_list
 from utils.hdf_read_and_write import HDFWriteModule, read_hdf
 from utils.load_raw_sim_data import load_raw_sim_data_chunks
 from utils.norm import min_max_denorm, sum_to_one
@@ -189,14 +190,10 @@ def run_response_matrix(cli_args):
         if wfs_need_sum_to_one:
             print('Making pixel values in the base field(s) sum to 1')
             base_field = sum_to_one(base_field, (1))
-        elements = len(base_field_args)
-        if elements % 3 != 0:
-            terminate_with_message('Incorrect number of mapping arguments')
-        for arg_idx in range(elements // 3):
-            starting_arg = arg_idx * 3
-            base_field_idx = int(base_field_args[starting_arg])
-            idx_low = int(base_field_args[starting_arg + 1])
-            idx_high = int(base_field_args[starting_arg + 2])
+        for group_args in group_data_from_list(base_field_args, 3):
+            base_field_idx = int(group_args[0])
+            idx_low = int(group_args[1])
+            idx_high = int(group_args[2])
             print(f'Using base field at index {base_field_idx} on '
                   f'rows {idx_low} - {idx_high}')
             inputs_reshaped[idx_low:idx_high] -= base_field[base_field_idx]
