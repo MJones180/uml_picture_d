@@ -12,6 +12,7 @@ the `testing_ds` was simulated with the `sim_data` script using the
 import numpy as np
 from utils.constants import (ANALYSIS_P, EXTRA_VARS_F, MAE, MSE, PROC_DATA_P,
                              RESULTS_F, ZERNIKE_TERMS)
+from utils.group_data_from_list import group_data_from_list
 from utils.hdf_read_and_write import HDFWriteModule, read_hdf
 from utils.load_raw_sim_data import load_raw_sim_data_chunks
 from utils.model import Model
@@ -143,14 +144,8 @@ def model_test(cli_args):
             if model.inputs_sum_to_one:
                 print('Making pixel values in the base field(s) sum to 1')
                 base_field = model.sum_inputs_to_one(base_field, (1, 2))
-            elements = len(base_field_args)
-            if elements % 3 != 0:
-                terminate_with_message('Incorrect number of mapping arguments')
-            for arg_idx in range(elements // 3):
-                starting_arg = arg_idx * 3
-                base_field_idx = int(base_field_args[starting_arg])
-                idx_low = int(base_field_args[starting_arg + 1])
-                idx_high = int(base_field_args[starting_arg + 2])
+            for base_field_idx, idx_low, idx_high in group_data_from_list(
+                    base_field_args, 3):
                 print(f'Using base field at index {base_field_idx} on '
                       f'rows {idx_low} - {idx_high}')
                 model.change_base_field(base_field[base_field_idx])
