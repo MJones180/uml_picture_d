@@ -251,9 +251,12 @@ these datafiles, the duplicate rows are removed. The reference images are
 followed by the aberrated images in each group.
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    # ---- RM - 47 Rows ----
+    # ---- RM - 46 Rows ----
+    # Taking out the last row in the data which gives the base field
     python3 main.py convert_picd_instrument_data inst_llowfs_v7_rm_hdf 2 24 \
-        --fits-data-tags inst_llowfs_v7_rm --take-every-n-rows 2 1
+        --fits-data-tags inst_llowfs_v7_rm --take-every-n-rows 4 3 --slice-row-ranges 0 184
+    python3 main.py convert_picd_instrument_data inst_llowfs_v7_rm_bf_hdf 2 24 \
+        --fits-data-tags inst_llowfs_v7_rm --take-every-n-rows 4 1 --slice-row-ranges 0 184
 
     # ---- Capture Data - 546,000 Rows ----
     python3 main.py convert_picd_instrument_data inst_llowfs_v7_cap_hdf 2 24 \
@@ -371,15 +374,16 @@ Create and test the RM model on the instrument data.
 
     python3 main.py create_response_matrix \
         --simulated-data-tag-average inst_llowfs_v7_rm_hdf --wfs-sum-to-one
+        --base-field-tag inst_llowfs_v7_rm_bf_hdf --base-field-mapping-corresponding
     python3 main.py run_response_matrix inst_llowfs_v7_rm_hdf \
         inst_llowfs_v7_tst_2nm_rnd_hdf_proc \
         --scatter-plot 4 6 2 1e-7 15 --enable-paper-plots 0 --wfs-need-sum-to-one \
-        --change-base-field inst_llowfs_v7_tst_2nm_rnd_bf_hdf 0 0 50000
+        --change-base-field-corresponding inst_llowfs_v7_tst_2nm_rnd_bf_hdf
     python3 main.py run_response_matrix inst_llowfs_v7_rm_hdf \
         inst_llowfs_v7_tst_50nm_fix_hdf_proc \
         --zernike-plots --enable-paper-plots 0 --wfs-need-sum-to-one \
-        --change-base-field inst_llowfs_v7_tst_50nm_fix_bf_hdf 0 0 483
+        --change-base-field-corresponding inst_llowfs_v7_tst_50nm_fix_bf_hdf
     python3 main.py run_response_matrix inst_llowfs_v7_rm_hdf \
         inst_llowfs_v7_tst_1nm_fix_hdf_proc \
         --zernike-plots --enable-paper-plots 0 --wfs-need-sum-to-one \
-        --change-base-field inst_llowfs_v7_tst_1nm_fix_bf_hdf 0 0 483
+        --change-base-field-corresponding inst_llowfs_v7_tst_1nm_fix_bf_hdf
