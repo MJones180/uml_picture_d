@@ -151,6 +151,7 @@ def find_min_max_norm(
     ones_range=False,
     round_values=None,
     scale_values=None,
+    numerical_stability_constant=NORM_STABILITY_VALUE,
 ):
     """Find the max_min_diff and min_x and then normalize the data.
 
@@ -167,6 +168,8 @@ def find_min_max_norm(
         this argument.
     scale_values : float, optional
         Multiply the `max_min_diff` and `min_x` by a scaling factor.
+    numerical_stability_constant : float
+        A constant added to the denominator for numerical stability.
 
     Returns
     -----
@@ -200,5 +203,6 @@ def find_min_max_norm(
         max_min_diff *= scale_values
         print(f'Scaled min_x: {min_x}')
         print(f'Scaled max_min_diff: {max_min_diff}')
-    normalized = min_max_norm(data, max_min_diff, min_x, ones_range)
+    normalized = min_max_norm(data, max_min_diff, min_x, ones_range,
+                              numerical_stability_constant)
     return normalized, max_min_diff, min_x

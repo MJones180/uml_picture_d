@@ -422,15 +422,15 @@ def preprocess_data_complete(cli_args):
     else:
         print('Globally normalizing inputs of training data')
         train_inputs, max_min_diff, min_x = find_min_max_norm(
-            train_inputs, True, nro)
+            train_inputs, True, nro, numerical_stability_constant=0)
         # These will both be singular floats. In the future, if individual norm
         # is needed, then these two vars should be arrays instead of scalars.
         norm_values[INPUT_MIN_X] = min_x
         norm_values[INPUT_MAX_MIN_DIFF] = max_min_diff
         print('Normalizing inputs of validation/testing data based '
               'on training normalization values')
-        val_inputs = min_max_norm(val_inputs, max_min_diff, min_x, nro)
-        test_inputs = min_max_norm(test_inputs, max_min_diff, min_x, nro)
+        val_inputs = min_max_norm(val_inputs, max_min_diff, min_x, nro, 0)
+        test_inputs = min_max_norm(test_inputs, max_min_diff, min_x, nro, 0)
 
     # ==========================================================================
 
@@ -447,6 +447,7 @@ def preprocess_data_complete(cli_args):
             train_outputs,
             ones_range=nro,
             round_values=norm_outputs_round,
+            numerical_stability_constant=0,
         )
     elif norm_outputs == 'globally':
         print('Globally normalizing outputs of training data')
@@ -455,6 +456,7 @@ def preprocess_data_complete(cli_args):
             globally=True,
             ones_range=nro,
             round_values=norm_outputs_round,
+            numerical_stability_constant=0,
         )
         # For the output normalization, it is easier if there is a norm value
         # for every single element
@@ -468,7 +470,7 @@ def preprocess_data_complete(cli_args):
               'normalization values')
         norm_values[OUTPUT_MIN_X] = min_x
         norm_values[OUTPUT_MAX_MIN_DIFF] = max_min_diff
-        val_outputs = min_max_norm(val_outputs, max_min_diff, min_x, nro)
+        val_outputs = min_max_norm(val_outputs, max_min_diff, min_x, nro, 0)
 
     # ==========================================================================
 
