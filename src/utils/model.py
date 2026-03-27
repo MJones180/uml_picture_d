@@ -5,8 +5,8 @@ from utils.constants import (ARGS_F, BASE_INT_FIELD, CPU, EXTRA_VARS_F,
                              INPUT_MAX_MIN_DIFF, INPUT_MIN_X, INPUTS_ARCSINH,
                              INPUTS_LOG10, INPUTS_SUM_TO_ONE, NORM_RANGE_ONES,
                              NORM_RANGE_ONES_INPUT, NORM_RANGE_ONES_OUTPUT,
-                             OUTPUT_MAX_MIN_DIFF, OUTPUT_MIN_X,
-                             TRAINED_MODELS_P)
+                             NORM_STABILITY_VALUE, OUTPUT_MAX_MIN_DIFF,
+                             OUTPUT_MIN_X, TRAINED_MODELS_P)
 from utils.hdf_read_and_write import read_hdf
 from utils.json import json_load
 from utils.load_network import load_network
@@ -139,7 +139,13 @@ class Model():
     def change_base_field(self, base_field):
         self.base_field = base_field
 
-    def preprocess_data(self, input_data, sub_basefield=False, sum_dims=None):
+    def preprocess_data(
+        self,
+        input_data,
+        sub_basefield=False,
+        sum_dims=None,
+        norm_stability_constant=NORM_STABILITY_VALUE,
+    ):
         if self.inputs_archsinh:
             input_data = self.arcsinh_inputs(input_data)
         if self.inputs_log10:
@@ -149,7 +155,7 @@ class Model():
         if sub_basefield:
             input_data = self.subtract_basefield(input_data)
         if self.input_norm_done:
-            input_data = self.norm_data(input_data)
+            input_data = self.norm_data(input_data, norm_stability_constant)
         return input_data
 
     def arcsinh_inputs(self, input_data):
@@ -174,7 +180,11 @@ class Model():
             return max_min_diff[()], min_x[()]
         return max_min_diff[:], min_x[:]
 
-    def norm_data(self, input_data):
+    def norm_data(
+        self,
+        input_data,
+        norm_stability_constant=NORM_STABILITY_VALUE,
+    ):
         input_max_min_diff, input_min_x = self._grab_norm_values(
             INPUT_MAX_MIN_DIFF, INPUT_MIN_X)
         return min_max_norm(
@@ -182,10 +192,14 @@ class Model():
             input_max_min_diff,
             input_min_x,
             self.norm_range_ones_input,
-            numerical_stability_constant=0,
+            numerical_stability_constant=norm_stability_constant,
         )
 
-    def denorm_data(self, output_data):
+    def denorm_data(
+        self,
+        output_data,
+        norm_stability_constant=NORM_STABILITY_VALUE,
+    ):
         output_max_min_diff, output_min_x = self._grab_norm_values(
             OUTPUT_MAX_MIN_DIFF, OUTPUT_MIN_X)
         return min_max_denorm(
@@ -193,7 +207,7 @@ class Model():
             output_max_min_diff,
             output_min_x,
             self.norm_range_ones_output,
-            numerical_stability_constant=0,
+            numerical_stability_constant=norm_stability_constant,
         )
 
     def call_model(self, data):

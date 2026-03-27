@@ -111,6 +111,11 @@ OPTIMIZERS = {
 VVC_CHARGE = 6
 
 # ==============================================================================
+# Default numerical stability value for normalization
+
+NORM_STABILITY_VALUE = 1e-10
+
+# ==============================================================================
 # Keys that appear in optical train files
 
 OT_BEAM_RATIO = 'BEAM_RATIO'

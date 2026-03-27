@@ -1,4 +1,5 @@
 import numpy as np
+from utils.constants import NORM_STABILITY_VALUE
 
 
 def sum_to_one(data, dims=None):
@@ -76,7 +77,7 @@ def min_max_norm(
     max_min_diff,
     min_x,
     ones_range=False,
-    numerical_stability_constant=1e-10,
+    numerical_stability_constant=NORM_STABILITY_VALUE,
 ):
     """Min max normalize values given the max_min_diff and min_x.
 
@@ -113,7 +114,7 @@ def min_max_denorm(
     max_min_diff,
     min_x,
     ones_range=False,
-    numerical_stability_constant=1e-10,
+    numerical_stability_constant=NORM_STABILITY_VALUE,
 ):
     """Min max denormalize values given the max_min_diff and min_x.
 

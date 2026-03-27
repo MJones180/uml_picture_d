@@ -10,8 +10,9 @@ the `testing_ds` was simulated with the `sim_data` script using the
 """
 
 import numpy as np
-from utils.constants import (ANALYSIS_P, EXTRA_VARS_F, MAE, MSE, PROC_DATA_P,
-                             RESULTS_F, ZERNIKE_TERMS)
+from utils.constants import (ANALYSIS_P, EXTRA_VARS_F, MAE, MSE,
+                             NORM_STABILITY_VALUE, PROC_DATA_P, RESULTS_F,
+                             ZERNIKE_TERMS)
 from utils.group_data_from_list import group_data_from_list
 from utils.hdf_read_and_write import HDFWriteModule, read_hdf
 from utils.load_raw_sim_data import load_raw_sim_data_chunks
@@ -74,6 +75,12 @@ def model_test_parser(subparsers):
         '--outputs-no-denorm',
         action='store_true',
         help='the outputs do not need to be denormalized',
+    )
+    subparser.add_argument(
+        '--norm-stability-value',
+        type=float,
+        default=NORM_STABILITY_VALUE,
+        help='the stability constant to use for normalization',
     )
     subparser.add_argument(
         '--scatter-plot',
@@ -139,6 +146,9 @@ def model_test(cli_args):
     if zernike_terms is not None:
         print(f'Using zernike terms: {zernike_terms}')
 
+    norm_stability_value = cli_args.get('norm_stability_value')
+    step_ri(f'Norm stability value: {norm_stability_value}')
+
     if cli_args.get('inputs_need_norm'):
         step_ri('Preprocessing the inputs')
         inputs_need_diff = cli_args.get('inputs_need_diff')
@@ -150,6 +160,7 @@ def model_test(cli_args):
                 input_chunk,
                 sub_basefield=inputs_need_diff,
                 sum_dims=(1, 2, 3),
+                norm_stability_constant=norm_stability_value,
             )
 
         if cli_args.get('change_base_field'):
@@ -178,7 +189,8 @@ def model_test(cli_args):
                 base_fields = model.sum_inputs_to_one(base_fields, (1, 2))
             print('Each row has its own base field')
             for idx in range(inputs.shape[0]):
-                inputs[idx] = _norm_inputs(inputs[idx], base_fields[idx])
+                inputs[idx] = _norm_inputs(inputs[idx][:, None],
+                                           base_fields[idx])
         else:
             inputs = _norm_inputs(inputs)
 
@@ -187,7 +199,10 @@ def model_test(cli_args):
 
     if not cli_args.get('outputs_no_denorm'):
         step_ri('Denormalizing the outputs')
-        outputs_model = model.denorm_data(outputs_model)
+        outputs_model = model.denorm_data(
+            outputs_model,
+            norm_stability_constant=norm_stability_value,
+        )
     # Testing output data should already be denormalized
     outputs_truth = testing_dataset.get_outputs()
 
