@@ -1,3 +1,4 @@
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 from utils.constants import PLOT_STYLE_FILE
@@ -15,6 +16,8 @@ def plot_wavefront(
     plot_path,
     use_log=False,
     disable_plot_ticks=False,
+    cmap_name='Greys_r',
+    set_zero_to_black=False,
 ):
     # Load in the style file
     plt.style.use(PLOT_STYLE_FILE)
@@ -31,7 +34,11 @@ def plot_wavefront(
         data = np.nan_to_num(data, nan=vmin)
         plt.imshow(data, vmin=vmin, vmax=0, cmap=log_cmap)
     else:
-        plt.imshow(data, cmap='Greys_r')
+        cmap = mpl.colormaps.get_cmap(cmap_name).copy()
+        if set_zero_to_black:
+            cmap.set_bad(color='black')
+            data[data == 0] = np.nan
+        plt.imshow(data, cmap=cmap)
     plt.xlabel('X [mm]')
     plt.ylabel('Y [mm]')
     tick_count = 3

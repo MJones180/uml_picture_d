@@ -165,6 +165,8 @@ def analyze_basis_modes(cli_args):
             plot_title,
             mode_plot_path,
             disable_plot_ticks=True,
+            cmap_name='viridis',
+            set_zero_to_black=True,
         )
         print(f'{print_prefix}: {mode_plot_path}')
 
