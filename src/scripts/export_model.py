@@ -19,8 +19,8 @@ import onnxruntime
 import torch
 from utils.benchmark_nn import benchmark_nn
 from utils.constants import (BASE_INT_FIELD, INPUT_MAX_MIN_DIFF, INPUT_MIN_X,
-                             OUTPUT_MAX_MIN_DIFF, OUTPUT_MIN_X,
-                             TRAINED_MODELS_P)
+                             NORM_STABILITY_VALUE, OUTPUT_MAX_MIN_DIFF,
+                             OUTPUT_MIN_X, TRAINED_MODELS_P)
 from utils.model import Model
 from utils.norm import min_max_denorm
 from utils.path import make_dir
@@ -55,6 +55,12 @@ def export_model_parser(subparsers):
         '--no-save-txt-files',
         action='store_true',
         help='do not save any of the text files',
+    )
+    subparser.add_argument(
+        '--norm-stability-value',
+        type=float,
+        default=NORM_STABILITY_VALUE,
+        help='the stability constant to use for normalization',
     )
 
 
@@ -96,11 +102,17 @@ def export_model(cli_args):
         )
 
     def denorm_data(data):
+        max_min_diff = model_vars[OUTPUT_MAX_MIN_DIFF]
+        min_x = model_vars[OUTPUT_MIN_X]
+        if len(max_min_diff.shape) > 0:
+            max_min_diff = max_min_diff[:]
+            min_x = min_x[:]
         return min_max_denorm(
             data,
-            model_vars[OUTPUT_MAX_MIN_DIFF],
-            model_vars[OUTPUT_MIN_X],
+            max_min_diff,
+            min_x,
             model_obj.norm_range_ones_output,
+            numerical_stability_constant=cli_args.get('norm_stability_value'),
         )
 
     if not no_save_txt_files:
