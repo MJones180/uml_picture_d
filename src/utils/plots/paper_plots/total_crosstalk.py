@@ -25,7 +25,7 @@ LABEL_DECIMALS = 2
 # this value is determined by just looking at the model results;
 # for [-1, 1] nm and [-50, 50] nm, respectively
 Y_MAX = [0.5, 80]  # Simulation
-# Y_MAX = [10, 180]  # PICTURE-D
+# Y_MAX = [10, 200]  # PICTURE-D
 
 
 def paper_plot_total_crosstalk(
