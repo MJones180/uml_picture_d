@@ -25,7 +25,8 @@ TABLE OF CONTENTS:
     SEC4 - FITS TO HDF FILES
     SEC5 - PREPROCESS DATAFILES
     SEC6 - CNN TRAINING AND TESTING
-    SEC7 - RM CREATION AND TESTING
+    SEC7 - CNN EXPORTING
+    SEC8 - RM CREATION AND TESTING
 
 SEC1 - INPUT ABERRATION CSV FILE CREATION ++++++++++++++++++++++++++++++++++++++
 The CSV files containing the aberrations that will be run on the instrument.
@@ -371,7 +372,7 @@ Train, test, and export the CNN models created from the instrument data.
     # ---- Capture CNN Training ----
     python3 main_scnp.py model_train instrument_llowfs_capture_v7 \
         train_picd_data_v7_cap val_picd_data_v7_cap \
-        llowfs_cnn_4_no_dropout mae adamw 1e-3 400 --batch-size 512 \
+        llowfs_cnn_4_no_dropout mae adamw 3e-3 200 --batch-size 512 \
         --use-cosine-annealing-lr-scheduler 30 1e-6 5e-8 --clip-gradient-norm 10 \
         --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
 
@@ -392,7 +393,7 @@ Train, test, and export the CNN models created from the instrument data.
     # ---- Stabilization CNN Training ----
     python3 main_scnp.py model_train instrument_llowfs_stabilization_v7 \
         train_picd_data_v7_sta val_picd_data_v7_sta \
-        llowfs_cnn_4_no_dropout mae adamw 1e-3 400 --batch-size 512 \
+        llowfs_cnn_4_no_dropout mae adamw 3e-3 200 --batch-size 512 \
         --use-cosine-annealing-lr-scheduler 30 1e-6 5e-8 --clip-gradient-norm 10 \
         --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
 
@@ -410,7 +411,29 @@ Train, test, and export the CNN models created from the instrument data.
         --zernike-plots --enable-paper-plots 2 --inputs-need-norm --inputs-need-diff \
         --change-base-field-corresponding inst_llowfs_v7_tst_1nm_fix_bf_hdf --norm-stability-value 0
 
-SEC7 - RM CREATION AND TESTING +++++++++++++++++++++++++++++++++++++++++++++++++
+SEC7 - CNN EXPORTING +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Export the CNNs with ONNX so that they can be run on PICTURE-D.
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+    # Export the models so that they can be run in ONNX runtime
+    python3 main.py export_model instrument_llowfs_capture_v7 last val_picd_data_v7_cap
+    python3 main.py export_model instrument_llowfs_stabilization_v7 last val_picd_data_v7_sta
+
+    # The following commands, when run in the newly exported model directories,
+    # will prep the files to be run in the flight software
+    mv example_data/first_input_row_norm.txt example_data/input_line.txt
+    mv example_data/first_output_row_truth.txt example_data/output_line.txt
+    mv example_data/first_output_row_onnx.txt example_data/model_output_line.txt
+    rm example_data/first_output_row_norm_onnx.txt
+    rm example_data/first_output_row_norm_truth.txt
+    rm example_data/first_output_row_norm_ts.txt
+    rm example_data/first_output_row_ts.txt
+    rm model.pt
+    rm README.txt
+    # Keep only the last two lines of the normalization data file
+    tail -n 2 norm_data.txt > temp.txt && mv temp.txt norm_data.txt
+
+SEC8 - RM CREATION AND TESTING +++++++++++++++++++++++++++++++++++++++++++++++++
 Create and test the RM model on the instrument data.
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
