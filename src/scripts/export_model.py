@@ -181,6 +181,7 @@ def export_model(cli_args):
         # Name of the input and output array
         input_names=['input'],
         output_names=['output'],
+        external_data=False,
     )
     dec_print_indent()
 
