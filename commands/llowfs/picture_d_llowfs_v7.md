@@ -416,8 +416,10 @@ Export the CNNs with ONNX so that they can be run on PICTURE-D.
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     # Export the models so that they can be run in ONNX runtime
-    python3 main.py export_model instrument_llowfs_capture_v7 last val_picd_data_v7_cap
-    python3 main.py export_model instrument_llowfs_stabilization_v7 last val_picd_data_v7_sta
+    python3 main.py export_model instrument_llowfs_capture_v7 last \
+        val_picd_data_v7_cap --norm-stability-value 0
+    python3 main.py export_model instrument_llowfs_stabilization_v7 last \
+        val_picd_data_v7_sta --norm-stability-value 0
 
     # The following commands, when run in the newly exported model directories,
     # will prep the files to be run in the flight software
