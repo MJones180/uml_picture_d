@@ -279,7 +279,7 @@ def analyze_basis_modes(cli_args):
 
         if cli_args.get('reconstruct_data_plots'):
             step('Plotting the reconstruction')
-            base_filename = f'{datafile_tag}_row{row_idx}'
+            base_filename = f'{datafile_tag}_table_{table_name}_row{row_idx}'
             _plot_grid(
                 row_data,
                 f'{base_filename}_orig',
