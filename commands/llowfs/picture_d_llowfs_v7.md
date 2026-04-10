@@ -432,8 +432,6 @@ Export the CNNs with ONNX so that they can be run on PICTURE-D.
     rm example_data/first_output_row_ts.txt
     rm model.pt
     rm README.txt
-    # Keep only the last two lines of the normalization data file
-    tail -n 2 norm_data.txt > temp.txt && mv temp.txt norm_data.txt
 
 SEC8 - RM CREATION AND TESTING +++++++++++++++++++++++++++++++++++++++++++++++++
 Create and test the RM model on the instrument data.
