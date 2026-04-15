@@ -13,7 +13,7 @@ from glob import glob
 import numpy as np
 from utils.cli_args import save_cli_args
 from utils.constants import DARK_ZONE_MASK, DATA_F, RAW_DATA_P, ZERNIKE_TERMS
-from utils.hdf_read_and_write import HDFWriteModule
+from utils.hdf_read_and_write import HDFWriteModule, read_hdf
 from utils.path import make_dir
 from utils.printing_and_logging import dec_print_indent, step, step_ri, title
 from utils.terminate_with_message import terminate_with_message
@@ -31,7 +31,9 @@ def convert_piccsim_fits_data_parser(subparsers):
     )
     subparser.add_argument(
         'dir_path',
-        help='path to the directory containing the fits datafiles',
+        help=('path to the directory containing the FITS datafiles; can also'
+              'point to a folder containing a raw HDF dataset when used with '
+              'the `--load-from-existing-hdf-dataset` argument'),
     )
     subparser.add_argument(
         '--fits-file-globs',
@@ -48,7 +50,9 @@ def convert_piccsim_fits_data_parser(subparsers):
         nargs='+',
         help=('the name of the table each glob of files should receive in the '
               'output HDF file; the entries in this argument should '
-              'correspond to the values in the `--fits-file-globs` argument'),
+              'correspond to the values in the `--fits-file-globs` argument; '
+              'this argument also specifies the tables to manipulate when '
+              'using the `--load-from-existing-hdf-dataset` argument'),
     )
     subparser.add_argument(
         '--slice-row-ranges',
@@ -73,7 +77,8 @@ def convert_piccsim_fits_data_parser(subparsers):
     subparser.add_argument(
         '--add-dummy-tables',
         nargs='+',
-        help='tables to add with a dummy value of 0 to the output datafiles')
+        help='tables to add with a dummy value of 0 to the output datafiles',
+    )
     subparser.add_argument(
         '--add-zernikes',
         type=int,
@@ -97,6 +102,15 @@ def convert_piccsim_fits_data_parser(subparsers):
               '`--fits-table-names` argument; any arguments that augment the '
               'number of rows should be careful to not split up any groups; '
               'the reference row in each group will not be saved'),
+    )
+    subparser.add_argument(
+        '--load-from-existing-hdf-dataset',
+        action='store_true',
+        help=('load the data from an existing raw HDF dataset instead of from '
+              'FITS datafiles; this option is helpful when there is a large '
+              'dataset that would need to call this script multiple times '
+              'with different arguments -- it is also easier to back up a '
+              'few HDF files rather than thousands of FITS files'),
     )
 
 
@@ -122,38 +136,44 @@ def convert_piccsim_fits_data(cli_args):
         HDFWriteModule(outfile).create_and_write_hdf_simple(out_data)
         quit()
 
-    step_ri('Verifying file glob and name arrays')
-    file_globs = cli_args['fits_file_globs']
+    use_existing_hdf = cli_args['load_from_existing_hdf_dataset']
     table_names = cli_args['fits_table_names']
-    if file_globs is None or table_names is None:
-        terminate_with_message('The `--fits-file-globs` and '
-                               '`--fits-table-names` args must be passed, '
-                               'or `--sci-cam-mask-file` must be passed')
-    if len(file_globs) != len(table_names):
-        terminate_with_message('The `--fits-file-globs` and '
-                               '`--fits-table-names` must be the same length')
+    if use_existing_hdf:
+        step_ri('Working from an existing HDF dataset')
+        print(f'Path: {dir_path}')
+        print(f'Table names: {table_names}')
 
-    step_ri('Verifying each glob produces the same number of files')
-    dir_path = cli_args['dir_path']
+    if not use_existing_hdf:
+        step_ri('Verifying file glob and name arrays')
+        file_globs = cli_args['fits_file_globs']
+        if file_globs is None or table_names is None:
+            terminate_with_message('The `--fits-file-globs` and '
+                                   '`--fits-table-names` args must be passed, '
+                                   'or `--sci-cam-mask-file` must be passed')
+        if len(file_globs) != len(table_names):
+            terminate_with_message('The `--fits-file-globs` and '
+                                   '`--fits-table-names` must be same length')
 
-    def _make_glob(glob_str):
-        return sorted(glob(f'{dir_path}/{glob_str}.fits'))
+        step_ri('Verifying each glob produces the same number of files')
 
-    total_file_count = None
-    for file_glob in file_globs:
-        step(f'Finding files with the glob {file_glob}')
-        found_files = _make_glob(file_glob)
-        datafile_count = len(found_files)
-        print(f'A total of {datafile_count} found')
-        print(f'First file path: {found_files[0]}')
-        print(f'Last file path: {found_files[-1]}')
-        if total_file_count is None:
-            total_file_count = datafile_count
-        # The glob is producing a different number of found datafiles
-        elif total_file_count != datafile_count:
-            terminate_with_message(f'{file_glob} produces a different number '
-                                   'of found datafiles')
-        dec_print_indent()
+        def _make_glob(glob_str):
+            return sorted(glob(f'{dir_path}/{glob_str}.fits'))
+
+        total_file_count = None
+        for file_glob in file_globs:
+            step(f'Finding files with the glob {file_glob}')
+            found_files = _make_glob(file_glob)
+            datafile_count = len(found_files)
+            print(f'A total of {datafile_count} found')
+            print(f'First file path: {found_files[0]}')
+            print(f'Last file path: {found_files[-1]}')
+            if total_file_count is None:
+                total_file_count = datafile_count
+            # The glob is producing a different number of found datafiles
+            elif total_file_count != datafile_count:
+                terminate_with_message(f'{file_glob} produces a different '
+                                       'number of found datafiles')
+            dec_print_indent()
 
     row_slice_mask = None
     slice_row_ranges = cli_args.get('slice_row_ranges')
@@ -213,31 +233,38 @@ def convert_piccsim_fits_data(cli_args):
         print(f'Will work on the tables: {save_difference_tables}')
         save_differences = True
 
-    step_ri('Loading in glob files and writing out data')
+    step_ri('Loading in data and writing out preprocessed data')
     for chunk_idx in range(chunk_count):
         idx_low = chunk_idx * rows_per_chunk
         idx_high = np.min((idx_low + rows_per_chunk, total_file_count))
         step(f'On chunk {chunk_idx} [idx {idx_low} - {idx_high}]')
         tables = base_tables.copy()
-        for file_glob, table_name in zip(file_globs, table_names):
-            step(f'Glob {file_glob}')
-            found_datafiles = _make_glob(file_glob)
-            # print(found_datafiles)
-            if row_slice_mask is not None:
-                # Take out the sliced rows if specified
-                found_datafiles = np.array(found_datafiles)[row_slice_mask]
-            # Slice out the simulations for this chunk
-            found_datafiles = found_datafiles[idx_low:idx_high]
-            first_filename = found_datafiles[0].split('/')[-1]
-            last_filename = found_datafiles[-1].split('/')[-1]
-            print(f'Files: {first_filename} - {last_filename}')
-            print('Loading in files...')
-            tables[table_name] = np.array([
-                fits.getdata(datafile_path, memmap=False)
-                for datafile_path in found_datafiles
-            ])
-            print(f'Data stored in the `{table_name}` table')
-            dec_print_indent()
+        if use_existing_hdf:
+            hdf_path = f'{dir_path}/{chunk_idx}_{DATA_F}'
+            print(f'Path: {hdf_path}')
+            hdf_file_contents = read_hdf(hdf_path)
+            for table_name in table_names:
+                tables[table_name] = hdf_file_contents[table_name][:]
+                print(f'Table: {table_name} - {tables[table_name].shape}')
+        else:
+            for file_glob, table_name in zip(file_globs, table_names):
+                step(f'Glob {file_glob}')
+                found_datafiles = _make_glob(file_glob)
+                if row_slice_mask is not None:
+                    # Take out the sliced rows if specified
+                    found_datafiles = np.array(found_datafiles)[row_slice_mask]
+                # Slice out the simulations for this chunk
+                found_datafiles = found_datafiles[idx_low:idx_high]
+                first_filename = found_datafiles[0].split('/')[-1]
+                last_filename = found_datafiles[-1].split('/')[-1]
+                print(f'Files: {first_filename} - {last_filename}')
+                print('Loading in files...')
+                tables[table_name] = np.array([
+                    fits.getdata(datafile_path, memmap=False)
+                    for datafile_path in found_datafiles
+                ])
+                print(f'Data stored in the `{table_name}` table')
+                dec_print_indent()
         if save_differences:
             step('Taking table differences')
             rows = idx_high - idx_low
