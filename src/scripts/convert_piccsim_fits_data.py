@@ -105,12 +105,13 @@ def convert_piccsim_fits_data_parser(subparsers):
     )
     subparser.add_argument(
         '--load-from-existing-hdf-dataset',
-        action='store_true',
+        type=int,
         help=('load the data from an existing raw HDF dataset instead of from '
               'FITS datafiles; this option is helpful when there is a large '
               'dataset that would need to call this script multiple times '
               'with different arguments -- it is also easier to back up a '
-              'few HDF files rather than thousands of FITS files'),
+              'few HDF files rather than thousands of FITS files; the '
+              'passed value should be the total number of rows in the data '),
     )
 
 
@@ -136,14 +137,16 @@ def convert_piccsim_fits_data(cli_args):
         HDFWriteModule(outfile).create_and_write_hdf_simple(out_data)
         quit()
 
-    use_existing_hdf = cli_args['load_from_existing_hdf_dataset']
+    use_existing_hdf = cli_args.get('load_from_existing_hdf_dataset')
     table_names = cli_args['fits_table_names']
-    if use_existing_hdf:
+    if use_existing_hdf is not None:
         step_ri('Working from an existing HDF dataset')
         print(f'Path: {dir_path}')
         print(f'Table names: {table_names}')
-
-    if not use_existing_hdf:
+        total_file_count = use_existing_hdf
+        print(f'Total number of rows: {total_file_count}')
+        use_existing_hdf = True
+    else:
         step_ri('Verifying file glob and name arrays')
         file_globs = cli_args['fits_file_globs']
         if file_globs is None or table_names is None:
