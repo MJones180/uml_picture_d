@@ -265,6 +265,14 @@ Both HODMs:
         /home/michael-jones/Documents/piccsim_sim_data/dh_both_hodms_efc_full_gain_29k_ch2 \
         --fits-file-globs 'dm1_*' 'dm2_*' 'sci_*i' 'sci*r' --fits-table-names dm1 dm2 sci_i sci_r \
         --rows-per-chunk 10000  # 147025 files
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_full_gain_36k_ch1 \
+        /home/michael-jones/Documents/piccsim_sim_data/dh_both_hodms_efc_full_gain_36k_ch1 \
+        --fits-file-globs 'dm1_*' 'dm2_*' 'sci_*i' 'sci*r' --fits-table-names dm1 dm2 sci_i sci_r \
+        --rows-per-chunk 10000  # 182115 files
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_full_gain_36k_ch2 \
+        /home/michael-jones/Documents/piccsim_sim_data/dh_both_hodms_efc_full_gain_36k_ch2 \
+        --fits-file-globs 'dm1_*' 'dm2_*' 'sci_*i' 'sci*r' --fits-table-names dm1 dm2 sci_i sci_r \
+        --rows-per-chunk 10000  # 183795 files
     # ---------------
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_full_gain_24k_1iter_ch1 \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_full_gain_24k_ch1 \
@@ -294,6 +302,14 @@ Both HODMs:
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_full_gain_29k_ch2 \
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
         --rows-per-chunk 10000 --load-from-existing-hdf-dataset 147025
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_full_gain_36k_1iter_ch1 \
+        /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_full_gain_36k_ch1 \
+        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
+        --rows-per-chunk 10000 --load-from-existing-hdf-dataset 182115
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_full_gain_36k_1iter_ch2 \
+        /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_full_gain_36k_ch2 \
+        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
+        --rows-per-chunk 10000 --load-from-existing-hdf-dataset 183795
 
     # 12 iterations of broadband EFC (gain -1) using the RM
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_broadband_full_gain_2640_ch1 \
