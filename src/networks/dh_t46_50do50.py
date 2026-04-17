@@ -1,5 +1,5 @@
-# `dh_t45_50do65` network { 1000 -> 1000 }.
-# Trainable parameters: 109,218,792
+# `dh_t46_50do50` network { 1000 -> 1000 }.
+# Trainable parameters: 159,214,392
 import torch
 import torch.nn as nn
 
@@ -7,12 +7,12 @@ import torch.nn as nn
 IN_SIZE = 1000
 OUT_SIZE = 1000
 HIDDEN_SIZE = 2048
-BOTTLENECK_SIZE = 512
+BOTTLENECK_SIZE = 756
 
 # ----- LAYER PARAMS -----
 NUMBER_OF_RES_BLOCKS = 50
 LEAKY_RELU = 0.2
-DROPOUT = 0.65
+DROPOUT = 0.5
 
 
 class BottleneckResidualBlock(nn.Module):
