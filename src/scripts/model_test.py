@@ -147,6 +147,8 @@ def model_test(cli_args):
         print(f'Using zernike terms: {zernike_terms}')
 
     norm_stability_value = cli_args.get('norm_stability_value')
+    if norm_stability_value is None:
+        norm_stability_value = norm_stability_value
     step_ri(f'Norm stability value: {norm_stability_value}')
 
     if cli_args.get('inputs_need_norm'):
