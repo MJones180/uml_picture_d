@@ -148,6 +148,18 @@ def model_train_parser(subparsers):
               'rate; the `epochs` parameter specifies the number of epochs'),
     )
     subparser.add_argument(
+        '--use-cosine-annealing-wr-lr-scheduler',
+        nargs='+',
+        type=float,
+        help=(
+            'use the Cosine Annealing with warm restarts learning rate '
+            'scheduler - no warm up is used; three parameters expected: '
+            'the length of the first cycle, the length multiplier per cycle, '
+            'and the final learning rate after annealing in each cycle; '
+            'the `learning_rate` parameter specifies the max, peak learning '
+            'rate; the `epochs` parameter specifies the number of epochs'),
+    )
+    subparser.add_argument(
         '--clip-gradient-norm',
         type=float,
         help=('clip the gradient norm to the specified value; '
@@ -659,6 +671,7 @@ def model_train(cli_args):
     print(f'Validation batches per epoch: {validation_batches}')
 
     use_cos_annealing = cli_args.get('use_cosine_annealing_lr_scheduler')
+    use_cos_annealing_wr = cli_args.get('use_cosine_annealing_wr_lr_scheduler')
     scheduler = None
     if use_cos_annealing is not None:
         step_ri('Will use the Cosine Annealing learning rate scheduler')
@@ -688,6 +701,23 @@ def model_train(cli_args):
                 )
             ],
             milestones=[warmup_epochs],
+        )
+    elif use_cos_annealing_wr is not None:
+        step_ri('Will use the Cosine Annealing with warm restarts '
+                'learning rate scheduler')
+        cycle_length = int(use_cos_annealing_wr[0])
+        cycle_length_multiplier = int(use_cos_annealing_wr[1])
+        final_lr = use_cos_annealing_wr[2]
+        print(f'Learning rate per cycle: {base_learning_rate} -> {final_lr}')
+        cycle_lengths = [cycle_length]
+        while cycle_lengths[-1] < epoch_count:
+            cycle_lengths.append(cycle_lengths[-1] * cycle_length_multiplier)
+        print(f'Cycle lenths: {cycle_lengths} epochs')
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
+            optimizer,
+            T_0=cycle_length,
+            T_mult=cycle_length_multiplier,
+            eta_min=final_lr,
         )
 
     clip_gradient_norm = cli_args.get('clip_gradient_norm')
