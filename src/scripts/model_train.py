@@ -710,9 +710,10 @@ def model_train(cli_args):
         final_lr = use_cos_annealing_wr[2]
         print(f'Learning rate per cycle: {base_learning_rate} -> {final_lr}')
         cycle_lengths = [cycle_length]
-        while cycle_lengths[-1] < epoch_count:
+        while np.sum(cycle_lengths) < epoch_count:
             cycle_lengths.append(cycle_lengths[-1] * cycle_length_multiplier)
-        print(f'Cycle lenths: {cycle_lengths} epochs')
+        print(f'Cycle lenths: {cycle_lengths} epochs '
+              f'({cycle_length_multiplier}x multiplier)')
         scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
             optimizer,
             T_0=cycle_length,
