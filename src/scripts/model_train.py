@@ -99,6 +99,12 @@ def model_train_parser(subparsers):
               'group: name, value, type (0 - str, 1 - float, 2 - int)'),
     )
     subparser.add_argument(
+        '--optimizer-no-weight-decay-group',
+        action='store_true',
+        help=('create a separate group of parameters that weight decay is '
+              'not applied to; all 1D parameters will not have weight decay'),
+    )
+    subparser.add_argument(
         '--loss-params',
         nargs='+',
         help=('pass params to the loss function; two values expected for each '
@@ -601,7 +607,31 @@ def model_train(cli_args):
     # Currently, the only configurable parameter for each optimizer is the lr
     base_learning_rate = cli_args['learning_rate']
     print(f'Setting learning rate to {base_learning_rate}')
-    optimizer = optimizer(model.parameters(), lr=base_learning_rate)
+
+    if cli_args.get('optimizer_no_weight_decay_group'):
+        step('Turning off weight decay for 1D layers')
+        decay_params = []
+        no_decay_params = []
+        for name, param in model.named_parameters():
+            if not param.requires_grad:
+                continue
+            if param.ndim <= 1:
+                print(f'Layer: {name}')
+                no_decay_params.append(param)
+            else:
+                decay_params.append(param)
+        optimizer = optimizer(
+            [{
+                'params': decay_params,
+            }, {
+                'params': no_decay_params,
+                'weight_decay': 0.0,
+            }],
+            lr=base_learning_rate,
+        )
+        dec_print_indent()
+    else:
+        optimizer = optimizer(model.parameters(), lr=base_learning_rate)
     optimizer_params = cli_args.get('optimizer_params')
     if optimizer_params is not None:
         step('Passing additional params to optimizer')
@@ -622,7 +652,8 @@ def model_train(cli_args):
 
     # A function to easily set the current lr in the optimizer
     def _set_lr(lr):
-        optimizer.param_groups[0]['lr'] = lr
+        for param_group in optimizer.param_groups:
+            param_group['lr'] = lr
 
     lr_auto_annealing = cli_args.get('lr_auto_annealing')
     if lr_auto_annealing:
