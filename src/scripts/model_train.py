@@ -96,13 +96,14 @@ def model_train_parser(subparsers):
         '--optimizer-params',
         nargs='+',
         help=('pass params to the optimizer; three values expected for each '
-              'group: name, value, type (0 - str, 1 - float, 2 - int)'),
+              'group: name, value, type (0 - str, 1 - float, 2 - int); these '
+              'values are only applied to the first optimizer group'),
     )
     subparser.add_argument(
-        '--optimizer-no-weight-decay-group',
-        action='store_true',
-        help=('create a separate group of parameters that weight decay is '
-              'not applied to; all 1D parameters will not have weight decay'),
+        '--optimizer-one-d-group-weight-decay',
+        type=float,
+        help=('apply a separate weight decay to all 1D parameters; the value '
+              'passed should specify the weight decay'),
     )
     subparser.add_argument(
         '--loss-params',
@@ -608,24 +609,26 @@ def model_train(cli_args):
     base_learning_rate = cli_args['learning_rate']
     print(f'Setting learning rate to {base_learning_rate}')
 
-    if cli_args.get('optimizer_no_weight_decay_group'):
-        step('Turning off weight decay for 1D layers')
+    one_d_weight_decay = cli_args.get('optimizer_one_d_group_weight_decay')
+    if one_d_weight_decay is not None:
+        step('Changing weight decay for 1D parameters')
+        print(f'Weight decay: {one_d_weight_decay}')
         decay_params = []
-        no_decay_params = []
+        one_d_decay_params = []
         for name, param in model.named_parameters():
             if not param.requires_grad:
                 continue
             if param.ndim <= 1:
                 print(f'Layer: {name}')
-                no_decay_params.append(param)
+                one_d_decay_params.append(param)
             else:
                 decay_params.append(param)
         optimizer = optimizer(
             [{
                 'params': decay_params,
             }, {
-                'params': no_decay_params,
-                'weight_decay': 0.0,
+                'params': one_d_decay_params,
+                'weight_decay': one_d_weight_decay,
             }],
             lr=base_learning_rate,
         )
