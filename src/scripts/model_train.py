@@ -106,6 +106,15 @@ def model_train_parser(subparsers):
               'passed should specify the weight decay'),
     )
     subparser.add_argument(
+        '--optimizer-manual-group-weight-decay',
+        nargs='+',
+        help=('apply a separate weight decay to all parameters which have a '
+              'partial substring match to one of the passed values; values '
+              'expected: weight decay, *partial parameter names; this '
+              'argument will override any shared parameters from the '
+              '`--optimizer-one-d-group-weight-decay` argument'),
+    )
+    subparser.add_argument(
         '--loss-params',
         nargs='+',
         help=('pass params to the loss function; two values expected for each '
@@ -609,29 +618,46 @@ def model_train(cli_args):
     base_learning_rate = cli_args['learning_rate']
     print(f'Setting learning rate to {base_learning_rate}')
 
-    one_d_weight_decay = cli_args.get('optimizer_one_d_group_weight_decay')
-    if one_d_weight_decay is not None:
-        step('Changing weight decay for 1D parameters')
-        print(f'Weight decay: {one_d_weight_decay}')
+    opt_wd_one_d = cli_args.get('optimizer_one_d_group_weight_decay')
+    opt_wd_manual = cli_args.get('optimizer_manual_group_weight_decay')
+    if opt_wd_one_d is not None or opt_wd_manual is not None:
+        step('Changing weight decay for specific layers')
         decay_params = []
-        one_d_decay_params = []
+        if opt_wd_one_d is not None:
+            decay_params_one_d = []
+            print('Will change weight decay for all 1D layers')
+            print(f'1D weight decay: {opt_wd_one_d}')
+        if opt_wd_manual is not None:
+            decay_params_manual = []
+            manual_substrs = opt_wd_manual[1:]
+            opt_wd_manual = float(opt_wd_manual[0])
+            print('Will change weight decay for all specified layers')
+            print(f'Manual weight decay: {opt_wd_manual}')
+            print(f'Layer substrings: {manual_substrs}')
         for name, param in model.named_parameters():
             if not param.requires_grad:
                 continue
-            if param.ndim <= 1:
-                print(f'Layer: {name}')
-                one_d_decay_params.append(param)
+            elif (opt_wd_manual is not None
+                  and any(substr in name for substr in manual_substrs)):
+                print(f'Manual Layer: {name}')
+                decay_params_manual.append(param)
+            elif opt_wd_one_d is not None and param.ndim <= 1:
+                print(f'1D Layer: {name}')
+                decay_params_one_d.append(param)
             else:
                 decay_params.append(param)
-        optimizer = optimizer(
-            [{
-                'params': decay_params,
-            }, {
-                'params': one_d_decay_params,
-                'weight_decay': one_d_weight_decay,
-            }],
-            lr=base_learning_rate,
-        )
+        optimizer_groups = [{'params': decay_params}]
+        if opt_wd_one_d is not None:
+            optimizer_groups.append({
+                'params': decay_params_one_d,
+                'weight_decay': opt_wd_one_d,
+            })
+        if opt_wd_manual is not None:
+            optimizer_groups.append({
+                'params': decay_params_manual,
+                'weight_decay': opt_wd_manual,
+            })
+        optimizer = optimizer(optimizer_groups, lr=base_learning_rate)
         dec_print_indent()
     else:
         optimizer = optimizer(model.parameters(), lr=base_learning_rate)
