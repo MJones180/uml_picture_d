@@ -645,6 +645,7 @@ def model_train(cli_args):
                 print(f'1D Layer: {name}')
                 decay_params_one_d.append(param)
             else:
+                print(f'Default Layer: {name}')
                 decay_params.append(param)
         optimizer_groups = [{'params': decay_params}]
         if opt_wd_one_d is not None:
