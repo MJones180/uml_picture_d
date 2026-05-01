@@ -5148,7 +5148,446 @@ After model testing, it is useful to rank the model analyses:
         --init-weights-kaiming-normal-simple 0.25 in_layer res_blocks --use-kaiming-fan-in \
         --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
 
+    python3 main_scnp.py model_train \
+        dh_v109_7 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        dh_t53_70do0 weighted_two_dms adamw 1e-4 700 --batch-size 256 \
+        --loss-params linear_scaling 0.1 take_row_sum 1 \
+        --optimizer-params weight_decay 0.00001 1 \
+        --use-cosine-annealing-wr-lr-scheduler 100 2 1e-7 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal-simple 0.25 in_layer res_blocks --use-kaiming-fan-in \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v109_8 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        dh_t53_70do0 weighted_two_dms adamw 1e-3 700 --batch-size 256 \
+        --loss-params linear_scaling 0.1 take_row_sum 1 \
+        --optimizer-params weight_decay 0.00001 1 \
+        --use-cosine-annealing-wr-lr-scheduler 100 2 1e-7 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal-simple 0.25 in_layer res_blocks --use-kaiming-fan-in \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v109_9 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        dh_t54_70do0 weighted_two_dms adamw 1e-3 700 --batch-size 256 \
+        --loss-params linear_scaling 0.1 take_row_sum 1 \
+        --optimizer-params weight_decay 0.00001 1 \
+        --use-cosine-annealing-wr-lr-scheduler 100 2 1e-7 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal-simple 0.25 in_layer res_blocks --use-kaiming-fan-in \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v109_10 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        dh_t55_70do0 weighted_two_dms adamw 1e-3 700 --batch-size 256 \
+        --loss-params linear_scaling 0.1 take_row_sum 1 \
+        --optimizer-params weight_decay 0.00001 1 \
+        --use-cosine-annealing-wr-lr-scheduler 100 2 1e-7 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal-simple 0.25 in_layer res_blocks --use-kaiming-fan-in \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v109_11 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        dh_t56_70do0 weighted_two_dms adamw 1e-3 700 --batch-size 256 \
+        --loss-params linear_scaling 0.1 take_row_sum 1 \
+        --optimizer-params weight_decay 0.00001 1 \
+        --use-cosine-annealing-wr-lr-scheduler 100 2 1e-7 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal-simple 0.25 in_layer res_blocks --use-kaiming-fan-in \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v109_12 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        dh_t56_70do0 weighted_two_dms adamw 1e-3 700 --batch-size 256 \
+        --loss-params linear_scaling 0.1 take_row_sum 1 \
+        --optimizer-params weight_decay 0.0001 1 \
+        --use-cosine-annealing-wr-lr-scheduler 100 2 1e-7 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal-simple 0.25 in_layer res_blocks --use-kaiming-fan-in \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v109_13 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        dh_t56_70do5 weighted_two_dms adamw 1e-3 700 --batch-size 256 \
+        --loss-params linear_scaling 0.1 take_row_sum 1 \
+        --optimizer-params weight_decay 0.0001 1 \
+        --use-cosine-annealing-wr-lr-scheduler 100 2 1e-7 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal-simple 0.25 in_layer res_blocks --use-kaiming-fan-in \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v109_14 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        dh_t56_70do5 weighted_two_dms adamw 1e-3 700 --batch-size 256 \
+        --loss-params linear_scaling 0.1 take_row_sum 1 \
+        --optimizer-params weight_decay 0.0001 1 \
+        --lr-auto-annealing 6e-5 2 --early-stopping 15 \
+        --lr-warmup 0 1e-5 1e-3 10 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal-simple 0.25 in_layer res_blocks --use-kaiming-fan-in \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v109_15 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        dh_t55_70do5 weighted_two_dms adamw 1e-3 700 --batch-size 256 \
+        --loss-params linear_scaling 0.1 take_row_sum 1 \
+        --optimizer-params weight_decay 0.0001 1 \
+        --lr-auto-annealing 6e-5 2 --early-stopping 15 \
+        --lr-warmup 0 1e-5 1e-3 10 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal-simple 0.25 in_layer res_blocks --use-kaiming-fan-in \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v109_16 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        dh_t55_70do5 weighted_two_dms adamw 1e-3 550 --batch-size 256 \
+        --loss-params linear_scaling 0.1 take_row_sum 1 \
+        --optimizer-params weight_decay 0.0001 1 \
+        --use-cosine-annealing-lr-scheduler 20 1e-6 1e-7 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal-simple 0.25 in_layer res_blocks --use-kaiming-fan-in \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v109_17 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        dh_t56_70do5 weighted_two_dms adamw 1e-3 550 --batch-size 256 \
+        --loss-params linear_scaling 0.1 take_row_sum 1 \
+        --optimizer-params weight_decay 0.0001 1 \
+        --use-cosine-annealing-lr-scheduler 20 1e-6 1e-7 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal-simple 0.25 in_layer res_blocks --use-kaiming-fan-in \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v109_18 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        dh_t57_70do5 weighted_two_dms adamw 1e-3 550 --batch-size 256 \
+        --loss-params linear_scaling 0.1 take_row_sum 1 \
+        --optimizer-params weight_decay 0.0001 1 \
+        --use-cosine-annealing-lr-scheduler 20 1e-6 1e-7 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal-simple 0.25 in_layer res_blocks --use-kaiming-fan-in \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v109_19 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        dh_t57_70do5 weighted_two_dms adamw 1e-3 550 --batch-size 1024 \
+        --loss-params linear_scaling 0.1 take_row_sum 1 \
+        --optimizer-params weight_decay 0.0001 1 \
+        --use-cosine-annealing-lr-scheduler 20 1e-6 1e-7 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal-simple 0.25 in_layer res_blocks --use-kaiming-fan-in \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v109_20 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        dh_t57_70do50 weighted_two_dms adamw 1e-3 550 --batch-size 1024 \
+        --loss-params linear_scaling 0.1 take_row_sum 1 \
+        --use-cosine-annealing-lr-scheduler 20 1e-6 1e-7 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal-simple 0.25 in_layer res_blocks --use-kaiming-fan-in \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v109_21 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        dh_t58_70do10 weighted_two_dms adamw 1e-3 550 --batch-size 1024 \
+        --loss-params linear_scaling 0.1 take_row_sum 1 \
+        --optimizer-params weight_decay 0.00001 1 \
+        --use-cosine-annealing-lr-scheduler 20 1e-6 1e-7 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal-simple 0.20 in_layer res_blocks --use-kaiming-fan-in \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v109_22 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        dh_t58_70do10 weighted_two_dms adamw 1e-3 550 --batch-size 1024 \
+        --loss-params linear_scaling 0.1 take_row_sum 1 \
+        --optimizer-params weight_decay 0.0001 1 \
+        --use-cosine-annealing-lr-scheduler 20 1e-6 1e-7 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal-simple 0.20 in_layer res_blocks --use-kaiming-fan-in \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v109_23 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        dh_t58_70do10 weighted_two_dms adamw 3e-4 550 --batch-size 1024 \
+        --loss-params linear_scaling 0.1 take_row_sum 1 \
+        --optimizer-params weight_decay 0.0001 1 \
+        --use-cosine-annealing-lr-scheduler 20 1e-6 1e-7 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal-simple 0.20 in_layer res_blocks --use-kaiming-fan-in \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v109_24 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        dh_t57_70do5 weighted_two_dms adamw 1e-3 550 --batch-size 1024 \
+        --loss-params linear_scaling 0.1 take_row_sum 1 \
+        --optimizer-params weight_decay 0.0001 1 \
+        --optimizer-one-d-group-weight-decay 0 \
+        --use-cosine-annealing-lr-scheduler 20 1e-6 1e-7 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal-simple 0.25 in_layer res_blocks --use-kaiming-fan-in \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v109_25 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        dh_t57_70do30 weighted_two_dms adamw 3e-4 550 --batch-size 1024 \
+        --loss-params linear_scaling 0.1 take_row_sum 1 \
+        --optimizer-params weight_decay 0.0001 1 \
+        --optimizer-one-d-group-weight-decay 0 \
+        --use-cosine-annealing-lr-scheduler 20 1e-6 1e-7 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal-simple 0.25 in_layer res_blocks --use-kaiming-fan-in \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v109_26 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        dh_t57_70do15 weighted_two_dms adamw 3e-4 550 --batch-size 1024 \
+        --loss-params linear_scaling 0.1 take_row_sum 1 \
+        --optimizer-params weight_decay 0.0001 1 \
+        --optimizer-one-d-group-weight-decay 0.00001 \
+        --use-cosine-annealing-lr-scheduler 20 1e-6 1e-7 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal-simple 0.25 in_layer res_blocks --use-kaiming-fan-in \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v109_27 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        dh_t57_70do30 weighted_two_dms adamw 1e-4 550 --batch-size 1024 \
+        --loss-params linear_scaling 0.1 take_row_sum 1 \
+        --optimizer-params weight_decay 0.0001 1 \
+        --optimizer-one-d-group-weight-decay 0.00001 \
+        --use-cosine-annealing-lr-scheduler 20 1e-6 1e-7 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal-simple 0.25 in_layer res_blocks --use-kaiming-fan-in \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v109_28 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        dh_t57_70do20 weighted_two_dms adamw 1e-4 550 --batch-size 1024 \
+        --loss-params linear_scaling 0.1 take_row_sum 1 \
+        --optimizer-params weight_decay 0.0001 1 \
+        --optimizer-one-d-group-weight-decay 0.00001 \
+        --use-cosine-annealing-lr-scheduler 20 1e-6 1e-7 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal-simple 0.25 in_layer res_blocks --use-kaiming-fan-in \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v109_29 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        dh_t57_70do30 weighted_two_dms adamw 2e-4 550 --batch-size 1024 \
+        --loss-params linear_scaling 0.1 take_row_sum 1 \
+        --optimizer-params weight_decay 0.0001 1 \
+        --optimizer-one-d-group-weight-decay 0.00001 \
+        --use-cosine-annealing-lr-scheduler 20 1e-6 1e-7 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal-simple 0.25 in_layer res_blocks --use-kaiming-fan-in \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v109_30 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        dh_t57_70do20 weighted_two_dms adamw 2e-4 550 --batch-size 1024 \
+        --loss-params linear_scaling 0.1 take_row_sum 1 \
+        --optimizer-params weight_decay 0.0001 1 \
+        --optimizer-one-d-group-weight-decay 0.00001 \
+        --use-cosine-annealing-lr-scheduler 20 1e-6 1e-7 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal-simple 0.25 in_layer res_blocks --use-kaiming-fan-in \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v109_31 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        dh_t57_70do30 weighted_two_dms adamw 1.5e-4 550 --batch-size 1024 \
+        --loss-params linear_scaling 0.1 take_row_sum 1 \
+        --optimizer-params weight_decay 0.0001 1 \
+        --optimizer-one-d-group-weight-decay 0.00001 \
+        --use-cosine-annealing-lr-scheduler 20 1e-6 1e-7 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal-simple 0.25 in_layer res_blocks --use-kaiming-fan-in \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v109_32 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        dh_t57_70do30 weighted_two_dms adamw 2e-4 550 --batch-size 1024 \
+        --loss-params linear_scaling 0.1 take_row_sum 1 \
+        --optimizer-params weight_decay 0.01 1 \
+        --optimizer-one-d-group-weight-decay 0 \
+        --optimizer-manual-group-weight-decay 0.001 block.1.weight block.4.weight out_layer.1.weight \
+        --use-cosine-annealing-lr-scheduler 20 1e-6 1e-7 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal-simple 0.25 in_layer res_blocks --use-kaiming-fan-in \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v109_33 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        dh_t57_70do40 weighted_two_dms adamw 2e-4 550 --batch-size 1024 \
+        --loss-params linear_scaling 0.1 take_row_sum 1 \
+        --optimizer-params weight_decay 0.01 1 \
+        --optimizer-one-d-group-weight-decay 0 \
+        --optimizer-manual-group-weight-decay 0.001 block.1.weight block.4.weight out_layer.1.weight \
+        --use-cosine-annealing-lr-scheduler 20 1e-6 1e-7 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal-simple 0.25 in_layer res_blocks --use-kaiming-fan-in \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v109_34 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        dh_t57_70do50 weighted_two_dms adamw 2e-4 550 --batch-size 1024 \
+        --loss-params linear_scaling 0.1 take_row_sum 1 \
+        --optimizer-params weight_decay 0.01 1 \
+        --optimizer-one-d-group-weight-decay 0 \
+        --optimizer-manual-group-weight-decay 0.001 block.1.weight block.4.weight out_layer.1.weight \
+        --use-cosine-annealing-lr-scheduler 20 1e-6 1e-7 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal-simple 0.25 in_layer res_blocks --use-kaiming-fan-in \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v109_35 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        dh_t57_70do30 weighted_two_dms adamw 2e-4 550 --batch-size 1024 \
+        --loss-params linear_scaling 0.1 take_row_sum 1 \
+        --optimizer-params weight_decay 0.05 1 \
+        --optimizer-one-d-group-weight-decay 0 \
+        --optimizer-manual-group-weight-decay 0.001 block.1.weight block.4.weight out_layer.1.weight \
+        --use-cosine-annealing-lr-scheduler 20 1e-6 1e-7 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal-simple 0.25 in_layer res_blocks --use-kaiming-fan-in \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v109_36 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        dh_t58_70do30 weighted_two_dms adamw 2e-4 550 --batch-size 1024 \
+        --loss-params linear_scaling 0.1 take_row_sum 1 \
+        --optimizer-params weight_decay 0.01 1 \
+        --optimizer-one-d-group-weight-decay 0 \
+        --use-cosine-annealing-lr-scheduler 20 1e-6 1e-7 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal-simple 0.20 in_layer res_blocks --use-kaiming-fan-in \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v109_37 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        dh_t58_70do10 weighted_two_dms adamw 2e-4 550 --batch-size 1024 \
+        --loss-params linear_scaling 0.1 take_row_sum 1 \
+        --optimizer-params weight_decay 0.01 1 \
+        --optimizer-one-d-group-weight-decay 0 \
+        --use-cosine-annealing-lr-scheduler 20 1e-6 1e-7 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal-simple 0.20 in_layer res_blocks --use-kaiming-fan-in \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v109_38 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        dh_t58_70do20 weighted_two_dms adamw 2e-4 550 --batch-size 1024 \
+        --loss-params linear_scaling 0.1 take_row_sum 1 \
+        --optimizer-params weight_decay 0.01 1 \
+        --optimizer-one-d-group-weight-decay 0 \
+        --use-cosine-annealing-lr-scheduler 20 1e-6 1e-7 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal-simple 0.20 in_layer res_blocks --use-kaiming-fan-in \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v109_39 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        dh_t58_70do20b weighted_two_dms adamw 2e-4 550 --batch-size 1024 \
+        --loss-params linear_scaling 0.1 take_row_sum 1 \
+        --optimizer-params weight_decay 0.01 1 \
+        --optimizer-one-d-group-weight-decay 0 \
+        --use-cosine-annealing-lr-scheduler 20 1e-6 1e-7 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal-simple 0.10 in_layer res_blocks --use-kaiming-fan-in \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v109_40 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        dh_t59_70dp20 weighted_two_dms adamw 2e-4 550 --batch-size 1024 \
+        --loss-params linear_scaling 0.1 take_row_sum 1 \
+        --optimizer-params weight_decay 0.01 1 \
+        --optimizer-one-d-group-weight-decay 0 \
+        --use-cosine-annealing-lr-scheduler 20 1e-6 1e-7 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal-simple 0.20 in_layer res_blocks --use-kaiming-fan-in \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v109_41 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        dh_t59_70dp20 weighted_two_dms adamw 3e-3 650 --batch-size 1024 \
+        --loss-params linear_scaling 0.1 take_row_sum 1 \
+        --optimizer-params weight_decay 0.01 1 \
+        --optimizer-one-d-group-weight-decay 0 \
+        --use-cosine-annealing-lr-scheduler 80 1e-6 1e-7 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal-simple 0.20 in_layer res_blocks --use-kaiming-fan-in \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v109_42 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        dh_t59_70dp30 weighted_two_dms adamw 3e-3 650 --batch-size 1024 \
+        --loss-params linear_scaling 0.1 take_row_sum 1 \
+        --optimizer-params weight_decay 0.01 1 \
+        --optimizer-one-d-group-weight-decay 0 \
+        --use-cosine-annealing-lr-scheduler 80 1e-6 1e-7 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal-simple 0.20 in_layer res_blocks --use-kaiming-fan-in \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v109_43 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        dh_t59_70dp40 weighted_two_dms adamw 3e-3 650 --batch-size 1024 \
+        --loss-params linear_scaling 0.1 take_row_sum 1 \
+        --optimizer-params weight_decay 0.01 1 \
+        --optimizer-one-d-group-weight-decay 0 \
+        --use-cosine-annealing-lr-scheduler 80 1e-6 1e-7 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal-simple 0.20 in_layer res_blocks --use-kaiming-fan-in \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v109_44 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        dh_t59_70dp30 weighted_two_dms adamw 3e-3 650 --batch-size 1024 \
+        --loss-params linear_scaling 0.1 take_row_sum 1 \
+        --optimizer-params weight_decay 0.01 1 \
+        --optimizer-one-d-group-weight-decay 0 \
+        --use-cosine-annealing-lr-scheduler 80 1e-6 1e-7 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal-simple 0.20 in_layer res_blocks \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v109_45 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        dh_t60_70dp30do15 weighted_two_dms adamw 3e-3 650 --batch-size 1024 \
+        --loss-params linear_scaling 0.1 take_row_sum 1 \
+        --optimizer-params weight_decay 0.01 1 \
+        --optimizer-one-d-group-weight-decay 0 \
+        --use-cosine-annealing-lr-scheduler 80 1e-6 1e-7 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal-simple 0.20 in_layer res_blocks \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v109_46 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        dh_t60_70dp30do10 weighted_two_dms adamw 3e-3 650 --batch-size 1024 \
+        --loss-params linear_scaling 0.1 take_row_sum 1 \
+        --optimizer-params weight_decay 0.01 1 \
+        --optimizer-one-d-group-weight-decay 0 \
+        --use-cosine-annealing-lr-scheduler 80 1e-6 1e-7 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal-simple 0.20 in_layer res_blocks \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v109_47 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        dh_t60_70dp30do10 weighted_two_dms adamw 3e-3 650 --batch-size 1024 \
+        --loss-params linear_scaling 0.1 take_row_sum 1 \
+        --optimizer-params weight_decay 0.005 1 \
+        --optimizer-one-d-group-weight-decay 0 \
+        --use-cosine-annealing-lr-scheduler 80 1e-6 1e-7 --clip-gradient-norm 10 \
+        --init-weights-kaiming-normal-simple 0.20 in_layer res_blocks \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
     python3 main.py batch_model_test \
         test_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
-        --epoch-and-tag-range last dh_v109_ 1 5 \
+        --epoch-and-tag-range last dh_v109_ 1 47 \
         --max-rows-per-model-call 1000
