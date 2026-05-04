@@ -66,7 +66,12 @@ def plot_output_coeff_ranges(cli_args):
     coeff_group_idxs = [0, *coeff_group_idxs]
 
     step_ri('Plotting')
-    fig, axs = plt.subplots(numb_groups, 1, figsize=(12, 10))
+    fig, axs = plt.subplots(
+        numb_groups,
+        1,
+        figsize=(12, 10),
+        constrained_layout=True,
+    )
     for idx in range(numb_groups):
         lower_bound = coeff_group_idxs[idx]
         upper_bound = coeff_group_idxs[idx + 1]
