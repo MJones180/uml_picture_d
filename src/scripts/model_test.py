@@ -18,6 +18,7 @@ from utils.hdf_read_and_write import HDFWriteModule, read_hdf
 from utils.load_raw_sim_data import load_raw_sim_data_chunks
 from utils.model import Model
 from utils.path import delete_dir, get_abs_path, make_dir
+from utils.plots.plot_coeff_comparison import plot_coeff_comparison
 from utils.plots.plot_comparison_scatter_grid import plot_comparison_scatter_grid  # noqa: E501
 from utils.plots.plot_zernike_cross_coupling_animation import plot_zernike_cross_coupling_animation  # noqa: E501
 from utils.plots.plot_zernike_cross_coupling_mat_animation import plot_zernike_cross_coupling_mat_animation  # noqa: E501
@@ -28,7 +29,8 @@ from utils.plots.paper_plots.model_scatters import paper_plot_model_scatters  # 
 from utils.plots.paper_plots.zernike_response import paper_plot_zernike_response  # noqa
 from utils.printing_and_logging import step_ri, title
 from utils.shared_argparser_args import shared_argparser_args
-from utils.stats_and_error import mae, mse
+from utils.stats_and_error import (mae, mse,
+                                   symmetric_mean_absolute_percentage_error)
 from utils.terminate_with_message import terminate_with_message
 from utils.torch_hdf_ds_loader import DSLoaderHDF
 
@@ -112,6 +114,13 @@ def model_test_parser(subparsers):
         type=int,
         help=('plot the paper plots too; the index passed is the model '
               'being used as determined by the plotting script'),
+    )
+    subparser.add_argument(
+        '--plot-coeff-mae-smape',
+        type=int,
+        nargs='+',
+        help=('plot the MAE and SMAPE for the output coefficients; the passed '
+              'arguments should be the upper index for each coeff group'),
     )
     shared_argparser_args(subparser, ['force_cpu'])
 
@@ -376,4 +385,19 @@ def model_test(cli_args):
             plot_title,
             plot_identifier,
             f'{analysis_path}/zernike_cross_coupling_mat.gif',
+        )
+
+    plot_coeff_mae_smape = cli_args.get('plot_coeff_mae_smape')
+    if plot_coeff_mae_smape is not None:
+        step_ri('Plotting coefficient MAE and SMAPE')
+        coeff_group_idxs = [0, *plot_coeff_mae_smape]
+        print(f'Coeff group idxs: {coeff_group_idxs}')
+        plot_coeff_comparison(
+            coeff_group_idxs,
+            mae(outputs_truth, outputs_model, 0),
+            symmetric_mean_absolute_percentage_error(outputs_truth,
+                                                     outputs_model, 0),
+            'MAE',
+            'SMAPE',
+            f'{analysis_path}/mae_and_smape.png',
         )

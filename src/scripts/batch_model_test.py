@@ -70,6 +70,13 @@ def batch_model_test_parser(subparsers):
         type=int,
         help='limit the number of rows per model call',
     )
+    subparser.add_argument(
+        '--plot-coeff-mae-smape',
+        type=int,
+        nargs='+',
+        help=('plot the MAE and SMAPE for the output coefficients; the passed '
+              'arguments should be the upper index for each coeff group'),
+    )
     shared_argparser_args(subparser, ['force_cpu'])
 
     selection_group = subparser.add_mutually_exclusive_group()
@@ -116,6 +123,7 @@ def batch_model_test(cli_args):
             'take_rss_model_outputs',
             'force_cpu',
             'max_rows_per_model_call',
+            'plot_coeff_mae_smape',
         )
     }
 

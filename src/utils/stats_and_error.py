@@ -19,8 +19,10 @@ The following error metrics are implemented (takes two arrays):
     mean_square_error       MSE       Σ_i (x1_i - x2_i)**2 / N
     root_mean_square_error  RMSE      sqrt( Σ_i (x1_i - x2_i)**2 / N )
     percent_error                     abs((x2 - x1)/x1); x1 is truth
+    symmetric_mean_absolute_percentage_error
+                            SMAPE     mean(abs(x1-x2)/((abs(x1)+abs(x2))/2))*100
 
-If a function has an acronym, it can be access via that instead.
+If a function has an acronym, it can be accessed via it instead.
 
 All functions take the `axes` argument, it is the axes that should be summed or
 averaged over. The value must be either None (all axes), a single integer, or a
@@ -85,6 +87,12 @@ def percent_error(truth, x):
     return np.abs((x - truth) / truth)
 
 
+def symmetric_mean_absolute_percentage_error(truth, x, axes=None):
+    numerator = np.abs(truth - x)
+    denominator = (np.abs(truth) + np.abs(x)) / 2
+    return np.mean(numerator / denominator, axis=axes) * 100
+
+
 # ==============================================================================
 # Shorthand functions
 
@@ -107,3 +115,7 @@ def mse(*args, **kwargs):
 
 def rmse(*args, **kwargs):
     return root_mean_square_error(*args, **kwargs)
+
+
+def smape(*args, **kwargs):
+    return symmetric_mean_absolute_percentage_error(*args, **kwargs)
