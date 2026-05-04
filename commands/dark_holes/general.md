@@ -1209,6 +1209,13 @@ Plot SVD basis reconstructions:
         --reconstruct-data-trim 21 80 21 80 \
         --reconstruct-data-plots
 
+Plot the coefficient ranges for DM SVD modes:
+
+    python3 main.py plot_output_coeff_ranges \
+        test_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
+        --coeff-group-idxs 499 999 --add-min-max-norm-bounds \
+        --lower-percentile 2 --upper-percentile 98
+
 ## Response Matrix
 
 Convert a `piccsim` RM to HDF:
