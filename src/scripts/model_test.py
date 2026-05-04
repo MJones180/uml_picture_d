@@ -119,7 +119,7 @@ def model_test_parser(subparsers):
         '--plot-coeff-mae-smape',
         type=int,
         nargs='+',
-        help=('plot the MAE and SMAPE for the output coefficients; the passed '
+        help=('plot the MAE and sMAPE for the output coefficients; the passed '
               'arguments should be the upper index for each coeff group'),
     )
     shared_argparser_args(subparser, ['force_cpu'])
@@ -389,7 +389,7 @@ def model_test(cli_args):
 
     plot_coeff_mae_smape = cli_args.get('plot_coeff_mae_smape')
     if plot_coeff_mae_smape is not None:
-        step_ri('Plotting coefficient MAE and SMAPE')
+        step_ri('Plotting coefficient MAE and sMAPE')
         print(f'Coeff group idxs: {plot_coeff_mae_smape}')
         plot_coeff_comparison(
             plot_coeff_mae_smape,
@@ -397,6 +397,6 @@ def model_test(cli_args):
             symmetric_mean_absolute_percentage_error(outputs_truth,
                                                      outputs_model, 0),
             'MAE',
-            'SMAPE',
+            'sMAPE',
             f'{analysis_path}/mae_and_smape.png',
         )
