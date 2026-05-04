@@ -4,7 +4,7 @@ from utils.constants import PLOT_STYLE_FILE
 
 
 def plot_coeff_comparison(
-    coeff_group_idxs,
+    upper_coeff_group_idxs,
     metric_one_data,
     metric_two_data,
     metric_one_label,
@@ -17,7 +17,8 @@ def plot_coeff_comparison(
     plt.style.use(PLOT_STYLE_FILE)
     # Reset the plot
     plt.clf()
-    numb_groups = len(coeff_group_idxs)
+    numb_groups = len(upper_coeff_group_idxs)
+    coeff_group_idxs = [0, *upper_coeff_group_idxs]
     fig, axs = plt.subplots(
         numb_groups,
         1,

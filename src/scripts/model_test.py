@@ -390,10 +390,9 @@ def model_test(cli_args):
     plot_coeff_mae_smape = cli_args.get('plot_coeff_mae_smape')
     if plot_coeff_mae_smape is not None:
         step_ri('Plotting coefficient MAE and SMAPE')
-        coeff_group_idxs = [0, *plot_coeff_mae_smape]
-        print(f'Coeff group idxs: {coeff_group_idxs}')
+        print(f'Coeff group idxs: {plot_coeff_mae_smape}')
         plot_coeff_comparison(
-            coeff_group_idxs,
+            plot_coeff_mae_smape,
             mae(outputs_truth, outputs_model, 0),
             symmetric_mean_absolute_percentage_error(outputs_truth,
                                                      outputs_model, 0),
