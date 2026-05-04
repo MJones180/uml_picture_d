@@ -21,6 +21,46 @@ def sum_to_one(data, dims=None):
     return data / np.sum(data, axis=dims, keepdims=True)
 
 
+def z_score_normalize(data, mean, std):
+    """Apply Z-score normalization.
+
+    Parameters
+    ----------
+    data : np.array
+        The data to normalize.
+    mean : float
+        The mean of the data.
+    std : float
+        The standard deviation of the data.
+
+    Returns
+    -----
+    np.array
+        The z-score normalized data.
+    """
+    return (data - mean) / std
+
+
+def z_score_denormalize(data, mean, std):
+    """Undo Z-score normalization.
+
+    Parameters
+    ----------
+    data : np.array
+        The data to denormalize.
+    mean : float
+        The mean of the data.
+    std : float
+        The standard deviation of the data.
+
+    Returns
+    -----
+    np.array
+        The denormalized data.
+    """
+    return (data * std) + mean
+
+
 def modified_log_transform(data, alpha=1.0, in_place=False):
     """Transforms postive and negative values with log10.
 

@@ -18,18 +18,19 @@ training dataset.
 
 import numpy as np
 from utils.cli_args import save_cli_args
-from utils.constants import (DARK_ZONE_MASK, DATA_F, DM_ACTIVE_COL_IDXS,
-                             DM_ACTIVE_IDXS, DM_ACTIVE_ROW_IDXS, DM_SIZE,
-                             EF_ACTIVE_IDXS, EXTRA_VARS_F, INPUT_MAX_MIN_DIFF,
-                             INPUT_MIN_X, INPUTS, INPUTS_ARCSINH, INPUTS_LOG10,
-                             NORM_RANGE_ONES_INPUT, NORM_RANGE_ONES_OUTPUT,
-                             OUTPUTS, OUTPUT_MASK, OUTPUT_MAX_MIN_DIFF,
-                             OUTPUTS_LOG10, OUTPUT_MIN_X, PROC_DATA_P,
-                             SCI_CAM_ACTIVE_COL_IDXS, SCI_CAM_ACTIVE_ROW_IDXS)
+from utils.constants import (
+    DARK_ZONE_MASK, DATA_F, DM_ACTIVE_COL_IDXS, DM_ACTIVE_IDXS,
+    DM_ACTIVE_ROW_IDXS, DM_SIZE, EF_ACTIVE_IDXS, EXTRA_VARS_F,
+    INPUT_MAX_MIN_DIFF, INPUT_MIN_X, INPUTS, INPUTS_ARCSINH, INPUTS_LOG10,
+    INPUTS_Z_SCORE_MEAN, INPUTS_Z_SCORE_STD, NORM_RANGE_ONES_INPUT,
+    NORM_RANGE_ONES_OUTPUT, OUTPUT_MASK, OUTPUT_MAX_MIN_DIFF, OUTPUTS,
+    OUTPUTS_LOG10, OUTPUTS_Z_SCORE_MEAN, OUTPUTS_Z_SCORE_STD, OUTPUT_MIN_X,
+    PROC_DATA_P, SCI_CAM_ACTIVE_COL_IDXS, SCI_CAM_ACTIVE_ROW_IDXS)
 from utils.group_data_from_list import group_data_from_list
 from utils.hdf_read_and_write import HDFWriteModule, read_hdf
 from utils.load_raw_sim_data import raw_sim_data_chunk_paths
-from utils.norm import find_min_max_norm, min_max_norm, modified_log_transform
+from utils.norm import (find_min_max_norm, min_max_norm,
+                        modified_log_transform, z_score_normalize)
 from utils.path import make_dir, path_exists
 from utils.printing_and_logging import dec_print_indent, step, step_ri, title
 from utils.response_matrix import ResponseMatrix
@@ -255,6 +256,19 @@ def preprocess_data_dark_hole_parser(subparsers):
         '--fix-seed',
         type=int,
         help='fix the seed value for reproducible results',
+    )
+    subparser.add_argument(
+        '--z-score-inputs',
+        action='store_true',
+        help=('z-score normalize the inputs; the real and imaginary '
+              'components share the same mean and standard deviation'),
+    )
+    subparser.add_argument(
+        '--z-score-outputs',
+        action='store_true',
+        help=('z-score normalize the outputs; DM 1 and DM 2 have separate '
+              'mean and standard deviation values; the current implementation '
+              'requires that the DMs be the same size'),
     )
 
 
@@ -864,6 +878,63 @@ def preprocess_data_dark_hole(cli_args):
         print('Normalizing outputs of validation data based on training '
               'normalization values')
         val_outputs = min_max_norm(val_outputs, max_min_diff, min_x, True)
+        print(f'Validation min: {np.min(val_outputs)}')
+        print(f'Validation max: {np.max(val_outputs)}')
+
+    # ==========================================================================
+
+    z_score_inputs = cli_args['z_score_inputs']
+    if z_score_inputs:
+        step_ri('Z-score input normalization')
+        if extend_existing_data:
+            inputs_mean = _use_var(INPUTS_Z_SCORE_MEAN, scalar=True)
+            inputs_std = _use_var(INPUTS_Z_SCORE_STD, scalar=True)
+        else:
+            inputs_mean = np.mean(train_inputs)
+            inputs_std = np.std(train_inputs)
+            _save_var(INPUTS_Z_SCORE_MEAN, inputs_mean)
+            _save_var(INPUTS_Z_SCORE_STD, inputs_std)
+        train_inputs = z_score_normalize(train_inputs, inputs_mean, inputs_std)
+        print(f'Train min: {np.min(train_inputs)}')
+        print(f'Train max: {np.max(train_inputs)}')
+        print('Normalizing inputs of validation data and test data based on '
+              'training z-score values')
+        val_inputs = z_score_normalize(val_inputs, inputs_mean, inputs_std)
+        print(f'Validation min: {np.min(val_inputs)}')
+        print(f'Validation max: {np.max(val_inputs)}')
+        test_inputs = z_score_normalize(test_inputs, inputs_mean, inputs_std)
+        print(f'Test min: {np.min(test_inputs)}')
+        print(f'Test max: {np.max(test_inputs)}')
+
+    # ==========================================================================
+
+    z_score_outputs = cli_args['z_score_outputs']
+    if z_score_outputs:
+        step_ri('Z-score output normalization')
+        train_outputs_1, train_outputs_2 = np.split(train_outputs, 2, axis=1)
+        val_outputs_1, val_outputs_2 = np.split(val_outputs, 2, axis=1)
+        if extend_existing_data:
+            outputs_mean_1, outputs_mean_2 = _use_var(OUTPUTS_Z_SCORE_MEAN)
+            outputs_std_1, outputs_std_2 = _use_var(OUTPUTS_Z_SCORE_STD)
+        else:
+            outputs_mean_1 = np.mean(train_outputs_1)
+            outputs_mean_2 = np.mean(train_outputs_2)
+            _save_var(OUTPUTS_Z_SCORE_MEAN, [outputs_mean_1, outputs_mean_2])
+            outputs_std_1 = np.std(train_outputs_1)
+            outputs_std_2 = np.std(train_outputs_2)
+            _save_var(OUTPUTS_Z_SCORE_STD, [outputs_std_1, outputs_std_2])
+        train_outputs = np.hstack((
+            z_score_normalize(train_outputs_1, outputs_mean_1, outputs_std_1),
+            z_score_normalize(train_outputs_2, outputs_mean_2, outputs_std_2),
+        ))
+        print(f'Train min: {np.min(train_outputs)}')
+        print(f'Train max: {np.max(train_outputs)}')
+        print('Normalizing outputs of validation data based on '
+              'training z-score values')
+        val_outputs = np.hstack((
+            z_score_normalize(val_outputs_1, outputs_mean_1, outputs_std_1),
+            z_score_normalize(val_outputs_2, outputs_mean_2, outputs_std_2),
+        ))
         print(f'Validation min: {np.min(val_outputs)}')
         print(f'Validation max: {np.max(val_outputs)}')
 
