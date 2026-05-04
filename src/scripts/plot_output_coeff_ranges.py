@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from utils.constants import RANDOM_P
+from utils.constants import PLOT_STYLE_FILE, RANDOM_P
 from utils.printing_and_logging import step_ri, title
 from utils.torch_hdf_ds_loader import DSLoaderHDF
 
@@ -38,6 +38,9 @@ def plot_output_coeff_ranges_parser(subparsers):
 
 def plot_output_coeff_ranges(cli_args):
     title('Plot output coeff ranges script')
+
+    # Load in the style file
+    plt.style.use(PLOT_STYLE_FILE)
 
     step_ri('Loading in the testing dataset')
     tag = cli_args['testing_dataset_tag']

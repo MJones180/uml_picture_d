@@ -4,7 +4,8 @@ Plot out training and validation loss at each epoch for a trained model.
 
 import matplotlib.pyplot as plt
 import numpy as np
-from utils.constants import ARGS_F, EPOCH_LOSS_F, RANDOM_P, TRAINED_MODELS_P
+from utils.constants import (ARGS_F, EPOCH_LOSS_F, PLOT_STYLE_FILE, RANDOM_P,
+                             TRAINED_MODELS_P)
 from utils.json import json_load
 from utils.printing_and_logging import title
 from utils.shared_argparser_args import shared_argparser_args
@@ -21,6 +22,9 @@ def plot_model_loss_parser(subparsers):
 
 def plot_model_loss(cli_args):
     title('Plot model loss script')
+
+    # Load in the style file
+    plt.style.use(PLOT_STYLE_FILE)
 
     tag = cli_args['tag']
     base_path = f'{TRAINED_MODELS_P}/{tag}'
