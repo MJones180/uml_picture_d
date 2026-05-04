@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from utils.constants import PLOT_STYLE_FILE, RANDOM_P
+from utils.constants import (EXTRA_VARS_F, OUTPUT_MAX_MIN_DIFF, OUTPUT_MIN_X,
+                             PLOT_STYLE_FILE, PROC_DATA_P, RANDOM_P)
+from utils.hdf_read_and_write import read_hdf
 from utils.printing_and_logging import step_ri, title
 from utils.torch_hdf_ds_loader import DSLoaderHDF
 
@@ -25,14 +27,19 @@ def plot_output_coeff_ranges_parser(subparsers):
     subparser.add_argument(
         '--lower-percentile',
         type=float,
-        default=5,
+        default=5.0,
         help='lower percentile to plot',
     )
     subparser.add_argument(
         '--upper-percentile',
         type=float,
-        default=95,
+        default=95.0,
         help='upper percentile to plot',
+    )
+    subparser.add_argument(
+        '--add-min-max-norm-bounds',
+        action='store_true',
+        help='add the bounds that correspond to min-max norm',
     )
 
 
@@ -47,6 +54,13 @@ def plot_output_coeff_ranges(cli_args):
     print(f'Tag: {tag}')
     coeffs = DSLoaderHDF(tag).get_outputs()
     print(f'Shape: {coeffs.shape}')
+
+    add_min_max_norm_bounds = cli_args.get('add_min_max_norm_bounds')
+    if add_min_max_norm_bounds:
+        step_ri('Loading in the min-max normalization values')
+        extra_vars = read_hdf(f'{PROC_DATA_P}/{tag}/{EXTRA_VARS_F}')
+        lower_max_min = extra_vars[OUTPUT_MIN_X][:]
+        upper_max_min = lower_max_min + extra_vars[OUTPUT_MAX_MIN_DIFF][:]
 
     step_ri('Calculating percentiles')
     lower_percentile = cli_args.get('lower_percentile')
@@ -80,18 +94,26 @@ def plot_output_coeff_ranges(cli_args):
                            f'({lower_bound} - {upper_bound})')
         axs[idx].set_xlabel('Coefficient Index')
         axs[idx].set_ylabel('Coefficient Value')
+        if add_min_max_norm_bounds:
+            axs[idx].fill_between(
+                indices,
+                lower_max_min[lower_bound:upper_bound],
+                upper_max_min[lower_bound:upper_bound],
+                alpha=0.3,
+                label='Max-Min Norm Bounds',
+            )
+        axs[idx].fill_between(
+            indices,
+            lower_percentile_vals[lower_bound:upper_bound],
+            upper_percentile_vals[lower_bound:upper_bound],
+            alpha=0.5,
+            label=f'{lower_percentile}-{upper_percentile} Percentile Range',
+        )
         axs[idx].plot(
             indices,
             median_percentile_vals[lower_bound:upper_bound],
             linewidth=1.5,
             label='Median',
-        )
-        axs[idx].fill_between(
-            indices,
-            lower_percentile_vals[lower_bound:upper_bound],
-            upper_percentile_vals[lower_bound:upper_bound],
-            alpha=0.3,
-            label=f'{lower_percentile}-{upper_percentile} Percentile Range',
         )
         axs[idx].legend()
         axs[idx].grid(True, alpha=0.3)
