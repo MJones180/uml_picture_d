@@ -77,6 +77,11 @@ def batch_model_test_parser(subparsers):
         help=('plot the MAE and sMAPE for the output coefficients; the passed '
               'arguments should be the upper index for each coeff group'),
     )
+    subparser.add_argument(
+        '--plot-layerscale-gamma',
+        help=('plot the mean LayerScale gamma from every layer; the passed '
+              'argument should specify the variable name (probably `gamma`)'),
+    )
     shared_argparser_args(subparser, ['force_cpu'])
 
     selection_group = subparser.add_mutually_exclusive_group()
@@ -124,6 +129,7 @@ def batch_model_test(cli_args):
             'force_cpu',
             'max_rows_per_model_call',
             'plot_coeff_mae_smape',
+            'plot_layerscale_gamma',
         )
     }
 

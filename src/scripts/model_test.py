@@ -20,6 +20,7 @@ from utils.model import Model
 from utils.path import delete_dir, get_abs_path, make_dir
 from utils.plots.plot_coeff_comparison import plot_coeff_comparison
 from utils.plots.plot_comparison_scatter_grid import plot_comparison_scatter_grid  # noqa: E501
+from utils.plots.plot_gamma_bars import plot_gamma_bars
 from utils.plots.plot_zernike_cross_coupling_animation import plot_zernike_cross_coupling_animation  # noqa: E501
 from utils.plots.plot_zernike_cross_coupling_mat_animation import plot_zernike_cross_coupling_mat_animation  # noqa: E501
 from utils.plots.plot_zernike_response import plot_zernike_response
@@ -121,6 +122,11 @@ def model_test_parser(subparsers):
         nargs='+',
         help=('plot the MAE and sMAPE for the output coefficients; the passed '
               'arguments should be the upper index for each coeff group'),
+    )
+    subparser.add_argument(
+        '--plot-layerscale-gamma',
+        help=('plot the mean LayerScale gamma from every layer; the passed '
+              'argument should specify the variable name (probably `gamma`)'),
     )
     shared_argparser_args(subparser, ['force_cpu'])
 
@@ -400,3 +406,23 @@ def model_test(cli_args):
             'sMAPE',
             f'{analysis_path}/mae_and_smape.png',
         )
+
+    plot_layerscale_gamma = cli_args.get('plot_layerscale_gamma')
+    if plot_layerscale_gamma:
+        step_ri('Plotting LayerScale gamma')
+        print(f'Gamma variable name: {plot_layerscale_gamma}')
+        gamma_magnitudes = [
+            param.data.abs().mean().item()
+            for name, param in model.model.named_parameters()
+            if plot_layerscale_gamma in name
+        ]
+        if len(gamma_magnitudes) == 0:
+            print(f'No layers with {plot_layerscale_gamma} found')
+        else:
+            print(f'Gamma Mean: {np.mean(gamma_magnitudes)}')
+            print(f'Gamma Min: {np.min(gamma_magnitudes)}')
+            print(f'Gamma Max: {np.max(gamma_magnitudes)}')
+            plot_gamma_bars(
+                gamma_magnitudes,
+                f'{analysis_path}/layerscale_gamma.png',
+            )
