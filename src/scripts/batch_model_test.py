@@ -82,6 +82,11 @@ def batch_model_test_parser(subparsers):
         help=('plot the mean LayerScale gamma from every layer; the passed '
               'argument should specify the variable name (probably `gamma`)'),
     )
+    subparser.add_argument(
+        '--plot-loss-curves',
+        action='store_true',
+        help='plot the training and validation loss curves',
+    )
     shared_argparser_args(subparser, ['force_cpu'])
 
     selection_group = subparser.add_mutually_exclusive_group()
@@ -130,6 +135,7 @@ def batch_model_test(cli_args):
             'max_rows_per_model_call',
             'plot_coeff_mae_smape',
             'plot_layerscale_gamma',
+            'plot_loss_curves',
         )
     }
 

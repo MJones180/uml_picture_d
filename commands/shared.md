@@ -17,11 +17,6 @@ Randomly trim down the number of rows in a raw simulated dataset:
 
     python3 main.py random_trim_raw_dataset in_tag out_tag row_count
 
-Plot the training vs validation loss for all epochs in a trained model:
-
-    # Example on `com50nm_gl_diff_v2_1` model
-    python3 main.py plot_model_loss com50nm_gl_diff_v2_1
-
 Prune the `tag_lookup.json` file to remove old models:
 
     python3 main.py prune_tag_lookup

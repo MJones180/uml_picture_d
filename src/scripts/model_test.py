@@ -21,6 +21,7 @@ from utils.path import delete_dir, get_abs_path, make_dir
 from utils.plots.plot_coeff_comparison import plot_coeff_comparison
 from utils.plots.plot_comparison_scatter_grid import plot_comparison_scatter_grid  # noqa: E501
 from utils.plots.plot_gamma_bars import plot_gamma_bars
+from utils.plots.plot_model_loss import plot_model_loss
 from utils.plots.plot_zernike_cross_coupling_animation import plot_zernike_cross_coupling_animation  # noqa: E501
 from utils.plots.plot_zernike_cross_coupling_mat_animation import plot_zernike_cross_coupling_mat_animation  # noqa: E501
 from utils.plots.plot_zernike_response import plot_zernike_response
@@ -127,6 +128,11 @@ def model_test_parser(subparsers):
         '--plot-layerscale-gamma',
         help=('plot the mean LayerScale gamma from every layer; the passed '
               'argument should specify the variable name (probably `gamma`)'),
+    )
+    subparser.add_argument(
+        '--plot-loss-curves',
+        action='store_true',
+        help='plot the training and validation loss curves',
     )
     shared_argparser_args(subparser, ['force_cpu'])
 
@@ -426,3 +432,12 @@ def model_test(cli_args):
                 gamma_magnitudes,
                 f'{analysis_path}/layerscale_gamma.png',
             )
+
+    if cli_args.get('plot_loss_curves'):
+        step_ri('Plotting loss curves')
+        plot_model_loss(
+            # Columns: epoch, train_loss, val_loss [, post_training_loss]
+            model.training_loss,
+            model.extra_vars['loss'],
+            f'{analysis_path}/loss.png',
+        )

@@ -2,11 +2,12 @@ from glob import glob
 import numpy as np
 import torch
 from utils.constants import (
-    ARGS_F, BASE_INT_FIELD, CPU, EXTRA_VARS_F, INPUT_MAX_MIN_DIFF, INPUT_MIN_X,
-    INPUTS_ARCSINH, INPUTS_LOG10, INPUTS_SUM_TO_ONE, INPUTS_Z_SCORE_MEAN,
-    INPUTS_Z_SCORE_STD, NORM_RANGE_ONES, NORM_RANGE_ONES_INPUT,
-    NORM_RANGE_ONES_OUTPUT, NORM_STABILITY_VALUE, OUTPUTS_Z_SCORE_MEAN,
-    OUTPUTS_Z_SCORE_STD, OUTPUT_MAX_MIN_DIFF, OUTPUT_MIN_X, TRAINED_MODELS_P)
+    ARGS_F, BASE_INT_FIELD, CPU, EPOCH_LOSS_F, EXTRA_VARS_F,
+    INPUT_MAX_MIN_DIFF, INPUT_MIN_X, INPUTS_ARCSINH, INPUTS_LOG10,
+    INPUTS_SUM_TO_ONE, INPUTS_Z_SCORE_MEAN, INPUTS_Z_SCORE_STD,
+    NORM_RANGE_ONES, NORM_RANGE_ONES_INPUT, NORM_RANGE_ONES_OUTPUT,
+    NORM_STABILITY_VALUE, OUTPUTS_Z_SCORE_MEAN, OUTPUTS_Z_SCORE_STD,
+    OUTPUT_MAX_MIN_DIFF, OUTPUT_MIN_X, TRAINED_MODELS_P)
 from utils.hdf_read_and_write import read_hdf
 from utils.json import json_load
 from utils.load_network import load_network
@@ -81,6 +82,13 @@ class Model():
 
         _print('Loading in the extra variables')
         self.extra_vars = read_hdf(f'{dir_path}/{EXTRA_VARS_F}')
+
+        _print('Loading in the training loss values')
+        self.training_loss = np.loadtxt(
+            f'{dir_path}/{EPOCH_LOSS_F}',
+            skiprows=1,
+            delimiter=',',
+        )
 
         def _grab_ev_bool(arg):
             if arg in self.extra_vars:

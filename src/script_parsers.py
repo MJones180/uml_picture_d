@@ -21,7 +21,6 @@ from scripts.interactive_model_test_plots import inter_model_test_plots_parser
 from scripts.model_test import model_test_parser
 from scripts.model_train import model_train_parser
 from scripts.network_info import network_info_parser
-from scripts.plot_model_loss import plot_model_loss_parser
 from scripts.plot_output_coeff_ranges import plot_output_coeff_ranges_parser
 from scripts.preprocess_data_bare import preprocess_data_bare_parser
 from scripts.preprocess_data_complete import preprocess_data_complete_parser
@@ -57,7 +56,6 @@ script_parsers = [
     model_test_parser,
     model_train_parser,
     network_info_parser,
-    plot_model_loss_parser,
     plot_output_coeff_ranges_parser,
     preprocess_data_bare_parser,
     preprocess_data_complete_parser,
