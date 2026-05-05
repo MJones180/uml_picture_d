@@ -19,8 +19,10 @@ import onnxruntime
 import torch
 from utils.benchmark_nn import benchmark_nn
 from utils.constants import (BASE_INT_FIELD, INPUT_MAX_MIN_DIFF, INPUT_MIN_X,
+                             INPUTS_Z_SCORE_MEAN, INPUTS_Z_SCORE_STD,
                              NORM_STABILITY_VALUE, OUTPUT_MAX_MIN_DIFF,
-                             OUTPUT_MIN_X, TRAINED_MODELS_P)
+                             OUTPUT_MIN_X, OUTPUTS_Z_SCORE_MEAN,
+                             OUTPUTS_Z_SCORE_STD, TRAINED_MODELS_P)
 from utils.model import Model
 from utils.norm import min_max_denorm
 from utils.path import make_dir
@@ -232,12 +234,14 @@ def export_model(cli_args):
         def _write_data(data):
             np.savetxt(out_file, [data], fmt='%e')
 
-        for key in (
-                INPUT_MAX_MIN_DIFF,
-                INPUT_MIN_X,
-                OUTPUT_MAX_MIN_DIFF,
-                OUTPUT_MIN_X,
-        ):
+        # Write the Z-score norm values if they exist; if they do not exist
+        # then min-max norm is being used
+        keys_to_write = (INPUTS_Z_SCORE_MEAN, INPUTS_Z_SCORE_STD,
+                         OUTPUTS_Z_SCORE_MEAN, OUTPUTS_Z_SCORE_STD)
+        if keys_to_write[0] not in model_vars:
+            keys_to_write = (INPUT_MAX_MIN_DIFF, INPUT_MIN_X,
+                             OUTPUT_MAX_MIN_DIFF, OUTPUT_MIN_X)
+        for key in keys_to_write:
             if key in model_vars:
                 table = model_vars[key]
                 if len(table.shape) == 0:
