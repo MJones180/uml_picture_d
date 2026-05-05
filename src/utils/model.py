@@ -1,17 +1,17 @@
 from glob import glob
 import numpy as np
 import torch
-from utils.constants import (ARGS_F, BASE_INT_FIELD, CPU, EXTRA_VARS_F,
-                             INPUT_MAX_MIN_DIFF, INPUT_MIN_X, INPUTS_ARCSINH,
-                             INPUTS_LOG10, INPUTS_SUM_TO_ONE, NORM_RANGE_ONES,
-                             NORM_RANGE_ONES_INPUT, NORM_RANGE_ONES_OUTPUT,
-                             NORM_STABILITY_VALUE, OUTPUT_MAX_MIN_DIFF,
-                             OUTPUT_MIN_X, TRAINED_MODELS_P)
+from utils.constants import (
+    ARGS_F, BASE_INT_FIELD, CPU, EXTRA_VARS_F, INPUT_MAX_MIN_DIFF, INPUT_MIN_X,
+    INPUTS_ARCSINH, INPUTS_LOG10, INPUTS_SUM_TO_ONE, INPUTS_Z_SCORE_MEAN,
+    INPUTS_Z_SCORE_STD, NORM_RANGE_ONES, NORM_RANGE_ONES_INPUT,
+    NORM_RANGE_ONES_OUTPUT, NORM_STABILITY_VALUE, OUTPUTS_Z_SCORE_MEAN,
+    OUTPUTS_Z_SCORE_STD, OUTPUT_MAX_MIN_DIFF, OUTPUT_MIN_X, TRAINED_MODELS_P)
 from utils.hdf_read_and_write import read_hdf
 from utils.json import json_load
 from utils.load_network import load_network
 from utils.norm import (min_max_denorm, min_max_norm, modified_log_transform,
-                        sum_to_one)
+                        sum_to_one, z_score_denormalize, z_score_normalize)
 from utils.path import path_exists
 from utils.printing_and_logging import dec_print_indent, step
 from utils.terminate_with_message import terminate_with_message
@@ -106,6 +106,11 @@ class Model():
         # The base field that will need to be subtracted off. If the field does
         # not exist, then this will just be set to None.
         self.base_field = self.extra_vars.get(BASE_INT_FIELD)
+        # Values needed for z-score normalization
+        self.inputs_z_score_mean = self.extra_vars.get(INPUTS_Z_SCORE_MEAN)
+        self.inputs_z_score_std = self.extra_vars.get(INPUTS_Z_SCORE_STD)
+        self.outputs_z_score_mean = self.extra_vars.get(OUTPUTS_Z_SCORE_MEAN)
+        self.outputs_z_score_std = self.extra_vars.get(OUTPUTS_Z_SCORE_STD)
 
         self.network_name = self.training_args['network_name']
         _print(f'Loading in the network (`{self.network_name}`) '
@@ -150,6 +155,8 @@ class Model():
             input_data = self.arcsinh_inputs(input_data)
         if self.inputs_log10:
             input_data = self.log10_inputs(input_data)
+        if self.inputs_z_score_std:
+            input_data = self.z_score_norm(input_data)
         if self.inputs_sum_to_one:
             input_data = self.sum_inputs_to_one(input_data, sum_dims)
         if sub_basefield:
@@ -163,6 +170,10 @@ class Model():
 
     def log10_inputs(self, input_data):
         return modified_log_transform(input_data, alpha=self.inputs_log10[()])
+
+    def z_score_norm(self, input_data):
+        return z_score_normalize(input_data, self.inputs_z_score_mean,
+                                 self.inputs_z_score_std)
 
     def sum_inputs_to_one(self, input_data, sum_dims=None):
         return sum_to_one(input_data, sum_dims)
@@ -200,6 +211,14 @@ class Model():
         output_data,
         norm_stability_constant=NORM_STABILITY_VALUE,
     ):
+        if self.outputs_z_score_std is not None:
+            outputs_1, outputs_2 = np.split(output_data, 2, axis=1)
+            return np.hstack((
+                z_score_denormalize(outputs_1, self.outputs_z_score_mean[0],
+                                    self.outputs_z_score_std[0]),
+                z_score_denormalize(outputs_2, self.outputs_z_score_mean[1],
+                                    self.outputs_z_score_std[1]),
+            ))
         output_max_min_diff, output_min_x = self._grab_norm_values(
             OUTPUT_MAX_MIN_DIFF, OUTPUT_MIN_X)
         return min_max_denorm(
