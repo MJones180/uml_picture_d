@@ -438,6 +438,6 @@ def model_test(cli_args):
         plot_model_loss(
             # Columns: epoch, train_loss, val_loss [, post_training_loss]
             model.training_loss,
-            model.extra_vars['loss'],
+            model.training_args['loss'],
             f'{analysis_path}/loss.png',
         )
