@@ -121,6 +121,13 @@ def model_train_parser(subparsers):
               'group: name, value; types determined by loss function'),
     )
     subparser.add_argument(
+        '--multi-headed-output',
+        type=int,
+        help=('the architecture has multiple output heads; the value passed '
+              'should specify the number of output heads; each output head '
+              'must be equal in size; this affects the loss function'),
+    )
+    subparser.add_argument(
         '--early-stopping',
         type=int,
         metavar='n',
@@ -241,14 +248,6 @@ def model_train_parser(subparsers):
         action='store_true',
         help=('can be used with the `--transfer-learning-train-layers` arg '
               'to unfreeze all `BatchNorm2d` layers'),
-    )
-    subparser.add_argument(
-        '--save-post-training-loss',
-        action='store_true',
-        help=('calculate the loss of the training dataset after weights for '
-              'the epoch have been finalized, this will increase computation '
-              'time as all the training batches will have to be iterated '
-              'over again'),
     )
     subparser.add_argument(
         '--use-output-mask',
@@ -606,6 +605,14 @@ def model_train(cli_args):
     else:
         unknown_loss_function()
 
+    multi_headed_output = cli_args.get('multi_headed_output')
+    if multi_headed_output is not None:
+        step_ri('Multi-headed output architecture')
+        # Rename the variables for clarity
+        output_heads = multi_headed_output
+        multi_headed_output = True
+        print(f'Total of {output_heads} heads')
+
     early_stopping = cli_args['early_stopping']
     if early_stopping:
         step_ri('Early stopping enabled')
@@ -803,9 +810,11 @@ def model_train(cli_args):
     step_ri('Creating a CSV file to track loss')
     loss_file = f'{output_model_path}/{EPOCH_LOSS_F}'
     loss_keys = 'epoch, training_loss, validation_loss'
-    save_post_training_loss = cli_args.get('save_post_training_loss')
-    if save_post_training_loss:
-        loss_keys += ', post_training_loss'
+    if multi_headed_output:
+        for idx in range(output_heads):
+            loss_keys += f', training_loss_head_{idx}'
+        for idx in range(output_heads):
+            loss_keys += f', validation_loss_head_{idx}'
     with open(loss_file, 'w') as loss_writer:
         loss_writer.write(loss_keys)
 
@@ -842,17 +851,34 @@ def model_train(cli_args):
         # Turn gradient tracking on
         model.train(True)
         total_train_loss = 0
+        if multi_headed_output:
+            total_train_loss_heads = [0 for _ in range(output_heads)]
         for inputs, outputs_truth in train_loader:
             inputs = inputs.to(device)
             outputs_truth = outputs_truth.to(device)
             # Zero gradients for every batch
             optimizer.zero_grad(set_to_none=True)
             # Make predictions for this batch
-            outputs = model(inputs)
-            # Compute the loss and its gradients, need to convert both inputs
-            # to floats (float32) so that the backward prop works for MSE
-            loss = loss_function(outputs.float(), outputs_truth.float())
+            outputs_model = model(inputs)
+            # When computing the loss, the outputs are all converted to float32
+            # to fix an issue that occurs with MSE during backprop
+            if multi_headed_output:
+                outputs_truth = torch.tensor_split(
+                    outputs_truth,
+                    output_heads,
+                    -1,
+                )
+                loss = 0
+                for head_idx in range(output_heads):
+                    loss_head = loss_function(outputs_model[head_idx].float(),
+                                              outputs_truth[head_idx].float())
+                    loss = loss + loss_head
+                    total_train_loss_heads[head_idx] += loss_head.item()
+            else:
+                loss = loss_function(outputs_model.float(),
+                                     outputs_truth.float())
             loss.backward()
+            total_train_loss += loss.item()
             # Add the current batch's grad norm; value is from before clipping
             batch_grad_norms.append(
                 torch.nn.utils.clip_grad_norm_(
@@ -861,8 +887,12 @@ def model_train(cli_args):
                 ).item())
             # Adjust learning weights
             optimizer.step()
-            total_train_loss += loss.item()
         avg_train_loss = total_train_loss / training_batches
+        if multi_headed_output:
+            avg_train_loss_heads = [
+                head_loss / training_batches
+                for head_loss in total_train_loss_heads
+            ]
 
         def _print_grad_norm_stats(clip_str, norms):
             print(f'Gradient Norm ({clip_str}):')
@@ -883,36 +913,40 @@ def model_train(cli_args):
         model.eval()
 
         total_val_loss = 0
+        if multi_headed_output:
+            total_val_loss_heads = [0 for _ in range(output_heads)]
         # Disable gradient computation and reduce memory consumption
         with torch.no_grad():
             for inputs, outputs_truth in validation_loader:
                 inputs = inputs.to(device)
                 outputs_truth = outputs_truth.to(device)
-                outputs = model(inputs)
-                loss = loss_function(outputs, outputs_truth)
-                total_val_loss += loss
+                if multi_headed_output:
+                    outputs_truth = torch.tensor_split(outputs_truth,
+                                                       output_heads, -1)
+                outputs_model = model(inputs)
+                if multi_headed_output:
+                    for head_idx in range(output_heads):
+                        loss_head = loss_function(outputs_model[head_idx],
+                                                  outputs_truth[head_idx])
+                        total_val_loss += loss_head
+                        total_val_loss_heads[head_idx] += loss_head
+                else:
+                    loss = loss_function(outputs_model, outputs_truth)
+                    total_val_loss += loss
         avg_val_loss = total_val_loss / validation_batches
-
-        # Iterate through the training dataset again and compute the loss now
-        # that the weights for this epoch have been finalized. If there is
-        # dropout, the previous `avg_train_loss` will probably be higher than
-        # the `avg_val_loss`
-        if save_post_training_loss:
-            total_post_train_loss = 0
-            with torch.no_grad():
-                for inputs, outputs_truth in train_loader:
-                    inputs = inputs.to(device)
-                    outputs_truth = outputs_truth.to(device)
-                    outputs = model(inputs)
-                    loss = loss_function(outputs, outputs_truth)
-                    total_post_train_loss += loss
-            avg_post_train_loss = total_post_train_loss / training_batches
+        if multi_headed_output:
+            avg_val_loss_heads = [
+                head_loss / validation_batches
+                for head_loss in total_val_loss_heads
+            ]
 
         with open(loss_file, 'a+') as loss_writer:
             out_line = f'\n{epoch_idx}, {avg_train_loss}, {avg_val_loss}'
-            if save_post_training_loss:
-                out_line += f', {avg_post_train_loss}'
-
+            if multi_headed_output:
+                for idx in range(output_heads):
+                    out_line += f', {avg_train_loss_heads[idx]}'
+                for idx in range(output_heads):
+                    out_line += f', {avg_val_loss_heads[idx]}'
             loss_writer.write(out_line)
 
         current_epoch_path = f'{output_model_path}/epoch_{epoch_idx}'
@@ -942,7 +976,17 @@ def model_train(cli_args):
             _save_epoch()
 
         print('Train Loss: ', float(avg_train_loss))
+        if multi_headed_output:
+            inc_print_indent()
+            for idx, avg_train_loss_head in enumerate(avg_train_loss_heads):
+                print(f'Head [{idx}]: {avg_train_loss_head}')
+            dec_print_indent()
         print('Validation Loss: ', float(avg_val_loss))
+        if multi_headed_output:
+            inc_print_indent()
+            for idx, avg_val_loss_head in enumerate(avg_val_loss_heads):
+                print(f'Head [{idx}]: {avg_val_loss_head}')
+            dec_print_indent()
         epochs_since_improvement = epoch_idx - best_val_loss_epoch
         difference_from_best = abs(float(best_val_loss - avg_val_loss))
         inc_print_indent()

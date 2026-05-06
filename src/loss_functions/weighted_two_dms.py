@@ -18,6 +18,7 @@ class WeightedTwoDMs(nn.Module):
         apply_modified_exp=None,
         add_mae_loss=None,
         add_exp_loss_weighting=None,
+        multiheaded_output=None,
     ):
         """The WeightedTwoDMs class.
 
@@ -46,6 +47,12 @@ class WeightedTwoDMs(nn.Module):
         add_exp_loss_weighting : str
             Add an exp weighting to the loss - boosts the gradient for
             small errors. String of format 'alpha,beta' expected.
+        multiheaded_output : bool
+            Set to True if the architecture has a multi-headed output; this
+            makes it so that the loss function only operates on a single DM's
+            output values. In effect, the internal weighting is not tiled
+            to account for two separate DMs. Therefore, this loss function is
+            instead called twice (once for each DM).
 
         Notes
         -----
@@ -88,8 +95,13 @@ class WeightedTwoDMs(nn.Module):
             output_weights = exp_scaling**np.arange(outputs_per_dm)
         else:
             terminate_with_message('Unknown loss scaling')
-        # Create a copy of the output weights for the second DM
-        output_weights = np.tile(output_weights, 2)
+
+        if _grab_param(multiheaded_output, bool):
+            print('Loss function set for multi-headed output')
+        else:
+            # Create a copy of the output weights for the second DM
+            output_weights = np.tile(output_weights, 2)
+
         # Normalize the weights to have a mean of 1
         output_weights = output_weights / output_weights.mean()
         # Move the output weights to torch

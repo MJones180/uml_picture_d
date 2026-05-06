@@ -436,7 +436,7 @@ def model_test(cli_args):
     if cli_args.get('plot_loss_curves'):
         step_ri('Plotting loss curves')
         plot_model_loss(
-            # Columns: epoch, train_loss, val_loss [, post_training_loss]
+            # Columns: epoch, train_loss, val_loss
             model.training_loss,
             model.training_args['loss'],
             f'{analysis_path}/loss.png',

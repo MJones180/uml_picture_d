@@ -14,7 +14,5 @@ def plot_model_loss(data, loss_function, plot_path):
     epochs = data[:, 0]
     ax.plot(epochs, data[:, 1], 'b', label='Train Loss')
     ax.plot(epochs, data[:, 2], 'r', label='Validation Loss')
-    if data.shape[1] == 4:
-        ax.plot(epochs, data[:, 3], 'g', label='Post Train Loss')
     plt.legend()
     plt.savefig(plot_path)
