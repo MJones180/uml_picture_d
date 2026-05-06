@@ -153,7 +153,11 @@ def export_model(cli_args):
     # traced TorchScript version.
     row_count = inputs.shape[0]
     pytorch_model_out = model_obj(inputs)
-    ts_model_out = ts_model(inputs).detach().numpy()
+    ts_model_out = ts_model(inputs)
+    # If there are multiple heads, concat them together
+    if isinstance(ts_model_out, tuple):
+        ts_model_out = torch.cat(ts_model_out, -1)
+    ts_model_out = ts_model_out.detach().numpy()
     avg_diff = np.sum(np.abs(pytorch_model_out - ts_model_out)) / row_count
     print(f'Average difference of {avg_diff:0.8f} per row')
 
@@ -201,8 +205,8 @@ def export_model(cli_args):
 
     # Run the ONNX model on the comparison rows
     onnx_model_out = np.array([_run_onnx(row[None]) for row in inputs])
-    # Remove the dimensions of size 1
-    onnx_model_out = np.squeeze(onnx_model_out)
+    # Removes the empty dimension of size 1 or concats a multi-headed output
+    onnx_model_out = onnx_model_out.reshape(onnx_model_out.shape[0], -1)
     avg_diff = np.sum(np.abs(pytorch_model_out - onnx_model_out)) / row_count
     print(f'Average difference of {avg_diff:0.8f} per row')
 
