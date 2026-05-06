@@ -67,25 +67,6 @@ class BottleneckResidualBlock(nn.Module):
         return x + self.drop_path(self.gamma * self.block(x))
 
 
-class PredictionHead(nn.Module):
-
-    def __init__(self):
-        super().__init__()
-        self.blocks = nn.Sequential(*[
-            BottleneckResidualBlock(SHARED_DEPTH + layer_idx)
-            for layer_idx in range(HEAD_DEPTH)
-        ])
-        self.out = nn.Sequential(
-            nn.BatchNorm1d(OUTER_DIM),
-            nn.LeakyReLU(LEAKY_RELU),
-            nn.Linear(OUTER_DIM, HEAD_OUT_DIM),
-        )
-
-    def forward(self, x):
-        x = self.blocks(x)
-        return self.out(x)
-
-
 class Network(nn.Module):
 
     def example_input():
@@ -101,10 +82,28 @@ class Network(nn.Module):
             BottleneckResidualBlock(layer_idx)
             for layer_idx in range(SHARED_DEPTH)
         ])
-        self.head_1 = PredictionHead()
-        self.head_2 = PredictionHead()
+        self.head_1_blocks = nn.Sequential(*[
+            BottleneckResidualBlock(SHARED_DEPTH + layer_idx)
+            for layer_idx in range(HEAD_DEPTH)
+        ])
+        self.head_2_blocks = nn.Sequential(*[
+            BottleneckResidualBlock(SHARED_DEPTH + layer_idx)
+            for layer_idx in range(HEAD_DEPTH)
+        ])
+        self.head_1_out = nn.Sequential(
+            nn.BatchNorm1d(OUTER_DIM),
+            nn.LeakyReLU(LEAKY_RELU),
+            nn.Linear(OUTER_DIM, HEAD_OUT_DIM),
+        )
+        self.head_2_out = nn.Sequential(
+            nn.BatchNorm1d(OUTER_DIM),
+            nn.LeakyReLU(LEAKY_RELU),
+            nn.Linear(OUTER_DIM, HEAD_OUT_DIM),
+        )
 
     def forward(self, x):
         x = self.in_layer(x)
         x = self.shared_blocks(x)
-        return self.head_1(x), self.head_2(x)
+        x_head_1 = self.head_1_blocks(x)
+        x_head_2 = self.head_2_blocks(x)
+        return self.head_1_out(x_head_1), self.head_2_out(x_head_2)
