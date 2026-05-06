@@ -928,11 +928,11 @@ def model_train(cli_args):
                     for head_idx in range(output_heads):
                         loss_head = loss_function(outputs_model[head_idx],
                                                   outputs_truth[head_idx])
-                        total_val_loss += loss_head
-                        total_val_loss_heads[head_idx] += loss_head
+                        total_val_loss += loss_head.item()
+                        total_val_loss_heads[head_idx] += loss_head.item()
                 else:
-                    loss = loss_function(outputs_model, outputs_truth)
-                    total_val_loss += loss
+                    total_val_loss += loss_function(outputs_model,
+                                                    outputs_truth).item()
         avg_val_loss = total_val_loss / validation_batches
         if multi_headed_output:
             avg_val_loss_heads = [

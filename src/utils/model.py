@@ -256,7 +256,11 @@ class Model():
         def _run_model(data_chunk):
             with torch.no_grad():
                 # Put the data on the correct device before calling the model
-                return self.model(data_chunk.to(self.device)).cpu()
+                result = self.model(data_chunk.to(self.device))
+                # Concat a multi-headed output
+                if isinstance(result, tuple):
+                    result = torch.cat(result, axis=-1)
+                return result.cpu()
 
         # Memory may be an issue, especially if a GPU is being used. Therefore,
         # the data may need to be split in to chunks before calling the model.
