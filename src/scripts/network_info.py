@@ -54,7 +54,11 @@ def network_info(cli_args):
     step_ri('Sample call')
     output_data = network_inst(input_data_dev)
     print('Output data: ', output_data)
-    print('Output shape: ', output_data.shape)
+    if isinstance(output_data, tuple):
+        for idx, head in enumerate(output_data):
+            print(f'Output shape (head {idx}): ', head.shape)
+    else:
+        print('Output shape: ', output_data.shape)
 
     step_ri('Input and output shapes from each layer')
 
@@ -79,6 +83,9 @@ def network_info(cli_args):
 
         def call_wrapper():
             with torch.no_grad():
-                model(input_data_dev).cpu().numpy()
+                result = model(input_data_dev)
+                if isinstance(output_data, tuple):
+                    result = result[0]
+                result.cpu().numpy()
 
         benchmark_nn(cli_args['benchmark'], call_wrapper)
