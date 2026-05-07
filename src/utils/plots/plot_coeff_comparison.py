@@ -29,7 +29,8 @@ def plot_coeff_comparison(
         lower_bound = coeff_group_idxs[idx]
         upper_bound = coeff_group_idxs[idx + 1]
         indices = np.arange(lower_bound, upper_bound)
-        axs[idx].set_title(f'Coefficient Errors ({lower_bound}-{upper_bound})')
+        axs[idx].set_title(
+            f'Coefficient Errors ({lower_bound + 1}-{upper_bound})')
         axs[idx].set_xlabel('Coefficient Index')
         axs[idx].set_ylabel(metric_one_label, color=metric_one_color)
         axs[idx].plot(
