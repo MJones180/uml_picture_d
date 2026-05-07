@@ -5819,8 +5819,32 @@ After model testing, it is useful to rank the model analyses:
             in_layer shared_blocks head_1_blocks head_2_blocks \
         --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
 
+    python3 main_scnp.py model_train \
+        dh_v111_2 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score \
+        dh_t65_70dp25do40 weighted_two_dms adamw 3e-3 650 --batch-size 1024 \
+        --loss-params linear_scaling 0.1 take_row_sum 1 multiheaded_output 1 \
+        --optimizer-params weight_decay 0.01 1 \
+        --optimizer-one-d-group-weight-decay 0 \
+        --use-cosine-annealing-lr-scheduler 80 1e-6 1e-7 --clip-gradient-norm 10 \
+        --multi-headed-output 2 --init-weights-kaiming-normal-simple 0.20 \
+            in_layer shared_blocks head_1_blocks head_2_blocks \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v111_3 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score \
+        dh_t66_70dp25do40 weighted_two_dms adamw 3e-3 650 --batch-size 1024 \
+        --loss-params linear_scaling 0.1 take_row_sum 1 multiheaded_output 1 \
+        --optimizer-params weight_decay 0.01 1 \
+        --optimizer-one-d-group-weight-decay 0 \
+        --use-cosine-annealing-lr-scheduler 80 1e-6 1e-7 --clip-gradient-norm 10 \
+        --multi-headed-output 2 --init-weights-kaiming-normal-simple 0.20 \
+            in_layer shared_blocks head_1_blocks head_2_blocks \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
     python3 main.py batch_model_test \
         test_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score \
-        --epoch-and-tag-range last dh_v111_ 1 1 --plot-loss-curves \
+        --epoch-and-tag-range last dh_v111_ 1 3 --plot-loss-curves \
         --plot-coeff-mae-smape 500 1000 --plot-layerscale-gamma gamma \
         --max-rows-per-model-call 1000
