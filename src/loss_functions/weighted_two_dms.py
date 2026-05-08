@@ -3,6 +3,7 @@ import torch
 import torch.nn as nn
 from utils.constants import DATA_F, RAW_DATA_P
 from utils.hdf_read_and_write import read_hdf
+from utils.norm import min_max_norm
 from utils.terminate_with_message import terminate_with_message
 
 
@@ -114,8 +115,12 @@ class WeightedTwoDMs(nn.Module):
             singular_values = read_hdf(path)['singular_values'][:]
             # Use the required number of modes
             singular_values = singular_values[:outputs_per_dm]
-            # Normalize the singular values to have a max value of 1
-            singular_values /= np.max(singular_values)
+            # Normalize the singular values to have a min-max of [1,0]
+            singular_values = min_max_norm(
+                singular_values,
+                singular_values[0] - singular_values[-1],
+                singular_values[-1],
+            )
             # Grab the lower bound to scale the values between
             lower_bound = _grab_param(singular_value_scaling_lower_bound)
             if lower_bound is None:
