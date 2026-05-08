@@ -5909,8 +5909,7 @@ After model testing, it is useful to rank the model analyses:
         --optimizer-params weight_decay 0.01 1 \
         --optimizer-one-d-group-weight-decay 0 \
         --use-cosine-annealing-lr-scheduler 80 1e-6 1e-7 --clip-gradient-norm 10 \
-        --multi-headed-output 2 --multi-headed-scaled-loss 1.457 0.543 \
-        --init-weights-kaiming-normal-simple 0.20 \
+        --multi-headed-output 2 --init-weights-kaiming-normal-simple 0.20 \
             in_layer shared_blocks head_1_blocks head_2_blocks \
         --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
 
