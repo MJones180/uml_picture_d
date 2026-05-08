@@ -1,6 +1,8 @@
 import numpy as np
 import torch
 import torch.nn as nn
+from utils.constants import DATA_F, RAW_DATA_P
+from utils.hdf_read_and_write import read_hdf
 from utils.terminate_with_message import terminate_with_message
 
 
@@ -12,6 +14,8 @@ class WeightedTwoDMs(nn.Module):
         device,
         linear_scaling=None,
         exp_scaling=None,
+        singular_value_scaling=None,
+        singular_value_scaling_lower_bound=None,
         linear_scaling_tail=None,
         take_row_sum=None,
         apply_modified_log=None,
@@ -34,6 +38,14 @@ class WeightedTwoDMs(nn.Module):
         exp_scaling : float
             Base that the loss should be scaled with, the exponent is the
             index of the output value.
+        singular_value_scaling : str
+            Use singular values as the scaling for each value. The argument
+            passed should be the tag of the raw HDF data which contains the
+            singular values. The singular values must be stored under the
+            table name of `singular_values`.
+        singular_value_scaling_lower_bound : float
+            The lower bound to scale the singular values between. By default,
+            the singular values will range from [1, ~0] (after normalization).
         linear_scaling_tail : int
             Used with the `linear_scaling` argument to change the lower mode.
         take_row_sum : bool
@@ -76,6 +88,7 @@ class WeightedTwoDMs(nn.Module):
         # of each output neuron associated with the first DM
         linear_scaling = _grab_param(linear_scaling)
         exp_scaling = _grab_param(exp_scaling)
+        singular_value_scaling = _grab_param(singular_value_scaling, str)
         if linear_scaling:
             end_mode = outputs_per_dm
             linear_scaling_tail = _grab_param(linear_scaling_tail, int)
@@ -93,6 +106,23 @@ class WeightedTwoDMs(nn.Module):
         elif exp_scaling:
             print(f'Exponential scaling with base {exp_scaling}')
             output_weights = exp_scaling**np.arange(outputs_per_dm)
+        elif singular_value_scaling:
+            print(f'Singular value scaling ({singular_value_scaling})')
+            path = f'{RAW_DATA_P}/{singular_value_scaling}/0_{DATA_F}'
+            print(f'Path: {path}')
+            # Load in the singular values
+            singular_values = read_hdf(path)['singular_values'][:]
+            # Use the required number of modes
+            singular_values = singular_values[:outputs_per_dm]
+            # Normalize the singular values to have a max value of 1
+            singular_values /= np.max(singular_values)
+            # Grab the lower bound to scale the values between
+            lower_bound = _grab_param(singular_value_scaling_lower_bound)
+            if lower_bound is not None:
+                lower_bound = 0.1
+            print(f'Setting lower bound to {lower_bound}')
+            # The singular values scaled between [1, lower_bound]
+            output_weights = lower_bound + (1 - lower_bound) * singular_values
         else:
             terminate_with_message('Unknown loss scaling')
 
