@@ -118,7 +118,7 @@ class WeightedTwoDMs(nn.Module):
             singular_values /= np.max(singular_values)
             # Grab the lower bound to scale the values between
             lower_bound = _grab_param(singular_value_scaling_lower_bound)
-            if lower_bound is not None:
+            if lower_bound is None:
                 lower_bound = 0.1
             print(f'Setting lower bound to {lower_bound}')
             # The singular values scaled between [1, lower_bound]
