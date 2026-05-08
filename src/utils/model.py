@@ -163,7 +163,7 @@ class Model():
             input_data = self.arcsinh_inputs(input_data)
         if self.inputs_log10:
             input_data = self.log10_inputs(input_data)
-        if self.inputs_z_score_std:
+        if self.inputs_z_score_std is not None:
             input_data = self.z_score_norm(input_data)
         if self.inputs_sum_to_one:
             input_data = self.sum_inputs_to_one(input_data, sum_dims)
@@ -220,13 +220,27 @@ class Model():
         norm_stability_constant=NORM_STABILITY_VALUE,
     ):
         if self.outputs_z_score_std is not None:
-            outputs_1, outputs_2 = np.split(output_data, 2, axis=1)
-            return np.hstack((
-                z_score_denormalize(outputs_1, self.outputs_z_score_mean[0],
-                                    self.outputs_z_score_std[0]),
-                z_score_denormalize(outputs_2, self.outputs_z_score_mean[1],
-                                    self.outputs_z_score_std[1]),
-            ))
+            # Each DM is normalized globally
+            if len(self.outputs_z_score_std) == 2:
+                outputs_1, outputs_2 = np.split(output_data, 2, axis=1)
+                return np.hstack((
+                    z_score_denormalize(
+                        outputs_1,
+                        self.outputs_z_score_mean[0],
+                        self.outputs_z_score_std[0],
+                    ),
+                    z_score_denormalize(
+                        outputs_2,
+                        self.outputs_z_score_mean[1],
+                        self.outputs_z_score_std[1],
+                    ),
+                ))
+            # Each output is normalized individually
+            return z_score_denormalize(
+                output_data,
+                self.outputs_z_score_mean,
+                self.outputs_z_score_std,
+            )
         output_max_min_diff, output_min_x = self._grab_norm_values(
             OUTPUT_MAX_MIN_DIFF, OUTPUT_MIN_X)
         return min_max_denorm(
