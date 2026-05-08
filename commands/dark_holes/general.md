@@ -357,6 +357,11 @@ Convert a flat SVD matrix from FITS to HDF:
         /home/michael-jones/Documents/piccsim/output/svd_modes/dm2_v_matrix.fits \
         dm2_modes
 
+    # The singular values associated with the first DM
+    python3 main.py convert_flat_svd_matrix dm1_singular_values_flat \
+        /home/michael-jones/Documents/piccsim/output/svd_modes/dm1_w_matrix.fits \
+        singular_values
+
 ## Data Preprocessing
 
 Preprocess the datasets:
