@@ -264,11 +264,23 @@ def preprocess_data_dark_hole_parser(subparsers):
               'components share the same mean and standard deviation'),
     )
     subparser.add_argument(
+        '--z-score-inputs-individual',
+        action='store_true',
+        help=('z-score normalize the inputs; every input value is '
+              'normalized independently'),
+    )
+    subparser.add_argument(
         '--z-score-outputs',
         action='store_true',
         help=('z-score normalize the outputs; DM 1 and DM 2 have separate '
               'mean and standard deviation values; the current implementation '
               'requires that the DMs be the same size'),
+    )
+    subparser.add_argument(
+        '--z-score-outputs-individual',
+        action='store_true',
+        help=('z-score normalize the inputs; every output value is '
+              'normalized independently'),
     )
 
 
@@ -884,14 +896,23 @@ def preprocess_data_dark_hole(cli_args):
     # ==========================================================================
 
     z_score_inputs = cli_args['z_score_inputs']
-    if z_score_inputs:
+    z_score_inputs_individual = cli_args['z_score_inputs_individual']
+    if z_score_inputs or z_score_inputs_individual:
         step_ri('Z-score input normalization')
-        if extend_existing_data:
-            inputs_mean = _use_var(INPUTS_Z_SCORE_MEAN, scalar=True)
-            inputs_std = _use_var(INPUTS_Z_SCORE_STD, scalar=True)
+        if z_score_inputs_individual:
+            print('Individually normalizing')
+            norm_axis = 0
+            scalar_values = False
         else:
-            inputs_mean = np.mean(train_inputs)
-            inputs_std = np.std(train_inputs)
+            print('Globally normalizing')
+            norm_axis = None
+            scalar_values = True
+        if extend_existing_data:
+            inputs_mean = _use_var(INPUTS_Z_SCORE_MEAN, scalar=scalar_values)
+            inputs_std = _use_var(INPUTS_Z_SCORE_STD, scalar=scalar_values)
+        else:
+            inputs_mean = np.mean(train_inputs, axis=norm_axis)
+            inputs_std = np.std(train_inputs, axis=norm_axis)
             _save_var(INPUTS_Z_SCORE_MEAN, inputs_mean)
             _save_var(INPUTS_Z_SCORE_STD, inputs_std)
         train_inputs = z_score_normalize(train_inputs, inputs_mean, inputs_std)
@@ -910,7 +931,7 @@ def preprocess_data_dark_hole(cli_args):
 
     z_score_outputs = cli_args['z_score_outputs']
     if z_score_outputs:
-        step_ri('Z-score output normalization')
+        step_ri('Z-score output normalization (global for each DM)')
         train_outputs_1, train_outputs_2 = np.split(train_outputs, 2, axis=1)
         val_outputs_1, val_outputs_2 = np.split(val_outputs, 2, axis=1)
         if extend_existing_data:
@@ -935,6 +956,27 @@ def preprocess_data_dark_hole(cli_args):
             z_score_normalize(val_outputs_1, outputs_mean_1, outputs_std_1),
             z_score_normalize(val_outputs_2, outputs_mean_2, outputs_std_2),
         ))
+        print(f'Validation min: {np.min(val_outputs)}')
+        print(f'Validation max: {np.max(val_outputs)}')
+
+    z_score_outputs_individual = cli_args['z_score_outputs_individual']
+    if z_score_outputs_individual:
+        step_ri('Z-score output normalization (individual)')
+        if extend_existing_data:
+            outputs_mean = _use_var(OUTPUTS_Z_SCORE_MEAN)
+            outputs_std = _use_var(OUTPUTS_Z_SCORE_STD)
+        else:
+            outputs_mean = np.mean(train_outputs, axis=0)
+            outputs_std = np.std(train_outputs, axis=0)
+            _save_var(OUTPUTS_Z_SCORE_MEAN, outputs_mean)
+            _save_var(OUTPUTS_Z_SCORE_STD, outputs_std)
+        train_outputs = z_score_normalize(train_outputs, outputs_mean,
+                                          outputs_std)
+        print(f'Train min: {np.min(train_outputs)}')
+        print(f'Train max: {np.max(train_outputs)}')
+        print('Normalizing outputs of validation data based on '
+              'training z-score values')
+        val_outputs = z_score_normalize(val_outputs, outputs_mean, outputs_std)
         print(f'Validation min: {np.min(val_outputs)}')
         print(f'Validation max: {np.max(val_outputs)}')
 
