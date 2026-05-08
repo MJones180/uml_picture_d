@@ -128,6 +128,12 @@ def model_train_parser(subparsers):
               'must be equal in size; this affects the loss function'),
     )
     subparser.add_argument(
+        '--multi-headed-scaled-loss',
+        type=float,
+        nargs='+',
+        help='scale the loss of each head in a multi-headed output',
+    )
+    subparser.add_argument(
         '--early-stopping',
         type=int,
         metavar='n',
@@ -612,6 +618,10 @@ def model_train(cli_args):
         output_heads = multi_headed_output
         multi_headed_output = True
         print(f'Total of {output_heads} heads')
+        multi_headed_scaled_loss = cli_args.get('multi_headed_scaled_loss')
+        if multi_headed_scaled_loss is not None:
+            step_ri('Using scaled multi-headed loss')
+            print(f'Head loss scalings: {multi_headed_scaled_loss}')
 
     early_stopping = cli_args['early_stopping']
     if early_stopping:
@@ -870,8 +880,12 @@ def model_train(cli_args):
                 )
                 loss = 0
                 for head_idx in range(output_heads):
-                    loss_head = loss_function(outputs_model[head_idx].float(),
-                                              outputs_truth[head_idx].float())
+                    loss_scale = 1
+                    if multi_headed_scaled_loss is not None:
+                        loss_scale = multi_headed_scaled_loss[head_idx]
+                    loss_head = loss_function(
+                        outputs_model[head_idx].float(),
+                        outputs_truth[head_idx].float()) * loss_scale
                     loss = loss + loss_head
                     total_train_loss_heads[head_idx] += loss_head.item()
             else:
@@ -920,14 +934,17 @@ def model_train(cli_args):
             for inputs, outputs_truth in validation_loader:
                 inputs = inputs.to(device)
                 outputs_truth = outputs_truth.to(device)
+                outputs_model = model(inputs)
                 if multi_headed_output:
                     outputs_truth = torch.tensor_split(outputs_truth,
                                                        output_heads, -1)
-                outputs_model = model(inputs)
-                if multi_headed_output:
                     for head_idx in range(output_heads):
-                        loss_head = loss_function(outputs_model[head_idx],
-                                                  outputs_truth[head_idx])
+                        loss_scale = 1
+                        if multi_headed_scaled_loss is not None:
+                            loss_scale = multi_headed_scaled_loss[head_idx]
+                        loss_head = loss_function(
+                            outputs_model[head_idx],
+                            outputs_truth[head_idx]) * loss_scale
                         total_val_loss += loss_head.item()
                         total_val_loss_heads[head_idx] += loss_head.item()
                 else:
