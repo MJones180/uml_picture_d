@@ -98,6 +98,8 @@ class Network(nn.Module):
                                         HEAD_1_DP_PROBS[layer_idx])
                 for layer_idx in range(HEAD_1_DEPTH)
             ],
+            nn.BatchNorm1d(OUTER_DIM),
+            nn.LeakyReLU(LEAKY_RELU),
         )
         self.head_2 = nn.Sequential(
             nn.Linear(IN_DIM, OUTER_DIM, bias=False),
@@ -107,17 +109,11 @@ class Network(nn.Module):
                                         HEAD_2_DP_PROBS[layer_idx])
                 for layer_idx in range(HEAD_2_DEPTH)
             ],
-        )
-        self.head_1_out = nn.Sequential(
             nn.BatchNorm1d(OUTER_DIM),
             nn.LeakyReLU(LEAKY_RELU),
-            nn.Linear(OUTER_DIM, HEAD_OUT_DIM),
         )
-        self.head_2_out = nn.Sequential(
-            nn.BatchNorm1d(OUTER_DIM),
-            nn.LeakyReLU(LEAKY_RELU),
-            nn.Linear(OUTER_DIM, HEAD_OUT_DIM),
-        )
+        self.head_1_out = nn.Linear(OUTER_DIM, HEAD_OUT_DIM)
+        self.head_2_out = nn.Linear(OUTER_DIM, HEAD_OUT_DIM)
 
     def forward(self, x):
         return self.head_1_out(self.head_1(x)), self.head_2_out(self.head_2(x))
