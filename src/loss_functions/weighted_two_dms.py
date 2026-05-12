@@ -16,6 +16,7 @@ class WeightedTwoDMs(nn.Module):
         linear_scaling=None,
         exp_scaling=None,
         singular_value_scaling=None,
+        singular_value_scaling_square=None,
         singular_value_scaling_lower_bound=None,
         linear_scaling_tail=None,
         take_row_sum=None,
@@ -44,9 +45,12 @@ class WeightedTwoDMs(nn.Module):
             passed should be the tag of the raw HDF data which contains the
             singular values. The singular values must be stored under the
             table name of `singular_values`.
+        singular_value_scaling_square : bool
+            Square the singular values to further prioritize the early modes.
         singular_value_scaling_lower_bound : float
-            The lower bound to scale the singular values between. By default,
-            the singular values will range from [1, ~0] (after normalization).
+            The lower bound to scale the singular values between; defaults to
+            a lower-bound of 0.1. Without scaling, the singular values will
+            range from [~0, 1] (after min-max norm).
         linear_scaling_tail : int
             Used with the `linear_scaling` argument to change the lower mode.
         take_row_sum : bool
@@ -115,6 +119,10 @@ class WeightedTwoDMs(nn.Module):
             singular_values = read_hdf(path)['singular_values'][:]
             # Use the required number of modes
             singular_values = singular_values[:outputs_per_dm]
+            if _grab_param(singular_value_scaling_square, bool):
+                print('Squaring the singular values')
+                # Square the singular values to further prioritize early modes
+                singular_values = singular_values**2
             # Normalize the singular values to have a min-max of [1,0]
             singular_values = min_max_norm(
                 singular_values,
