@@ -330,6 +330,18 @@ Both HODMs:
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 12 11 1 dm1 dm2 \
         --rows-per-chunk 24000 --load-from-existing-hdf-dataset 31692
 
+    # 12 iterations of broadband EFC (gain -1) using the RM; Uses the full PIC-D optical train
+    # Uses the newer single FITS file format; Data simulated on Unity
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_broadband_full_gain_picd_xxxx \
+        /home/michael_jones6_student_uml_edu/work/piccsim/plots/dh_dm_dataset_XXX \
+        --fits-file-globs dm1 dm2 sci_i sci_r --fits-table-names dm1 dm2 sci_i sci_r \
+        --rows-per-chunk 24000 --load-from-single-fits-datafiles # xxxx rows
+    # ---------------
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_broadband_full_gain_picd_xxxx_1iter \
+        /home/michael_jones6_student_uml_edu/uml_picture_d/data/raw/dh_both_hodms_efc_broadband_full_gain_picd_xxxx  \
+        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 12 11 1 dm1 dm2 \
+        --rows-per-chunk 24000 --load-from-existing-hdf-dataset xxxx
+
 The 2D DM SVD modes from the inverted matrix:
 
     python3 main.py convert_piccsim_fits_data hodm1_756_modes \
