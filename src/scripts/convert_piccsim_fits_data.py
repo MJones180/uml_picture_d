@@ -104,6 +104,13 @@ def convert_piccsim_fits_data_parser(subparsers):
               'the reference row in each group will not be saved'),
     )
     subparser.add_argument(
+        '--load-from-single-fits-datafiles',
+        action='store_true',
+        help=('load the data from single FITS files which contain all the '
+              'rows; the newer versions of the `piccsim` simulation script '
+              'will write out a single FITS datafile for each product'),
+    )
+    subparser.add_argument(
         '--load-from-existing-hdf-dataset',
         type=int,
         help=('load the data from an existing raw HDF dataset instead of from '
@@ -138,6 +145,7 @@ def convert_piccsim_fits_data(cli_args):
         quit()
 
     use_existing_hdf = cli_args.get('load_from_existing_hdf_dataset')
+    use_single_fits_files = cli_args['load_from_single_fits_datafiles']
     table_names = cli_args['fits_table_names']
     if use_existing_hdf is not None:
         step_ri('Working from an existing HDF dataset')
@@ -156,27 +164,35 @@ def convert_piccsim_fits_data(cli_args):
         if len(file_globs) != len(table_names):
             terminate_with_message('The `--fits-file-globs` and '
                                    '`--fits-table-names` must be same length')
+        if use_single_fits_files:
+            step_ri('Loading from single FITS files')
+            print(f'File names: {file_globs}')
+            print(f'Table names: {table_names}')
+            with fits.open(f'{dir_path}/{file_globs[0]}.fits') as hdul:
+                # The primary does not contain data
+                total_file_count = len(hdul) - 1
+            print(f'Total number of rows: {total_file_count}')
+        else:
+            step_ri('Verifying each glob produces the same number of files')
 
-        step_ri('Verifying each glob produces the same number of files')
+            def _make_glob(glob_str):
+                return sorted(glob(f'{dir_path}/{glob_str}.fits'))
 
-        def _make_glob(glob_str):
-            return sorted(glob(f'{dir_path}/{glob_str}.fits'))
-
-        total_file_count = None
-        for file_glob in file_globs:
-            step(f'Finding files with the glob {file_glob}')
-            found_files = _make_glob(file_glob)
-            datafile_count = len(found_files)
-            print(f'A total of {datafile_count} found')
-            print(f'First file path: {found_files[0]}')
-            print(f'Last file path: {found_files[-1]}')
-            if total_file_count is None:
-                total_file_count = datafile_count
-            # The glob is producing a different number of found datafiles
-            elif total_file_count != datafile_count:
-                terminate_with_message(f'{file_glob} produces a different '
-                                       'number of found datafiles')
-            dec_print_indent()
+            total_file_count = None
+            for file_glob in file_globs:
+                step(f'Finding files with the glob {file_glob}')
+                found_files = _make_glob(file_glob)
+                datafile_count = len(found_files)
+                print(f'A total of {datafile_count} found')
+                print(f'First file path: {found_files[0]}')
+                print(f'Last file path: {found_files[-1]}')
+                if total_file_count is None:
+                    total_file_count = datafile_count
+                # The glob is producing a different number of found datafiles
+                elif total_file_count != datafile_count:
+                    terminate_with_message(f'{file_glob} produces a different '
+                                           'number of found datafiles')
+                dec_print_indent()
 
     row_slice_mask = None
     slice_row_ranges = cli_args.get('slice_row_ranges')
