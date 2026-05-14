@@ -108,7 +108,8 @@ def convert_piccsim_fits_data_parser(subparsers):
         action='store_true',
         help=('load the data from single FITS files which contain all the '
               'rows; the newer versions of the `piccsim` simulation script '
-              'will write out a single FITS datafile for each product'),
+              'will write out a single FITS datafile for each product; when '
+              'using this, `--fits-file-globs` should not be globs'),
     )
     subparser.add_argument(
         '--load-from-existing-hdf-dataset',
@@ -267,21 +268,31 @@ def convert_piccsim_fits_data(cli_args):
                 print(f'Table: {table_name} - {tables[table_name].shape}')
         else:
             for file_glob, table_name in zip(file_globs, table_names):
-                step(f'Glob {file_glob}')
-                found_datafiles = _make_glob(file_glob)
-                if row_slice_mask is not None:
-                    # Take out the sliced rows if specified
-                    found_datafiles = np.array(found_datafiles)[row_slice_mask]
-                # Slice out the simulations for this chunk
-                found_datafiles = found_datafiles[idx_low:idx_high]
-                first_filename = found_datafiles[0].split('/')[-1]
-                last_filename = found_datafiles[-1].split('/')[-1]
-                print(f'Files: {first_filename} - {last_filename}')
-                print('Loading in files...')
-                tables[table_name] = np.array([
-                    fits.getdata(datafile_path, memmap=False)
-                    for datafile_path in found_datafiles
-                ])
+                if use_single_fits_files:
+                    step_ri(f'File {file_glob}')
+                    with fits.open(f'{dir_path}/{file_glob}.fits') as hdul:
+                        table_data = []
+                        for idx in range(idx_low, idx_high):
+                            # Need to offset by 1 to ignore the empty primary
+                            table_data.append(hdul[idx + 1].data)
+                        tables[table_name] = np.array(table_data)
+                else:
+                    step(f'Glob {file_glob}')
+                    found_datafiles = _make_glob(file_glob)
+                    if row_slice_mask is not None:
+                        # Take out the sliced rows if specified
+                        found_datafiles = np.array(
+                            found_datafiles)[row_slice_mask]
+                    # Slice out the simulations for this chunk
+                    found_datafiles = found_datafiles[idx_low:idx_high]
+                    first_filename = found_datafiles[0].split('/')[-1]
+                    last_filename = found_datafiles[-1].split('/')[-1]
+                    print(f'Files: {first_filename} - {last_filename}')
+                    print('Loading in files...')
+                    tables[table_name] = np.array([
+                        fits.getdata(datafile_path, memmap=False)
+                        for datafile_path in found_datafiles
+                    ])
                 print(f'Data stored in the `{table_name}` table')
                 dec_print_indent()
         if save_differences:
