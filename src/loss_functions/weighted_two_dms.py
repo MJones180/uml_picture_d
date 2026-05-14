@@ -19,6 +19,7 @@ class WeightedTwoDMs(nn.Module):
         singular_value_scaling_square=None,
         singular_value_scaling_sqrt=None,
         singular_value_scaling_lower_bound=None,
+        singular_value_scaling_no_norm_or_scaling=None,
         linear_scaling_tail=None,
         take_row_sum=None,
         apply_modified_log=None,
@@ -54,6 +55,9 @@ class WeightedTwoDMs(nn.Module):
             The lower bound to scale the singular values between; defaults to
             a lower-bound of 0.1. Without scaling, the singular values will
             range from [~0, 1] (after min-max norm).
+        singular_value_scaling_no_norm_or_scaling : bool
+            Do not apply min-max normalization to the singular values and do not
+            scale them between [lower bound, 1].
         linear_scaling_tail : int
             Used with the `linear_scaling` argument to change the lower mode.
         take_row_sum : bool
@@ -128,19 +132,22 @@ class WeightedTwoDMs(nn.Module):
             if _grab_param(singular_value_scaling_sqrt, bool):
                 print('Square rooting the singular values')
                 singular_values = singular_values**0.5
-            # Normalize the singular values to have a min-max of [1,0]
-            singular_values = min_max_norm(
-                singular_values,
-                singular_values[0] - singular_values[-1],
-                singular_values[-1],
-            )
-            # Grab the lower bound to scale the values between
-            lower_bound = _grab_param(singular_value_scaling_lower_bound)
-            if lower_bound is None:
-                lower_bound = 0.1
-            print(f'Setting lower bound to {lower_bound}')
-            # The singular values scaled between [1, lower_bound]
-            output_weights = lower_bound + (1 - lower_bound) * singular_values
+            if _grab_param(singular_value_scaling_no_norm_or_scaling, bool):
+                print('Not doing min-max norm or scaling')
+            else:
+                # Normalize the singular values to have a min-max of [1,0]
+                singular_values = min_max_norm(
+                    singular_values,
+                    singular_values[0] - singular_values[-1],
+                    singular_values[-1],
+                )
+                # Grab the lower bound to scale the values between
+                low_bound = _grab_param(singular_value_scaling_lower_bound)
+                if low_bound is None:
+                    low_bound = 0.1
+                print(f'Setting lower bound to {low_bound}')
+                # The singular values scaled between [1, low_bound]
+                output_weights = low_bound + (1 - low_bound) * singular_values
         else:
             terminate_with_message('Unknown loss scaling')
 
