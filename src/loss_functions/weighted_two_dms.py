@@ -134,6 +134,7 @@ class WeightedTwoDMs(nn.Module):
                 singular_values = singular_values**0.5
             if _grab_param(singular_value_scaling_no_norm_or_scaling, bool):
                 print('Not doing min-max norm or scaling')
+                output_weights = singular_values
             else:
                 # Normalize the singular values to have a min-max of [1,0]
                 singular_values = min_max_norm(
