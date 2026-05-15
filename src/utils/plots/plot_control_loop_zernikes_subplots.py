@@ -15,6 +15,7 @@ def plot_control_loop_zernikes_subplots(
     plot_psd=False,
     extra_zernike_coeffs=None,
     legend_labels=None,
+    add_std=False,
 ):
     """
     Generates a grid of subplots where each subplot shows the outputted Zernikes
@@ -47,6 +48,8 @@ def plot_control_loop_zernikes_subplots(
         the same format as the `zernike_coeffs` argument.
     legend_labels : list
         List of labels to display on the legend.
+    add_std : bool
+        Add the standard deviation to each subplot's title.
     """
 
     # Load in the style file
@@ -67,8 +70,7 @@ def plot_control_loop_zernikes_subplots(
     fig, axs = plt.subplots(
         n_rows,
         n_cols,
-        sharex=True,
-        figsize=(n_cols * 4, n_rows * 2),
+        figsize=(n_cols * 4, n_rows * 2.5),
     )
 
     # ===============
@@ -116,18 +118,38 @@ def plot_control_loop_zernikes_subplots(
                 axs_cell.plot(cell_data, label='A')
                 if extra_zernike_coeffs is not None:
                     axs_cell.plot(extra_cell_data, label='B')
+                if add_std:
+                    axs_cell.annotate(
+                        f'STD {np.std(cell_data):0.3f}',
+                        (0, 0),
+                        xytext=(5, 5),
+                        xycoords='axes fraction',
+                        textcoords='offset points',
+                        color='white',
+                        backgroundcolor='k',
+                        ha='left',
+                        va='bottom',
+                    )
             # Hide labels so they do not appear on every plot
             axs_cell.set_xlabel('')
             axs_cell.set_ylabel('')
-            # Only display x labels for the last row
-            if plot_row == n_rows - 1:
+            # Ensure each subplots has the same x limits
+            x_ticks = np.linspace(0, total_steps, 5)
+            axs_cell.set_xlim(min(x_ticks), max(x_ticks))
+            # Only display x labels for the last active cell in each col
+            total_terms = len(zernike_terms)
+            if ((plot_row == n_rows - 1) or
+                ((total_terms % n_cols > 0) and (plot_row == n_rows - 2) and
+                 (plot_col >= (total_terms % n_cols)))):
                 if not plot_psd:
                     # Set the x labels to time
-                    pos = np.linspace(0, total_steps, 5)
                     labs = [f'{v:0.2f}' for v in np.linspace(0, total_time, 5)]
-                    axs_cell.set_xticks(pos, labs)
+                    axs_cell.set_xticks(x_ticks, labs)
                 label = 'Frequency' if plot_psd else 'Time [s]'
                 axs_cell.set_xlabel(label)
+            else:
+                axs_cell.set_xticks([])
+                axs_cell.set_xticklabels([])
             # Only display y labels for the first column
             if plot_col == 0:
                 label = 'PSD\n[nm RMS/Hz]' if plot_psd else 'Coeffs\n[nm RMS]'
