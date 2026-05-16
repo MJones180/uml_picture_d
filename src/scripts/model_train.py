@@ -13,8 +13,8 @@ from time import time
 import torch
 from utils.cli_args import save_cli_args
 from utils.constants import (EPOCH_LOSS_F, EXTRA_VARS_F, OPTIMIZERS,
-                             OUTPUT_MASK, OUTPUT_P, PROC_DATA_P, TAG_LOOKUP_F,
-                             TRAINED_MODELS_P)
+                             OUTPUT_MASK, OUTPUT_P, OUTPUTS_Z_SCORE_STD,
+                             PROC_DATA_P, TAG_LOOKUP_F, TRAINED_MODELS_P)
 from utils.group_data_from_list import group_data_from_list
 from utils.hdf_read_and_write import read_hdf
 from utils.json import json_load, json_write
@@ -132,6 +132,11 @@ def model_train_parser(subparsers):
         type=float,
         nargs='+',
         help='scale the loss of each head in a multi-headed output',
+    )
+    subparser.add_argument(
+        '--divide-by-std-before-loss',
+        action='store_true',
+        help='divide the values by the std before calling the loss function',
     )
     subparser.add_argument(
         '--early-stopping',
@@ -348,6 +353,9 @@ def model_train(cli_args):
     output_extra_vars_path = f'{output_model_path}/{EXTRA_VARS_F}'
     copy_files(f'{PROC_DATA_P}/{train_ds_tag}/{EXTRA_VARS_F}',
                output_extra_vars_path)
+
+    step_ri('Loading in the extra variables')
+    extra_variables = read_hdf(output_extra_vars_path)
 
     step_ri('Saving all CLI args')
     save_cli_args(output_model_path, cli_args, 'model_train')
@@ -623,6 +631,13 @@ def model_train(cli_args):
             step_ri('Using scaled multi-headed loss')
             print(f'Head loss scalings: {multi_headed_scaled_loss}')
 
+    divide_by_std_before_loss = cli_args['divide_by_std_before_loss']
+    if divide_by_std_before_loss:
+        step_ri('Will divide values by STD before calling loss function')
+        print('Grabbing the STDs')
+        outputs_std = extra_variables[OUTPUTS_Z_SCORE_STD][:]
+        outputs_std = torch.from_numpy(outputs_std).to(device)
+
     early_stopping = cli_args['early_stopping']
     if early_stopping:
         step_ri('Early stopping enabled')
@@ -870,6 +885,8 @@ def model_train(cli_args):
             optimizer.zero_grad(set_to_none=True)
             # Make predictions for this batch
             outputs_model = model(inputs)
+            if divide_by_std_before_loss:
+                outputs_truth = outputs_truth * outputs_std
             # When computing the loss, the outputs are all converted to float32
             # to fix an issue that occurs with MSE during backprop
             if multi_headed_output:
@@ -878,6 +895,13 @@ def model_train(cli_args):
                     output_heads,
                     -1,
                 )
+                if divide_by_std_before_loss:
+                    outputs_std_split = torch.tensor_split(
+                        outputs_std, output_heads, -1)
+                    outputs_model = [
+                        outputs_model[idx] * outputs_std_split[idx]
+                        for idx in range(output_heads)
+                    ]
                 loss = 0
                 for head_idx in range(output_heads):
                     loss_scale = 1
@@ -889,6 +913,8 @@ def model_train(cli_args):
                     loss = loss + loss_head
                     total_train_loss_heads[head_idx] += loss_head.item()
             else:
+                if divide_by_std_before_loss:
+                    outputs_model = outputs_model * outputs_std
                 loss = loss_function(outputs_model.float(),
                                      outputs_truth.float())
             loss.backward()
@@ -935,9 +961,18 @@ def model_train(cli_args):
                 inputs = inputs.to(device)
                 outputs_truth = outputs_truth.to(device)
                 outputs_model = model(inputs)
+                if divide_by_std_before_loss:
+                    outputs_truth = outputs_truth * outputs_std
                 if multi_headed_output:
                     outputs_truth = torch.tensor_split(outputs_truth,
                                                        output_heads, -1)
+                    if divide_by_std_before_loss:
+                        outputs_std_split = torch.tensor_split(
+                            outputs_std, output_heads, -1)
+                        outputs_model = [
+                            outputs_model[idx] * outputs_std_split[idx]
+                            for idx in range(output_heads)
+                        ]
                     for head_idx in range(output_heads):
                         loss_scale = 1
                         if multi_headed_scaled_loss is not None:
@@ -948,6 +983,8 @@ def model_train(cli_args):
                         total_val_loss += loss_head.item()
                         total_val_loss_heads[head_idx] += loss_head.item()
                 else:
+                    if divide_by_std_before_loss:
+                        outputs_model = outputs_model * outputs_std
                     total_val_loss += loss_function(outputs_model,
                                                     outputs_truth).item()
         avg_val_loss = total_val_loss / validation_batches
