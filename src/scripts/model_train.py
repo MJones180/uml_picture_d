@@ -172,7 +172,7 @@ def model_train_parser(subparsers):
     )
     subparser.add_argument(
         '--use-cosine-annealing-lr-scheduler',
-        nargs='+',
+        nargs=3,
         type=float,
         help=('use the Cosine Annealing learning rate scheduler - this starts '
               'with a linear warm up (same as the `--lr-warmup` argument); '
@@ -183,7 +183,7 @@ def model_train_parser(subparsers):
     )
     subparser.add_argument(
         '--use-cosine-annealing-wr-lr-scheduler',
-        nargs='+',
+        nargs=3,
         type=float,
         help=(
             'use the Cosine Annealing with warm restarts learning rate '
@@ -192,6 +192,15 @@ def model_train_parser(subparsers):
             'and the final learning rate after annealing in each cycle; '
             'the `learning_rate` parameter specifies the max, peak learning '
             'rate; the `epochs` parameter specifies the number of epochs'),
+    )
+    subparser.add_argument(
+        '--use-cosine-annealing-tail',
+        nargs=2,
+        type=float,
+        help=('for use with the `--use-cosine-annealing-lr-schedule` argument '
+              '(will not work with the warm restarts version); adds a tail '
+              'to the learning rate scheduler; two arguments expected: '
+              'number of Cosine Annealing epochs, final learning rate'),
     )
     subparser.add_argument(
         '--clip-gradient-norm',
@@ -776,29 +785,43 @@ def model_train(cli_args):
         warmup_epochs = int(warmup_epochs)
         # The number of epochs the Cosine Annealing will run for
         annealing_epochs = epoch_count - warmup_epochs
+        use_cosine_annealing_tail = cli_args.get('use_cosine_annealing_tail')
+        if use_cosine_annealing_tail is not None:
+            annealing_epochs, final_tail_lr = use_cosine_annealing_tail
+            tail_epochs = epoch_count - annealing_epochs - warmup_epochs
+        schedulers = [
+            # The linear warmup
+            torch.optim.lr_scheduler.LinearLR(
+                optimizer,
+                # The ratio needed to start with the starting learning rate
+                starting_lr / base_learning_rate,
+                total_iters=warmup_epochs,
+            ),
+            # The Cosine Annealing
+            torch.optim.lr_scheduler.CosineAnnealingLR(
+                optimizer,
+                annealing_epochs,
+                final_lr,
+            )
+        ]
+        milestones = [warmup_epochs]
         print(f'Linear Warmup: {starting_lr} -> {base_learning_rate} '
               f'({warmup_epochs} epochs)')
         print(f'Cosine Annealing: {base_learning_rate} -> {final_lr} '
               f'({annealing_epochs} epochs)')
-        scheduler = torch.optim.lr_scheduler.SequentialLR(
-            optimizer,
-            schedulers=[
-                # The linear warmup
+        if use_cosine_annealing_tail is not None:
+            print(f'Linear Tail: {final_lr} -> {final_tail_lr} '
+                  f'({tail_epochs} epochs)')
+            schedulers.append(
                 torch.optim.lr_scheduler.LinearLR(
                     optimizer,
-                    # The ratio needed to start with the starting learning rate
-                    starting_lr / base_learning_rate,
-                    total_iters=warmup_epochs,
-                ),
-                # The Cosine Annealing
-                torch.optim.lr_scheduler.CosineAnnealingLR(
-                    optimizer,
-                    annealing_epochs,
-                    final_lr,
-                )
-            ],
-            milestones=[warmup_epochs],
-        )
+                    start_factor=final_lr / base_learning_rate,
+                    end_factor=final_tail_lr / base_learning_rate,
+                    total_iters=tail_epochs,
+                ))
+            milestones.append(warmup_epochs + annealing_epochs)
+        scheduler = torch.optim.lr_scheduler.SequentialLR(
+            optimizer, schedulers=schedulers, milestones=milestones)
     elif use_cos_annealing_wr is not None:
         step_ri('Will use the Cosine Annealing with warm restarts '
                 'learning rate scheduler')
