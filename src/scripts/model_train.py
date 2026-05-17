@@ -96,8 +96,16 @@ def model_train_parser(subparsers):
         '--optimizer-params',
         nargs='+',
         help=('pass params to the optimizer; three values expected for each '
-              'group: name, value, type (0 - str, 1 - float, 2 - int); these '
-              'values are only applied to the first optimizer group'),
+              'group: name, value, type (0 - str, 1 - float, 2 - int, '
+              '3 - bool); these values are only applied to the '
+              'first optimizer group'),
+    )
+    subparser.add_argument(
+        '--optimizer-params-all-groups',
+        nargs='+',
+        help=('pass params to the optimizer; three values expected for each '
+              'group: name, value, type (0 - str, 1 - float, 2 - int, '
+              '3 - bool); these values are applied to each optimizer group'),
     )
     subparser.add_argument(
         '--optimizer-one-d-group-weight-decay',
@@ -709,15 +717,35 @@ def model_train(cli_args):
         optimizer = optimizer(model.parameters(), lr=base_learning_rate)
     optimizer_params = cli_args.get('optimizer_params')
     if optimizer_params is not None:
-        step('Passing additional params to optimizer')
+        step('Passing additional params to optimizer (first group)')
         for param_name, param_value, param_type in group_data_from_list(
                 optimizer_params, 3, 'Must be three params per group'):
             if int(param_type) == 1:
                 param_value = float(param_value)
             elif int(param_type) == 2:
                 param_value = int(param_value)
+            elif int(param_type) == 3:
+                param_value = bool(param_value)
             print(f'Param: {param_name}, Value: {param_value}')
             optimizer.param_groups[0][param_name] = param_value
+        dec_print_indent()
+    optimizer_params_all_groups = cli_args.get('optimizer_params_all_groups')
+    if optimizer_params_all_groups is not None:
+        step('Passing additional params to optimizer (each group)')
+        for param_name, param_value, param_type in group_data_from_list(
+                optimizer_params_all_groups,
+                3,
+                'Must be three params per group',
+        ):
+            if int(param_type) == 1:
+                param_value = float(param_value)
+            elif int(param_type) == 2:
+                param_value = int(param_value)
+            elif int(param_type) == 3:
+                param_value = bool(param_value)
+            print(f'Param: {param_name}, Value: {param_value}')
+            for param_group in optimizer.param_groups:
+                param_group[param_name] = param_value
         dec_print_indent()
     print(optimizer)
 
