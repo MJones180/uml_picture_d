@@ -64,6 +64,11 @@ def export_model_parser(subparsers):
         default=NORM_STABILITY_VALUE,
         help='the stability constant to use for normalization',
     )
+    subparser.add_argument(
+        '--disable-onnx-optimize',
+        action='store_true',
+        help='disable the onnx optimization',
+    )
 
 
 def export_model(cli_args):
@@ -177,6 +182,10 @@ def export_model(cli_args):
 
     step_ri('Exporting ONNX model')
 
+    onnx_optimize = True
+    if cli_args.get('disable_onnx_optimize'):
+        onnx_optimize = False
+
     step('Saving model')
     onnx_model_path = f'{output_dir}/model.onnx'
     print(f'Location: {onnx_model_path}')
@@ -184,6 +193,7 @@ def export_model(cli_args):
         pytorch_model,
         first_input_row,
         onnx_model_path,
+        optimize=onnx_optimize,
         # Name of the input and output array
         input_names=['input'],
         output_names=['output'],
