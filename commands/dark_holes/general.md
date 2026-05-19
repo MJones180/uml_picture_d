@@ -1107,6 +1107,25 @@ Preprocess the datasets:
         --bounding-input-rows-train-only --bounding-output-rows-train-only --fix-seed 314
 
     python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_final_dh_14k_ch1 \
+        none none \
+        test_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score_individual_for_rm 88 6 6 \
+        --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
+        --additional-raw-data-tags dh_both_hodms_efc_final_dh_14k_ch2 \
+            dh_both_hodms_efc_final_dh_9k_ch1 dh_both_hodms_efc_final_dh_9k_ch2 \
+            dh_both_hodms_efc_30k_1iter_ch1 dh_both_hodms_efc_30k_1iter_ch2 \
+            dh_both_hodms_efc_27k_1iter_ch1 dh_both_hodms_efc_27k_1iter_ch2 \
+            dh_both_hodms_efc_full_gain_24k_1iter_ch1 dh_both_hodms_efc_full_gain_24k_1iter_ch2 \
+            dh_both_hodms_efc_full_gain_24k_1iter_ch3 dh_both_hodms_efc_full_gain_24k_1iter_ch4 \
+            dh_both_hodms_efc_full_gain_27k_1iter \
+            dh_both_hodms_efc_full_gain_29k_1iter_ch1 dh_both_hodms_efc_full_gain_29k_1iter_ch2 \
+            dh_both_hodms_efc_full_gain_36k_1iter_ch1 dh_both_hodms_efc_full_gain_36k_1iter_ch2 \
+        --flatten-input \
+        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
+        --z-score-outputs-individual \
+        --bounding-input-rows-train-only --bounding-output-rows-train-only --fix-seed 314
+
+    python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_final_dh_14k_ch1 \
         train_dh_both_hodms_efc_final_dh_xlg_1iter_svd_756_both_ones \
         val_dh_both_hodms_efc_final_dh_xlg_1iter_svd_756_both_ones \
         test_dh_both_hodms_efc_final_dh_xlg_1iter_svd_756_both_ones 88 6 6 \
@@ -1284,6 +1303,12 @@ Run a RM:
 
     python3 main.py run_response_matrix dh_dm1_dm2 \
         test_dh_both_hodms_efc_final_dh_xlg_6iter --inputs-need-denorm --dh-rm
+
+    # For this, the input coeffs
+    python3 main.py run_response_matrix dh_dm1_dm2 \
+        test_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score_individual_for_rm \
+        --dh-rm --plot-coeff-mae-smape 500 1000 \
+        --convert-output-to-dm-svd-basis hodm1_756_modes dm1_modes 500 hodm2_756_modes dm2_modes 500
 
 Plot the DM comparison:
 
