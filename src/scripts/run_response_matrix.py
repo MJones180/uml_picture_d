@@ -16,12 +16,14 @@ The response matrix runs on denormalized inputs.
 
 import numpy as np
 from utils.constants import (ANALYSIS_P, EXTRA_VARS_F, INPUT_MAX_MIN_DIFF,
-                             INPUT_MIN_X, MAE, MSE, NORM_RANGE_ONES,
+                             INPUT_MIN_X, INPUTS_Z_SCORE_MEAN,
+                             INPUTS_Z_SCORE_STD, MAE, MSE, NORM_RANGE_ONES,
                              PROC_DATA_P, RESULTS_F, ZERNIKE_TERMS)
 from utils.group_data_from_list import group_data_from_list
 from utils.hdf_read_and_write import HDFWriteModule, read_hdf
-from utils.load_raw_sim_data import load_raw_sim_data_chunks
-from utils.norm import min_max_denorm, sum_to_one
+from utils.load_raw_sim_data import (load_raw_sim_data_chunks,
+                                     raw_sim_data_chunk_paths)
+from utils.norm import min_max_denorm, sum_to_one, z_score_denormalize
 from utils.path import delete_dir, get_abs_path, make_dir
 from utils.plots.plot_coeff_comparison import plot_coeff_comparison
 from utils.plots.plot_comparison_scatter_grid import plot_comparison_scatter_grid  # noqa: E501
@@ -123,6 +125,19 @@ def run_response_matrix_parser(subparsers):
         help=('plot the MAE and sMAPE for the output coefficients; the passed '
               'arguments should be the upper index for each coeff group'),
     )
+    subparser.add_argument(
+        '--convert-output-to-dm-svd-basis',
+        nargs='+',
+        metavar=('[datafile] [datafile table] '
+                 '[max number of modes from the start]'),
+        help=(
+            'convert the DM actuator height coeffs to SVD basis coeffs; '
+            'the raw datafile must consist of the 2D SVD modes for the DM, '
+            'the modes will be inverted to find the new basis coeffs; '
+            'the datafile must only be a single chunk of data; the threthree '
+            'arguments must be repeated for each DM that is being used; '
+            'the data will be split into equal chunks for each DM'),
+    )
 
 
 def run_response_matrix(cli_args):
@@ -155,13 +170,20 @@ def run_response_matrix(cli_args):
 
     if cli_args.get('inputs_need_denorm'):
         step_ri('Denormalizing the input values')
-        inputs = min_max_denorm(
-            inputs,
-            extra_vars[INPUT_MAX_MIN_DIFF],
-            extra_vars[INPUT_MIN_X],
-            extra_vars[NORM_RANGE_ONES][()]
-            if NORM_RANGE_ONES in extra_vars else False,
-        )
+        if INPUT_MAX_MIN_DIFF in extra_vars:
+            inputs = min_max_denorm(
+                inputs,
+                extra_vars[INPUT_MAX_MIN_DIFF],
+                extra_vars[INPUT_MIN_X],
+                extra_vars[NORM_RANGE_ONES][()]
+                if NORM_RANGE_ONES in extra_vars else False,
+            )
+        elif INPUTS_Z_SCORE_MEAN in extra_vars:
+            inputs = z_score_denormalize(
+                inputs,
+                extra_vars[INPUTS_Z_SCORE_MEAN],
+                extra_vars[INPUTS_Z_SCORE_STD],
+            )
 
     if not dh_rm:
         step_ri('Validating Zernike terms')
@@ -225,6 +247,35 @@ def run_response_matrix(cli_args):
     else:
         print('Passing in the total intensity field')
         outputs_resp_mat = response_matrix_obj(total_int_field=inputs_reshaped)
+
+    use_dm_svd_basis = cli_args.get('convert_output_to_dm_svd_basis')
+    if use_dm_svd_basis is not None:
+        err_msg = 'Three arguments must be passed for each DM'
+        # Group together the args
+        groups = group_data_from_list(use_dm_svd_basis, 3, err_msg)
+        # Split the output into equal sized chunks
+        outputs_resp_mat = np.array(np.split(outputs_resp_mat, len(groups), 1))
+        # The output data once it is converted to SVD coeffs
+        outputs_resp_mat_svd = []
+        step_ri('Converting output to SVD basis')
+        for idx, group in enumerate(groups):
+            modes_tag, modes_table_name, max_modes = group
+            modes_path = raw_sim_data_chunk_paths(modes_tag)[0]
+            modes = read_hdf(modes_path)[modes_table_name][:]
+            modes = modes.reshape(modes.shape[0], -1)
+            # Filter out the inactive pixels from the modes
+            nonzero_pixels = (modes != 0).any(axis=0)
+            active_idxs = np.where(nonzero_pixels)[0]
+            modes = modes[:, active_idxs]
+            # Pick out the correct number of modes from the start
+            modes = modes[:int(max_modes)]
+            # Invert the modes
+            modes_inv = np.linalg.pinv(modes)
+            # Append the SVD coefficients
+            outputs_resp_mat_svd.append(outputs_resp_mat[idx] @ modes_inv)
+        # Rejoin the coeffs
+        outputs_resp_mat = np.concatenate(
+            (outputs_resp_mat_svd[0], outputs_resp_mat_svd[1]), axis=1)
 
     # Print the results to the console
     if cli_args.get('print_outputs'):
