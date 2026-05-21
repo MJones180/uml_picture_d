@@ -10,7 +10,7 @@ def plot_gamma_bars(gamma_magnitudes, plot_path):
     plt.clf()
     plt.figure(figsize=(14, 6))
     plt.bar(np.arange(len(gamma_magnitudes)), gamma_magnitudes, linewidth=0.5)
-    plt.title('Gamma Magnitudes per Layer')
+    plt.title('Mean Gamma Magnitude per Layer')
     plt.xlabel('Layer')
     plt.ylabel('Mean Gamma Magnitude')
     plt.xticks(rotation=90)
