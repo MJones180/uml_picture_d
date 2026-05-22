@@ -1,5 +1,5 @@
-# `dh_t77_h25do10dp10_h45do40dp50` network { 1000 -> 1000 }.
-# Trainable parameters: 64,552,168
+# `dh_t78_h45do40dp30_h45do30dp30` network { 1000 -> 1000 }.
+# Trainable parameters: 73,389,544
 import numpy as np
 import torch
 import torch.nn as nn
@@ -20,15 +20,15 @@ LEAKY_RELU = 0.2
 # HEAD 1 CONFIG OPTIONS
 # ==============================================================================
 # Number of neurons expanded out to
-HEAD_1_OUTER_DIM = 1024
+HEAD_1_OUTER_DIM = 768
 # Number of blocks
-HEAD_1_DEPTH = 25
+HEAD_1_DEPTH = 45
 # LayerScale starting value
 HEAD_1_GAMMA_INIT = 1e-2
 # Dropout rate
-HEAD_1_DROPOUT = 0.10
+HEAD_1_DROPOUT = 0.40
 # DropPath probability of dropping the last layer
-HEAD_1_DP_MAX_PROB = 0.10
+HEAD_1_DP_MAX_PROB = 0.30
 # DropPath probabilities linearly increase from the first to last layer
 HEAD_1_DP_PROBS = np.linspace(0, HEAD_1_DP_MAX_PROB, HEAD_1_DEPTH)
 
@@ -42,9 +42,9 @@ HEAD_2_DEPTH = 45
 # LayerScale starting value
 HEAD_2_GAMMA_INIT = 1e-2
 # Dropout rate
-HEAD_2_DROPOUT = 0.40
+HEAD_2_DROPOUT = 0.30
 # DropPath probability of dropping the last layer
-HEAD_2_DP_MAX_PROB = 0.50
+HEAD_2_DP_MAX_PROB = 0.30
 # DropPath probabilities linearly increase from the first to last layer
 HEAD_2_DP_PROBS = np.linspace(0, HEAD_2_DP_MAX_PROB, HEAD_2_DEPTH)
 
