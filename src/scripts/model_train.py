@@ -925,7 +925,7 @@ def model_train(cli_args):
         def modified_cosine_annealing_scheduler(epoch):
             # The linear warmup
             if epoch < warmup_epochs:
-                return warmup_learning_rates[epoch]
+                return warmup_learning_rates[epoch] / base_learning_rate
             # The first curve
             current_epoch = epoch - warmup_epochs
             curve_length = first_curve_total_epochs
@@ -934,8 +934,10 @@ def model_train(cli_args):
                 current_epoch += epoch_transition_point * (scale_factor - 1)
                 curve_length *= scale_factor
             # Calculate the learning rate along the Cosine Annealing curve
-            return final_lr + 0.5 * (base_learning_rate - final_lr) * (
+            current_lr = final_lr + 0.5 * (base_learning_rate - final_lr) * (
                 1 + np.cos(np.pi * current_epoch / curve_length))
+            # Divide by the peak learning rate to ignore LambdaLR scaling
+            return current_lr / base_learning_rate
 
         scheduler = torch.optim.lr_scheduler.LambdaLR(
             optimizer, lr_lambda=modified_cosine_annealing_scheduler)
