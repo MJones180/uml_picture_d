@@ -12,9 +12,10 @@ import numpy as np
 from time import time
 import torch
 from utils.cli_args import save_cli_args
-from utils.constants import (EPOCH_LOSS_F, EXTRA_VARS_F, OPTIMIZERS,
-                             OUTPUT_MASK, OUTPUT_P, OUTPUTS_Z_SCORE_STD,
-                             PROC_DATA_P, TAG_LOOKUP_F, TRAINED_MODELS_P)
+from utils.constants import (EPOCH_LOSS_F, EXTRA_VARS_F, LEARNING_RATES_F,
+                             OPTIMIZERS, OUTPUT_MASK, OUTPUT_P,
+                             OUTPUTS_Z_SCORE_STD, PROC_DATA_P, TAG_LOOKUP_F,
+                             TRAINED_MODELS_P)
 from utils.group_data_from_list import group_data_from_list
 from utils.hdf_read_and_write import read_hdf
 from utils.json import json_load, json_write
@@ -322,6 +323,11 @@ def model_train_parser(subparsers):
         '--disable-tag-lookup',
         action='store_true',
         help='do not write to the tag lookup file',
+    )
+    subparser.add_argument(
+        '--save-learning-rates',
+        action='store_true',
+        help='write the learning rate at every epoch to a file',
     )
     subparser.add_argument(
         '--fix-seed',
@@ -959,6 +965,13 @@ def model_train(cli_args):
     with open(loss_file, 'w') as loss_writer:
         loss_writer.write(loss_keys)
 
+    save_learning_rates = cli_args['save_learning_rates']
+    if save_learning_rates:
+        step_ri('Creating a CSV file to track the learning rates')
+        lrs_file = f'{output_model_path}/{LEARNING_RATES_F}'
+        with open(lrs_file, 'w') as lrs_writer:
+            lrs_writer.write('epoch, learning_rate')
+
     if not cli_args['disable_tag_lookup']:
         step_ri('Writing to the tag lookup')
         tag_lookup_path = f'{OUTPUT_P}/{TAG_LOOKUP_F}'
@@ -1118,6 +1131,10 @@ def model_train(cli_args):
                 for idx in range(output_heads):
                     out_line += f', {avg_val_loss_heads[idx]}'
             loss_writer.write(out_line)
+
+        if save_learning_rates:
+            with open(lrs_file, 'a+') as lrs_writer:
+                lrs_writer.write(f'\n{epoch_idx}, {_grab_current_lr()}')
 
         current_epoch_path = f'{output_model_path}/epoch_{epoch_idx}'
 
