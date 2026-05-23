@@ -211,6 +211,21 @@ def model_train_parser(subparsers):
               'number of Cosine Annealing epochs, final learning rate'),
     )
     subparser.add_argument(
+        '--use-modified-cosine-annealing-lr-scheduler',
+        nargs=5,
+        type=float,
+        help=('use a modified Cosine Annealing learning rate scheduler which '
+              'is basically two separate curves stuck together, the idea is '
+              'to allow for a longer decay at the end; this curve starts with '
+              'a linear warmup (same as the `--lr-warmup` argument); '
+              'five parameters expected: warmup epoch count, starting '
+              'learning rate for warmup, final learning rate after annealing'
+              '(at the end of the second curve), total number of epochs in '
+              'the first curve, transition epoch from the first curve; '
+              'the `learning_rate` parameter specifies the max, peak learning '
+              'rate; the `epochs` parameter specifies the number of epochs'),
+    )
+    subparser.add_argument(
         '--clip-gradient-norm',
         type=float,
         help=('clip the gradient norm to the specified value; '
@@ -806,6 +821,8 @@ def model_train(cli_args):
 
     use_cos_annealing = cli_args.get('use_cosine_annealing_lr_scheduler')
     use_cos_annealing_wr = cli_args.get('use_cosine_annealing_wr_lr_scheduler')
+    use_modified_cos_annealing_lr = cli_args.get(
+        'use_modified_cosine_annealing_lr_scheduler')
     scheduler = None
     if use_cos_annealing is not None:
         step_ri('Will use the Cosine Annealing learning rate scheduler')
@@ -868,6 +885,52 @@ def model_train(cli_args):
             T_mult=cycle_length_multiplier,
             eta_min=final_lr,
         )
+    elif use_modified_cos_annealing_lr is not None:
+        step_ri('Will use the modified Cosine Annealing '
+                'learning rate scheduler')
+        (warmup_epochs, starting_lr, final_lr, first_curve_total_epochs,
+         epoch_transition_point) = use_cos_annealing
+        # The number of epochs during the linear warmup
+        warmup_epochs = int(warmup_epochs)
+        # The total length of the first curve
+        first_curve_total_epochs = int(first_curve_total_epochs)
+        # The transition point along the first curve's length
+        epoch_transition_point = int(epoch_transition_point)
+        # The number of epochs spent in the second curve
+        second_curve_active_epochs = (epoch_count - warmup_epochs -
+                                      epoch_transition_point)
+        # Relative size of the second curve to the first curve
+        scale_factor = second_curve_active_epochs / (first_curve_total_epochs -
+                                                     epoch_transition_point)
+        print(f'Linear Warmup: {starting_lr} -> {base_learning_rate} '
+              f'({warmup_epochs} epochs)')
+        print(f'Cosine Annealing Curves: {base_learning_rate} -> {final_lr} '
+              f'({epoch_count - warmup_epochs} epochs)')
+        print(f'First Curve: {first_curve_total_epochs} total epochs, '
+              f'transition at epoch {epoch_transition_point}')
+        print(f'Second Curve: total curve {scale_factor:0.2f}x bigger than '
+              f'first curve, {second_curve_active_epochs} active epochs')
+        # The learning rates for the warmup
+        warmup_learning_rates = np.linspace(starting_lr, base_learning_rate,
+                                            warmup_epochs)
+
+        def modified_cosine_annealing_scheduler(epoch):
+            # The linear warmup
+            if epoch < warmup_epochs:
+                return warmup_learning_rates[epoch]
+            # The first curve
+            current_epoch = epoch - warmup_epochs
+            curve_length = first_curve_total_epochs
+            # The second curve
+            if current_epoch > epoch_transition_point:
+                current_epoch += epoch_transition_point * (scale_factor - 1)
+                curve_length *= scale_factor
+            # Calculate the learning rate along the Cosine Annealing curve
+            return final_lr + 0.5 * (base_learning_rate - final_lr) * (
+                1 + np.cos(np.pi * current_epoch / curve_length))
+
+        scheduler = torch.optim.lr_scheduler.LambdaLR(
+            optimizer, lr_lambda=modified_cosine_annealing_scheduler)
 
     clip_gradient_norm = cli_args.get('clip_gradient_norm')
     step_ri('Gradient norm clipping')
