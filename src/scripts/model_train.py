@@ -889,7 +889,7 @@ def model_train(cli_args):
         step_ri('Will use the modified Cosine Annealing '
                 'learning rate scheduler')
         (warmup_epochs, starting_lr, final_lr, first_curve_total_epochs,
-         epoch_transition_point) = use_cos_annealing
+         epoch_transition_point) = use_modified_cos_annealing_lr
         # The number of epochs during the linear warmup
         warmup_epochs = int(warmup_epochs)
         # The total length of the first curve
@@ -907,7 +907,9 @@ def model_train(cli_args):
         print(f'Cosine Annealing Curves: {base_learning_rate} -> {final_lr} '
               f'({epoch_count - warmup_epochs} epochs)')
         print(f'First Curve: {first_curve_total_epochs} total epochs, '
-              f'transition at epoch {epoch_transition_point}')
+              f'transition at epoch {epoch_transition_point}, '
+              f'ending {first_curve_total_epochs - epoch_transition_point} '
+              'epochs early')
         print(f'Second Curve: total curve {scale_factor:0.2f}x bigger than '
               f'first curve, {second_curve_active_epochs} active epochs')
         # The learning rates for the warmup
