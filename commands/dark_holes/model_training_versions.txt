@@ -8836,3 +8836,263 @@ After model testing, it is useful to rank the model analyses:
         --epoch-and-tag-range last dh_v121_ 1 25 --plot-loss-curves \
         --plot-coeff-mae-smape 500 1000 --plot-layerscale-gamma gamma \
         --max-rows-per-model-call 1000
+
+[V122] The `dh_v122_` tag:
+
+    python3 main_scnp.py model_train \
+        dh_v122_1 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score_individual \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score_individual \
+        dh_t78_h25do10dp30_h45do30dp30 weighted_two_dms adamw 3e-3 1000 --batch-size 1024 \
+        --loss-params multiheaded_output 1 \
+            singular_value_scaling dm1_singular_values_flat \
+            singular_value_scaling_lower_bound 0.1 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-cosine-annealing-lr-scheduler 80 1e-6 1e-7 --clip-gradient-norm 10 \
+        --multi-headed-output 2 --init-weights-kaiming-normal-simple 0.20 head_1 head_2 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v122_2 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score_individual \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score_individual \
+        dh_t78_h25do10dp30_h45do30dp30 weighted_two_dms adamw 3e-3 1500 --batch-size 1024 \
+        --loss-params multiheaded_output 1 \
+            singular_value_scaling dm1_singular_values_flat \
+            singular_value_scaling_lower_bound 0.1 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-cosine-annealing-lr-scheduler 80 1e-6 1e-7 --clip-gradient-norm 10 \
+        --multi-headed-output 2 --init-weights-kaiming-normal-simple 0.20 head_1 head_2 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v122_3 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score_individual \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score_individual \
+        dh_t78_h25do10dp30_h45do30dp30 weighted_two_dms adamw 3e-3 2000 --batch-size 1024 \
+        --loss-params multiheaded_output 1 \
+            singular_value_scaling dm1_singular_values_flat \
+            singular_value_scaling_lower_bound 0.1 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-cosine-annealing-lr-scheduler 80 1e-6 1e-7 --clip-gradient-norm 10 \
+        --multi-headed-output 2 --init-weights-kaiming-normal-simple 0.20 head_1 head_2 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v122_4 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score_individual \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score_individual \
+        dh_t78_h25do10dp30_h45do30dp30 weighted_two_dms adamw 3e-3 2500 --batch-size 1024 \
+        --loss-params multiheaded_output 1 \
+            singular_value_scaling dm1_singular_values_flat \
+            singular_value_scaling_lower_bound 0.1 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-cosine-annealing-lr-scheduler 80 1e-6 1e-7 --clip-gradient-norm 10 \
+        --multi-headed-output 2 --init-weights-kaiming-normal-simple 0.20 head_1 head_2 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v122_5 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score_individual \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score_individual \
+        dh_t78_h25do10dp30_h45do30dp30 weighted_two_dms adamw 3e-3 850 --batch-size 1024 \
+        --loss-params multiheaded_output 1 \
+            singular_value_scaling dm1_singular_values_flat \
+            singular_value_scaling_lower_bound 0.1 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-modified-cosine-annealing-lr-scheduler 80 1e-6 1e-7 570 420 \
+        --multi-headed-output 2 --init-weights-kaiming-normal-simple 0.20 head_1 head_2 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v122_6 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score_individual \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score_individual \
+        dh_t78_h25do10dp30_h45do30dp30 weighted_two_dms adamw 3e-3 1000 --batch-size 1024 \
+        --loss-params multiheaded_output 1 \
+            singular_value_scaling dm1_singular_values_flat \
+            singular_value_scaling_lower_bound 0.1 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-modified-cosine-annealing-lr-scheduler 80 1e-6 1e-7 570 420 \
+        --multi-headed-output 2 --init-weights-kaiming-normal-simple 0.20 head_1 head_2 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v122_7 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score_individual \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score_individual \
+        dh_t78_h25do10dp30_h45do30dp30 weighted_two_dms adamw 3e-3 1200 --batch-size 1024 \
+        --loss-params multiheaded_output 1 \
+            singular_value_scaling dm1_singular_values_flat \
+            singular_value_scaling_lower_bound 0.1 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-modified-cosine-annealing-lr-scheduler 80 1e-6 1e-7 570 420 \
+        --multi-headed-output 2 --init-weights-kaiming-normal-simple 0.20 head_1 head_2 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v122_8 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score_individual \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score_individual \
+        dh_t78_h25do10dp30_h45do30dp30 weighted_two_dms adamw 3e-3 750 --batch-size 1024 \
+        --loss-params multiheaded_output 1 \
+            singular_value_scaling dm1_singular_values_flat \
+            singular_value_scaling_lower_bound 0.1 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-modified-cosine-annealing-lr-scheduler 80 1e-6 1e-7 500 360 \
+        --multi-headed-output 2 --init-weights-kaiming-normal-simple 0.20 head_1 head_2 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v122_9 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score_individual \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score_individual \
+        dh_t78_h25do10dp30_h45do30dp30 weighted_two_dms adamw 3e-3 850 --batch-size 1024 \
+        --loss-params multiheaded_output 1 \
+            singular_value_scaling dm1_singular_values_flat \
+            singular_value_scaling_lower_bound 0.1 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-modified-cosine-annealing-lr-scheduler 80 1e-6 1e-7 500 360 \
+        --multi-headed-output 2 --init-weights-kaiming-normal-simple 0.20 head_1 head_2 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v122_10 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score_individual \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score_individual \
+        dh_t78_h25do10dp30_h45do30dp30 weighted_two_dms adamw 3e-3 1000 --batch-size 1024 \
+        --loss-params multiheaded_output 1 \
+            singular_value_scaling dm1_singular_values_flat \
+            singular_value_scaling_lower_bound 0.1 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-modified-cosine-annealing-lr-scheduler 80 1e-6 1e-7 500 360 \
+        --multi-headed-output 2 --init-weights-kaiming-normal-simple 0.20 head_1 head_2 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v122_11 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score_individual \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score_individual \
+        dh_t78_h25do10dp30_h45do30dp30 weighted_two_dms adamw 3e-3 1200 --batch-size 1024 \
+        --loss-params multiheaded_output 1 \
+            singular_value_scaling dm1_singular_values_flat \
+            singular_value_scaling_lower_bound 0.1 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-modified-cosine-annealing-lr-scheduler 80 1e-6 1e-7 500 360 \
+        --multi-headed-output 2 --init-weights-kaiming-normal-simple 0.20 head_1 head_2 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v122_12 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score_individual \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score_individual \
+        dh_t78_h25do10dp30_h45do30dp30 weighted_two_dms adamw 3e-3 1000 --batch-size 1024 \
+        --loss-params multiheaded_output 1 \
+            singular_value_scaling dm1_singular_values_flat \
+            singular_value_scaling_lower_bound 0.1 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-modified-cosine-annealing-lr-scheduler 80 1e-6 1e-7 800 585 \
+        --multi-headed-output 2 --init-weights-kaiming-normal-simple 0.20 head_1 head_2 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v122_13 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score_individual \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score_individual \
+        dh_t78_h25do10dp30_h45do30dp30 weighted_two_dms adamw 3e-3 1200 --batch-size 1024 \
+        --loss-params multiheaded_output 1 \
+            singular_value_scaling dm1_singular_values_flat \
+            singular_value_scaling_lower_bound 0.1 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-modified-cosine-annealing-lr-scheduler 80 1e-6 1e-7 800 585 \
+        --multi-headed-output 2 --init-weights-kaiming-normal-simple 0.20 head_1 head_2 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v122_14 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score_individual \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score_individual \
+        dh_t78_h25do10dp30_h45do30dp30 weighted_two_dms adamw 3e-3 800 --batch-size 1024 \
+        --loss-params multiheaded_output 1 \
+            singular_value_scaling dm1_singular_values_flat \
+            singular_value_scaling_lower_bound 0.1 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-modified-cosine-annealing-lr-scheduler 80 1e-6 1e-7 500 300 \
+        --multi-headed-output 2 --init-weights-kaiming-normal-simple 0.20 head_1 head_2 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v122_15 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score_individual \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score_individual \
+        dh_t78_h25do10dp30_h45do30dp30 weighted_two_dms adamw 3e-3 1000 --batch-size 1024 \
+        --loss-params multiheaded_output 1 \
+            singular_value_scaling dm1_singular_values_flat \
+            singular_value_scaling_lower_bound 0.1 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-modified-cosine-annealing-lr-scheduler 80 1e-6 1e-7 500 300 \
+        --multi-headed-output 2 --init-weights-kaiming-normal-simple 0.20 head_1 head_2 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v122_16 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score_individual \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score_individual \
+        dh_t78_h25do10dp30_h45do30dp30 weighted_two_dms adamw 3e-3 1250 --batch-size 1024 \
+        --loss-params multiheaded_output 1 \
+            singular_value_scaling dm1_singular_values_flat \
+            singular_value_scaling_lower_bound 0.1 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-modified-cosine-annealing-lr-scheduler 80 1e-6 1e-7 1000 750 \
+        --multi-headed-output 2 --init-weights-kaiming-normal-simple 0.20 head_1 head_2 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v122_17 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score_individual \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score_individual \
+        dh_t78_h25do10dp30_h45do30dp30 weighted_two_dms adamw 3e-3 1500 --batch-size 1024 \
+        --loss-params multiheaded_output 1 \
+            singular_value_scaling dm1_singular_values_flat \
+            singular_value_scaling_lower_bound 0.1 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-modified-cosine-annealing-lr-scheduler 80 1e-6 1e-7 1000 750 \
+        --multi-headed-output 2 --init-weights-kaiming-normal-simple 0.20 head_1 head_2 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v122_18 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score_individual \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score_individual \
+        dh_t78_h25do10dp30_h45do30dp30 weighted_two_dms adamw 3e-3 2000 --batch-size 1024 \
+        --loss-params multiheaded_output 1 \
+            singular_value_scaling dm1_singular_values_flat \
+            singular_value_scaling_lower_bound 0.1 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-modified-cosine-annealing-lr-scheduler 80 1e-6 1e-7 1000 750 \
+        --multi-headed-output 2 --init-weights-kaiming-normal-simple 0.20 head_1 head_2 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v122_19 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score_individual \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score_individual \
+        dh_t78_h25do10dp30_h45do30dp30 weighted_two_dms adamw 3e-3 1250 --batch-size 1024 \
+        --loss-params multiheaded_output 1 \
+            singular_value_scaling dm1_singular_values_flat \
+            singular_value_scaling_lower_bound 0.1 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-modified-cosine-annealing-lr-scheduler 80 1e-6 1e-7 1000 600 \
+        --multi-headed-output 2 --init-weights-kaiming-normal-simple 0.20 head_1 head_2 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v122_20 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score_individual \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score_individual \
+        dh_t78_h25do10dp30_h45do30dp30 weighted_two_dms adamw 3e-3 1500 --batch-size 1024 \
+        --loss-params multiheaded_output 1 \
+            singular_value_scaling dm1_singular_values_flat \
+            singular_value_scaling_lower_bound 0.1 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-modified-cosine-annealing-lr-scheduler 80 1e-6 1e-7 1000 600 \
+        --multi-headed-output 2 --init-weights-kaiming-normal-simple 0.20 head_1 head_2 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v122_21 train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score_individual \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score_individual \
+        dh_t78_h25do10dp30_h45do30dp30 weighted_two_dms adamw 3e-3 2000 --batch-size 1024 \
+        --loss-params multiheaded_output 1 \
+            singular_value_scaling dm1_singular_values_flat \
+            singular_value_scaling_lower_bound 0.1 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-modified-cosine-annealing-lr-scheduler 80 1e-6 1e-7 1000 600 \
+        --multi-headed-output 2 --init-weights-kaiming-normal-simple 0.20 head_1 head_2 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates --fix-seed 314
+
+    python3 main.py batch_model_test \
+        test_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score_individual \
+        --epoch-and-tag-range last dh_v122_ 1 21 --plot-loss-curves \
+        --plot-coeff-mae-smape 500 1000 --plot-layerscale-gamma gamma \
+        --max-rows-per-model-call 1000
