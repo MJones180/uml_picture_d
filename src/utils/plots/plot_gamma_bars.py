@@ -32,7 +32,7 @@ def plot_gamma_bars(gamma_magnitudes, plot_path, multi_headed_depths=[]):
             block_width = head_depth / total_layers
             ax.text(
                 x_label_offset + block_width / 2,
-                -0.08,
+                -0.1,
                 f'Head {head_idx + 1} Layers',
                 transform=ax.transAxes,
                 ha='center',
@@ -53,6 +53,6 @@ def plot_gamma_bars(gamma_magnitudes, plot_path, multi_headed_depths=[]):
     ax.set_xticks(x_tick_locs)
     ax.set_xticklabels(x_tick_labs, rotation=90)
     plt.margins(0.01, 0.05)
-    plt.title('Mean Gamma Magnitude per Layer')
-    plt.ylabel('Mean Gamma Magnitude')
+    plt.title(r'Mean $\gamma$ Magnitude per Layer')
+    plt.ylabel(r'Mean $\gamma$ Magnitude')
     plt.savefig(plot_path)
