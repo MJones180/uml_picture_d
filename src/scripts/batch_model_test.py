@@ -79,8 +79,11 @@ def batch_model_test_parser(subparsers):
     )
     subparser.add_argument(
         '--plot-layerscale-gamma',
+        nargs='+',
         help=('plot the mean LayerScale gamma from every layer; the passed '
-              'argument should specify the variable name (probably `gamma`)'),
+              'argument should specify the variable name (probably `gamma`); '
+              'additional args can be passed if there are multiple heads, '
+              'each arg represents the depth of a head'),
     )
     subparser.add_argument(
         '--plot-loss-curves',

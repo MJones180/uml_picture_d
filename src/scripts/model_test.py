@@ -126,8 +126,11 @@ def model_test_parser(subparsers):
     )
     subparser.add_argument(
         '--plot-layerscale-gamma',
+        nargs='+',
         help=('plot the mean LayerScale gamma from every layer; the passed '
-              'argument should specify the variable name (probably `gamma`)'),
+              'argument should specify the variable name (probably `gamma`); '
+              'additional args can be passed if there are multiple heads, '
+              'each arg represents the depth of a head'),
     )
     subparser.add_argument(
         '--plot-loss-curves',
@@ -416,14 +419,18 @@ def model_test(cli_args):
     plot_layerscale_gamma = cli_args.get('plot_layerscale_gamma')
     if plot_layerscale_gamma:
         step_ri('Plotting LayerScale gamma')
-        print(f'Gamma variable name: {plot_layerscale_gamma}')
+        gamma_name, *head_depths = plot_layerscale_gamma
+        print(f'Gamma variable name: {gamma_name}')
+        if len(head_depths) > 0:
+            head_depths = [int(val) for val in head_depths]
+            print(f'Head split points: {head_depths}')
         gamma_magnitudes = [
             param.data.abs().mean().item()
             for name, param in model.model.named_parameters()
-            if plot_layerscale_gamma in name
+            if gamma_name in name
         ]
         if len(gamma_magnitudes) == 0:
-            print(f'No layers with {plot_layerscale_gamma} found')
+            print(f'No layers with {gamma_name} found')
         else:
             print(f'Gamma Mean: {np.mean(gamma_magnitudes)}')
             print(f'Gamma Min: {np.min(gamma_magnitudes)}')
@@ -431,6 +438,7 @@ def model_test(cli_args):
             plot_gamma_bars(
                 gamma_magnitudes,
                 f'{analysis_path}/layerscale_gamma.png',
+                head_depths,
             )
 
     if cli_args.get('plot_loss_curves'):
