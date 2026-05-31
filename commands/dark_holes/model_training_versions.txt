@@ -9178,5 +9178,5 @@ After model testing, it is useful to rank the model analyses:
     python3 main.py batch_model_test \
         test_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score_individual \
         --epoch-and-tag-range last dh_v122_ 1 28 --plot-loss-curves \
-        --plot-coeff-mae-smape 500 1000 --plot-layerscale-gamma gamma \
+        --plot-coeff-mae-smape 500 1000 --plot-layerscale-gamma gamma 25 45 \
         --max-rows-per-model-call 1000
