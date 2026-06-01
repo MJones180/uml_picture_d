@@ -28,6 +28,8 @@ def plot_gamma_bars(gamma_magnitudes, plot_path, multi_headed_depths=[]):
                 color=colors[head_idx],
                 label=f'Head {head_idx + 1}',
                 linewidth=0.5,
+                # Makes the colors less intense
+                alpha=0.75,
             )
             block_width = head_depth / total_layers
             ax.text(
