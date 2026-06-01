@@ -27,7 +27,7 @@ data = {
 # Load in the style file
 plt.style.use('plot_styling.mplstyle')
 
-plt.figure(figsize=(10, 6))
+plt.figure(figsize=(10, 4))
 for values in data.values():
     plt.scatter(
         np.arange(10),
@@ -37,7 +37,7 @@ for values in data.values():
         color=values['color'],
         marker=values['marker'],
     )
-plt.legend(loc='upper center', ncol=4, bbox_to_anchor=(0.5, 1.12))
+plt.legend(loc='upper center', ncol=4, bbox_to_anchor=(0.5, 1.175))
 plt.yscale('log')
 plt.ylabel('Contrast', labelpad=-15)
 plt.xlabel('DH Realization')
