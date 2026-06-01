@@ -16,7 +16,7 @@ def plot_gamma_bars(gamma_magnitudes, plot_path, multi_headed_depths=[]):
         x_label_offset = 0
         x_tick_locs = []
         x_tick_labs = []
-        colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
+        colors = ['tab:blue', 'tab:red', 'tab:green', 'tab:cyan', 'tab:orange']
         for head_idx, head_depth in enumerate(multi_headed_depths):
             head_x_vals = x_vals[:head_depth]
             x_vals = x_vals[head_depth:]
