@@ -41,9 +41,10 @@ def _add_hline(lr):
 _add_vline(80)
 _add_vline(680)
 _add_hline(3e-3)
-ax.plot(np.arange(3500) + 1, data[:, 1], linewidth=3)
 
 x_vals = data[:, 0]
+ax.plot(x_vals, data[:, 1], linewidth=3)
+
 x_tick_locs = [x_vals[0], *x_vals[499::500]]
 x_tick_vals = [str(int(val)) for val in x_tick_locs]
 ax.set_xticks(x_tick_locs)
