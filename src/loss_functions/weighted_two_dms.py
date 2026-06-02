@@ -171,7 +171,8 @@ class WeightedTwoDMs(nn.Module):
         if self.dynamic_linear_weights:
             self.total_epochs = self.dynamic_linear_weights
             self.dynamic_linear_weights = True
-            self.equal_output_weights = torch.ones_like(self.output_weights)
+            self.equal_output_weights = torch.from_numpy(
+                np.ones_like(output_weights)).to(device)
 
         # Mean division is done for each epoch when using dynamic weighting
         if not self.dynamic_linear_weights:
@@ -247,6 +248,9 @@ class WeightedTwoDMs(nn.Module):
             loss = loss * loss_weights
         if self.dynamic_linear_weights:
             current_ratio = self.current_epoch / self.total_epochs
+            # Cap the ratio so that the first term does not go above 1 scaling
+            if current_ratio > 1:
+                current_ratio = 1
             term_one = current_ratio * self.output_weights
             term_two = (1 - current_ratio) * self.equal_output_weights
             dynamic_weights = term_one + term_two
