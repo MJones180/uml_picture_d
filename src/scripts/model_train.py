@@ -597,6 +597,9 @@ def model_train(cli_args):
             print(f'{param_key}: {param_value}')
         dec_print_indent()
 
+    # Set the current epoch if the loss function needs it
+    loss_function_set_epoch = None
+
     if loss_name in ('mae', 'mse'):
         if loss_name == 'mae':
             print('MAE')
@@ -654,6 +657,7 @@ def model_train(cli_args):
             **loss_params,
         )
         loss_function = loss_obj.forward
+        loss_function_set_epoch = loss_obj.set_epoch
     else:
         unknown_loss_function()
 
@@ -1006,6 +1010,9 @@ def model_train(cli_args):
         batch_grad_norms = []
         # Turn gradient tracking on
         model.train(True)
+        # Update the current epoch
+        if loss_function_set_epoch is not None:
+            loss_function_set_epoch(epoch_idx)
         total_train_loss = 0
         if multi_headed_output:
             total_train_loss_heads = [0 for _ in range(output_heads)]

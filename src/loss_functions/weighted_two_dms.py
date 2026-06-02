@@ -27,6 +27,7 @@ class WeightedTwoDMs(nn.Module):
         add_mae_loss=None,
         add_exp_loss_weighting=None,
         multiheaded_output=None,
+        dynamic_linear_weights=None,
     ):
         """The WeightedTwoDMs class.
 
@@ -77,6 +78,11 @@ class WeightedTwoDMs(nn.Module):
             output values. In effect, the internal weighting is not tiled
             to account for two separate DMs. Therefore, this loss function is
             instead called twice (once for each DM).
+        dynamic_linear_weights : int
+            Apply dynamic linear weighting which depends on the current epoch;
+            each output coefficient will go from having an equal weight on the
+            first epoch to the desired weighting on the final epoch; the passed
+            value should specify the total number of epochs.
 
         Notes
         -----
@@ -158,8 +164,19 @@ class WeightedTwoDMs(nn.Module):
             # Create a copy of the output weights for the second DM
             output_weights = np.tile(output_weights, 2)
 
-        # Normalize the weights to have a mean of 1
-        output_weights = output_weights / output_weights.mean()
+        # Keep track of the current epoch incase it is needed
+        self.current_epoch = None
+
+        self.dynamic_linear_weights = _grab_param(dynamic_linear_weights, int)
+        if self.dynamic_linear_weights:
+            self.total_epochs = self.dynamic_linear_weights
+            self.dynamic_linear_weights = True
+            self.equal_output_weights = torch.ones_like(self.output_weights)
+
+        # Mean division is done for each epoch when using dynamic weighting
+        if not self.dynamic_linear_weights:
+            # Normalize the weights to have a mean of 1
+            output_weights = output_weights / output_weights.mean()
         # Move the output weights to torch
         self.output_weights = torch.from_numpy(output_weights).to(device)
 
@@ -206,6 +223,9 @@ class WeightedTwoDMs(nn.Module):
         base = self.apply_modified_exp
         return torch.sign(values) * (1 - base**torch.abs(values))
 
+    def set_epoch(self, epoch):
+        self.current_epoch = epoch
+
     def forward(self, model_outputs, truth_outputs):
         if self.apply_modified_log:
             model_outputs = self._apply_log_transformation(model_outputs)
@@ -225,8 +245,18 @@ class WeightedTwoDMs(nn.Module):
                 self.add_exp_loss_weighting_alpha *
                 torch.exp(-abs_delta / self.add_exp_loss_weighting_beta))
             loss = loss * loss_weights
-        # The loss weighted with respect to each given output neuron
-        weighted_loss = self.output_weights * loss
+        if self.dynamic_linear_weights:
+            current_ratio = self.current_epoch / self.total_epochs
+            term_one = current_ratio * self.output_weights
+            term_two = (1 - current_ratio) * self.equal_output_weights
+            dynamic_weights = term_one + term_two
+            # Normalize the weights to have a mean of 1
+            dynamic_weights = dynamic_weights / dynamic_weights.mean()
+            # The loss weighted with respect to each given output neuron
+            weighted_loss = dynamic_weights * loss
+        else:
+            # The loss weighted with respect to each given output neuron
+            weighted_loss = self.output_weights * loss
         if self.take_row_sum:
             weighted_loss = weighted_loss.sum(axis=1)
         return weighted_loss.mean()
