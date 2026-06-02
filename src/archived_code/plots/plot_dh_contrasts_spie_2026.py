@@ -29,7 +29,7 @@ plt.style.use('plot_styling.mplstyle')
 
 def math_notation(value):
     coeff, exp = f'{value:.3e}'.split('e')
-    return rf'${coeff} \cdot 10^{{{int(exp)}}}$'
+    return rf'${coeff} \times 10^{{{int(exp)}}}$'
 
 
 fig, ax1 = plt.subplots(figsize=(10, 4))
