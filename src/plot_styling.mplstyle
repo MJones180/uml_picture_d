@@ -15,6 +15,13 @@ savefig.dpi: 300
 
 xtick.major.width: 2
 ytick.major.width: 2
+xtick.minor.width: 1.5
+ytick.minor.width: 1.5
+
+xtick.major.size: 4
+ytick.major.size: 4
+xtick.minor.size: 2.5
+ytick.minor.size: 2.5
 
 patch.linewidth: 2
 patch.facecolor: "#ffffff"
