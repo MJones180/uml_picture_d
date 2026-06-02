@@ -169,6 +169,7 @@ class WeightedTwoDMs(nn.Module):
 
         self.dynamic_linear_weights = _grab_param(dynamic_linear_weights, int)
         if self.dynamic_linear_weights:
+            print('Applying dynamic linear weighting')
             self.total_epochs = self.dynamic_linear_weights
             self.dynamic_linear_weights = True
             self.equal_output_weights = torch.from_numpy(
