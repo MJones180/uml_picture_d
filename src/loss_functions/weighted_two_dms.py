@@ -28,6 +28,7 @@ class WeightedTwoDMs(nn.Module):
         add_exp_loss_weighting=None,
         multiheaded_output=None,
         dynamic_linear_weights=None,
+        dynamic_linear_weights_flip=None,
     ):
         """The WeightedTwoDMs class.
 
@@ -83,6 +84,9 @@ class WeightedTwoDMs(nn.Module):
             each output coefficient will go from having an equal weight on the
             first epoch to the desired weighting on the final epoch; the passed
             value should specify the total number of epochs.
+        dynamic_linear_weights_flip : bool
+            Flip the weighting of the `dynamic_linear_weights` argument; each
+            coefficient will go from having the desired to equal weighting.
 
         Notes
         -----
@@ -174,6 +178,8 @@ class WeightedTwoDMs(nn.Module):
             self.dynamic_linear_weights = True
             self.equal_output_weights = torch.from_numpy(
                 np.ones_like(output_weights)).to(device)
+            self.dynamic_linear_weights_flip = _grab_param(
+                dynamic_linear_weights_flip, bool)
 
         # Mean division is done for each epoch when using dynamic weighting
         if not self.dynamic_linear_weights:
@@ -252,8 +258,14 @@ class WeightedTwoDMs(nn.Module):
             # Cap the ratio so that the first term does not go above 1 scaling
             if current_ratio > 1:
                 current_ratio = 1
-            term_one = current_ratio * self.output_weights
-            term_two = (1 - current_ratio) * self.equal_output_weights
+            if self.dynamic_linear_weights_flip:
+                term_one_ratio = 1 - current_ratio
+                term_two_ratio = current_ratio
+            else:
+                term_one_ratio = current_ratio
+                term_two_ratio = 1 - current_ratio
+            term_one = term_one_ratio * self.output_weights
+            term_two = term_two_ratio * self.equal_output_weights
             dynamic_weights = term_one + term_two
             # Normalize the weights to have a mean of 1
             dynamic_weights = dynamic_weights / dynamic_weights.mean()
