@@ -383,11 +383,13 @@ Train, test, and export the CNN models created from the instrument data.
         --change-base-field-corresponding inst_llowfs_v7_tst_2nm_rnd_bf_hdf --norm-stability-value 0
     python3 main.py model_test instrument_llowfs_capture_v7 last \
         inst_llowfs_v7_tst_50nm_fix_hdf_proc \
-        --zernike-plots --enable-paper-plots 1 --inputs-need-norm --inputs-need-diff \
+        --zernike-plots --disable-zernike-gif-plots --zernike-crosstalk-grid --enable-paper-plots 1 \
+        --inputs-need-norm --inputs-need-diff \
         --change-base-field-corresponding inst_llowfs_v7_tst_50nm_fix_bf_hdf --norm-stability-value 0
     python3 main.py model_test instrument_llowfs_capture_v7 last \
         inst_llowfs_v7_tst_1nm_fix_hdf_proc \
-        --zernike-plots --enable-paper-plots 1 --inputs-need-norm --inputs-need-diff \
+        --zernike-plots --disable-zernike-gif-plots --zernike-crosstalk-grid --enable-paper-plots 1 \
+        --inputs-need-norm --inputs-need-diff \
         --change-base-field-corresponding inst_llowfs_v7_tst_1nm_fix_bf_hdf --norm-stability-value 0
 
     # ---- Stabilization CNN Training ----
@@ -404,11 +406,13 @@ Train, test, and export the CNN models created from the instrument data.
         --change-base-field-corresponding inst_llowfs_v7_tst_2nm_rnd_bf_hdf --norm-stability-value 0
     python3 main.py model_test instrument_llowfs_stabilization_v7 last \
         inst_llowfs_v7_tst_50nm_fix_hdf_proc \
-        --zernike-plots --enable-paper-plots 2 --inputs-need-norm --inputs-need-diff \
+        --zernike-plots --disable-zernike-gif-plots --zernike-crosstalk-grid --enable-paper-plots 2 \
+        --inputs-need-norm --inputs-need-diff \
         --change-base-field-corresponding inst_llowfs_v7_tst_50nm_fix_bf_hdf --norm-stability-value 0
     python3 main.py model_test instrument_llowfs_stabilization_v7 last \
         inst_llowfs_v7_tst_1nm_fix_hdf_proc \
-        --zernike-plots --enable-paper-plots 2 --inputs-need-norm --inputs-need-diff \
+        --zernike-plots --disable-zernike-gif-plots --zernike-crosstalk-grid --enable-paper-plots 2 \
+        --inputs-need-norm --inputs-need-diff \
         --change-base-field-corresponding inst_llowfs_v7_tst_1nm_fix_bf_hdf --norm-stability-value 0
 
 SEC7 - CNN EXPORTING +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -445,10 +449,10 @@ Create and test the RM model on the instrument data.
         --scatter-plot 4 6 2 1e-7 15 --enable-paper-plots 0 --wfs-need-sum-to-one \
         --change-base-field-corresponding inst_llowfs_v7_tst_2nm_rnd_bf_hdf
     python3 main.py run_response_matrix inst_llowfs_v7_rm_hdf \
-        inst_llowfs_v7_tst_50nm_fix_hdf_proc \
-        --zernike-plots --enable-paper-plots 0 --wfs-need-sum-to-one \
+        inst_llowfs_v7_tst_50nm_fix_hdf_proc --wfs-need-sum-to-one \
+        --zernike-plots --disable-zernike-gif-plots --zernike-crosstalk-grid --enable-paper-plots 0 \
         --change-base-field-corresponding inst_llowfs_v7_tst_50nm_fix_bf_hdf
     python3 main.py run_response_matrix inst_llowfs_v7_rm_hdf \
-        inst_llowfs_v7_tst_1nm_fix_hdf_proc \
-        --zernike-plots --enable-paper-plots 0 --wfs-need-sum-to-one \
+        inst_llowfs_v7_tst_1nm_fix_hdf_proc  --wfs-need-sum-to-one \
+        --zernike-plots --disable-zernike-gif-plots --zernike-crosstalk-grid --enable-paper-plots 0 \
         --change-base-field-corresponding inst_llowfs_v7_tst_1nm_fix_bf_hdf
