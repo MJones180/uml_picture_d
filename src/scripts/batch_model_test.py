@@ -56,6 +56,11 @@ def batch_model_test_parser(subparsers):
         help='generate the Zernike plots',
     )
     subparser.add_argument(
+        '--disable-zernike-gif-plots',
+        action='store_true',
+        help='disable generating the Zernike GIF plots',
+    )
+    subparser.add_argument(
         '--print-outputs',
         action='store_true',
         help='print out the truth and model outputs',
@@ -132,6 +137,7 @@ def batch_model_test(cli_args):
             'outputs_no_denorm',
             'scatter_plot',
             'zernike_plots',
+            'disable_zernike_gif_plots',
             'print_outputs',
             'take_rss_model_outputs',
             'force_cpu',

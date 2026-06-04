@@ -73,6 +73,11 @@ def run_response_matrix_parser(subparsers):
         help='generate the Zernike plots',
     )
     subparser.add_argument(
+        '--disable-zernike-gif-plots',
+        action='store_true',
+        help='disable generating the Zernike GIF plots',
+    )
+    subparser.add_argument(
         '--inputs-need-denorm',
         action='store_true',
         help='the inputs need to be denormalized',
@@ -426,25 +431,26 @@ def run_response_matrix(cli_args):
                 paper_plot_model_idx,
             )
 
-        step_ri('Generating a Zernike cross coupling animation')
-        plot_zernike_cross_coupling_animation(
-            zernike_terms,
-            perturbation_grid,
-            outputs_resp_mat_gr,
-            plot_title,
-            plot_identifier,
-            f'{analysis_path}/zernike_cross_coupling.gif',
-        )
+        if not cli_args.get('disable_zernike_gif_plots'):
+            step_ri('Generating a Zernike cross coupling animation')
+            plot_zernike_cross_coupling_animation(
+                zernike_terms,
+                perturbation_grid,
+                outputs_resp_mat_gr,
+                plot_title,
+                plot_identifier,
+                f'{analysis_path}/zernike_cross_coupling.gif',
+            )
 
-        step_ri('Generating a Zernike cross coupling matrix animation')
-        plot_zernike_cross_coupling_mat_animation(
-            zernike_terms,
-            perturbation_grid,
-            outputs_resp_mat_gr,
-            plot_title,
-            plot_identifier,
-            f'{analysis_path}/zernike_cross_coupling_mat.gif',
-        )
+            step_ri('Generating a Zernike cross coupling matrix animation')
+            plot_zernike_cross_coupling_mat_animation(
+                zernike_terms,
+                perturbation_grid,
+                outputs_resp_mat_gr,
+                plot_title,
+                plot_identifier,
+                f'{analysis_path}/zernike_cross_coupling_mat.gif',
+            )
 
     plot_coeff_mae_smape = cli_args.get('plot_coeff_mae_smape')
     if plot_coeff_mae_smape is not None:
