@@ -9,7 +9,7 @@ def plot_zernike_crosstalk_grid(
     plot_path=None,
 ):
     """
-    Generates and saves a Zernike total cross coupling plot.
+    Generates and saves a Zernike cross coupling grid.
 
     Only one Zernike term should be perturbed at a time.
 
