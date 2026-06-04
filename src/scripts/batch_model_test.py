@@ -61,6 +61,11 @@ def batch_model_test_parser(subparsers):
         help='disable generating the Zernike GIF plots',
     )
     subparser.add_argument(
+        '--zernike-crosstalk-grid',
+        action='store_true',
+        help='generate a Zernike crosstalk grid',
+    )
+    subparser.add_argument(
         '--print-outputs',
         action='store_true',
         help='print out the truth and model outputs',
@@ -138,6 +143,7 @@ def batch_model_test(cli_args):
             'scatter_plot',
             'zernike_plots',
             'disable_zernike_gif_plots',
+            'zernike_crosstalk_grid',
             'print_outputs',
             'take_rss_model_outputs',
             'force_cpu',

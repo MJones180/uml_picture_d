@@ -29,6 +29,7 @@ from utils.plots.plot_coeff_comparison import plot_coeff_comparison
 from utils.plots.plot_comparison_scatter_grid import plot_comparison_scatter_grid  # noqa: E501
 from utils.plots.plot_zernike_cross_coupling_animation import plot_zernike_cross_coupling_animation  # noqa: E501
 from utils.plots.plot_zernike_cross_coupling_mat_animation import plot_zernike_cross_coupling_mat_animation  # noqa: E501
+from utils.plots.plot_zernike_crosstalk_grid import plot_zernike_crosstalk_grid
 from utils.plots.plot_zernike_response import plot_zernike_response
 from utils.plots.plot_zernike_total_cross_coupling import plot_zernike_total_cross_coupling  # noqa: E501
 from utils.plots.paper_plots.total_crosstalk import paper_plot_total_crosstalk  # noqa
@@ -76,6 +77,11 @@ def run_response_matrix_parser(subparsers):
         '--disable-zernike-gif-plots',
         action='store_true',
         help='disable generating the Zernike GIF plots',
+    )
+    subparser.add_argument(
+        '--zernike-crosstalk-grid',
+        action='store_true',
+        help='generate a Zernike crosstalk grid',
     )
     subparser.add_argument(
         '--inputs-need-denorm',
@@ -450,6 +456,15 @@ def run_response_matrix(cli_args):
                 plot_title,
                 plot_identifier,
                 f'{analysis_path}/zernike_cross_coupling_mat.gif',
+            )
+
+        if cli_args.get('zernike_crosstalk_grid'):
+            step_ri('Generating a Zernike crosstalk grid')
+            plot_zernike_crosstalk_grid(
+                zernike_terms,
+                perturbation_grid,
+                outputs_resp_mat_gr,
+                f'{analysis_path}/crosstalk_grid.png',
             )
 
     plot_coeff_mae_smape = cli_args.get('plot_coeff_mae_smape')
