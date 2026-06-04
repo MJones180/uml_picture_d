@@ -29,8 +29,8 @@ def plot_zernike_crosstalk_grid(
     plt.style.use(PLOT_STYLE_FILE)
 
     # The min and max values for the y-axis
-    y_min = perturbation_grid[0] * 1e-9
-    y_max = perturbation_grid[-1] * 1e-9
+    y_min = perturbation_grid[0] * 1e9
+    y_max = perturbation_grid[-1] * 1e9
 
     # Put the predictions into nm
     pred_groupings_nm = pred_groupings * 1e9
