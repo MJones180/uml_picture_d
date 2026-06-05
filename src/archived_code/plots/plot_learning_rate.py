@@ -27,20 +27,24 @@ def _add_vline(epoch):
     )
 
 
-def _add_hline(lr):
+def _add_hline(lr, no_text=False):
     ax.axhline(y=lr, linestyle='--', linewidth=1.5, alpha=0.5)
-    ax.text(
-        x=0.002,
-        y=lr + 0.00025,
-        transform=ax.get_yaxis_transform(),
-        s=str(lr),
-        fontsize=14,
-    )
+    if not no_text:
+        ax.text(
+            x=0.002,
+            y=lr + 0.00025,
+            transform=ax.get_yaxis_transform(),
+            s=str(lr),
+            fontsize=14,
+        )
 
 
 _add_vline(80)
 _add_vline(680)
 _add_hline(3e-3)
+_add_hline(1e-3, no_text=True)
+_add_hline(1e-6, no_text=True)
+_add_hline(1e-7, no_text=True)
 
 x_vals = data[:, 0]
 ax.plot(x_vals, data[:, 1], linewidth=3)
@@ -51,7 +55,6 @@ ax.set_xticks(x_tick_locs)
 ax.set_xticklabels(x_tick_vals)
 
 ax.set_yscale('log')
-ax.grid(True)
 ax.set_xlabel('Epoch')
 ax.set_ylabel('Learning Rate')
 ax.set_title('Learning Rate Schedule')
