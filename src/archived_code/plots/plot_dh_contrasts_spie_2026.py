@@ -32,36 +32,26 @@ def math_notation(value):
     return rf'${coeff} \times 10^{{{int(exp)}}}$'
 
 
-fig, ax1 = plt.subplots(figsize=(10, 4))
-mean_values = []
+fig, ax = plt.subplots(figsize=(10, 4))
 for values in data.values():
     # Compute the geometric mean; instead of calculating prod(x)^(1/N), the
     # following computational trick can be used
     mean_value = 10**np.mean(np.log10(values['data']))
-    mean_values.append(mean_value)
-    ax1.scatter(
+    ax.scatter(
         np.arange(10),
         values['data'],
         s=350,
-        label=values['label'],
+        label=values['label'] + f' (Mean {math_notation(mean_value)})',
         color=values['color'],
         marker=values['marker'],
     )
-    ax1.axhline(y=mean_value, linestyle='--', color=values['color'])
+    ax.axhline(y=mean_value, linestyle='--', color=values['color'])
 
-ax1.set_title('DH Contrast After First Iteration', pad=40)
-ax1.legend(loc='upper center', ncol=2, bbox_to_anchor=(0.5, 1.175))
-ax1.set_yscale('log')
-ax1.set_ylabel('Contrast', labelpad=-18)
-ax1.set_xlabel('DH Realization')
-ax1.locator_params(axis='x', nbins=10)
-
-ax2 = ax1.twinx()
-ax2.set_ylim(ax1.get_ylim())
-ax2.set_yscale('log')
-ax2.set_ylabel('Mean\nContrast', labelpad=-40)
-ax2.set_yticks(mean_values)
-ax2.set_yticklabels([math_notation(val) for val in mean_values])
-ax2.minorticks_off()
+ax.set_title('DH Contrast After First Iteration', pad=40)
+ax.legend(loc='upper center', ncol=2, bbox_to_anchor=(0.5, 1.175))
+ax.set_yscale('log')
+ax.set_ylabel('Contrast', labelpad=-18)
+ax.set_xlabel('DH Realization')
+ax.locator_params(axis='x', nbins=10)
 
 plt.savefig('dh_contrasts_spie_2026.png')
