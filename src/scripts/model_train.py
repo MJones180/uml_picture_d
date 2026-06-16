@@ -245,6 +245,13 @@ def model_train_parser(subparsers):
               'structure must be the same'),
     )
     subparser.add_argument(
+        '--init-weights-pad',
+        nargs='*',
+        help=('should be used with the `--init-weights` argument; groups of '
+              'two params expected: layer name, desired padded shape; the '
+              'desired shape will be padded with zeros'),
+    )
+    subparser.add_argument(
         '--init-weights-select',
         nargs='+',
         metavar=('[pretrained model tag], [pretrained model epoch], '
@@ -432,7 +439,24 @@ def model_train(cli_args):
         step_ri('Initializing weights from trained model')
         print(f'Trained model: {init_weights[0]}, Epoch: {init_weights[1]}')
         pt_model = Model(*init_weights, suppress_logs=True).model
-        model.load_state_dict(pt_model.state_dict())
+        state_dict = pt_model.state_dict()
+        init_weights_pad = cli_args.get('init_weights_pad')
+        if init_weights_pad is not None:
+            print('Padding certain layers with zeros')
+            for layer_name, target_shape in group_data_from_list(
+                    init_weights_pad, 2):
+                layer_data = state_dict[layer_name]
+                orig_shape = layer_data.shape
+                # Convert from a string to a list
+                target_shape = [int(v) for v in target_shape.split(',')]
+                print(f'{layer_name}: {orig_shape} -> {target_shape}')
+                padding = []
+                # The padding works from the last dimension backwards
+                for pad in zip(reversed(orig_shape), reversed(target_shape)):
+                    padding.extend([0, pad[1] - pad[0]])
+                state_dict[layer_name] = torch.nn.functional.pad(
+                    layer_data, padding)
+        model.load_state_dict(state_dict)
 
     init_weights_select = cli_args.get('init_weights_select')
     if init_weights_select is not None:
@@ -559,7 +583,7 @@ def model_train(cli_args):
         step_ri('Initializing values for layers with norm values')
         extra_vars = read_hdf(output_extra_vars_path)
         for table_name, layer_name in group_data_from_list(
-                use_norm_values_for_layers, 2, 'Must be two params per group'):
+                use_norm_values_for_layers, 2):
             print(f'Table name: {table_name}, Layer name: {layer_name}')
             table_data = extra_vars[table_name]
             if len(table_data.shape) == 0:
@@ -590,8 +614,7 @@ def model_train(cli_args):
         # Group the data into key value pairs
         loss_params = {
             key: val
-            for key, val in group_data_from_list(
-                loss_params, 2, 'Must be two params per group')
+            for key, val in group_data_from_list(loss_params, 2)
         }
         for param_key, param_value in loss_params.items():
             print(f'{param_key}: {param_value}')
@@ -744,7 +767,7 @@ def model_train(cli_args):
     if optimizer_params is not None:
         step('Passing additional params to optimizer (first group)')
         for param_name, param_value, param_type in group_data_from_list(
-                optimizer_params, 3, 'Must be three params per group'):
+                optimizer_params, 3):
             if int(param_type) == 1:
                 param_value = float(param_value)
             elif int(param_type) == 2:
@@ -758,10 +781,7 @@ def model_train(cli_args):
     if optimizer_params_all_groups is not None:
         step('Passing additional params to optimizer (each group)')
         for param_name, param_value, param_type in group_data_from_list(
-                optimizer_params_all_groups,
-                3,
-                'Must be three params per group',
-        ):
+                optimizer_params_all_groups, 3):
             if int(param_type) == 1:
                 param_value = float(param_value)
             elif int(param_type) == 2:
