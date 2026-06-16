@@ -7,31 +7,27 @@ This repository does not contain any flight software for PICTURE-D.
 
 ## Installation
 
-The following Conda command will create the environment and install the necessary dependencies:
+First, delete the old Conda environment if one exists:
 
-    # CPU only
-    conda env create -f environment.yml 
+    conda remove --name picture_d --all
 
-    # GPU [NVIDIA CUDA 12.6] - Used on Unity
-    conda env create -f environment_cuda_126.yml 
+Then, create and activate the new environment:
 
-    # GPU [NVIDIA CUDA 13.0] - Used on Workstation
-    conda env create -f environment_cuda_130.yml 
-
-Then, to activate the environment:
-
+    conda create --name picture_d python=3.12.5
     conda activate picture_d
 
-If the dependencies change at any point, the environment file can be updated via:
+Finally, install the dependencies:
 
-    # CPU env
-    conda env export --no-builds | grep -v "^prefix: " > environment.yml
-
-    # GPU env
-    conda env export --no-builds | grep -v "^prefix: " > environment_cuda_126.yml
-    conda env export --no-builds | grep -v "^prefix: " > environment_cuda_130.yml
+    pip install astropy h5py matplotlib mpl-scatter-density numpy onnx onnxscript onnxruntime pathos pillow prettytable pyfftw scipy torch
 
 A helpful cheatsheet with useful Conda commands: docs.conda.io/projects/conda/en/4.6.0/_downloads/52a95608c49671267e40c689e0bc00ca/conda-cheatsheet.pdf
+
+If desired, a config file with the dependencies can be created:
+
+    # Export current environment's requirements
+    conda env export --no-builds | grep -v "^prefix: " > environment.yml
+    # Create environment from config file
+    conda env create -f environment.yml 
 
 ### Notes
 
@@ -54,18 +50,6 @@ When this happens, uninstall `pyFFTW` from Conda and install with pip:
     - Note: if the GPU randomly stops working for model training, then try the following commands:
         - `sudo ubuntu-drivers install nvidia:580`
         - `sudo reboot`
-
-- If the environment files are not working to properly install things, then a new Conda environment can be created from scratch:
-
-        # Delete the old environment
-        conda remove --name picture_d --all
-        # Create and activate the new Conda env
-        conda create --name picture_d python=3.12.5
-        conda activate picture_d
-        # Install the dependencies
-        conda install astropy h5py hdf5 matplotlib numpy pathos pillow prettytable pyfftw scipy
-        pip install mpl-scatter-density onnx onnxscript onnxruntime
-        # Grab command to install PyTorch dependencies from pytorch.org/get-started/locally/
 
 ### PROPER
 
