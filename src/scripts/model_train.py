@@ -252,6 +252,13 @@ def model_train_parser(subparsers):
               'desired shape will be padded with zeros'),
     )
     subparser.add_argument(
+        '--init-layer-value-zero',
+        nargs='+',
+        help=('should be used with the `--init-weights` argument; groups of '
+              'two params expected: layer name, desired shape; the desired '
+              'shape will be created with zeros'),
+    )
+    subparser.add_argument(
         '--init-weights-select',
         nargs='+',
         metavar=('[pretrained model tag], [pretrained model epoch], '
@@ -288,11 +295,6 @@ def model_train_parser(subparsers):
         nargs='+',
         help=('inits a BatchNorm layer to have a weight of 0; only layer '
               'names that contain the subtrings passed will be effected'),
-    )
-    subparser.add_argument(
-        '--init-layer-weights-zero',
-        nargs='+',
-        help='init the weights of the specified layers to zero',
     )
     subparser.add_argument(
         '--transfer-learning-train-layers',
@@ -461,7 +463,15 @@ def model_train(cli_args):
                     padding.extend([0, pad[1] - pad[0]])
                 state_dict[layer_name] = torch.nn.functional.pad(
                     layer_data, padding)
-        model.load_state_dict(state_dict, strict=False)
+        init_layer_value_zero = cli_args.get('init_layer_value_zero')
+        if init_layer_value_zero is not None:
+            print('Adding new layers set to zero')
+            for layer_name, target_shape in group_data_from_list(
+                    init_layer_value_zero, 2):
+                target_shape = [int(v) for v in target_shape.split(',')]
+                print(f'{layer_name}: {target_shape}')
+                state_dict[layer_name] = torch.zeros(target_shape)
+        model.load_state_dict(state_dict)
 
     init_weights_select = cli_args.get('init_weights_select')
     if init_weights_select is not None:
@@ -522,15 +532,6 @@ def model_train(cli_args):
                 if isinstance(module, bn_types):
                     print(f'Layer: {name}')
                     torch.nn.init.constant_(module.weight, 0)
-
-    init_layer_weights_zero = cli_args.get('init_layer_weights_zero')
-    if init_layer_weights_zero is not None:
-        step_ri('Zeroing out weights in specified layers')
-        print(f'Layers must contain substrings: {init_layer_weights_zero}')
-        for name, module in model.named_modules():
-            if any([substr in name for substr in init_layer_weights_zero]):
-                print(f'Layer: {name}')
-                torch.nn.init.constant_(module.weight, 0)
 
     transfer_learn_layers = cli_args.get('transfer_learning_train_layers')
     if transfer_learn_layers:
