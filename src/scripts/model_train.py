@@ -259,6 +259,13 @@ def model_train_parser(subparsers):
               'shape will be created with zeros'),
     )
     subparser.add_argument(
+        '--init-layer-value-scaled-kaiming',
+        nargs='+',
+        help=('should be used with the `--init-weights` argument; groups of '
+              'two params expected: layer name, scale; the layer will be '
+              'overwritten with (scale * kaiming uniform)'),
+    )
+    subparser.add_argument(
         '--init-weights-select',
         nargs='+',
         metavar=('[pretrained model tag], [pretrained model epoch], '
@@ -472,6 +479,13 @@ def model_train(cli_args):
                 target_shape = list(reversed(target_shape))
                 print(f'{layer_name}: {target_shape}')
                 state_dict[layer_name] = torch.zeros(target_shape)
+        scaled_kaiming = cli_args.get('init_layer_value_scaled_kaiming')
+        if scaled_kaiming is not None:
+            print('Setting layers to scaled Kaiming')
+            for layer_name, scale in group_data_from_list(scaled_kaiming, 2):
+                torch.nn.init.kaiming_uniform_(state_dict[layer_name],
+                                               nonlinearity='linear')
+                state_dict[layer_name].mul_(float(scale))
         model.load_state_dict(state_dict)
 
     init_weights_select = cli_args.get('init_weights_select')
