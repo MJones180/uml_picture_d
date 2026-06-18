@@ -290,6 +290,11 @@ def model_train_parser(subparsers):
               'names that contain the subtrings passed will be effected'),
     )
     subparser.add_argument(
+        '--init-layer-weights-zero',
+        nargs='+',
+        help='init the weights of the specified layers to zero',
+    )
+    subparser.add_argument(
         '--transfer-learning-train-layers',
         nargs='+',
         help='freeze all layers, except passed layers, during training',
@@ -456,7 +461,7 @@ def model_train(cli_args):
                     padding.extend([0, pad[1] - pad[0]])
                 state_dict[layer_name] = torch.nn.functional.pad(
                     layer_data, padding)
-        model.load_state_dict(state_dict)
+        model.load_state_dict(state_dict, strict=False)
 
     init_weights_select = cli_args.get('init_weights_select')
     if init_weights_select is not None:
@@ -510,13 +515,22 @@ def model_train(cli_args):
     init_weights_bn_zero = cli_args.get('init_weights_bn_zero')
     if init_weights_bn_zero is not None:
         step_ri('Zeroing out weights in BatchNorm layers')
-        print(f'Layer names must contain substrings: {init_weights_bn_zero}')
+        print(f'Layers must contain substrings: {init_weights_bn_zero}')
         for name, module in model.named_modules():
-            if any([substring in name for substring in init_weights_bn_zero]):
+            if any([substr in name for substr in init_weights_bn_zero]):
                 bn_types = (torch.nn.BatchNorm1d, torch.nn.BatchNorm2d)
                 if isinstance(module, bn_types):
                     print(f'Layer: {name}')
                     torch.nn.init.constant_(module.weight, 0)
+
+    init_layer_weights_zero = cli_args.get('init_layer_weights_zero')
+    if init_layer_weights_zero is not None:
+        step_ri('Zeroing out weights in specified layers')
+        print(f'Layers must contain substrings: {init_layer_weights_zero}')
+        for name, module in model.named_modules():
+            if any([substr in name for substr in init_layer_weights_zero]):
+                print(f'Layer: {name}')
+                torch.nn.init.constant_(module.weight, 0)
 
     transfer_learn_layers = cli_args.get('transfer_learning_train_layers')
     if transfer_learn_layers:
