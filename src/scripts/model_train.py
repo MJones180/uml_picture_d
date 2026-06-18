@@ -469,6 +469,7 @@ def model_train(cli_args):
             for layer_name, target_shape in group_data_from_list(
                     init_layer_value_zero, 2):
                 target_shape = [int(v) for v in target_shape.split(',')]
+                target_shape = list(reversed(target_shape))
                 print(f'{layer_name}: {target_shape}')
                 state_dict[layer_name] = torch.zeros(target_shape)
         model.load_state_dict(state_dict)
