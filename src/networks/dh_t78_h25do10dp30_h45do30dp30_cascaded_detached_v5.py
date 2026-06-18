@@ -1,4 +1,4 @@
-# `dh_t78_h25do10dp30_h45do30dp30_cascaded_detached_v4` network { 1000 -> 1000 }
+# `dh_t78_h25do10dp30_h45do30dp30_cascaded_detached_v5` network { 1000 -> 1000 }
 # Trainable parameters: 60,902,352
 import numpy as np
 import torch
@@ -123,6 +123,6 @@ class Network(nn.Module):
         head_1_features = self.head_1(x)
         head_1_result = self.head_1_out(head_1_features)
         x_and_features = torch.cat([x, head_1_features.detach()], dim=1)
-        mixed_features = self.mixer(x_and_features)
-        head_2_result = self.head_2_out(self.head_2(mixed_features))
+        final_features = x_and_features + self.mixer(x_and_features)
+        head_2_result = self.head_2_out(self.head_2(final_features))
         return head_1_result, head_2_result
