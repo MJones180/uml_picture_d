@@ -483,6 +483,7 @@ def model_train(cli_args):
         if scaled_kaiming is not None:
             print('Setting layers to scaled Kaiming')
             for layer_name, scale in group_data_from_list(scaled_kaiming, 2):
+                print(f'{layer_name}: {scale}')
                 torch.nn.init.kaiming_uniform_(state_dict[layer_name],
                                                nonlinearity='linear')
                 state_dict[layer_name].mul_(float(scale))
