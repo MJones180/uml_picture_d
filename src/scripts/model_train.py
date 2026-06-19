@@ -259,6 +259,13 @@ def model_train_parser(subparsers):
               'shape will be created with zeros'),
     )
     subparser.add_argument(
+        '--init-layer-value-constant',
+        nargs='+',
+        help=('should be used with the `--init-weights` argument; groups of '
+              'three params expected: layer name, desired shape, fill value; '
+              'the desired shape will be created with the fill value'),
+    )
+    subparser.add_argument(
         '--init-layer-value-scaled-kaiming',
         nargs='+',
         help=('should be used with the `--init-weights` argument; groups of '
@@ -454,6 +461,10 @@ def model_train(cli_args):
         print(f'Trained model: {init_weights[0]}, Epoch: {init_weights[1]}')
         pt_model = Model(*init_weights, suppress_logs=True).model
         state_dict = pt_model.state_dict()
+
+        def _str_to_target_shape(val):
+            return [int(v) for v in val.split(',')]
+
         init_weights_pad = cli_args.get('init_weights_pad')
         if init_weights_pad is not None:
             print('Padding certain layers with zeros')
@@ -462,7 +473,7 @@ def model_train(cli_args):
                 layer_data = state_dict[layer_name]
                 orig_shape = layer_data.shape
                 # Convert from a string to a list
-                target_shape = [int(v) for v in target_shape.split(',')]
+                target_shape = _str_to_target_shape(target_shape)
                 print(f'{layer_name}: {orig_shape} -> {target_shape}')
                 padding = []
                 # The padding works from the last dimension backwards
@@ -475,10 +486,20 @@ def model_train(cli_args):
             print('Adding new layers set to zero')
             for layer_name, target_shape in group_data_from_list(
                     init_layer_value_zero, 2):
-                target_shape = [int(v) for v in target_shape.split(',')]
+                target_shape = _str_to_target_shape(target_shape)
                 target_shape = list(reversed(target_shape))
                 print(f'{layer_name}: {target_shape}')
                 state_dict[layer_name] = torch.zeros(target_shape)
+        init_layer_value_constant = cli_args.get('init_layer_value_constant')
+        if init_layer_value_constant is not None:
+            print('Adding new layers set to constant value')
+            for layer_name, target_shape, fill_value in group_data_from_list(
+                    init_layer_value_zero, 3):
+                target_shape = _str_to_target_shape(target_shape)
+                target_shape = list(reversed(target_shape))
+                print(f'{layer_name}: {target_shape}, fill {fill_value}')
+                state_dict[layer_name] = torch.full(target_shape,
+                                                    float(fill_value))
         scaled_kaiming = cli_args.get('init_layer_value_scaled_kaiming')
         if scaled_kaiming is not None:
             print('Setting layers to scaled Kaiming')
