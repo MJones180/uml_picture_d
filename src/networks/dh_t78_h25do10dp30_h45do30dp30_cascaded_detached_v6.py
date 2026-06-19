@@ -1,0 +1,141 @@
+# `dh_t78_h25do10dp30_h45do30dp30_cascaded_detached_v6` network { 1000 -> 1000 }
+# Trainable parameters: 60,000,928
+import numpy as np
+import torch
+import torch.nn as nn
+
+# ==============================================================================
+# SHARED CONFIG OPTIONS
+# ==============================================================================
+# Number of input neurons
+IN_DIM = 1000
+# Number of output neurons per head
+HEAD_OUT_DIM = 500
+# Number of neurons expanded out to
+OUTER_DIM = 768
+# Number of neurons for the bottleneck
+INNER_DIM = 512
+# Activation slope
+LEAKY_RELU = 0.2
+# LayerScale starting value
+GAMMA_INIT = 1e-2
+
+# ==============================================================================
+# HEAD 1 CONFIG OPTIONS
+# ==============================================================================
+# Number of blocks
+HEAD_1_DEPTH = 25
+# Dropout rate
+HEAD_1_DROPOUT = 0.10
+# DropPath probability of dropping the last layer
+HEAD_1_DP_MAX_PROB = 0.30
+# DropPath probabilities linearly increase from the first to last layer
+HEAD_1_DP_PROBS = np.linspace(0, HEAD_1_DP_MAX_PROB, HEAD_1_DEPTH)
+
+# ==============================================================================
+# HEAD 2 CONFIG OPTIONS
+# ==============================================================================
+# Number of blocks
+HEAD_2_DEPTH = 45
+# Dropout rate
+HEAD_2_DROPOUT = 0.30
+# DropPath probability of dropping the last layer
+HEAD_2_DP_MAX_PROB = 0.30
+# DropPath probabilities linearly increase from the first to last layer
+HEAD_2_DP_PROBS = np.linspace(0, HEAD_2_DP_MAX_PROB, HEAD_2_DEPTH)
+
+
+# Also known as Stochastic Depth
+class DropPath(nn.Module):
+
+    def __init__(self, drop_prob):
+        super().__init__()
+        self.drop_prob = drop_prob
+        self.keep_prob = 1 - drop_prob
+
+    def forward(self, x):
+        if self.drop_prob == 0 or not self.training:
+            return x
+        keep_rows = torch.rand((x.shape[0], 1), dtype=x.dtype, device=x.device)
+        keep_rows = (keep_rows + self.keep_prob).floor_()
+        return x.div(self.keep_prob) * keep_rows
+
+
+class BottleneckResidualBlock(nn.Module):
+
+    def __init__(self, dropout, drop_path_prob):
+        super().__init__()
+        self.block = nn.Sequential(
+            nn.BatchNorm1d(OUTER_DIM),
+            nn.LeakyReLU(LEAKY_RELU),
+            nn.Linear(OUTER_DIM, INNER_DIM, bias=False),
+            nn.BatchNorm1d(INNER_DIM),
+            nn.LeakyReLU(LEAKY_RELU),
+            nn.Dropout(dropout),
+            nn.Linear(INNER_DIM, OUTER_DIM, bias=False),
+        )
+        self.gamma = nn.Parameter(torch.full((OUTER_DIM, ), GAMMA_INIT))
+        self.drop_path = DropPath(drop_path_prob)
+
+    def forward(self, x):
+        return x + self.drop_path(self.gamma * self.block(x))
+
+
+class MixerBlock(nn.Module):
+
+    def __init__(self):
+        super().__init__()
+        self.block = nn.Sequential(
+            nn.BatchNorm1d(IN_DIM + OUTER_DIM),
+            nn.LeakyReLU(LEAKY_RELU),
+            nn.Linear(IN_DIM + OUTER_DIM, INNER_DIM, bias=False),
+            nn.BatchNorm1d(INNER_DIM),
+            nn.LeakyReLU(LEAKY_RELU),
+            nn.Linear(INNER_DIM, IN_DIM + OUTER_DIM, bias=False),
+        )
+        self.gamma = nn.Parameter(
+            torch.full((IN_DIM + OUTER_DIM, ), GAMMA_INIT))
+
+    def forward(self, x):
+        return x + (self.gamma * self.block(x))
+
+
+class Network(nn.Module):
+
+    def example_input():
+        return torch.rand((2, IN_DIM))
+
+    def __init__(self):
+        super().__init__()
+        self.head_1 = nn.Sequential(
+            nn.Linear(IN_DIM, OUTER_DIM, bias=False),
+            nn.BatchNorm1d(OUTER_DIM),
+            *[
+                BottleneckResidualBlock(HEAD_1_DROPOUT,
+                                        HEAD_1_DP_PROBS[layer_idx])
+                for layer_idx in range(HEAD_1_DEPTH)
+            ],
+            nn.BatchNorm1d(OUTER_DIM),
+            nn.LeakyReLU(LEAKY_RELU),
+        )
+        self.mixer = MixerBlock()
+        self.head_2 = nn.Sequential(
+            nn.Linear(IN_DIM + OUTER_DIM, OUTER_DIM, bias=False),
+            nn.BatchNorm1d(OUTER_DIM),
+            *[
+                BottleneckResidualBlock(HEAD_2_DROPOUT,
+                                        HEAD_2_DP_PROBS[layer_idx])
+                for layer_idx in range(HEAD_2_DEPTH)
+            ],
+            nn.BatchNorm1d(OUTER_DIM),
+            nn.LeakyReLU(LEAKY_RELU),
+        )
+        self.head_1_out = nn.Linear(OUTER_DIM, HEAD_OUT_DIM)
+        self.head_2_out = nn.Linear(OUTER_DIM, HEAD_OUT_DIM)
+
+    def forward(self, x):
+        head_1_features = self.head_1(x)
+        head_1_result = self.head_1_out(head_1_features)
+        x_and_head1 = torch.cat([x, head_1_features.detach()], dim=1)
+        head_2_result = self.head_2_out(self.head_2(self.mixer(x_and_head1)))
+        return head_1_result, head_2_result
