@@ -494,7 +494,7 @@ def model_train(cli_args):
         if init_layer_value_constant is not None:
             print('Adding new layers set to constant value')
             for layer_name, target_shape, fill_value in group_data_from_list(
-                    init_layer_value_zero, 3):
+                    init_layer_value_constant, 3):
                 target_shape = _str_to_target_shape(target_shape)
                 target_shape = list(reversed(target_shape))
                 print(f'{layer_name}: {target_shape}, fill {fill_value}')
