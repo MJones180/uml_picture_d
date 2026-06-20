@@ -1184,9 +1184,6 @@ def model_train(cli_args):
                 loss = loss_function(outputs_model.float(),
                                      outputs_truth.float())
             loss.backward()
-            # Add this temporary debug print inside your training loop for the first batch
-            print("Gamma Grad Mean:",
-                  model.mixer.gamma.grad.abs().mean().item())
             total_train_loss += loss.item()
             # Add the current batch's grad norm; value is from before clipping
             batch_grad_norms.append(
