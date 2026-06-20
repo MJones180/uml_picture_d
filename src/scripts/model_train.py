@@ -251,6 +251,14 @@ def model_train_parser(subparsers):
               'two params expected: layer name, desired padded shape; the '
               'desired shape will be padded with zeros'),
     )
+
+    subparser.add_argument(
+        '--init-weights-pad-kaiming',
+        nargs='*',
+        help=('should be used with the `--init-weights` argument; groups of '
+              'two params expected: layer name, desired padded shape; the '
+              'desired shape will be padded with kaiming uniform init'),
+    )
     subparser.add_argument(
         '--init-layer-value-zero',
         nargs='+',
@@ -482,7 +490,6 @@ def model_train(cli_args):
                     init_weights_pad, 2):
                 layer_data = state_dict[layer_name]
                 orig_shape = layer_data.shape
-                # Convert from a string to a list
                 target_shape = _str_to_target_shape(target_shape)
                 print(f'{layer_name}: {orig_shape} -> {target_shape}')
                 padding = []
@@ -491,6 +498,27 @@ def model_train(cli_args):
                     padding.extend([0, pad[1] - pad[0]])
                 state_dict[layer_name] = torch.nn.functional.pad(
                     layer_data, padding)
+        init_weights_pad_kaiming = cli_args.get('init_weights_pad_kaiming')
+        if init_weights_pad_kaiming is not None:
+            print('Padding certain layers with kaiming uniform')
+            for layer_name, target_shape in group_data_from_list(
+                    init_weights_pad_kaiming, 2):
+                orig_layer_data = state_dict[layer_name]
+                orig_shape = orig_layer_data.shape
+                target_shape = _str_to_target_shape(target_shape)
+                print(f'{layer_name}: {orig_shape} -> {target_shape}')
+                new_layer_data = torch.empty(
+                    target_shape,
+                    dtype=orig_layer_data.dtype,
+                )
+                torch.nn.init.kaiming_uniform_(
+                    new_layer_data,
+                    a=0.2,
+                    nonlinearity='leaky_relu',
+                )
+                slices = tuple(slice(0, dim) for dim in orig_shape)
+                new_layer_data[slices] = orig_layer_data
+                state_dict[layer_name] = new_layer_data
         init_layer_value_zero = cli_args.get('init_layer_value_zero')
         if init_layer_value_zero is not None:
             print('Adding new layers set to zero')
@@ -1156,6 +1184,9 @@ def model_train(cli_args):
                 loss = loss_function(outputs_model.float(),
                                      outputs_truth.float())
             loss.backward()
+            # Add this temporary debug print inside your training loop for the first batch
+            print("Gamma Grad Mean:",
+                  model.mixer.gamma.grad.abs().mean().item())
             total_train_loss += loss.item()
             # Add the current batch's grad norm; value is from before clipping
             batch_grad_norms.append(
