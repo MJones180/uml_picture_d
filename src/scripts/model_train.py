@@ -256,8 +256,8 @@ def model_train_parser(subparsers):
         '--init-weights-pad-kaiming',
         nargs='*',
         help=('should be used with the `--init-weights` argument; groups of '
-              'two params expected: layer name, desired padded shape; the '
-              'desired shape will be padded with kaiming uniform init'),
+              'three params expected: layer name, desired padded shape, '
+              'slope; the desired shape will be padded with kaiming uniform'),
     )
     subparser.add_argument(
         '--init-layer-value-zero',
@@ -501,19 +501,20 @@ def model_train(cli_args):
         init_weights_pad_kaiming = cli_args.get('init_weights_pad_kaiming')
         if init_weights_pad_kaiming is not None:
             print('Padding certain layers with kaiming uniform')
-            for layer_name, target_shape in group_data_from_list(
-                    init_weights_pad_kaiming, 2):
+            for layer_name, target_shape, slope in group_data_from_list(
+                    init_weights_pad_kaiming, 3):
                 orig_layer_data = state_dict[layer_name]
                 orig_shape = orig_layer_data.shape
                 target_shape = _str_to_target_shape(target_shape)
-                print(f'{layer_name}: {orig_shape} -> {target_shape}')
+                print(f'{layer_name}: {orig_shape} -> {target_shape}, '
+                      f'slope {slope}')
                 new_layer_data = torch.empty(
                     target_shape,
                     dtype=orig_layer_data.dtype,
                 )
                 torch.nn.init.kaiming_uniform_(
                     new_layer_data,
-                    a=0.2,
+                    a=float(slope),
                     nonlinearity='leaky_relu',
                 )
                 slices = tuple(slice(0, dim) for dim in orig_shape)
