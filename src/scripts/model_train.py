@@ -305,6 +305,16 @@ def model_train_parser(subparsers):
         help='use fan in for kaiming weight initalization instead of fan out',
     )
     subparser.add_argument(
+        '--init-weights-kaiming-uniform',
+        nargs='+',
+        metavar='[slope], *[base layer names]',
+        help=('the same as the `--init-weights-kaiming-normal-simple` '
+              'argument, except with a uniform instead of normal distribution '
+              'and fan in; params expected: slope, *base layer names; all '
+              '`Linear` layers in a given base layer will be set to init '
+              'with the kaiming distribution'),
+    )
+    subparser.add_argument(
         '--init-weights-bn-zero',
         nargs='+',
         help=('inits a BatchNorm layer to have a weight of 0; only layer '
@@ -556,6 +566,24 @@ def model_train(cli_args):
                         module.weight,
                         a=float(slope),
                         mode=fan_mode,
+                        nonlinearity='leaky_relu',
+                    )
+
+    init_weights_kaiming_uniform = cli_args.get('init_weights_kaiming_uniform')
+    if init_weights_kaiming_uniform is not None:
+        step_ri('Using Kaiming uniform distribution (fan in) to init weights')
+        slope, *layer_names = init_weights_kaiming_uniform
+        print(f'Slope: {slope}')
+        for name, module in model.named_modules():
+            # Look at the first part of the name
+            name_to_check = name.split('.')[0]
+            if name_to_check in layer_names:
+                if isinstance(module, torch.nn.Linear):
+                    print(f'Layer: {name}')
+                    torch.nn.init.kaiming_uniform_(
+                        module.weight,
+                        a=float(slope),
+                        mode='fan_in',
                         nonlinearity='leaky_relu',
                     )
 
