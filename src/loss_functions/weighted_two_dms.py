@@ -24,6 +24,7 @@ class WeightedTwoDMs(nn.Module):
         take_row_sum=None,
         apply_modified_log=None,
         apply_modified_exp=None,
+        use_reverse_huber=None,
         add_mae_loss=None,
         add_exp_loss_weighting=None,
         multiheaded_output=None,
@@ -68,6 +69,10 @@ class WeightedTwoDMs(nn.Module):
             Apply a modified log the outputs before the loss is calculated.
         apply_modified_exp : float
             Apply a modified exp the outputs before the loss is calculated.
+        use_reverse_huber : float
+            Use reverse Huber loss instead of pure MSE loss; this means linear
+            error below alpha and quadratic error above alpha. The passed value
+            must define alpha.
         add_mae_loss : float
             Add an MAE loss, scaled by alpha, to the MSE loss.
         add_exp_loss_weighting : str
@@ -207,6 +212,14 @@ class WeightedTwoDMs(nn.Module):
             print('Will apply a modified exp before calculating the '
                   f'loss ({self.apply_modified_exp} base)')
 
+        # Whether to use reverse Huber instead of MSE
+        self.use_reverse_huber = _grab_param(use_reverse_huber)
+        if self.use_reverse_huber:
+            print('Will use reverse Huber loss instead of MSE loss '
+                  f'(alpha of {self.use_reverse_huber})')
+            self.huber_alpha = self.use_reverse_huber
+            self.huber_alpha_squared = self.huber_alpha**2
+
         # Whether a combination of MAE and MSE loss should be used
         self.add_mae_loss = _grab_param(add_mae_loss)
         if self.add_mae_loss:
@@ -244,7 +257,16 @@ class WeightedTwoDMs(nn.Module):
         # While the absolute value is not needed for just MSE, it may be needed
         # for other things, so it is computed now incase it's needed after
         abs_delta = torch.abs(model_outputs - truth_outputs)
-        loss = abs_delta**2
+        # Use reverse Huber instead of MSE loss
+        if self.use_reverse_huber:
+            loss = torch.where(
+                abs_delta <= self.huber_alpha,
+                abs_delta,
+                (abs_delta**2 + self.huber_alpha_squared) /
+                (2 * self.huber_alpha),
+            )
+        else:
+            loss = abs_delta**2
         if self.add_mae_loss:
             loss = loss + self.add_mae_loss * abs_delta
         # Apply the exp loss weighting - makes small errors more important
