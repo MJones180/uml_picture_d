@@ -8,6 +8,7 @@ from scripts.control_loop_static_wavefronts import control_loop_static_wf_parser
 from scripts.convert_analysis_outputs_from_svd_basis import convert_analysis_outputs_from_svd_basis_parser  # noqa: E501
 from scripts.convert_dh_rm import convert_dh_rm_parser
 from scripts.convert_flat_svd_matrix import convert_flat_svd_matrix_parser
+from scripts.convert_piccsim_fits_data_merger import convert_piccsim_fits_data_merger_parser  # noqa: E501
 from scripts.convert_piccsim_fits_data import convert_piccsim_fits_data_parser
 from scripts.convert_picd_instrument_data import convert_picd_instrument_data_parser  # noqa: E501
 from scripts.create_response_matrix import create_response_matrix_parser
@@ -44,6 +45,7 @@ script_parsers = [
     convert_analysis_outputs_from_svd_basis_parser,
     convert_dh_rm_parser,
     convert_flat_svd_matrix_parser,
+    convert_piccsim_fits_data_merger_parser,
     convert_piccsim_fits_data_parser,
     convert_picd_instrument_data_parser,
     create_response_matrix_parser,
