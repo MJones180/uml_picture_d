@@ -85,7 +85,7 @@ def convert_piccsim_fits_data_merger(cli_args):
     step_ri('Iterating through each simulation directory')
     total_rows = 0
     for dir_idx in range(sim_dir_idx_lower, sim_dir_idx_upper + 1):
-        full_sim_dir_name = f'{sim_dir_shared}_{dir_idx}'
+        full_sim_dir_name = f'{sim_dir_shared}{dir_idx}'
         rows_per_file = None
         for file_name in file_names:
             fits_path = f'{base_path}/{full_sim_dir_name}/{file_name}.fits'
@@ -108,7 +108,7 @@ def convert_piccsim_fits_data_merger(cli_args):
                                    'for one of the simulations)')
         sims_per_file = rows_per_file // rows_per_sim
         print(f'{full_sim_dir_name}: {sims_per_file} simulations '
-              f'({rows_per_sim} rows)')
+              f'({rows_per_file} rows)')
 
     step_ri('Overall statistics')
     print(f'Total rows: {total_rows}')
