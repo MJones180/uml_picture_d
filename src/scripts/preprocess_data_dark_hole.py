@@ -141,6 +141,12 @@ def preprocess_data_dark_hole_parser(subparsers):
               'should be called with the `--flatten-input` argument'),
     )
     subparser.add_argument(
+        '--use-ef-svd-basis-real-modes-only',
+        action='store_true',
+        help=('should be used with `--use-ef-svd-basis`; use only the real '
+              'modes to encode the EF (real and imag components)'),
+    )
+    subparser.add_argument(
         '--use-dm-svd-basis',
         nargs='+',
         metavar=('[dm table] [datafile] [datafile table] '
@@ -611,8 +617,13 @@ def preprocess_data_dark_hole(cli_args):
         pixels_in_ef = input_data.shape[1] // 2
         coeffs_real = _switch_to_svd(input_data[:, :pixels_in_ef],
                                      modes[:, :pixels_in_ef], 'real')
-        coeffs_imag = _switch_to_svd(input_data[:, pixels_in_ef:],
-                                     modes[:, pixels_in_ef:], 'imag')
+        if cli_args.get('use_ef_svd_basis_real_modes_only'):
+            print('Using real modes to encode both components')
+            imag_modes = modes[:, :pixels_in_ef]
+        else:
+            imag_modes = modes[:, pixels_in_ef:]
+        coeffs_imag = _switch_to_svd(input_data[:, pixels_in_ef:], imag_modes,
+                                     'imag')
         input_data = np.concatenate((coeffs_real, coeffs_imag), axis=1)
         print(f'EF shape: {input_data.shape}')
 
