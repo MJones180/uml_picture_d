@@ -47,6 +47,7 @@ OUTPUTS = 'outputs'
 
 INPUTS_ARCSINH = 'inputs_arcsinh'
 INPUTS_LOG10 = 'inputs_log10'
+INPUTS_RSS = 'inputs_rss'
 INPUTS_SUM_TO_ONE = 'inputs_sum_to_one'
 INPUTS_Z_SCORE_MEAN = 'inputs_z_score_mean'
 INPUTS_Z_SCORE_STD = 'inputs_z_score_std'

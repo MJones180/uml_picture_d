@@ -22,7 +22,7 @@ from utils.constants import (
     DARK_ZONE_MASK, DATA_F, DM_ACTIVE_COL_IDXS, DM_ACTIVE_IDXS,
     DM_ACTIVE_ROW_IDXS, DM_SIZE, EF_ACTIVE_IDXS, EXTRA_VARS_F,
     INPUT_MAX_MIN_DIFF, INPUT_MIN_X, INPUTS, INPUTS_ARCSINH, INPUTS_LOG10,
-    INPUTS_Z_SCORE_MEAN, INPUTS_Z_SCORE_STD, NORM_RANGE_ONES_INPUT,
+    INPUTS_RSS, INPUTS_Z_SCORE_MEAN, INPUTS_Z_SCORE_STD, NORM_RANGE_ONES_INPUT,
     NORM_RANGE_ONES_OUTPUT, OUTPUT_MASK, OUTPUT_MAX_MIN_DIFF, OUTPUTS,
     OUTPUTS_LOG10, OUTPUTS_Z_SCORE_MEAN, OUTPUTS_Z_SCORE_STD, OUTPUT_MIN_X,
     PROC_DATA_P, SCI_CAM_ACTIVE_COL_IDXS, SCI_CAM_ACTIVE_ROW_IDXS)
@@ -34,7 +34,7 @@ from utils.norm import (find_min_max_norm, min_max_norm,
 from utils.path import make_dir, path_exists
 from utils.printing_and_logging import dec_print_indent, step, step_ri, title
 from utils.response_matrix import ResponseMatrix
-from utils.stats_and_error import mse
+from utils.stats_and_error import mse, rss
 from utils.terminate_with_message import terminate_with_message
 
 
@@ -262,6 +262,11 @@ def preprocess_data_dark_hole_parser(subparsers):
         '--fix-seed',
         type=int,
         help='fix the seed value for reproducible results',
+    )
+    subparser.add_argument(
+        '--input-row-rss-norm',
+        action='store_true',
+        help='apply RSS norm to each input row before any other norm',
     )
     subparser.add_argument(
         '--z-score-inputs',
@@ -743,6 +748,14 @@ def preprocess_data_dark_hole(cli_args):
         )
         if not extend_existing_data:
             _save_var(OUTPUTS_LOG10, output_modified_log)
+
+    # ==========================================================================
+
+    if cli_args['input_row_rss_norm']:
+        step_ri('Applying RSS norm to each input row')
+        input_data = input_data / rss(input_data, 1)[:, None]
+        if not extend_existing_data:
+            _save_var(INPUTS_RSS, True)
 
     # ==========================================================================
 

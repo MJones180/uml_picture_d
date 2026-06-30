@@ -3,7 +3,7 @@ import numpy as np
 import torch
 from utils.constants import (
     ARGS_F, BASE_INT_FIELD, CPU, EPOCH_LOSS_F, EXTRA_VARS_F,
-    INPUT_MAX_MIN_DIFF, INPUT_MIN_X, INPUTS_ARCSINH, INPUTS_LOG10,
+    INPUT_MAX_MIN_DIFF, INPUT_MIN_X, INPUTS_ARCSINH, INPUTS_LOG10, INPUTS_RSS,
     INPUTS_SUM_TO_ONE, INPUTS_Z_SCORE_MEAN, INPUTS_Z_SCORE_STD,
     NORM_RANGE_ONES, NORM_RANGE_ONES_INPUT, NORM_RANGE_ONES_OUTPUT,
     NORM_STABILITY_VALUE, OUTPUTS_Z_SCORE_MEAN, OUTPUTS_Z_SCORE_STD,
@@ -15,6 +15,7 @@ from utils.norm import (min_max_denorm, min_max_norm, modified_log_transform,
                         sum_to_one, z_score_denormalize, z_score_normalize)
 from utils.path import path_exists
 from utils.printing_and_logging import dec_print_indent, step
+from utils.stats_and_error import rss
 from utils.terminate_with_message import terminate_with_message
 from utils.torch_grab_device import torch_grab_device
 
@@ -109,6 +110,8 @@ class Model():
         self.inputs_archsinh = _grab_ev_bool(INPUTS_ARCSINH)
         # The modified log10 is taken for the input values
         self.inputs_log10 = self.extra_vars.get(INPUTS_LOG10)
+        # Divide by the root sum of squares
+        self.inputs_rss = self.extra_vars.get(INPUTS_RSS)
         # True if any input normalization is done (other than summing to one).
         self.input_norm_done = INPUT_MIN_X in self.extra_vars
         # The base field that will need to be subtracted off. If the field does
@@ -163,6 +166,8 @@ class Model():
             input_data = self.arcsinh_inputs(input_data)
         if self.inputs_log10:
             input_data = self.log10_inputs(input_data)
+        if self.inputs_rss:
+            input_data = self.rss_norm_inputs(input_data)
         if self.inputs_z_score_std is not None:
             input_data = self.z_score_norm(input_data)
         if self.inputs_sum_to_one:
@@ -178,6 +183,9 @@ class Model():
 
     def log10_inputs(self, input_data):
         return modified_log_transform(input_data, alpha=self.inputs_log10[()])
+
+    def rss_norm_inputs(self, input_data):
+        return input_data / rss(input_data, -1)
 
     def z_score_norm(self, input_data):
         return z_score_normalize(input_data, self.inputs_z_score_mean,
