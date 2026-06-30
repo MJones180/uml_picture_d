@@ -147,6 +147,12 @@ def preprocess_data_dark_hole_parser(subparsers):
               'modes to encode the EF (real and imag components)'),
     )
     subparser.add_argument(
+        '--use-ef-svd-basis-combined',
+        action='store_true',
+        help=('should be used with `--use-ef-svd-basis`; do not output '
+              'separate coefficients for the real and imag components'),
+    )
+    subparser.add_argument(
         '--use-dm-svd-basis',
         nargs='+',
         metavar=('[dm table] [datafile] [datafile table] '
@@ -618,18 +624,23 @@ def preprocess_data_dark_hole(cli_args):
             print(f'EF ({comp}) reconstruction MSE error of {error:0.3e}')
             return new_basis_coeffs
 
-        # The number of pixels in the real and imaginary components
-        pixels_in_ef = input_data.shape[1] // 2
-        coeffs_real = _switch_to_svd(input_data[:, :pixels_in_ef],
-                                     modes[:, :pixels_in_ef], 'real')
-        if cli_args.get('use_ef_svd_basis_real_modes_only'):
-            print('Using real modes to encode both components')
-            imag_modes = modes[:, :pixels_in_ef]
+        if cli_args.get('use_ef_svd_basis_combined'):
+            print('Using combined coefficients')
+            # Convert to the coeffs
+            input_data = _switch_to_svd(input_data, modes, 'combined')
         else:
-            imag_modes = modes[:, pixels_in_ef:]
-        coeffs_imag = _switch_to_svd(input_data[:, pixels_in_ef:], imag_modes,
-                                     'imag')
-        input_data = np.concatenate((coeffs_real, coeffs_imag), axis=1)
+            # The number of pixels in the real and imaginary components
+            pixels_in_ef = input_data.shape[1] // 2
+            coeffs_real = _switch_to_svd(input_data[:, :pixels_in_ef],
+                                         modes[:, :pixels_in_ef], 'real')
+            if cli_args.get('use_ef_svd_basis_real_modes_only'):
+                print('Using real modes to encode both components')
+                imag_modes = modes[:, :pixels_in_ef]
+            else:
+                imag_modes = modes[:, pixels_in_ef:]
+            coeffs_imag = _switch_to_svd(input_data[:, pixels_in_ef:],
+                                         imag_modes, 'imag')
+            input_data = np.concatenate((coeffs_real, coeffs_imag), axis=1)
         print(f'EF shape: {input_data.shape}')
 
     # ==========================================================================
