@@ -111,6 +111,8 @@ def analyze_basis_modes(cli_args):
     modes_are_complex = cli_args.get('modes_are_complex')
     if modes_are_complex is not None:
         step_ri('Splitting mode data into real and imaginary components')
+        print('Note, this removes the orthogonality; each mode should '
+              'cover both components together')
         modes_data_real, modes_data_imag = np.split(
             modes_data,
             2,
