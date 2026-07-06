@@ -347,14 +347,14 @@ Both HODMs:
     # Uses the full PIC-D optical train (rx_picture_d_lab)
     # Uses the newer single FITS file format
     # Data simulated on Unity
-    python3 main.py convert_piccsim_fits_data_merger dh_both_hodms_efc_7broadband_full_gain_picd_XXX \
+    python3 main.py convert_piccsim_fits_data_merger dh_both_hodms_efc_7broadband_full_gain_picd_81804 \
         /home/michael_jones6_student_uml_edu/work/piccsim/plots/ \
-        dh_dm_dataset_ 0 99 5 --file-names dm1 dm2 sci_i sci_r # XXX rows, XXX simulations
+        dh_dm_dataset_ 0 99 5 --file-names dm1 dm2 sci_i sci_r # 409020 rows, 81804 simulations
     # ---------------
-    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_XXX_1iter \
-        /home/michael_jones6_student_uml_edu/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_XXX \
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_81804_1iter \
+        /home/michael_jones6_student_uml_edu/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_81804 \
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
-        --rows-per-chunk 24000 --load-from-existing-hdf-dataset XXX
+        --rows-per-chunk 24000 --load-from-existing-hdf-dataset 409020
 
 The 2D DM SVD modes from the inverted matrix:
 
@@ -369,9 +369,14 @@ The 2D DM SVD modes from the inverted matrix:
 
 Convert a flat SVD matrix from FITS to HDF:
 
-    # This matrix contains the EF modes
+    # This matrix contains the EF modes (from the DM1 Jacobian)
     python3 main.py convert_flat_svd_matrix ef_modes_flat \
         /home/michael-jones/Documents/piccsim/output/svd_modes/dm1_u_matrix.fits \
+        ef_modes
+
+    # This matrix contains the EF modes (from the DM2 Jacobian)
+    python3 main.py convert_flat_svd_matrix ef_modes_flat_from_dm2 \
+        /home/michael-jones/Documents/piccsim/output/svd_modes/single_wl/dm2_u_matrix.fits \
         ef_modes
 
     # These matrices contain the DM modes; these modes will be flattened instead
@@ -1192,6 +1197,26 @@ Preprocess the datasets:
             dh_both_hodms_efc_full_gain_29k_1iter_ch1 dh_both_hodms_efc_full_gain_29k_1iter_ch2 \
             dh_both_hodms_efc_full_gain_36k_1iter_ch1 dh_both_hodms_efc_full_gain_36k_1iter_ch2 \
         --use-ef-svd-basis ef_modes_flat ef_modes 756 --flatten-input --use-ef-svd-basis-combined \
+        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
+        --z-score-inputs-individual --z-score-outputs-individual \
+        --bounding-input-rows-train-only --bounding-output-rows-train-only --fix-seed 314
+
+    python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_final_dh_14k_ch1 \
+        train_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score_individual_ef_combined_756_v2 \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score_individual_ef_combined_756_v2 \
+        test_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score_individual_ef_combined_756_v2 88 6 6 \
+        --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
+        --additional-raw-data-tags dh_both_hodms_efc_final_dh_14k_ch2 \
+            dh_both_hodms_efc_final_dh_9k_ch1 dh_both_hodms_efc_final_dh_9k_ch2 \
+            dh_both_hodms_efc_30k_1iter_ch1 dh_both_hodms_efc_30k_1iter_ch2 \
+            dh_both_hodms_efc_27k_1iter_ch1 dh_both_hodms_efc_27k_1iter_ch2 \
+            dh_both_hodms_efc_full_gain_24k_1iter_ch1 dh_both_hodms_efc_full_gain_24k_1iter_ch2 \
+            dh_both_hodms_efc_full_gain_24k_1iter_ch3 dh_both_hodms_efc_full_gain_24k_1iter_ch4 \
+            dh_both_hodms_efc_full_gain_27k_1iter \
+            dh_both_hodms_efc_full_gain_29k_1iter_ch1 dh_both_hodms_efc_full_gain_29k_1iter_ch2 \
+            dh_both_hodms_efc_full_gain_36k_1iter_ch1 dh_both_hodms_efc_full_gain_36k_1iter_ch2 \
+        --use-ef-svd-basis ef_modes_flat_from_dm2 ef_modes 756 --flatten-input --use-ef-svd-basis-combined \
         --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
         --z-score-inputs-individual --z-score-outputs-individual \
         --bounding-input-rows-train-only --bounding-output-rows-train-only --fix-seed 314
