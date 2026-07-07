@@ -153,6 +153,22 @@ def preprocess_data_dark_hole_parser(subparsers):
               'separate coefficients for the real and imag components'),
     )
     subparser.add_argument(
+        '--use-ef-basis',
+        nargs=3,
+        metavar=('[datafile] [datafile table] '
+                 '[number of modes from the start]'),
+        help=('use a different basis for the EF; the raw datafile must '
+              'consist of the flattened modes for the EF, the modes will be '
+              'inverted to find the new basis coeffs; the EF modes must have '
+              'the same number of pixels as the data; the datafile must only '
+              'be a single chunk of data; this argument should be called with '
+              'the `--flatten-input` argument; this is the same as the '
+              '`--use-ef-svd-basis` argument, just with generalized naming; '
+              'uses the `--use-ef-svd-basis-combined` argument by default; '
+              'does not support the `--use-ef-svd-basis-real-modes-only` '
+              'argument'),
+    )
+    subparser.add_argument(
         '--use-dm-svd-basis',
         nargs='+',
         metavar=('[dm table] [datafile] [datafile table] '
@@ -602,17 +618,23 @@ def preprocess_data_dark_hole(cli_args):
 
     # ==========================================================================
 
-    use_ef_svd_basis = cli_args.get('use_ef_svd_basis')
-    if use_ef_svd_basis is not None:
-        step_ri('Using the SVD basis functions for the EF')
-        modes_tag, modes_table_name, max_modes = use_ef_svd_basis
-        print(f'Using {max_modes} modes for both the real and imaginary EF')
+    def _convert_ef_basis(
+        input_data,
+        modes_tag,
+        modes_table_name,
+        max_modes,
+        combine_components=True,
+        real_modes_for_both_components=False,
+    ):
+        print(f'Modes tag: {modes_tag}')
+        print(f'Modes table name: {modes_table_name}')
+        print(f'Max modes: {max_modes}')
         modes_path = raw_sim_data_chunk_paths(modes_tag)[0]
         modes = read_hdf(modes_path)[modes_table_name][:].astype(F32)
         # Pick out the correct number of modes from the start
         modes = modes[:int(max_modes)]
 
-        def _switch_to_svd(input_data_chunk, modes_chunk, comp):
+        def _switch_to_coeffs(input_data_chunk, modes_chunk, comp):
             # Invert the modes
             modes_inv = np.linalg.pinv(modes_chunk)
             # The coefficients in the new basis
@@ -624,25 +646,42 @@ def preprocess_data_dark_hole(cli_args):
             print(f'EF ({comp}) reconstruction MSE error of {error:0.3e}')
             return new_basis_coeffs
 
-        if cli_args.get('use_ef_svd_basis_combined'):
-            print('Using combined coefficients')
+        if combine_components:
+            print(f'Using {max_modes} for the combined real and imaginary EF')
             # Convert to the coeffs
-            input_data = _switch_to_svd(input_data, modes, 'combined')
+            input_data = _switch_to_coeffs(input_data, modes, 'combined')
         else:
+            print(f'Using {max_modes} modes for both real and imaginary EF')
             # The number of pixels in the real and imaginary components
             pixels_in_ef = input_data.shape[1] // 2
-            coeffs_real = _switch_to_svd(input_data[:, :pixels_in_ef],
-                                         modes[:, :pixels_in_ef], 'real')
-            if cli_args.get('use_ef_svd_basis_real_modes_only'):
+            coeffs_real = _switch_to_coeffs(input_data[:, :pixels_in_ef],
+                                            modes[:, :pixels_in_ef], 'real')
+            if real_modes_for_both_components:
                 print('Using real modes to encode both components')
                 imag_modes = modes[:, :pixels_in_ef]
             else:
                 imag_modes = modes[:, pixels_in_ef:]
-            coeffs_imag = _switch_to_svd(input_data[:, pixels_in_ef:],
-                                         imag_modes, 'imag')
+            coeffs_imag = _switch_to_coeffs(input_data[:, pixels_in_ef:],
+                                            imag_modes, 'imag')
             input_data = np.concatenate((coeffs_real, coeffs_imag), axis=1)
         print(f'EF shape: {input_data.shape}')
+        return input_data
 
+    use_ef_basis = cli_args.get('use_ef_basis')
+    if use_ef_basis is not None:
+        step_ri('Using different basis functions for the EF')
+        input_data = _convert_ef_basis(input_data, *use_ef_basis)
+
+    use_ef_svd_basis = cli_args.get('use_ef_svd_basis')
+    if use_ef_svd_basis is not None:
+        step_ri('Using the SVD basis functions for the EF')
+        input_data = _convert_ef_basis(
+            input_data,
+            *use_ef_svd_basis,
+            combine_components=cli_args.get('use_ef_svd_basis_combined'),
+            real_modes_for_both_components=cli_args.get(
+                'use_ef_svd_basis_real_modes_only'),
+        )
     # ==========================================================================
 
     do_not_flatten_output = cli_args['do_not_flatten_output']
