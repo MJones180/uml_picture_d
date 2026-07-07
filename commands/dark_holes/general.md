@@ -339,9 +339,9 @@ Both HODMs:
         dh_dm_dataset_ 0 49 7 --file-names dm1 dm2 sci_i sci_r # 182847 rows, 26121 simulations
     # ---------------
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_26121_1iter \
-        /home/michael_jones6_student_uml_edu/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_26121 \
+        /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_26121 \
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 7 6 1 dm1 dm2 \
-        --rows-per-chunk 24000 --load-from-existing-hdf-dataset 182847
+        --load-from-existing-hdf-dataset 182847
 
     # 5 iterations of 7% broadband ([0, 2, 3]) EFC (gain -1) using the RM (broadband calibration)
     # Uses the full PIC-D optical train (rx_picture_d_lab)
@@ -352,9 +352,9 @@ Both HODMs:
         dh_dm_dataset_ 0 99 5 --file-names dm1 dm2 sci_i sci_r # 409020 rows, 81804 simulations
     # ---------------
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_81804_1iter \
-        /home/michael_jones6_student_uml_edu/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_81804 \
+        /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_81804 \
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
-        --rows-per-chunk 24000 --load-from-existing-hdf-dataset 409020
+        --load-from-existing-hdf-dataset 409020
 
 The 2D DM SVD modes from the inverted matrix:
 
