@@ -6,12 +6,12 @@ from utils.load_raw_sim_data import raw_sim_data_chunk_paths
 from utils.printing_and_logging import step_ri, title
 
 
-def create_basis_modes_parser(subparsers):
+def create_pca_basis_modes_parser(subparsers):
     subparser = subparsers.add_parser(
-        'create_basis_modes',
+        'create_pca_basis_modes',
         help='create a set of basis modes using PCA',
     )
-    subparser.set_defaults(main=create_basis_modes)
+    subparser.set_defaults(main=create_pca_basis_modes)
     subparser.add_argument(
         'output_tag',
         help='tag to give to the modes; will be put in the raw data dir',
@@ -39,8 +39,8 @@ def create_basis_modes_parser(subparsers):
     )
 
 
-def create_basis_modes(cli_args):
-    title('Create basis modes script')
+def create_pca_basis_modes(cli_args):
+    title('Create pca basis modes script')
 
     step_ri('Data information')
     raw_data_tags = cli_args.get('raw_data_tags')
