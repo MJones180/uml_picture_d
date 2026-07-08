@@ -2,6 +2,7 @@ import numpy as np
 import torch
 from utils.cli_args import save_cli_args
 from utils.constants import DARK_ZONE_MASK, DATA_F, RAW_DATA_P
+from utils.create_grid_mask import create_grid_mask
 from utils.hdf_read_and_write import HDFWriteModule, read_hdf
 from utils.load_raw_sim_data import raw_sim_data_chunk_paths
 from utils.path import make_dir
@@ -35,9 +36,15 @@ def create_pca_basis_modes_parser(subparsers):
               'are given, then the data will be concat in the order passed'),
     )
     subparser.add_argument(
-        '--mask',
-        help=('apply a mask to the data; two args expected: '
-              'mask tag; HDF table name'),
+        '--dh-mask',
+        help='apply a dark hole mask to the data; one arg expected: mask tag',
+    )
+    subparser.add_argument(
+        '--dm-mask',
+        nargs=2,
+        type=float,
+        help=('apply a dm mask to the data; two args expected: '
+              'dm size across, circle size'),
     )
 
 
@@ -54,12 +61,20 @@ def create_pca_basis_modes(cli_args):
     print(f'Number of modes: {number_modes}')
     print(f'Output tag: {output_tag}')
 
-    mask = cli_args.get('mask')
-    if mask:
-        step_ri('Will apply a mask to the data')
-        mask_path = raw_sim_data_chunk_paths(mask)[0]
+    dh_mask = cli_args.get('dh_mask')
+    if dh_mask:
+        step_ri('Will apply a dark hole mask to the data')
+        mask_path = raw_sim_data_chunk_paths(dh_mask)[0]
         print(f'Loading in the mask from {mask_path}')
         mask_data = read_hdf(mask_path)[DARK_ZONE_MASK][:]
+
+    dm_mask = cli_args.get('dm_mask')
+    if dm_mask:
+        step_ri('Will apply a dm mask to the data')
+        size, circle_size = dm_mask
+        print(f'Size: {size}')
+        print(f'Circle size: {circle_size}')
+        mask_data = create_grid_mask(int(size), circle_size)
 
     step_ri('Loading in raw datafiles')
     all_table_data = {table_name: [] for table_name in table_names}
@@ -69,7 +84,7 @@ def create_pca_basis_modes(cli_args):
             data = read_hdf(data_path)
             for table_name in table_names:
                 table_data = data[table_name][:]
-                if mask:
+                if dh_mask or dm_mask:
                     table_data = table_data[..., mask_data]
                 all_table_data[table_name].extend(table_data)
 
