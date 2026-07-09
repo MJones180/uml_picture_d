@@ -350,11 +350,25 @@ Both HODMs:
     python3 main.py convert_piccsim_fits_data_merger dh_both_hodms_efc_7broadband_full_gain_picd_81804 \
         /home/michael_jones6_student_uml_edu/work/piccsim/plots/ \
         dh_dm_dataset_ 0 99 5 --file-names dm1 dm2 sci_i sci_r # 409020 rows, 81804 simulations
+    python3 main.py convert_piccsim_fits_data_merger dh_both_hodms_efc_7broadband_full_gain_picd_44764 \
+        /home/michael_jones6_student_uml_edu/work/piccsim/plots/ \
+        dh_dm_dataset_ 0 99 5 --file-names dm1 dm2 sci_i sci_r # 223820 rows, 44764 simulations
+    python3 main.py convert_piccsim_fits_data_merger dh_both_hodms_efc_7broadband_full_gain_picd_23184 \
+        /home/michael_jones6_student_uml_edu/work/piccsim/plots/ \
+        dh_dm_dataset_ 0 99 5 --file-names dm1 dm2 sci_i sci_r # 115920 rows, 23184 simulations
     # ---------------
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_81804_1iter \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_81804 \
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
         --load-from-existing-hdf-dataset 409020
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_44764_1iter \
+        /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_44764 \
+        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
+        --load-from-existing-hdf-dataset 223820
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_23184_1iter \
+        /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_23184 \
+        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
+        --load-from-existing-hdf-dataset 115920
 
 The 2D DM SVD modes from the inverted matrix:
 
@@ -1243,6 +1257,26 @@ Preprocess the datasets:
         --bounding-input-rows-train-only --bounding-output-rows-train-only --fix-seed 314
 
     python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_final_dh_14k_ch1 \
+        train_dh_both_hodms_efc_final_dh_5xlg_1iter_pca_ef_756_svd_dm_500_z_score_individual \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_pca_ef_756_svd_dm_500_z_score_individual \
+        test_dh_both_hodms_efc_final_dh_5xlg_1iter_pca_ef_756_svd_dm_500_z_score_individual 88 6 6 \
+        --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
+        --additional-raw-data-tags dh_both_hodms_efc_final_dh_14k_ch2 \
+            dh_both_hodms_efc_final_dh_9k_ch1 dh_both_hodms_efc_final_dh_9k_ch2 \
+            dh_both_hodms_efc_30k_1iter_ch1 dh_both_hodms_efc_30k_1iter_ch2 \
+            dh_both_hodms_efc_27k_1iter_ch1 dh_both_hodms_efc_27k_1iter_ch2 \
+            dh_both_hodms_efc_full_gain_24k_1iter_ch1 dh_both_hodms_efc_full_gain_24k_1iter_ch2 \
+            dh_both_hodms_efc_full_gain_24k_1iter_ch3 dh_both_hodms_efc_full_gain_24k_1iter_ch4 \
+            dh_both_hodms_efc_full_gain_27k_1iter \
+            dh_both_hodms_efc_full_gain_29k_1iter_ch1 dh_both_hodms_efc_full_gain_29k_1iter_ch2 \
+            dh_both_hodms_efc_full_gain_36k_1iter_ch1 dh_both_hodms_efc_full_gain_36k_1iter_ch2 \
+        --use-ef-basis pca_ef_basis_418k_rows_756_modes modes 756 --flatten-input \
+        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
+        --z-score-inputs-individual --z-score-outputs-individual \
+        --bounding-input-rows-train-only --bounding-output-rows-train-only --fix-seed 314
+
+    python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_final_dh_14k_ch1 \
         none none \
         test_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_z_score_individual_for_rm 88 6 6 \
         --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
@@ -1427,6 +1461,21 @@ Plot the coefficient ranges for DM SVD modes:
         test_dh_both_hodms_efc_final_dh_5xlg_1iter_svd_500_both_ones \
         --coeff-group-idxs 500 1000 --add-min-max-norm-bounds \
         --lower-percentile 2 --upper-percentile 98
+
+Create a new basis from PCA:
+
+    python3 main.py create_pca_basis_modes \
+        pca_ef_basis_418k_rows_756_modes 756 \
+        --table-names sci_r sci_i --dh-mask darkhole_mask \
+        --raw-data-tags dh_both_hodms_efc_final_dh_14k_ch1 dh_both_hodms_efc_final_dh_14k_ch2 \
+            dh_both_hodms_efc_final_dh_9k_ch1 dh_both_hodms_efc_final_dh_9k_ch2 \
+            dh_both_hodms_efc_30k_1iter_ch1 dh_both_hodms_efc_30k_1iter_ch2 \
+            dh_both_hodms_efc_27k_1iter_ch1 dh_both_hodms_efc_27k_1iter_ch2 \
+            dh_both_hodms_efc_full_gain_24k_1iter_ch1 dh_both_hodms_efc_full_gain_24k_1iter_ch2 \
+            dh_both_hodms_efc_full_gain_24k_1iter_ch3 dh_both_hodms_efc_full_gain_24k_1iter_ch4 \
+            dh_both_hodms_efc_full_gain_27k_1iter \
+            dh_both_hodms_efc_full_gain_29k_1iter_ch1 dh_both_hodms_efc_full_gain_29k_1iter_ch2 \
+            dh_both_hodms_efc_full_gain_36k_1iter_ch1 dh_both_hodms_efc_full_gain_36k_1iter_ch2
 
 ## Response Matrix
 
