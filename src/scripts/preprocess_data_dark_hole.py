@@ -169,16 +169,22 @@ def preprocess_data_dark_hole_parser(subparsers):
               'argument'),
     )
     subparser.add_argument(
-        '--use-dm-svd-basis',
+        '--use-dm-basis',
         nargs='+',
         metavar=('[dm table] [datafile] [datafile table] '
                  '[max number of modes from the start]'),
-        help=('use the SVD basis for the DM actuator height coeffs; the raw '
-              'datafile must consist of the 2D SVD modes for the DM, the '
+        help=('use a different basis for the DM actuator height coeffs; the '
+              'raw datafile must consist of the 2D SVD modes for the DM, the '
               'modes will be inverted to find the new basis coeffs; the DM '
               'modes must have the same number of actuators as the data; the '
               'datafile must only be a single chunk of data; the four '
               'arguments must be repeated for each DM that is being used'),
+    )
+    subparser.add_argument(
+        '--dm-basis-already-flat',
+        action='store_true',
+        help=('the basis modes are already flattened and ready for use; '
+              'must be used with the `--use-dm-basis` argument'),
     )
     subparser.add_argument(
         '--norm-inputs',
@@ -742,19 +748,20 @@ def preprocess_data_dark_hole(cli_args):
 
     # ==========================================================================
 
-    use_dm_svd_basis = cli_args.get('use_dm_svd_basis')
-    if use_dm_svd_basis is not None:
-        step_ri('Using the SVD basis functions for the DM actuator heights')
-        err_msg = 'Four arguments must be passed for each DM'
-        for group in group_data_from_list(use_dm_svd_basis, 4, err_msg):
+    use_dm_basis = cli_args.get('use_dm_basis')
+    if use_dm_basis is not None:
+        step_ri('Using basis functions for the DM actuator heights')
+        dm_basis_already_flat = cli_args.get('dm_basis_already_flat')
+        for group in group_data_from_list(use_dm_basis, 4):
             dm_table, modes_tag, modes_table_name, max_modes = group
             print(f'[DM {dm_table}] Using {max_modes} modes from {modes_tag}')
             modes_path = raw_sim_data_chunk_paths(modes_tag)[0]
             modes = read_hdf(modes_path)[modes_table_name][:].astype(F32)
-            modes = modes.reshape(modes.shape[0], -1)
-            # Filter out the inactive pixels from the modes
-            active_idxs = _use_var(DM_ACTIVE_IDXS(dm_idx_lookup[dm_table]))
-            modes = modes[:, active_idxs]
+            if not dm_basis_already_flat:
+                modes = modes.reshape(modes.shape[0], -1)
+                # Filter out the inactive pixels from the modes
+                active_idxs = _use_var(DM_ACTIVE_IDXS(dm_idx_lookup[dm_table]))
+                modes = modes[:, active_idxs]
             # Pick out the correct number of modes from the start
             modes = modes[:int(max_modes)]
             # Invert the modes

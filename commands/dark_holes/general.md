@@ -433,7 +433,7 @@ Preprocess the datasets:
         --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
         --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
         --additional-raw-data-tags dh_both_hodms_20nm_100k_ch1 dh_both_hodms_20nm_100k_ch2 \
-        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 300 dm2 hodm2_756_modes dm2_modes 300 \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 300 dm2 hodm2_756_modes dm2_modes 300 \
         --norm-inputs --norm-outputs
 
     python3 main.py preprocess_data_dark_hole dh_both_hodms_20nm_84k \
@@ -474,21 +474,21 @@ Preprocess the datasets:
         --dm-tables dm1 --electric-field-tables sci_r sci_i \
         --dark-zone-mask-tag darkhole_mask_half --remove-dark-zone-padding \
         --additional-raw-data-tags dh_first_hodm_20nm_200k_ch1 dh_first_hodm_20nm_200k_ch2 \
-        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 756
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 756
 
     python3 main.py preprocess_data_dark_hole dh_first_hodm_1nm_100k \
         train_dh_single_svd_300_xl val_dh_single_svd_300_xl test_dh_single_svd_300_xl 84 8 8 \
         --dm-tables dm1 --electric-field-tables sci_r sci_i \
         --dark-zone-mask-tag darkhole_mask_half --remove-dark-zone-padding \
         --additional-raw-data-tags dh_first_hodm_20nm_200k_ch1 dh_first_hodm_20nm_200k_ch2 \
-        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 300
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 300
 
     python3 main.py preprocess_data_dark_hole dh_first_hodm_1nm_100k \
         train_dh_single_svd_300_norm_xl val_dh_single_svd_300_norm_xl test_dh_single_svd_300_norm_xl 84 8 8 \
         --dm-tables dm1 --electric-field-tables sci_r sci_i \
         --dark-zone-mask-tag darkhole_mask_half --remove-dark-zone-padding \
         --additional-raw-data-tags dh_first_hodm_20nm_200k_ch1 dh_first_hodm_20nm_200k_ch2 \
-        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 300 \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 300 \
         --norm-inputs --norm-outputs
 
     python3 main.py preprocess_data_dark_hole dh_first_hodm_1nm_100k \
@@ -496,53 +496,53 @@ Preprocess the datasets:
         --dm-tables dm1 --electric-field-tables sci_r sci_i \
         --dark-zone-mask-tag darkhole_mask_half --remove-dark-zone-padding \
         --additional-raw-data-tags dh_first_hodm_20nm_200k_ch1 dh_first_hodm_20nm_200k_ch2 \
-        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 300 \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 300 \
         --norm-inputs --norm-outputs
     python3 main.py preprocess_data_dark_hole dh_first_hodm_20nm_200k_ch3 \
         train_dh_single_svd_300_norm_xxl val_dh_single_svd_300_norm_xxl test_dh_single_svd_300_norm_xxl 84 8 8 \
         --dm-tables dm1 --electric-field-tables sci_r sci_i \
         --dark-zone-mask-tag darkhole_mask_half --remove-dark-zone-padding \
         --additional-raw-data-tags dh_first_hodm_20nm_200k_ch4 \
-        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 300 \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 300 \
         --norm-inputs --norm-outputs --extend-existing-preprocessed-data
 
     python3 main.py preprocess_data_dark_hole dh_first_hodm_20nm_100k_train_and_val \
         train_dh_single_prototype_svd_300_norm val_dh_single_prototype_svd_300_norm empty 90 10 0 \
         --dm-tables dm1 --electric-field-tables sci_r sci_i \
         --dark-zone-mask-tag darkhole_mask_half --remove-dark-zone-padding \
-        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 300 \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 300 \
         --norm-inputs --norm-outputs
     python3 main.py preprocess_data_dark_hole dh_first_hodm_20nm_20k_test \
         empty empty test_dh_single_prototype_svd_300_norm 0 0 100 \
         --dm-tables dm1 --electric-field-tables sci_r sci_i \
         --dark-zone-mask-tag darkhole_mask_half --remove-dark-zone-padding \
-        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 300 \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 300 \
         --disable-shuffle
 
     python3 main.py preprocess_data_dark_hole dh_first_hodm_20nm_100k_train_and_val \
         train_dh_single_prototype_svd_300_norm_3ch val_dh_single_prototype_svd_300_norm_3ch empty 90 10 0 \
         --dm-tables dm1 --electric-field-tables sci_r sci_i \
         --dark-zone-mask-tag darkhole_mask_half --remove-dark-zone-padding \
-        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 300 \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 300 \
         --norm-inputs --norm-outputs --add-total-intensity
     python3 main.py preprocess_data_dark_hole dh_first_hodm_20nm_20k_test \
         empty empty test_dh_single_prototype_svd_300_norm_3ch 0 0 100 \
         --dm-tables dm1 --electric-field-tables sci_r sci_i \
         --dark-zone-mask-tag darkhole_mask_half --remove-dark-zone-padding \
-        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 300 \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 300 \
         --disable-shuffle --add-total-intensity
 
     python3 main.py preprocess_data_dark_hole dh_first_hodm_20nm_100k_train_and_val \
         train_dh_single_prototype_svd_756_norm val_dh_single_prototype_svd_756_norm empty 90 10 0 \
         --dm-tables dm1 --electric-field-tables sci_r sci_i \
         --dark-zone-mask-tag darkhole_mask_half --remove-dark-zone-padding \
-        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 756 \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 756 \
         --norm-inputs --norm-outputs
     python3 main.py preprocess_data_dark_hole dh_first_hodm_20nm_20k_test \
         empty empty test_dh_single_prototype_svd_756_norm 0 0 100 \
         --dm-tables dm1 --electric-field-tables sci_r sci_i \
         --dark-zone-mask-tag darkhole_mask_half --remove-dark-zone-padding \
-        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 756 \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 756 \
         --disable-shuffle
 
     python3 main.py preprocess_data_dark_hole dh_first_hodm_20nm_100k_train_and_val \
@@ -583,7 +583,7 @@ Preprocess the datasets:
         train_dh_both_hodms_efc_final_dh_sm_svd_300 val_dh_both_hodms_efc_final_dh_sm_svd_300 test_dh_both_hodms_efc_final_dh_sm_svd_300 88 6 6 \
         --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
         --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
-        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 300 dm2 hodm2_756_modes dm2_modes 300 \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 300 dm2 hodm2_756_modes dm2_modes 300 \
         --additional-raw-data-tags both_hodm_efc_final_dh_14k_ch2  \
         --norm-inputs --norm-outputs
 
@@ -775,14 +775,14 @@ Preprocess the datasets:
         --additional-raw-data-tags dh_both_hodms_efc_final_dh_14k_ch2 \
             dh_both_hodms_efc_final_dh_9k_ch1 dh_both_hodms_efc_final_dh_9k_ch2 \
             dh_both_hodms_efc_30k_8iter_ch1 \
-        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 300 dm2 hodm2_756_modes dm2_modes 300 \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 300 dm2 hodm2_756_modes dm2_modes 300 \
         --norm-inputs --norm-outputs
     python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_30k_8iter_ch2  \
         train_dh_both_hodms_efc_final_dh_lg_8iter_svd val_dh_both_hodms_efc_final_dh_lg_8iter_svd \
         test_dh_both_hodms_efc_final_dh_lg_8iter_svd 88 6 6 \
         --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
         --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
-        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 300 dm2 hodm2_756_modes dm2_modes 300 \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 300 dm2 hodm2_756_modes dm2_modes 300 \
         --norm-inputs --norm-outputs
 
     python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_final_dh_14k_ch1 \
@@ -824,7 +824,7 @@ Preprocess the datasets:
         --additional-raw-data-tags dh_both_hodms_efc_final_dh_14k_ch2 \
             dh_both_hodms_efc_final_dh_9k_ch1 dh_both_hodms_efc_final_dh_9k_ch2 \
             dh_both_hodms_efc_30k_1iter_ch1 dh_both_hodms_efc_30k_1iter_ch2 \
-        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 300 dm2 hodm2_756_modes dm2_modes 300 \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 300 dm2 hodm2_756_modes dm2_modes 300 \
         --norm-inputs --norm-outputs
 
     python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_final_dh_14k_ch1 \
@@ -837,7 +837,7 @@ Preprocess the datasets:
             dh_both_hodms_efc_final_dh_9k_ch1 dh_both_hodms_efc_final_dh_9k_ch2 \
             dh_both_hodms_efc_30k_1iter_ch1 dh_both_hodms_efc_30k_1iter_ch2 \
             dh_both_hodms_efc_27k_1iter_ch1 dh_both_hodms_efc_27k_1iter_ch2 \
-        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 300 dm2 hodm2_756_modes dm2_modes 300 \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 300 dm2 hodm2_756_modes dm2_modes 300 \
         --norm-inputs --norm-outputs
 
     python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_final_dh_14k_ch1 \
@@ -849,7 +849,7 @@ Preprocess the datasets:
         --additional-raw-data-tags dh_both_hodms_efc_final_dh_14k_ch2 \
             dh_both_hodms_efc_final_dh_9k_ch1 dh_both_hodms_efc_final_dh_9k_ch2 \
             dh_both_hodms_efc_30k_1iter_ch1 dh_both_hodms_efc_30k_1iter_ch2 \
-        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
         --norm-inputs --norm-outputs \
         --bounding-input-rows-train-only --bounding-output-rows-train-only
 
@@ -862,7 +862,7 @@ Preprocess the datasets:
         --additional-raw-data-tags dh_both_hodms_efc_final_dh_14k_ch2 \
             dh_both_hodms_efc_final_dh_9k_ch1 dh_both_hodms_efc_final_dh_9k_ch2 \
             dh_both_hodms_efc_30k_1iter_ch1 dh_both_hodms_efc_30k_1iter_ch2 \
-        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
         --norm-inputs --norm-outputs-globally \
         --bounding-input-rows-train-only --bounding-output-rows-train-only
 
@@ -875,7 +875,7 @@ Preprocess the datasets:
         --additional-raw-data-tags dh_both_hodms_efc_final_dh_14k_ch2 \
             dh_both_hodms_efc_final_dh_9k_ch1 dh_both_hodms_efc_final_dh_9k_ch2 \
             dh_both_hodms_efc_30k_1iter_ch1 dh_both_hodms_efc_30k_1iter_ch2 \
-        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
         --norm-inputs --norm-outputs --add-total-intensity
 
     python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_final_dh_14k_ch1 \
@@ -888,7 +888,7 @@ Preprocess the datasets:
             dh_both_hodms_efc_final_dh_9k_ch1 dh_both_hodms_efc_final_dh_9k_ch2 \
             dh_both_hodms_efc_30k_1iter_ch1 dh_both_hodms_efc_30k_1iter_ch2 \
             dh_both_hodms_efc_27k_1iter_ch1 dh_both_hodms_efc_27k_1iter_ch2 \
-        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
         --norm-inputs --norm-outputs
 
     python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_final_dh_14k_ch1 \
@@ -899,7 +899,7 @@ Preprocess the datasets:
         --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
         --additional-raw-data-tags dh_both_hodms_efc_final_dh_9k_ch1 \
             dh_both_hodms_efc_30k_8iter_ch1 \
-        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
         --norm-inputs --norm-outputs
     python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_final_dh_14k_ch2 \
         train_dh_both_hodms_efc_final_dh_lg_8iter_svd_500 \
@@ -909,7 +909,7 @@ Preprocess the datasets:
         --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
         --additional-raw-data-tags dh_both_hodms_efc_final_dh_9k_ch2 \
             dh_both_hodms_efc_30k_8iter_ch2 \
-        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
         --norm-inputs --norm-outputs \
         --extend-existing-preprocessed-data
 
@@ -923,7 +923,7 @@ Preprocess the datasets:
             dh_both_hodms_efc_final_dh_9k_ch1 dh_both_hodms_efc_final_dh_9k_ch2 \
             dh_both_hodms_efc_30k_1iter_ch1 dh_both_hodms_efc_30k_1iter_ch2 \
         --use-ef-svd-basis ef_modes_flat ef_modes 500 --flatten-input \
-        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
         --norm-inputs-individual --norm-outputs \
         --bounding-input-rows-train-only --bounding-output-rows-train-only --fix-seed 314
 
@@ -936,7 +936,7 @@ Preprocess the datasets:
         --additional-raw-data-tags dh_both_hodms_efc_final_dh_9k_ch1  \
             dh_both_hodms_efc_30k_1iter_ch1 \
         --use-ef-svd-basis ef_modes_flat ef_modes 500 --flatten-input \
-        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
         --norm-inputs-individual --norm-inputs-ones --norm-outputs \
         --bounding-input-rows-train-only --bounding-output-rows-train-only --fix-seed 314
 
@@ -950,7 +950,7 @@ Preprocess the datasets:
             dh_both_hodms_efc_final_dh_9k_ch1 dh_both_hodms_efc_final_dh_9k_ch2 \
             dh_both_hodms_efc_30k_1iter_ch1 dh_both_hodms_efc_30k_1iter_ch2 \
         --use-ef-svd-basis ef_modes_flat ef_modes 500 --flatten-input \
-        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
         --norm-inputs-individual --norm-inputs-ones --norm-outputs \
         --bounding-input-rows-train-only --bounding-output-rows-train-only --fix-seed 314
 
@@ -965,7 +965,7 @@ Preprocess the datasets:
             dh_both_hodms_efc_30k_1iter_ch1 dh_both_hodms_efc_30k_1iter_ch2 \
             dh_both_hodms_efc_27k_1iter_ch1 dh_both_hodms_efc_27k_1iter_ch2 \
         --use-ef-svd-basis ef_modes_flat ef_modes 500 --flatten-input \
-        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
         --norm-inputs-individual --norm-inputs-ones --norm-outputs \
         --bounding-input-rows-train-only --bounding-output-rows-train-only --fix-seed 314
 
@@ -980,7 +980,7 @@ Preprocess the datasets:
             dh_both_hodms_efc_30k_1iter_ch1 dh_both_hodms_efc_30k_1iter_ch2 \
             dh_both_hodms_efc_27k_1iter_ch1 dh_both_hodms_efc_27k_1iter_ch2 \
         --use-ef-svd-basis ef_modes_flat ef_modes 500 --flatten-input \
-        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
         --norm-inputs-individual --norm-inputs-ones --norm-outputs --output-modified-log 0.3 \
         --bounding-input-rows-train-only --bounding-output-rows-train-only --fix-seed 314
 
@@ -996,7 +996,7 @@ Preprocess the datasets:
             dh_both_hodms_efc_27k_1iter_ch1 dh_both_hodms_efc_27k_1iter_ch2 \
             dh_both_hodms_efc_full_gain_24k_1iter_ch1 dh_both_hodms_efc_full_gain_24k_1iter_ch1 \
         --use-ef-svd-basis ef_modes_flat ef_modes 500 --flatten-input \
-        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
         --norm-inputs-individual --norm-inputs-ones --norm-outputs \
         --bounding-input-rows-train-only --bounding-output-rows-train-only --fix-seed 314
 
@@ -1010,7 +1010,7 @@ Preprocess the datasets:
             dh_both_hodms_efc_30k_6iter_ch1 dh_both_hodms_efc_27k_6iter_ch1 \
             dh_both_hodms_efc_full_gain_24k_1iter_ch1 \
         --use-ef-svd-basis ef_modes_flat ef_modes 500 --flatten-input \
-        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
         --norm-inputs-individual --norm-inputs-ones --norm-outputs --norm-scaling-factor 1.46 \
         --bounding-input-rows-train-only --bounding-output-rows-train-only --fix-seed 314
     python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_final_dh_14k_ch2 \
@@ -1023,7 +1023,7 @@ Preprocess the datasets:
             dh_both_hodms_efc_30k_6iter_ch2 dh_both_hodms_efc_27k_6iter_ch2 \
             dh_both_hodms_efc_full_gain_24k_1iter_ch2 \
         --use-ef-svd-basis ef_modes_flat ef_modes 500 --flatten-input \
-        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
         --norm-inputs-individual --norm-inputs-ones --norm-outputs \
         --bounding-input-rows-train-only --bounding-output-rows-train-only --fix-seed 314 \
         --extend-existing-preprocessed-data
@@ -1040,7 +1040,7 @@ Preprocess the datasets:
             dh_both_hodms_efc_27k_1iter_ch1 dh_both_hodms_efc_27k_1iter_ch2 \
             dh_both_hodms_efc_full_gain_24k_1iter_ch1 dh_both_hodms_efc_full_gain_24k_1iter_ch1 \
         --use-ef-svd-basis ef_modes_flat ef_modes 500 --flatten-input \
-        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
         --norm-inputs-individual --norm-inputs-ones --norm-outputs --output-modified-log 0.3 \
         --bounding-input-rows-train-only --bounding-output-rows-train-only --fix-seed 314
 
@@ -1057,7 +1057,7 @@ Preprocess the datasets:
             dh_both_hodms_efc_full_gain_24k_1iter_ch1 dh_both_hodms_efc_full_gain_24k_1iter_ch2 \
             dh_both_hodms_efc_full_gain_27k_1iter \
         --use-ef-svd-basis ef_modes_flat ef_modes 500 --flatten-input \
-        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
         --norm-inputs-individual --norm-inputs-ones --norm-outputs \
         --bounding-input-rows-train-only --bounding-output-rows-train-only --fix-seed 314
 
@@ -1075,7 +1075,7 @@ Preprocess the datasets:
             dh_both_hodms_efc_full_gain_27k_1iter \
             dh_both_hodms_efc_full_gain_29k_1iter_ch1 dh_both_hodms_efc_full_gain_29k_1iter_ch2 \
         --use-ef-svd-basis ef_modes_flat ef_modes 500 --flatten-input \
-        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
         --norm-inputs-individual --norm-inputs-ones --norm-outputs \
         --bounding-input-rows-train-only --bounding-output-rows-train-only --fix-seed 314
 
@@ -1095,7 +1095,7 @@ Preprocess the datasets:
             dh_both_hodms_efc_full_gain_29k_1iter_ch1 dh_both_hodms_efc_full_gain_29k_1iter_ch2 \
             dh_both_hodms_efc_full_gain_36k_1iter_ch1 dh_both_hodms_efc_full_gain_36k_1iter_ch2 \
         --use-ef-svd-basis ef_modes_flat ef_modes 500 --flatten-input \
-        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
         --norm-inputs-individual --norm-inputs-ones --norm-outputs \
         --bounding-input-rows-train-only --bounding-output-rows-train-only --fix-seed 314
 
@@ -1115,7 +1115,7 @@ Preprocess the datasets:
             dh_both_hodms_efc_full_gain_29k_1iter_ch1 dh_both_hodms_efc_full_gain_29k_1iter_ch2 \
             dh_both_hodms_efc_full_gain_36k_1iter_ch1 dh_both_hodms_efc_full_gain_36k_1iter_ch2 \
         --use-ef-svd-basis ef_modes_flat ef_modes 500 --flatten-input \
-        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
         --z-score-inputs --z-score-outputs \
         --bounding-input-rows-train-only --bounding-output-rows-train-only --fix-seed 314
 
@@ -1131,7 +1131,7 @@ Preprocess the datasets:
             dh_both_hodms_efc_27k_1iter_ch1 dh_both_hodms_efc_27k_1iter_ch2 \
             dh_both_hodms_efc_full_gain_24k_1iter_ch1 dh_both_hodms_efc_full_gain_24k_1iter_ch2 \
         --use-ef-svd-basis ef_modes_flat ef_modes 500 --flatten-input \
-        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
         --z-score-inputs-individual --z-score-outputs-individual \
         --bounding-input-rows-train-only --bounding-output-rows-train-only --fix-seed 314
 
@@ -1151,7 +1151,7 @@ Preprocess the datasets:
             dh_both_hodms_efc_full_gain_29k_1iter_ch1 dh_both_hodms_efc_full_gain_29k_1iter_ch2 \
             dh_both_hodms_efc_full_gain_36k_1iter_ch1 dh_both_hodms_efc_full_gain_36k_1iter_ch2 \
         --use-ef-svd-basis ef_modes_flat ef_modes 500 --flatten-input \
-        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
         --z-score-inputs-individual --z-score-outputs-individual \
         --bounding-input-rows-train-only --bounding-output-rows-train-only --fix-seed 314
 
@@ -1171,7 +1171,7 @@ Preprocess the datasets:
             dh_both_hodms_efc_full_gain_29k_1iter_ch1 dh_both_hodms_efc_full_gain_29k_1iter_ch2 \
             dh_both_hodms_efc_full_gain_36k_1iter_ch1 dh_both_hodms_efc_full_gain_36k_1iter_ch2 \
         --use-ef-svd-basis ef_modes_flat ef_modes 500 --flatten-input --input-row-rss-norm \
-        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
         --z-score-inputs-individual --z-score-outputs-individual \
         --bounding-input-rows-train-only --bounding-output-rows-train-only --fix-seed 314
 
@@ -1191,7 +1191,7 @@ Preprocess the datasets:
             dh_both_hodms_efc_full_gain_29k_1iter_ch1 dh_both_hodms_efc_full_gain_29k_1iter_ch2 \
             dh_both_hodms_efc_full_gain_36k_1iter_ch1 dh_both_hodms_efc_full_gain_36k_1iter_ch2 \
         --use-ef-svd-basis ef_modes_flat ef_modes 500 --flatten-input --use-ef-svd-basis-combined \
-        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
         --z-score-inputs-individual --z-score-outputs-individual \
         --bounding-input-rows-train-only --bounding-output-rows-train-only --fix-seed 314
 
@@ -1211,7 +1211,7 @@ Preprocess the datasets:
             dh_both_hodms_efc_full_gain_29k_1iter_ch1 dh_both_hodms_efc_full_gain_29k_1iter_ch2 \
             dh_both_hodms_efc_full_gain_36k_1iter_ch1 dh_both_hodms_efc_full_gain_36k_1iter_ch2 \
         --use-ef-svd-basis ef_modes_flat ef_modes 756 --flatten-input --use-ef-svd-basis-combined \
-        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
         --z-score-inputs-individual --z-score-outputs-individual \
         --bounding-input-rows-train-only --bounding-output-rows-train-only --fix-seed 314
 
@@ -1231,7 +1231,7 @@ Preprocess the datasets:
             dh_both_hodms_efc_full_gain_29k_1iter_ch1 dh_both_hodms_efc_full_gain_29k_1iter_ch2 \
             dh_both_hodms_efc_full_gain_36k_1iter_ch1 dh_both_hodms_efc_full_gain_36k_1iter_ch2 \
         --use-ef-svd-basis ef_modes_flat_from_dm2 ef_modes 756 --flatten-input --use-ef-svd-basis-combined \
-        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
         --z-score-inputs-individual --z-score-outputs-individual \
         --bounding-input-rows-train-only --bounding-output-rows-train-only --fix-seed 314
 
@@ -1252,7 +1252,7 @@ Preprocess the datasets:
             dh_both_hodms_efc_full_gain_36k_1iter_ch1 dh_both_hodms_efc_full_gain_36k_1iter_ch2 \
         --use-ef-svd-basis ef_modes_flat ef_modes 500 --flatten-input \
         --use-ef-svd-basis-real-modes-only \
-        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
         --z-score-inputs-individual --z-score-outputs-individual \
         --bounding-input-rows-train-only --bounding-output-rows-train-only --fix-seed 314
 
@@ -1272,7 +1272,7 @@ Preprocess the datasets:
             dh_both_hodms_efc_full_gain_29k_1iter_ch1 dh_both_hodms_efc_full_gain_29k_1iter_ch2 \
             dh_both_hodms_efc_full_gain_36k_1iter_ch1 dh_both_hodms_efc_full_gain_36k_1iter_ch2 \
         --use-ef-basis pca_ef_basis_418k_rows_756_modes modes 756 --flatten-input \
-        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
         --z-score-inputs-individual --z-score-outputs-individual \
         --bounding-input-rows-train-only --bounding-output-rows-train-only --fix-seed 314
 
@@ -1291,7 +1291,7 @@ Preprocess the datasets:
             dh_both_hodms_efc_full_gain_29k_1iter_ch1 dh_both_hodms_efc_full_gain_29k_1iter_ch2 \
             dh_both_hodms_efc_full_gain_36k_1iter_ch1 dh_both_hodms_efc_full_gain_36k_1iter_ch2 \
         --flatten-input \
-        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
         --z-score-outputs-individual \
         --bounding-input-rows-train-only --bounding-output-rows-train-only --fix-seed 314
 
@@ -1306,7 +1306,7 @@ Preprocess the datasets:
             dh_both_hodms_efc_30k_1iter_ch1 dh_both_hodms_efc_30k_1iter_ch2 \
             dh_both_hodms_efc_27k_1iter_ch1 dh_both_hodms_efc_27k_1iter_ch2 \
         --use-ef-svd-basis ef_modes_flat ef_modes 500 --flatten-input \
-        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 756 dm2 hodm2_756_modes dm2_modes 756 \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 756 dm2 hodm2_756_modes dm2_modes 756 \
         --norm-inputs-individual --norm-inputs-ones --norm-outputs \
         --bounding-input-rows-train-only --bounding-output-rows-train-only --fix-seed 314
 
@@ -1320,7 +1320,7 @@ Preprocess the datasets:
             dh_both_hodms_efc_final_dh_9k_ch1 dh_both_hodms_efc_final_dh_9k_ch2 \
             dh_both_hodms_efc_30k_1iter_ch1 dh_both_hodms_efc_30k_1iter_ch2 \
         --use-ef-svd-basis ef_modes_flat ef_modes 500 --flatten-input \
-        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 756 dm2 hodm2_756_modes dm2_modes 756 \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 756 dm2 hodm2_756_modes dm2_modes 756 \
         --norm-inputs-individual --norm-outputs \
         --bounding-input-rows-train-only --bounding-output-rows-train-only --fix-seed 314
 
@@ -1334,7 +1334,7 @@ Preprocess the datasets:
             dh_both_hodms_efc_final_dh_9k_ch1 dh_both_hodms_efc_final_dh_9k_ch2 \
             dh_both_hodms_efc_30k_6iter_ch1 dh_both_hodms_efc_30k_6iter_ch2 \
         --use-ef-svd-basis ef_modes_flat ef_modes 500 --flatten-input \
-        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
         --norm-inputs-individual --norm-outputs \
         --bounding-input-rows-train-only --bounding-output-rows-train-only
 
@@ -1348,7 +1348,7 @@ Preprocess the datasets:
             dh_both_hodms_efc_final_dh_9k_ch1 dh_both_hodms_efc_final_dh_9k_ch2 \
             dh_both_hodms_efc_30k_1iter_ch1 dh_both_hodms_efc_30k_1iter_ch2 \
         --use-ef-svd-basis ef_modes_flat ef_modes 500 --flatten-input \
-        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
         --norm-inputs --norm-outputs-globally \
         --bounding-input-rows-train-only --bounding-output-rows-train-only
 
@@ -1361,7 +1361,7 @@ Preprocess the datasets:
         --additional-raw-data-tags dh_both_hodms_efc_final_dh_14k_ch2 \
             dh_both_hodms_efc_final_dh_9k_ch1 dh_both_hodms_efc_final_dh_9k_ch2 \
             dh_both_hodms_efc_30k_1iter_ch1 dh_both_hodms_efc_30k_1iter_ch2 \
-        --use-dm-svd-basis dm1 hodm1_756_modes dm1_modes 756 dm2 hodm2_756_modes dm2_modes 756 \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 756 dm2 hodm2_756_modes dm2_modes 756 \
         --norm-inputs --norm-outputs
 
     python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_final_dh_14k_ch1 \
