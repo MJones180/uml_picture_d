@@ -46,6 +46,11 @@ def create_pca_basis_modes_parser(subparsers):
         help=('apply a dm mask to the data; two args expected: '
               'dm size across, circle size'),
     )
+    subparser.add_argument(
+        '--auto-mask',
+        action='store_true',
+        help='mask out all the inactive pixels',
+    )
 
 
 def create_pca_basis_modes(cli_args):
@@ -76,6 +81,11 @@ def create_pca_basis_modes(cli_args):
         print(f'Circle size: {circle_size}')
         mask_data = create_grid_mask(int(size), circle_size)
 
+    auto_mask = cli_args.get('auto_mask')
+    if auto_mask:
+        step_ri('Will mask out all the inactive pixels')
+        mask_data = None
+
     step_ri('Loading in raw datafiles')
     all_table_data = {table_name: [] for table_name in table_names}
     for raw_data_tag in raw_data_tags:
@@ -84,7 +94,9 @@ def create_pca_basis_modes(cli_args):
             data = read_hdf(data_path)
             for table_name in table_names:
                 table_data = data[table_name][:]
-                if dh_mask or dm_mask:
+                if dh_mask or dm_mask or auto_mask:
+                    if auto_mask and mask_data is None:
+                        mask_data = table_data[0] != 0
                     table_data = table_data[..., mask_data]
                 all_table_data[table_name].extend(table_data)
 
