@@ -934,8 +934,8 @@ def preprocess_data_dark_hole(cli_args):
                 )
         else:
             if use_existing_norm_vals:
-                max_min_diff = existing_norm_values[INPUT_MAX_MIN_DIFF]
-                min_x = existing_norm_values[INPUT_MIN_X]
+                max_min_diff = existing_norm_values[INPUT_MAX_MIN_DIFF][:]
+                min_x = existing_norm_values[INPUT_MIN_X][:]
                 if train_rows > 0:
                     train_inputs = min_max_norm(train_inputs, max_min_diff,
                                                 min_x, norm_inputs_ones)
@@ -986,8 +986,8 @@ def preprocess_data_dark_hole(cli_args):
                 )
         else:
             if use_existing_norm_vals:
-                max_min_diff = existing_norm_values[OUTPUT_MAX_MIN_DIFF]
-                min_x = existing_norm_values[OUTPUT_MIN_X]
+                max_min_diff = existing_norm_values[OUTPUT_MAX_MIN_DIFF][:]
+                min_x = existing_norm_values[OUTPUT_MIN_X][:]
                 if train_rows > 0:
                     train_outputs = min_max_norm(train_outputs, max_min_diff,
                                                  min_x, norm_inputs_ones)
@@ -1028,8 +1028,8 @@ def preprocess_data_dark_hole(cli_args):
             inputs_std = _use_var(INPUTS_Z_SCORE_STD, scalar=scalar_values)
         else:
             if use_existing_norm_vals:
-                inputs_mean = existing_norm_values[INPUTS_Z_SCORE_MEAN]
-                inputs_std = existing_norm_values[INPUTS_Z_SCORE_STD]
+                inputs_mean = existing_norm_values[INPUTS_Z_SCORE_MEAN][:]
+                inputs_std = existing_norm_values[INPUTS_Z_SCORE_STD][:]
             else:
                 inputs_mean = np.mean(train_inputs, axis=norm_axis)
                 inputs_std = np.std(train_inputs, axis=norm_axis)
@@ -1065,9 +1065,9 @@ def preprocess_data_dark_hole(cli_args):
         else:
             if use_existing_norm_vals:
                 outputs_mean_1, outputs_mean_2 = existing_norm_values[
-                    OUTPUTS_Z_SCORE_MEAN]
+                    OUTPUTS_Z_SCORE_MEAN][:]
                 outputs_std_1, outputs_std_2 = existing_norm_values[
-                    OUTPUTS_Z_SCORE_STD]
+                    OUTPUTS_Z_SCORE_STD][:]
             else:
                 outputs_mean_1 = np.mean(train_outputs_1)
                 outputs_mean_2 = np.mean(train_outputs_2)
@@ -1103,8 +1103,8 @@ def preprocess_data_dark_hole(cli_args):
             outputs_std = _use_var(OUTPUTS_Z_SCORE_STD)
         else:
             if use_existing_norm_vals:
-                outputs_mean = existing_norm_values[OUTPUTS_Z_SCORE_MEAN]
-                outputs_std = existing_norm_values[OUTPUTS_Z_SCORE_STD]
+                outputs_mean = existing_norm_values[OUTPUTS_Z_SCORE_MEAN][:]
+                outputs_std = existing_norm_values[OUTPUTS_Z_SCORE_STD][:]
             else:
                 outputs_mean = np.mean(train_outputs, axis=0)
                 outputs_std = np.std(train_outputs, axis=0)
