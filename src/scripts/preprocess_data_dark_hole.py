@@ -321,6 +321,11 @@ def preprocess_data_dark_hole_parser(subparsers):
         help=('z-score normalize the inputs; every output value is '
               'normalized independently'),
     )
+    subparser.add_argument(
+        '--use-existing-norm-vals',
+        help=('use normalization values from an existing dataset; the passed '
+              'argument should specify the tag of the processed dataset'),
+    )
 
 
 def preprocess_data_dark_hole(cli_args):
@@ -876,14 +881,26 @@ def preprocess_data_dark_hole(cli_args):
     if train_only_mask is not None:
         train_inputs = np.vstack((train_inputs, input_data_train_only))
         train_outputs = np.vstack((train_outputs, output_data_train_only))
+    # The number of rows in each dataset
+    train_rows = train_inputs.shape[0]
+    val_rows = val_inputs.shape[0]
+    test_rows = test_inputs.shape[0]
 
-    def _print_split(word, percentage, inputs):
-        print(f'{word} percentage: {(percentage)}%, '
-              f'rows: {inputs.shape[0]}')
+    def _print_split(word, percentage, rows):
+        print(f'{word} percentage: {(percentage)}%, rows: {rows}')
 
-    _print_split('Training', training_percentage, train_inputs)
-    _print_split('Validation', validation_percentage, val_inputs)
-    _print_split('Testing', testing_percentage, test_inputs)
+    train_rows = _print_split('Training', training_percentage, train_rows)
+    val_rows = _print_split('Validation', validation_percentage, val_rows)
+    test_rows = _print_split('Testing', testing_percentage, test_rows)
+
+    # ==========================================================================
+
+    use_existing_norm_vals = cli_args.get('use_existing_norm_vals')
+    if use_existing_norm_vals:
+        step_ri('Using existing norm values')
+        norm_path = f'{PROC_DATA_P}/{use_existing_norm_vals}/{EXTRA_VARS_F}'
+        print(f'Loading norm data from: {norm_path}')
+        existing_norm_values = read_hdf(norm_path)
 
     # ==========================================================================
 
@@ -908,33 +925,43 @@ def preprocess_data_dark_hole(cli_args):
         if extend_existing_data:
             max_min_diff = _use_var(INPUT_MAX_MIN_DIFF, scalar_values)
             min_x = _use_var(INPUT_MIN_X, scalar_values)
-            train_inputs = min_max_norm(
-                train_inputs,
-                max_min_diff,
-                min_x,
-                ones_range=norm_inputs_ones,
-            )
+            if train_rows > 0:
+                train_inputs = min_max_norm(
+                    train_inputs,
+                    max_min_diff,
+                    min_x,
+                    ones_range=norm_inputs_ones,
+                )
         else:
-            train_inputs, max_min_diff, min_x = find_min_max_norm(
-                train_inputs,
-                globally=not norm_inputs_individual,
-                ones_range=norm_inputs_ones,
-                scale_values=norm_scaling_factor,
-            )
+            if use_existing_norm_vals:
+                max_min_diff = existing_norm_values[INPUT_MAX_MIN_DIFF]
+                min_x = existing_norm_values[INPUT_MIN_X]
+                if train_rows > 0:
+                    train_inputs = min_max_norm(train_inputs, max_min_diff,
+                                                min_x, norm_inputs_ones)
+            else:
+                train_inputs, max_min_diff, min_x = find_min_max_norm(
+                    train_inputs,
+                    globally=not norm_inputs_individual,
+                    ones_range=norm_inputs_ones,
+                    scale_values=norm_scaling_factor,
+                )
             _save_var(INPUT_MAX_MIN_DIFF, max_min_diff)
             _save_var(INPUT_MIN_X, min_x)
         print(f'Train min: {np.min(train_inputs)}')
         print(f'Train max: {np.max(train_inputs)}')
-        print('Normalizing inputs of validation data and test data based on '
-              'training normalization values')
-        val_inputs = min_max_norm(val_inputs, max_min_diff, min_x,
-                                  norm_inputs_ones)
-        print(f'Validation min: {np.min(val_inputs)}')
-        print(f'Validation max: {np.max(val_inputs)}')
-        test_inputs = min_max_norm(test_inputs, max_min_diff, min_x,
-                                   norm_inputs_ones)
-        print(f'Test min: {np.min(test_inputs)}')
-        print(f'Test max: {np.max(test_inputs)}')
+        if val_rows > 0:
+            print('Normalizing validation inputs based on training data')
+            val_inputs = min_max_norm(val_inputs, max_min_diff, min_x,
+                                      norm_inputs_ones)
+            print(f'Validation min: {np.min(val_inputs)}')
+            print(f'Validation max: {np.max(val_inputs)}')
+        if test_rows > 0:
+            print('Normalizing testing inputs based on training data')
+            test_inputs = min_max_norm(test_inputs, max_min_diff, min_x,
+                                       norm_inputs_ones)
+            print(f'Test min: {np.min(test_inputs)}')
+            print(f'Test max: {np.max(test_inputs)}')
 
     # ==========================================================================
 
@@ -950,29 +977,37 @@ def preprocess_data_dark_hole(cli_args):
         if extend_existing_data:
             max_min_diff = _use_var(OUTPUT_MAX_MIN_DIFF, scalar_values)
             min_x = _use_var(OUTPUT_MIN_X, scalar_values)
-            train_outputs = min_max_norm(
-                train_outputs,
-                max_min_diff,
-                min_x,
-                ones_range=True,
-            )
+            if train_rows > 0:
+                train_outputs = min_max_norm(
+                    train_outputs,
+                    max_min_diff,
+                    min_x,
+                    ones_range=True,
+                )
         else:
-            train_outputs, max_min_diff, min_x = find_min_max_norm(
-                train_outputs,
-                globally=norm_outputs_globally,
-                ones_range=True,
-                scale_values=norm_scaling_factor,
-            )
+            if use_existing_norm_vals:
+                max_min_diff = existing_norm_values[OUTPUT_MAX_MIN_DIFF]
+                min_x = existing_norm_values[OUTPUT_MIN_X]
+                if train_rows > 0:
+                    train_outputs = min_max_norm(train_outputs, max_min_diff,
+                                                 min_x, norm_inputs_ones)
+            else:
+                train_outputs, max_min_diff, min_x = find_min_max_norm(
+                    train_outputs,
+                    globally=norm_outputs_globally,
+                    ones_range=True,
+                    scale_values=norm_scaling_factor,
+                )
             _save_var(OUTPUT_MAX_MIN_DIFF, max_min_diff)
             _save_var(OUTPUT_MIN_X, min_x)
             _save_var(NORM_RANGE_ONES_OUTPUT, True)
         print(f'Train min: {np.min(train_outputs)}')
         print(f'Train max: {np.max(train_outputs)}')
-        print('Normalizing outputs of validation data based on training '
-              'normalization values')
-        val_outputs = min_max_norm(val_outputs, max_min_diff, min_x, True)
-        print(f'Validation min: {np.min(val_outputs)}')
-        print(f'Validation max: {np.max(val_outputs)}')
+        if val_rows > 0:
+            print('Normalizing validation outputs based on training data')
+            val_outputs = min_max_norm(val_outputs, max_min_diff, min_x, True)
+            print(f'Validation min: {np.min(val_outputs)}')
+            print(f'Validation max: {np.max(val_outputs)}')
 
     # ==========================================================================
 
@@ -992,21 +1027,30 @@ def preprocess_data_dark_hole(cli_args):
             inputs_mean = _use_var(INPUTS_Z_SCORE_MEAN, scalar=scalar_values)
             inputs_std = _use_var(INPUTS_Z_SCORE_STD, scalar=scalar_values)
         else:
-            inputs_mean = np.mean(train_inputs, axis=norm_axis)
-            inputs_std = np.std(train_inputs, axis=norm_axis)
+            if use_existing_norm_vals:
+                inputs_mean = existing_norm_values[INPUTS_Z_SCORE_MEAN]
+                inputs_std = existing_norm_values[INPUTS_Z_SCORE_STD]
+            else:
+                inputs_mean = np.mean(train_inputs, axis=norm_axis)
+                inputs_std = np.std(train_inputs, axis=norm_axis)
             _save_var(INPUTS_Z_SCORE_MEAN, inputs_mean)
             _save_var(INPUTS_Z_SCORE_STD, inputs_std)
-        train_inputs = z_score_normalize(train_inputs, inputs_mean, inputs_std)
-        print(f'Train min: {np.min(train_inputs)}')
-        print(f'Train max: {np.max(train_inputs)}')
-        print('Normalizing inputs of validation data and test data based on '
-              'training z-score values')
-        val_inputs = z_score_normalize(val_inputs, inputs_mean, inputs_std)
-        print(f'Validation min: {np.min(val_inputs)}')
-        print(f'Validation max: {np.max(val_inputs)}')
-        test_inputs = z_score_normalize(test_inputs, inputs_mean, inputs_std)
-        print(f'Test min: {np.min(test_inputs)}')
-        print(f'Test max: {np.max(test_inputs)}')
+        if train_rows > 0:
+            train_inputs = z_score_normalize(train_inputs, inputs_mean,
+                                             inputs_std)
+            print(f'Train min: {np.min(train_inputs)}')
+            print(f'Train max: {np.max(train_inputs)}')
+        if val_rows > 0:
+            print('Normalizing validation inputs based on training data')
+            val_inputs = z_score_normalize(val_inputs, inputs_mean, inputs_std)
+            print(f'Validation min: {np.min(val_inputs)}')
+            print(f'Validation max: {np.max(val_inputs)}')
+        if test_rows > 0:
+            print('Normalizing testing inputs based on training data')
+            test_inputs = z_score_normalize(test_inputs, inputs_mean,
+                                            inputs_std)
+            print(f'Test min: {np.min(test_inputs)}')
+            print(f'Test max: {np.max(test_inputs)}')
 
     # ==========================================================================
 
@@ -1019,26 +1063,37 @@ def preprocess_data_dark_hole(cli_args):
             outputs_mean_1, outputs_mean_2 = _use_var(OUTPUTS_Z_SCORE_MEAN)
             outputs_std_1, outputs_std_2 = _use_var(OUTPUTS_Z_SCORE_STD)
         else:
-            outputs_mean_1 = np.mean(train_outputs_1)
-            outputs_mean_2 = np.mean(train_outputs_2)
+            if use_existing_norm_vals:
+                outputs_mean_1, outputs_mean_2 = existing_norm_values[
+                    OUTPUTS_Z_SCORE_MEAN]
+                outputs_std_1, outputs_std_2 = existing_norm_values[
+                    OUTPUTS_Z_SCORE_STD]
+            else:
+                outputs_mean_1 = np.mean(train_outputs_1)
+                outputs_mean_2 = np.mean(train_outputs_2)
+                outputs_std_1 = np.std(train_outputs_1)
+                outputs_std_2 = np.std(train_outputs_2)
             _save_var(OUTPUTS_Z_SCORE_MEAN, [outputs_mean_1, outputs_mean_2])
-            outputs_std_1 = np.std(train_outputs_1)
-            outputs_std_2 = np.std(train_outputs_2)
             _save_var(OUTPUTS_Z_SCORE_STD, [outputs_std_1, outputs_std_2])
-        train_outputs = np.hstack((
-            z_score_normalize(train_outputs_1, outputs_mean_1, outputs_std_1),
-            z_score_normalize(train_outputs_2, outputs_mean_2, outputs_std_2),
-        ))
-        print(f'Train min: {np.min(train_outputs)}')
-        print(f'Train max: {np.max(train_outputs)}')
-        print('Normalizing outputs of validation data based on '
-              'training z-score values')
-        val_outputs = np.hstack((
-            z_score_normalize(val_outputs_1, outputs_mean_1, outputs_std_1),
-            z_score_normalize(val_outputs_2, outputs_mean_2, outputs_std_2),
-        ))
-        print(f'Validation min: {np.min(val_outputs)}')
-        print(f'Validation max: {np.max(val_outputs)}')
+        if train_rows > 0:
+            train_outputs = np.hstack((
+                z_score_normalize(train_outputs_1, outputs_mean_1,
+                                  outputs_std_1),
+                z_score_normalize(train_outputs_2, outputs_mean_2,
+                                  outputs_std_2),
+            ))
+            print(f'Train min: {np.min(train_outputs)}')
+            print(f'Train max: {np.max(train_outputs)}')
+        if val_rows > 0:
+            print('Normalizing validation outputs based on training data')
+            val_outputs = np.hstack((
+                z_score_normalize(val_outputs_1, outputs_mean_1,
+                                  outputs_std_1),
+                z_score_normalize(val_outputs_2, outputs_mean_2,
+                                  outputs_std_2),
+            ))
+            print(f'Validation min: {np.min(val_outputs)}')
+            print(f'Validation max: {np.max(val_outputs)}')
 
     z_score_outputs_individual = cli_args['z_score_outputs_individual']
     if z_score_outputs_individual:
@@ -1047,19 +1102,25 @@ def preprocess_data_dark_hole(cli_args):
             outputs_mean = _use_var(OUTPUTS_Z_SCORE_MEAN)
             outputs_std = _use_var(OUTPUTS_Z_SCORE_STD)
         else:
-            outputs_mean = np.mean(train_outputs, axis=0)
-            outputs_std = np.std(train_outputs, axis=0)
+            if use_existing_norm_vals:
+                outputs_mean = existing_norm_values[OUTPUTS_Z_SCORE_MEAN]
+                outputs_std = existing_norm_values[OUTPUTS_Z_SCORE_STD]
+            else:
+                outputs_mean = np.mean(train_outputs, axis=0)
+                outputs_std = np.std(train_outputs, axis=0)
             _save_var(OUTPUTS_Z_SCORE_MEAN, outputs_mean)
             _save_var(OUTPUTS_Z_SCORE_STD, outputs_std)
-        train_outputs = z_score_normalize(train_outputs, outputs_mean,
-                                          outputs_std)
-        print(f'Train min: {np.min(train_outputs)}')
-        print(f'Train max: {np.max(train_outputs)}')
-        print('Normalizing outputs of validation data based on '
-              'training z-score values')
-        val_outputs = z_score_normalize(val_outputs, outputs_mean, outputs_std)
-        print(f'Validation min: {np.min(val_outputs)}')
-        print(f'Validation max: {np.max(val_outputs)}')
+        if train_rows > 0:
+            train_outputs = z_score_normalize(train_outputs, outputs_mean,
+                                              outputs_std)
+            print(f'Train min: {np.min(train_outputs)}')
+            print(f'Train max: {np.max(train_outputs)}')
+        if val_rows > 0:
+            print('Normalizing validation outputs based on training data')
+            val_outputs = z_score_normalize(val_outputs, outputs_mean,
+                                            outputs_std)
+            print(f'Validation min: {np.min(val_outputs)}')
+            print(f'Validation max: {np.max(val_outputs)}')
 
     # ==========================================================================
 
@@ -1084,6 +1145,9 @@ def preprocess_data_dark_hole(cli_args):
         print(f'Input shape: {inputs.shape}')
         print(f'Output shape: {outputs.shape}')
 
-    _write_data(training_tag_path, train_inputs, train_outputs)
-    _write_data(validation_tag_path, val_inputs, val_outputs)
-    _write_data(testing_tag_path, test_inputs, test_outputs)
+    if train_rows > 0:
+        _write_data(training_tag_path, train_inputs, train_outputs)
+    if val_rows > 0:
+        _write_data(validation_tag_path, val_inputs, val_outputs)
+    if test_rows > 0:
+        _write_data(testing_tag_path, test_inputs, test_outputs)
