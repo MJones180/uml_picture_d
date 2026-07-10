@@ -882,9 +882,9 @@ def preprocess_data_dark_hole(cli_args):
         train_inputs = np.vstack((train_inputs, input_data_train_only))
         train_outputs = np.vstack((train_outputs, output_data_train_only))
     # The number of rows in each dataset
-    train_rows = train_inputs.shape[0]
-    val_rows = val_inputs.shape[0]
-    test_rows = test_inputs.shape[0]
+    train_rows = len(train_inputs)
+    val_rows = len(val_inputs)
+    test_rows = len(test_inputs)
 
     def _print_split(word, percentage, rows):
         print(f'{word} percentage: {(percentage)}%, rows: {rows}')
