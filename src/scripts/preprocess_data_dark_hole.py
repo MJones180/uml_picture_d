@@ -889,9 +889,9 @@ def preprocess_data_dark_hole(cli_args):
     def _print_split(word, percentage, rows):
         print(f'{word} percentage: {(percentage)}%, rows: {rows}')
 
-    train_rows = _print_split('Training', training_percentage, train_rows)
-    val_rows = _print_split('Validation', validation_percentage, val_rows)
-    test_rows = _print_split('Testing', testing_percentage, test_rows)
+    _print_split('Training', training_percentage, train_rows)
+    _print_split('Validation', validation_percentage, val_rows)
+    _print_split('Testing', testing_percentage, test_rows)
 
     # ==========================================================================
 
