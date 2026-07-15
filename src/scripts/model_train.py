@@ -227,6 +227,13 @@ def model_train_parser(subparsers):
               'rate; the `epochs` parameter specifies the number of epochs'),
     )
     subparser.add_argument(
+        '--use-one-cycle-lr-scheduler',
+        action='store_true',
+        help=('use the One Cycle learning rate scheduler; all defaults used; '
+              'the `learning_rate` parameter specifies the max, peak learning '
+              'rate; the `epochs` parameter specifies the number of epochs'),
+    )
+    subparser.add_argument(
         '--clip-gradient-norm',
         type=float,
         help=('clip the gradient norm to the specified value; '
@@ -1074,6 +1081,15 @@ def model_train(cli_args):
 
         scheduler = torch.optim.lr_scheduler.LambdaLR(
             optimizer, lr_lambda=modified_cosine_annealing_scheduler)
+
+    if cli_args.get('use_one_cycle_lr_scheduler'):
+        step_ri('Will use the One Cycle learning rate scheduler')
+        scheduler = torch.optim.lr_scheduler.OneCycleLR(
+            optimizer,
+            max_lr=base_learning_rate,
+            epochs=epoch_count,
+            steps_per_epoch=training_batches,
+        )
 
     clip_gradient_norm = cli_args.get('clip_gradient_norm')
     step_ri('Gradient norm clipping')
