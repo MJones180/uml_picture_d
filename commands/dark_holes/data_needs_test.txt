@@ -1,0 +1,408 @@
+================================================================================
+
+This set of commands tests whether the models could actually benefit from adding
+more data during training. These models are all based off `dh_v131_2`:
+    EPOCH 599/650...
+        Gradient Norm (Unclipped):
+            Min norm: 0.019926555454730988
+            Max norm: 0.08087798207998276
+            Average norm: 0.02323768037136572
+        Train Loss:  0.015511167410732041
+            Head [0]: 0.003965854951982434
+            Head [1]: 0.01154531245874962
+        Validation Loss:  0.01228414274647887
+            Head [0]: 0.002374167456772173
+            Head [1]: 0.009909975289706698
+The following training dataset was used:
+    train_dh_both_hodms_efc_final_dh_5xlg_1iter_pca_ef_756_svd_dm_500_z_score_individual
+
+================================================================================
+
+In total, there are ~418k rows of data across the following datasets:
+    dh_both_hodms_efc_final_dh_14k_ch1
+    dh_both_hodms_efc_final_dh_14k_ch2
+    dh_both_hodms_efc_final_dh_9k_ch1
+    dh_both_hodms_efc_final_dh_9k_ch2
+    dh_both_hodms_efc_30k_1iter_ch1
+    dh_both_hodms_efc_30k_1iter_ch2
+    dh_both_hodms_efc_27k_1iter_ch1
+    dh_both_hodms_efc_27k_1iter_ch2
+    dh_both_hodms_efc_full_gain_24k_1iter_ch1
+    dh_both_hodms_efc_full_gain_24k_1iter_ch2
+    dh_both_hodms_efc_full_gain_24k_1iter_ch3
+    dh_both_hodms_efc_full_gain_24k_1iter_ch4
+    dh_both_hodms_efc_full_gain_27k_1iter
+    dh_both_hodms_efc_full_gain_29k_1iter_ch1
+    dh_both_hodms_efc_full_gain_29k_1iter_ch2
+    dh_both_hodms_efc_full_gain_36k_1iter_ch1
+    dh_both_hodms_efc_full_gain_36k_1iter_ch2
+
+================================================================================
+
+Create the PCA EF modes:
+
+    python3 main.py create_pca_basis_modes \
+        pca_ef_basis_370k_rows_756_modes 756 \
+        --table-names sci_r sci_i --dh-mask darkhole_mask \
+        --raw-data-tags dh_both_hodms_efc_final_dh_14k_ch1 dh_both_hodms_efc_final_dh_14k_ch2 \
+            dh_both_hodms_efc_final_dh_9k_ch1 dh_both_hodms_efc_final_dh_9k_ch2 \
+            dh_both_hodms_efc_30k_1iter_ch1 dh_both_hodms_efc_30k_1iter_ch2 \
+            dh_both_hodms_efc_27k_1iter_ch1 dh_both_hodms_efc_27k_1iter_ch2 \
+            dh_both_hodms_efc_full_gain_24k_1iter_ch1 dh_both_hodms_efc_full_gain_24k_1iter_ch2 \
+            dh_both_hodms_efc_full_gain_27k_1iter \
+            dh_both_hodms_efc_full_gain_29k_1iter_ch1 dh_both_hodms_efc_full_gain_29k_1iter_ch2 \
+            dh_both_hodms_efc_full_gain_36k_1iter_ch1 dh_both_hodms_efc_full_gain_36k_1iter_ch2
+
+Create the training datasets:
+
+    python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_30k_1iter_ch1 \
+        train_data_needs_test_370k none none 100 0 0 \
+        --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
+        --additional-raw-data-tags \
+            dh_both_hodms_efc_full_gain_29k_1iter_ch1 dh_both_hodms_efc_30k_1iter_ch2 \
+            dh_both_hodms_efc_full_gain_29k_1iter_ch2 dh_both_hodms_efc_final_dh_14k_ch1 \
+            dh_both_hodms_efc_full_gain_24k_1iter_ch1 dh_both_hodms_efc_full_gain_24k_1iter_ch2 \
+            dh_both_hodms_efc_27k_1iter_ch1 dh_both_hodms_efc_full_gain_36k_1iter_ch1 \
+            dh_both_hodms_efc_27k_1iter_ch2 dh_both_hodms_efc_full_gain_36k_1iter_ch2 \
+            dh_both_hodms_efc_final_dh_14k_ch2 dh_both_hodms_efc_final_dh_9k_ch1 \
+            dh_both_hodms_efc_final_dh_9k_ch2 dh_both_hodms_efc_full_gain_27k_1iter \
+        --use-ef-basis pca_ef_basis_370k_rows_756_modes modes 756 --flatten-input \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
+        --z-score-inputs-individual --z-score-outputs-individual --fix-seed 314
+
+    python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_30k_1iter_ch1 \
+        train_data_needs_test_311k none none 100 0 0 \
+        --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
+        --additional-raw-data-tags \
+            dh_both_hodms_efc_full_gain_29k_1iter_ch1 dh_both_hodms_efc_30k_1iter_ch2 \
+            dh_both_hodms_efc_full_gain_29k_1iter_ch2 dh_both_hodms_efc_final_dh_14k_ch1 \
+            dh_both_hodms_efc_full_gain_24k_1iter_ch1 dh_both_hodms_efc_full_gain_24k_1iter_ch2 \
+            dh_both_hodms_efc_27k_1iter_ch1 dh_both_hodms_efc_full_gain_36k_1iter_ch1 \
+            dh_both_hodms_efc_27k_1iter_ch2 dh_both_hodms_efc_full_gain_36k_1iter_ch2 \
+        --use-ef-basis pca_ef_basis_370k_rows_756_modes modes 756 --flatten-input \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
+        --use-existing-norm-vals train_data_needs_test_370k \
+        --z-score-inputs-individual --z-score-outputs-individual --fix-seed 314
+
+    python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_30k_1iter_ch1 \
+        train_data_needs_test_247k none none 100 0 0 \
+        --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
+        --additional-raw-data-tags \
+            dh_both_hodms_efc_full_gain_29k_1iter_ch1 dh_both_hodms_efc_30k_1iter_ch2 \
+            dh_both_hodms_efc_full_gain_29k_1iter_ch2 dh_both_hodms_efc_final_dh_14k_ch1 \
+            dh_both_hodms_efc_full_gain_24k_1iter_ch1 dh_both_hodms_efc_full_gain_24k_1iter_ch2 \
+            dh_both_hodms_efc_27k_1iter_ch1 dh_both_hodms_efc_full_gain_36k_1iter_ch1 \
+        --use-ef-basis pca_ef_basis_370k_rows_756_modes modes 756 --flatten-input \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
+        --use-existing-norm-vals train_data_needs_test_370k \
+        --z-score-inputs-individual --z-score-outputs-individual --fix-seed 314
+
+    python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_30k_1iter_ch1 \
+        train_data_needs_test_183k none none 100 0 0 \
+        --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
+        --additional-raw-data-tags \
+            dh_both_hodms_efc_full_gain_29k_1iter_ch1 dh_both_hodms_efc_30k_1iter_ch2 \
+            dh_both_hodms_efc_full_gain_29k_1iter_ch2 dh_both_hodms_efc_final_dh_14k_ch1 \
+            dh_both_hodms_efc_full_gain_24k_1iter_ch1 dh_both_hodms_efc_full_gain_24k_1iter_ch2 \
+        --use-ef-basis pca_ef_basis_370k_rows_756_modes modes 756 --flatten-input \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
+        --use-existing-norm-vals train_data_needs_test_370k \
+        --z-score-inputs-individual --z-score-outputs-individual --fix-seed 314
+
+    python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_30k_1iter_ch1 \
+        train_data_needs_test_120k none none 100 0 0 \
+        --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
+        --additional-raw-data-tags \
+            dh_both_hodms_efc_full_gain_29k_1iter_ch1 dh_both_hodms_efc_30k_1iter_ch2 \
+            dh_both_hodms_efc_full_gain_29k_1iter_ch2 \
+        --use-ef-basis pca_ef_basis_370k_rows_756_modes modes 756 --flatten-input \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
+        --use-existing-norm-vals train_data_needs_test_370k \
+        --z-score-inputs-individual --z-score-outputs-individual --fix-seed 314
+
+    python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_30k_1iter_ch1 \
+        train_data_needs_test_60k none none 100 0 0 \
+        --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
+        --additional-raw-data-tags dh_both_hodms_efc_full_gain_29k_1iter_ch1 \
+        --use-ef-basis pca_ef_basis_370k_rows_756_modes modes 756 --flatten-input \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
+        --use-existing-norm-vals train_data_needs_test_370k \
+        --z-score-inputs-individual --z-score-outputs-individual --fix-seed 314
+
+Create the validation dataset:
+
+    python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_full_gain_24k_1iter_ch3 \
+        none val_data_needs_test none 0 100 0 \
+        --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
+        --use-ef-basis pca_ef_basis_370k_rows_756_modes modes 756 --flatten-input \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
+        --use-existing-norm-vals train_data_needs_test_370k \
+        --z-score-inputs-individual --z-score-outputs-individual --fix-seed 314
+
+Create the testing dataset:
+
+    python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_full_gain_24k_1iter_ch4 \
+        none none test_data_needs_test 0 0 100 \
+        --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
+        --use-ef-basis pca_ef_basis_370k_rows_756_modes modes 756 --flatten-input \
+        --use-dm-basis dm1 hodm1_756_modes dm1_modes 500 dm2 hodm2_756_modes dm2_modes 500 \
+        --use-existing-norm-vals train_data_needs_test_370k \
+        --z-score-inputs-individual --z-score-outputs-individual --fix-seed 314
+
+Train the models:
+
+    python3 -u main_scnp.py model_train \
+        data_needs_60k train_data_needs_test_60k val_data_needs_test \
+        dh_t78_756_h25do10dp30_h45do30dp30 weighted_two_dms adamw 3e-3 650 --batch-size 1024 \
+        --loss-params multiheaded_output 1 \
+            singular_value_scaling dm1_singular_values_flat \
+            singular_value_scaling_lower_bound 0.1 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-cosine-annealing-lr-scheduler 80 1e-6 1e-7 \
+        --multi-headed-output 2 --init-weights-kaiming-normal-simple 0.20 head_1 head_2 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates \
+        --clip-gradient-norm 1 --fix-seed 314 | tee data_needs_60k.txt
+
+    python3 -u main_scnp.py model_train \
+        data_needs_120k train_data_needs_test_120k val_data_needs_test \
+        dh_t78_756_h25do10dp30_h45do30dp30 weighted_two_dms adamw 3e-3 650 --batch-size 1024 \
+        --loss-params multiheaded_output 1 \
+            singular_value_scaling dm1_singular_values_flat \
+            singular_value_scaling_lower_bound 0.1 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-cosine-annealing-lr-scheduler 80 1e-6 1e-7 \
+        --multi-headed-output 2 --init-weights-kaiming-normal-simple 0.20 head_1 head_2 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates \
+        --clip-gradient-norm 1 --fix-seed 314 | tee data_needs_120k.txt
+
+    python3 -u main_scnp.py model_train \
+        data_needs_183k train_data_needs_test_183k val_data_needs_test \
+        dh_t78_756_h25do10dp30_h45do30dp30 weighted_two_dms adamw 3e-3 650 --batch-size 1024 \
+        --loss-params multiheaded_output 1 \
+            singular_value_scaling dm1_singular_values_flat \
+            singular_value_scaling_lower_bound 0.1 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-cosine-annealing-lr-scheduler 80 1e-6 1e-7 \
+        --multi-headed-output 2 --init-weights-kaiming-normal-simple 0.20 head_1 head_2 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates \
+        --clip-gradient-norm 1 --fix-seed 314 | tee data_needs_183k.txt
+
+    python3 -u main_scnp.py model_train \
+        data_needs_247k train_data_needs_test_247k val_data_needs_test \
+        dh_t78_756_h25do10dp30_h45do30dp30 weighted_two_dms adamw 3e-3 650 --batch-size 1024 \
+        --loss-params multiheaded_output 1 \
+            singular_value_scaling dm1_singular_values_flat \
+            singular_value_scaling_lower_bound 0.1 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-cosine-annealing-lr-scheduler 80 1e-6 1e-7 \
+        --multi-headed-output 2 --init-weights-kaiming-normal-simple 0.20 head_1 head_2 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates \
+        --clip-gradient-norm 1 --fix-seed 314 | tee data_needs_247k.txt
+
+    python3 -u main_scnp.py model_train \
+        data_needs_311k train_data_needs_test_311k val_data_needs_test \
+        dh_t78_756_h25do10dp30_h45do30dp30 weighted_two_dms adamw 3e-3 650 --batch-size 1024 \
+        --loss-params multiheaded_output 1 \
+            singular_value_scaling dm1_singular_values_flat \
+            singular_value_scaling_lower_bound 0.1 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-cosine-annealing-lr-scheduler 80 1e-6 1e-7 \
+        --multi-headed-output 2 --init-weights-kaiming-normal-simple 0.20 head_1 head_2 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates \
+        --clip-gradient-norm 1 --fix-seed 314 | tee data_needs_311k.txt
+
+    python3 -u main_scnp.py model_train \
+        data_needs_370k train_data_needs_test_370k val_data_needs_test \
+        dh_t78_756_h25do10dp30_h45do30dp30 weighted_two_dms adamw 3e-3 650 --batch-size 1024 \
+        --loss-params multiheaded_output 1 \
+            singular_value_scaling dm1_singular_values_flat \
+            singular_value_scaling_lower_bound 0.1 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-cosine-annealing-lr-scheduler 80 1e-6 1e-7 \
+        --multi-headed-output 2 --init-weights-kaiming-normal-simple 0.20 head_1 head_2 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates \
+        --clip-gradient-norm 1 --fix-seed 314 | tee data_needs_370k.txt
+
+Test the models:
+
+    python3 main.py model_test \
+        data_needs_60k last test_data_needs_test \
+        --plot-coeff-mae-smape 500 1000 --plot-layerscale-gamma gamma 25 45 \
+        --max-rows-per-model-call 1000 --plot-loss-curves
+
+    python3 main.py model_test \
+        data_needs_120k last test_data_needs_test \
+        --plot-coeff-mae-smape 500 1000 --plot-layerscale-gamma gamma 25 45 \
+        --max-rows-per-model-call 1000 --plot-loss-curves
+
+    python3 main.py model_test \
+        data_needs_183k last test_data_needs_test \
+        --plot-coeff-mae-smape 500 1000 --plot-layerscale-gamma gamma 25 45 \
+        --max-rows-per-model-call 1000 --plot-loss-curves
+
+    python3 main.py model_test \
+        data_needs_247k last test_data_needs_test \
+        --plot-coeff-mae-smape 500 1000 --plot-layerscale-gamma gamma 25 45 \
+        --max-rows-per-model-call 1000 --plot-loss-curves
+
+    python3 main.py model_test \
+        data_needs_311k last test_data_needs_test \
+        --plot-coeff-mae-smape 500 1000 --plot-layerscale-gamma gamma 25 45 \
+        --max-rows-per-model-call 1000 --plot-loss-curves
+
+    python3 main.py model_test \
+        data_needs_370k last test_data_needs_test \
+        --plot-coeff-mae-smape 500 1000 --plot-layerscale-gamma gamma 25 45 \
+        --max-rows-per-model-call 1000 --plot-loss-curves
+
+Export the models:
+
+    python3 main.py export_model data_needs_60k last val_data_needs_test --no-base-field --no-save-txt-files --disable-onnx-optimize
+    python3 main.py export_model data_needs_120k last val_data_needs_test --no-base-field --no-save-txt-files --disable-onnx-optimize
+    python3 main.py export_model data_needs_247k last val_data_needs_test --no-base-field --no-save-txt-files --disable-onnx-optimize
+    python3 main.py export_model data_needs_311k last val_data_needs_test --no-base-field --no-save-txt-files --disable-onnx-optimize
+    python3 main.py export_model data_needs_370k last val_data_needs_test --no-base-field --no-save-txt-files --disable-onnx-optimize
+
+================================================================================
+
+Results:
+    data_needs_60k:
+        EPOCH 643/650...
+        Train Loss:  0.025435521639182987
+            Head [0]: 0.009028704869613048
+            Head [1]: 0.016406816769569937
+        Validation Loss:  0.049188338245698744
+            Head [0]: 0.010543511475555696
+            Head [1]: 0.03864482677014304
+    data_needs_120k:
+        EPOCH 613/650...
+        Train Loss:  0.02228506489250672
+            Head [0]: 0.006366425627440144
+            Head [1]: 0.015918639265066575
+        Validation Loss:  0.03860997389464164
+            Head [0]: 0.0057891360439320284
+            Head [1]: 0.032820837850709605
+    data_needs_183k:
+        EPOCH 455/650...
+        Train Loss:  0.03194984271829559
+            Head [0]: 0.01036050659309844
+            Head [1]: 0.02158933612519714
+        Validation Loss:  0.03860640966381156
+            Head [0]: 0.009029516569859687
+            Head [1]: 0.02957689309395188
+    data_needs_247k:
+        EPOCH 650/650...
+        Train Loss:  0.017227319437421375
+            Head [0]: 0.004501776780344856
+            Head [1]: 0.012725542657076523
+        Validation Loss:  0.019039657771218646
+            Head [0]: 0.003275699601361277
+            Head [1]: 0.01576395816985737
+    data_needs_311k:
+        EPOCH 621/650...
+        Train Loss:  0.015655073582428524
+            Head [0]: 0.004006522235858985
+            Head [1]: 0.011648551346569556
+        Validation Loss:  0.013620919000287566
+            Head [0]: 0.0023835315486164022
+            Head [1]: 0.011237387451671165
+    data_needs_370k:
+        EPOCH 614/650...
+        Train Loss:  0.015320806899926303
+            Head [0]: 0.0038156453696181003
+            Head [1]: 0.011505161530308198
+        Validation Loss:  0.011955172125643905
+            Head [0]: 0.0020965142660172233
+            Head [1]: 0.00985865785962668
+
+Average dark hole contrasts across 10 realizations:
+
+    data_needs_60k:  6.870e-8
+    data_needs_120k: 4.326e-8
+    data_needs_247k: 2.487e-8
+    data_needs_311k: 1.443e-8
+    data_needs_370k: 1.303e-8
+
+================================================================================
+
+For this set of training, each model's learning curve is scaled to have the same amount of compute time.
+
+    python3 -u main_scnp.py model_train \
+        data_needs_ec_60k train_data_needs_test_60k val_data_needs_test \
+        dh_t78_756_h25do10dp30_h45do30dp30 weighted_two_dms adamw 3e-3 21578 --batch-size 1024 \
+        --loss-params multiheaded_output 1 \
+            singular_value_scaling dm1_singular_values_flat \
+            singular_value_scaling_lower_bound 0.1 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-modified-cosine-annealing-lr-scheduler 493 1e-6 1e-7 6165 3699 \
+        --multi-headed-output 2 --init-weights-kaiming-normal-simple 0.20 head_1 head_2 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates \
+        --clip-gradient-norm 1 --fix-seed 314 | tee data_needs_ec_60k.txt
+
+    python3 -u main_scnp.py model_train \
+        data_needs_ec_120k train_data_needs_test_120k val_data_needs_test \
+        dh_t78_756_h25do10dp30_h45do30dp30 weighted_two_dms adamw 3e-3 10792 --batch-size 1024 \
+        --loss-params multiheaded_output 1 \
+            singular_value_scaling dm1_singular_values_flat \
+            singular_value_scaling_lower_bound 0.1 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-modified-cosine-annealing-lr-scheduler 247 1e-6 1e-7 3084 1850 \
+        --multi-headed-output 2 --init-weights-kaiming-normal-simple 0.20 head_1 head_2 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates \
+        --clip-gradient-norm 1 --fix-seed 314 | tee data_needs_ec_120k.txt
+
+    python3 -u main_scnp.py model_train \
+        data_needs_ec_183k train_data_needs_test_183k val_data_needs_test \
+        dh_t78_756_h25do10dp30_h45do30dp30 weighted_two_dms adamw 3e-3 7076 --batch-size 1024 \
+        --loss-params multiheaded_output 1 \
+            singular_value_scaling dm1_singular_values_flat \
+            singular_value_scaling_lower_bound 0.1 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-modified-cosine-annealing-lr-scheduler 162 1e-6 1e-7 2022 1213 \
+        --multi-headed-output 2 --init-weights-kaiming-normal-simple 0.20 head_1 head_2 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates \
+        --clip-gradient-norm 1 --fix-seed 314 | tee data_needs_ec_183k.txt
+
+    python3 -u main_scnp.py model_train \
+        data_needs_ec_247k train_data_needs_test_247k val_data_needs_test \
+        dh_t78_756_h25do10dp30_h45do30dp30 weighted_two_dms adamw 3e-3 5243 --batch-size 1024 \
+        --loss-params multiheaded_output 1 \
+            singular_value_scaling dm1_singular_values_flat \
+            singular_value_scaling_lower_bound 0.1 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-modified-cosine-annealing-lr-scheduler 120 1e-6 1e-7 1498 899 \
+        --multi-headed-output 2 --init-weights-kaiming-normal-simple 0.20 head_1 head_2 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates \
+        --clip-gradient-norm 1 --fix-seed 314 | tee data_needs_ec_247k.txt
+
+    python3 -u main_scnp.py model_train \
+        data_needs_ec_311k train_data_needs_test_311k val_data_needs_test \
+        dh_t78_756_h25do10dp30_h45do30dp30 weighted_two_dms adamw 3e-3 4164 --batch-size 1024 \
+        --loss-params multiheaded_output 1 \
+            singular_value_scaling dm1_singular_values_flat \
+            singular_value_scaling_lower_bound 0.1 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-modified-cosine-annealing-lr-scheduler 95 1e-6 1e-7 1190 714 \
+        --multi-headed-output 2 --init-weights-kaiming-normal-simple 0.20 head_1 head_2 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates \
+        --clip-gradient-norm 1 --fix-seed 314 | tee data_needs_ec_311k.txt
+
+    python3 -u main_scnp.py model_train \
+        data_needs_ec_370k train_data_needs_test_370k val_data_needs_test \
+        dh_t78_756_h25do10dp30_h45do30dp30 weighted_two_dms adamw 3e-3 3500 --batch-size 1024 \
+        --loss-params multiheaded_output 1 \
+            singular_value_scaling dm1_singular_values_flat \
+            singular_value_scaling_lower_bound 0.1 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-modified-cosine-annealing-lr-scheduler 80 1e-6 1e-7 1000 600 \
+        --multi-headed-output 2 --init-weights-kaiming-normal-simple 0.20 head_1 head_2 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates \
+        --clip-gradient-norm 1 --fix-seed 314 | tee data_needs_ec_370k.txt
