@@ -969,7 +969,7 @@ def model_train(cli_args):
     use_cos_annealing_wr = cli_args.get('use_cosine_annealing_wr_lr_scheduler')
     use_modified_cos_annealing_lr = cli_args.get(
         'use_modified_cosine_annealing_lr_scheduler')
-    scheduler = None
+    epoch_scheduler = None
     if use_cos_annealing is not None:
         step_ri('Will use the Cosine Annealing learning rate scheduler')
         warmup_epochs, starting_lr, final_lr = use_cos_annealing
@@ -1011,7 +1011,7 @@ def model_train(cli_args):
                     total_iters=tail_epochs,
                 ))
             milestones.append(warmup_epochs + annealing_epochs)
-        scheduler = torch.optim.lr_scheduler.SequentialLR(
+        epoch_scheduler = torch.optim.lr_scheduler.SequentialLR(
             optimizer, schedulers=schedulers, milestones=milestones)
     elif use_cos_annealing_wr is not None:
         step_ri('Will use the Cosine Annealing with warm restarts '
@@ -1025,7 +1025,7 @@ def model_train(cli_args):
             cycle_lengths.append(cycle_lengths[-1] * cycle_length_multiplier)
         print(f'Cycle lenths: {cycle_lengths} epochs '
               f'({cycle_length_multiplier}x multiplier)')
-        scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
+        epoch_scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
             optimizer,
             T_0=cycle_length,
             T_mult=cycle_length_multiplier,
@@ -1079,12 +1079,13 @@ def model_train(cli_args):
             # Divide by the peak learning rate to ignore LambdaLR scaling
             return current_lr / base_learning_rate
 
-        scheduler = torch.optim.lr_scheduler.LambdaLR(
+        epoch_scheduler = torch.optim.lr_scheduler.LambdaLR(
             optimizer, lr_lambda=modified_cosine_annealing_scheduler)
 
+    batch_scheduler = None
     if cli_args.get('use_one_cycle_lr_scheduler'):
         step_ri('Will use the One Cycle learning rate scheduler')
-        scheduler = torch.optim.lr_scheduler.OneCycleLR(
+        batch_scheduler = torch.optim.lr_scheduler.OneCycleLR(
             optimizer,
             max_lr=base_learning_rate,
             epochs=epoch_count,
@@ -1210,6 +1211,10 @@ def model_train(cli_args):
                 ).item())
             # Adjust learning weights
             optimizer.step()
+            # Update the batch scheduler if needed
+            if batch_scheduler is not None:
+                batch_scheduler.step()
+
         avg_train_loss = total_train_loss / training_batches
         if multi_headed_output:
             avg_train_loss_heads = [
@@ -1370,9 +1375,9 @@ def model_train(cli_args):
             else:
                 print('Ending training due to early stopping')
                 break
-        # A scheduler is being used
-        elif scheduler is not None:
-            scheduler.step()
+        # An epoch scheduler is being used
+        elif epoch_scheduler is not None:
+            epoch_scheduler.step()
 
         print(f'Time: {time() - start_time}')
         dec_print_indent()
