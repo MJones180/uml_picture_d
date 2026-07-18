@@ -234,6 +234,12 @@ def model_train_parser(subparsers):
               'rate; the `epochs` parameter specifies the number of epochs'),
     )
     subparser.add_argument(
+        '--use-one-cycle-lr-scheduler-pct-start',
+        type=float,
+        help=('for use with the `--use-one-cycle-lr-scheduler` argument; '
+              'value for the `pct_start` param'),
+    )
+    subparser.add_argument(
         '--clip-gradient-norm',
         type=float,
         help=('clip the gradient norm to the specified value; '
@@ -1085,11 +1091,16 @@ def model_train(cli_args):
     batch_scheduler = None
     if cli_args.get('use_one_cycle_lr_scheduler'):
         step_ri('Will use the One Cycle learning rate scheduler')
+        pct_start = cli_args.get('use_one_cycle_lr_scheduler_pct_start')
+        if pct_start is None:
+            pct_start = 0.3
+        print(f'pct_start: {pct_start}')
         batch_scheduler = torch.optim.lr_scheduler.OneCycleLR(
             optimizer,
             max_lr=base_learning_rate,
             epochs=epoch_count,
             steps_per_epoch=training_batches,
+            pct_start=pct_start,
         )
 
     clip_gradient_norm = cli_args.get('clip_gradient_norm')
