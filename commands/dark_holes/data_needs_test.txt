@@ -290,7 +290,7 @@ Results:
         Validation Loss:  0.03860997389464164
             Head [0]: 0.0057891360439320284
             Head [1]: 0.032820837850709605
-    data_needs_183k:
+    data_needs_183k (ISSUE WITH THIS DATA CHUNK):
         EPOCH 455/650...
         Train Loss:  0.03194984271829559
             Head [0]: 0.01036050659309844
@@ -406,3 +406,90 @@ For this set of training, each model's learning curve is scaled to have the same
         --multi-headed-output 2 --init-weights-kaiming-normal-simple 0.20 head_1 head_2 \
         --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates \
         --clip-gradient-norm 1 --fix-seed 314 | tee data_needs_ec_370k.txt
+
+Test the models:
+
+    # 60k did not train for some reason
+
+    python3 main.py model_test \
+        data_needs_ec_120k last test_data_needs_test \
+        --plot-coeff-mae-smape 500 1000 --plot-layerscale-gamma gamma 25 45 \
+        --max-rows-per-model-call 1000 --plot-loss-curves
+
+    python3 main.py model_test \
+        data_needs_ec_183k last test_data_needs_test \
+        --plot-coeff-mae-smape 500 1000 --plot-layerscale-gamma gamma 25 45 \
+        --max-rows-per-model-call 1000 --plot-loss-curves
+
+    python3 main.py model_test \
+        data_needs_ec_247k last test_data_needs_test \
+        --plot-coeff-mae-smape 500 1000 --plot-layerscale-gamma gamma 25 45 \
+        --max-rows-per-model-call 1000 --plot-loss-curves
+
+    python3 main.py model_test \
+        data_needs_ec_311k last test_data_needs_test \
+        --plot-coeff-mae-smape 500 1000 --plot-layerscale-gamma gamma 25 45 \
+        --max-rows-per-model-call 1000 --plot-loss-curves
+
+    python3 main.py model_test \
+        data_needs_ec_370k last test_data_needs_test \
+        --plot-coeff-mae-smape 500 1000 --plot-layerscale-gamma gamma 25 45 \
+        --max-rows-per-model-call 1000 --plot-loss-curves
+
+Export the models:
+
+    python3 main.py export_model data_needs_ec_120k last val_data_needs_test --no-base-field --no-save-txt-files --disable-onnx-optimize
+    python3 main.py export_model data_needs_ec_247k last val_data_needs_test --no-base-field --no-save-txt-files --disable-onnx-optimize
+    python3 main.py export_model data_needs_ec_311k last val_data_needs_test --no-base-field --no-save-txt-files --disable-onnx-optimize
+    python3 main.py export_model data_needs_ec_370k last val_data_needs_test --no-base-field --no-save-txt-files --disable-onnx-optimize
+
+================================================================================
+
+Results:
+    data_needs_ec_120k:
+        EPOCH 9296/10792...
+        Train Loss:  0.012353023029316608
+            Head [0]: 0.0029556691726138986
+            Head [1]: 0.009397353856702718
+        Validation Loss:  0.029026929227828388
+            Head [0]: 0.0027929037463053238
+            Head [1]: 0.026234025481523066
+    data_needs_ec_183k (ISSUE WITH THIS DATA CHUNK):
+        EPOCH 6580/7076...
+        Train Loss:  0.022417210398666863
+            Head [0]: 0.009416600089636101
+            Head [1]: 0.013000610309030776
+        Validation Loss:  0.03311007389833991
+            Head [0]: 0.011784729099760164
+            Head [1]: 0.021325344798579754
+    data_needs_ec_247k:
+        EPOCH 4918/5243...
+        Train Loss:  0.011537699743324217
+            Head [0]: 0.003141359765674566
+            Head [1]: 0.008396339977649648
+        Validation Loss:  0.01103821194967975
+            Head [0]: 0.0019051081997017996
+            Head [1]: 0.009133103749977953
+    data_needs_ec_311k:
+        EPOCH 3867/4164...
+        Train Loss:  0.012457205528611856
+            Head [0]: 0.0031465984316109852
+            Head [1]: 0.009310607097000866
+        Validation Loss:  0.010504134928225545
+            Head [0]: 0.0017543899614620498
+            Head [1]: 0.008749744966763496
+    data_needs_ec_370k:
+        EPOCH 3220/3500...
+        Train Loss:  0.012961631220565218
+            Head [0]: 0.0032034287977029735
+            Head [1]: 0.009758202422862265
+        Validation Loss:  0.01012652235604272
+            Head [0]: 0.0016894566969747748
+            Head [1]: 0.008437065659067945
+
+Average dark hole contrasts across 10 realizations:
+
+    data_needs_ec_120k: 2.733e-8
+    data_needs_ec_247k: 1.462e-8
+    data_needs_ec_311k: 1.333e-8
+    data_needs_ec_370k: 1.037e-8
