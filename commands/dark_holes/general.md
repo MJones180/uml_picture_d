@@ -362,6 +362,12 @@ Both HODMs:
     python3 main.py convert_piccsim_fits_data_merger dh_both_hodms_efc_7broadband_full_gain_picd_54535 \
         /home/michael_jones6_student_uml_edu/work/piccsim/plots/ \
         dh_dm_dataset_ 0 99 5 --file-names dm1 dm2 sci_i sci_r # 272675 rows, 54535 simulations
+    python3 main.py convert_piccsim_fits_data_merger dh_both_hodms_efc_7broadband_full_gain_picd_69388 \
+        /home/michael_jones6_student_uml_edu/work/piccsim/plots/ \
+        dh_dm_dataset_ 0 99 5 --file-names dm1 dm2 sci_i sci_r # 346940 rows, 69388 simulations
+    python3 main.py convert_piccsim_fits_data_merger dh_both_hodms_efc_7broadband_full_gain_picd_54844 \
+        /home/michael_jones6_student_uml_edu/work/piccsim/plots/ \
+        dh_dm_dataset_ 0 99 5 --file-names dm1 dm2 sci_i sci_r # 274220 rows, 54844 simulations
     # ---------------
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_81804_1iter \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_81804 \
@@ -383,7 +389,14 @@ Both HODMs:
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_54535 \
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
         --load-from-existing-hdf-dataset 272675
-
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_69388_1iter \
+        /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_69388 \
+        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
+        --load-from-existing-hdf-dataset 346940
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_54844_1iter \
+        /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_54844 \
+        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
+        --load-from-existing-hdf-dataset 274220
 
 The 2D DM SVD modes from the inverted matrix:
 
@@ -1480,16 +1493,19 @@ Plot SVD basis modes:
 Plot SVD basis reconstructions:
 
     python3 main.py analyze_basis_modes \
-        dm1_modes_flat dm1_modes --transpose-modes \
-        --display-as-circle 30 1.08  \
-        --reconstruct-data dh_both_hodms_efc_10_row_saved_surfaces dm1 0 500 0 0 \
+        ef_modes_flat ef_modes --modes-are-complex 1 \
+        --display-as-circle 59 1.03 --display-with-hole 0.24 \
+        --reconstruct-data dh_both_hodms_efc_10_row_saved_surfaces 500 sci_r sci_i \
+        --reconstruct-data-trim 21 80 21 80 \
+        --reconstruct-data-circle-mask \
+        --reconstruct-data-select-row 0 \
         --reconstruct-data-plots
 
     python3 main.py analyze_basis_modes \
-        ef_modes_flat ef_modes --modes-are-complex 1 \
-        --display-as-circle 59 1.03 --display-with-hole 0.24 \
-        --reconstruct-data dh_both_hodms_efc_10_row_saved_surfaces sci_r 0 500 1 0 \
-        --reconstruct-data-trim 21 80 21 80 \
+        dm1_modes_flat dm1_modes --transpose-modes \
+        --display-as-circle 30 1.08  \
+        --reconstruct-data dh_both_hodms_efc_10_row_saved_surfaces 500 dm1 \
+        --reconstruct-data-select-row 0 \
         --reconstruct-data-plots
 
 Plot the coefficient ranges for DM SVD modes:
