@@ -68,11 +68,11 @@ def analyze_basis_modes_parser(subparsers):
     )
     subparser.add_argument(
         '--reconstruct-data',
-        nargs=4,
-        help=('reconstruct data in terms of the basis being analyzed; four '
-              'arguments are expected: raw datafile tag, datafile table name, '
-              'number of modes to use, use the real '
-              '(0) or imag (1) component if the data is complex'),
+        nargs='*',
+        help=('reconstruct data in terms of the basis being analyzed; the '
+              'following arguments are expected: raw datafile tag, number of '
+              'modes to use, *datafile table names (multiple may be needed '
+              'for complex data)'),
     )
     subparser.add_argument(
         '--reconstruct-data-circle-mask',
@@ -123,8 +123,8 @@ def analyze_basis_modes(cli_args):
     modes_are_complex = cli_args.get('modes_are_complex')
     if modes_are_complex is not None:
         step_ri('Splitting mode data into real and imaginary components')
-        print('Note, this removes the orthogonality; each mode should '
-              'cover both components together')
+        print('NOTE: When converting to a different basis, the components '
+              'should be kept together to maintain the orthogonality')
         modes_data_real, modes_data_imag = np.split(
             modes_data,
             2,
@@ -226,18 +226,19 @@ def analyze_basis_modes(cli_args):
     reconstruct_data = cli_args.get('reconstruct_data')
     if reconstruct_data is not None:
         step_ri('Data reconstruction')
-        (datafile_tag, table_name, number_of_modes,
-         complex_component) = reconstruct_data
+        datafile_tag, number_of_modes, *table_names = reconstruct_data
         print(f'Datafile tag: {datafile_tag}')
-        print(f'Table name: {table_name}')
         print(f'Number of modes: {number_of_modes}')
-        print(f'Complex component: {complex_component}')
+        print(f'Table name(s): {table_names}')
 
         datafile_path = raw_sim_data_chunk_paths(datafile_tag)[0]
         step('Loading data')
         print(f'Path: {datafile_path}')
-        data = read_hdf(datafile_path)[table_name][:]
-        print(f'Datafile shape: {data.shape}')
+        data = np.array([
+            read_hdf(datafile_path)[table_name][:]
+            for table_name in table_names
+        ])
+        print(f'Data shape: {data.shape}')
         dec_print_indent()
 
         reconstruct_data_trim = cli_args.get('reconstruct_data_trim')
@@ -256,21 +257,15 @@ def analyze_basis_modes(cli_args):
 
         step('Formatting the data')
         print('Flattening')
-        data = np.reshape(data, (data.shape[0], -1))
+        data = np.reshape(data, (*data.shape[:2], -1))
+        print(f'Data shape: {data.shape}')
         print('Removing inactive pixels')
-        data = data[:, data[0] != 0]
+        data = data[:, :, data[0][0] != 0]
+        print(f'Data shape: {data.shape}')
+        print('Concat along tables')
+        data = data.transpose(1, 0, 2).reshape(data.shape[1], -1)
         print(f'Data shape: {data.shape}')
         dec_print_indent()
-
-        if modes_are_complex is not None:
-            step('The data is complex')
-            if int(complex_component):
-                print('Using the imag component')
-                modes_data = modes_data_imag
-            else:
-                print('Using the real component')
-                modes_data = modes_data_real
-            dec_print_indent()
 
         step('Taking desired number of modes')
         modes_data = modes_data[:int(number_of_modes)]
@@ -296,25 +291,39 @@ def analyze_basis_modes(cli_args):
             print(f'Reconstruction MSE error of {error:0.3e}')
             dec_print_indent()
 
-            if cli_args.get('reconstruct_data_plots'):
-                step(f'Plotting the reconstruction (row {row_idx})')
-                base_fname = f'{datafile_tag}_table_{table_name}_row{row_idx}'
+        if cli_args.get('reconstruct_data_plots'):
+            step(f'Plotting the reconstruction (row {row_idx})')
+            table_name = '_'.join(table_names)
+            base_fname = f'{datafile_tag}_table_{table_name}_row{row_idx}'
+
+            def _plot_recon(data, recon_data, base_filename, title_info=''):
                 _plot_grid(
                     data,
-                    f'{base_fname}_orig',
-                    f'Row {row_idx}: Original',
-                    'Original',
+                    f'{base_filename}_orig',
+                    f'Row {row_idx}{title_info}: Original',
+                    f'Original{title_info}',
                 )
                 _plot_grid(
-                    reconstructed_data,
-                    f'{base_fname}_reconstructed',
-                    f'Row {row_idx}: Reconstructed',
-                    'Reconstructed',
+                    recon_data,
+                    f'{base_filename}_reconstructed',
+                    f'Row {row_idx}{title_info}: Reconstructed',
+                    f'Reconstructed{title_info}',
                 )
                 _plot_grid(
-                    data - reconstructed_data,
-                    f'{base_fname}_diff',
-                    f'Row {row_idx}: Original - Reconstructed',
-                    'Diff',
+                    data - recon_data,
+                    f'{base_filename}_diff',
+                    f'Row {row_idx}{title_info}: Original - Reconstructed',
+                    f'Diff{title_info}',
                 )
-                dec_print_indent()
+
+            if modes_are_complex is not None:
+                data_real, data_imag = np.split(data, 2)
+                reconstructed_data_real, reconstructed_data_imag = np.split(
+                    reconstructed_data, 2)
+                _plot_recon(data_real, reconstructed_data_real,
+                            f'{base_fname}_real', ' (real)')
+                _plot_recon(data_imag, reconstructed_data_imag,
+                            f'{base_fname}_imag', ' (imag)')
+            else:
+                _plot_recon(data, reconstructed_data, base_fname)
+            dec_print_indent()
