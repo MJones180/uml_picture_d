@@ -68,12 +68,17 @@ def analyze_basis_modes_parser(subparsers):
     )
     subparser.add_argument(
         '--reconstruct-data',
-        nargs=6,
-        help=('reconstruct data in terms of the basis being analyzed; six '
+        nargs=4,
+        help=('reconstruct data in terms of the basis being analyzed; four '
               'arguments are expected: raw datafile tag, datafile table name, '
-              'row index to reconstruct, number of modes to use, whether the '
-              'circle mask needs to be applied, use the real (0) or imag (1) '
-              'component if the data is complex'),
+              'number of modes to use, use the real '
+              '(0) or imag (1) component if the data is complex'),
+    )
+    subparser.add_argument(
+        '--reconstruct-data-circle-mask',
+        action='store_true',
+        help=('used in conjunction with the `--reconstruct-data` arg; '
+              'apply the circle mask from the `--display-as-circle` arg'),
     )
     subparser.add_argument(
         '--reconstruct-data-trim',
@@ -83,9 +88,16 @@ def analyze_basis_modes_parser(subparsers):
               'trim the data, four argument expected: x0, x1, y0, y1'),
     )
     subparser.add_argument(
+        '--reconstruct-data-select-row',
+        type=int,
+        help=('used in conjunction with the `--reconstruct-data` arg; '
+              'plot out the reconstruction error for a single row'),
+    )
+    subparser.add_argument(
         '--reconstruct-data-plots',
         action='store_true',
-        help=('used in conjunction with the `--reconstruct-data` arg; '
+        help=('used in conjunction with the `--reconstruct-data` and '
+              '`--reconstruct-data-select-row` args; '
               'plot the row and the reconstruction'),
     )
 
@@ -214,44 +226,40 @@ def analyze_basis_modes(cli_args):
     reconstruct_data = cli_args.get('reconstruct_data')
     if reconstruct_data is not None:
         step_ri('Data reconstruction')
-        (datafile_tag, table_name, row_idx, number_of_modes, apply_mask,
+        (datafile_tag, table_name, number_of_modes,
          complex_component) = reconstruct_data
         print(f'Datafile tag: {datafile_tag}')
         print(f'Table name: {table_name}')
-        print(f'Row index: {row_idx}')
         print(f'Number of modes: {number_of_modes}')
-        print(f'Apply mask: {apply_mask}')
         print(f'Complex component: {complex_component}')
 
         datafile_path = raw_sim_data_chunk_paths(datafile_tag)[0]
         step('Loading data')
         print(f'Path: {datafile_path}')
-        datafile_data = read_hdf(datafile_path)[table_name][:]
-        print(f'Datafile shape: {datafile_data.shape}')
-        row_data = datafile_data[int(row_idx)]
-        print(f'Row shape: {row_data.shape}')
+        data = read_hdf(datafile_path)[table_name][:]
+        print(f'Datafile shape: {data.shape}')
         dec_print_indent()
 
         reconstruct_data_trim = cli_args.get('reconstruct_data_trim')
         if reconstruct_data_trim is not None:
-            step('Trimming row')
+            step('Trimming data')
             x0, x1, y0, y1 = reconstruct_data_trim
-            row_data = row_data[x0:x1]
-            row_data = row_data[:, y0:y1]
-            print(f'Row shape: {row_data.shape}')
+            data = data[..., x0:x1, :]
+            data = data[..., :, y0:y1]
+            print(f'Data shape: {data.shape}')
             dec_print_indent()
 
-        if int(apply_mask):
-            step('Applying mask')
-            row_data[~active_pixel_idxs] = 0
+        if cli_args['reconstruct_data_circle_mask']:
+            step('Applying circle mask')
+            data[..., ~active_pixel_idxs] = 0
             dec_print_indent()
 
         step('Formatting the data')
         print('Flattening')
-        row_data = np.reshape(row_data, -1)
+        data = np.reshape(data, (data.shape[0], -1))
         print('Removing inactive pixels')
-        row_data = row_data[row_data != 0]
-        print(f'Row shape: {row_data.shape}')
+        data = data[:, data[0] != 0]
+        print(f'Data shape: {data.shape}')
         dec_print_indent()
 
         if modes_are_complex is not None:
@@ -271,33 +279,42 @@ def analyze_basis_modes(cli_args):
 
         step('Inverting the modes to find the new basis coeffs')
         modes_inv = np.linalg.pinv(modes_data)
-        new_basis_coeffs = row_data @ modes_inv
+        new_basis_coeffs = data @ modes_inv
         print(f'New basis coeffs shape: {new_basis_coeffs.shape}')
-        reconstructed_row_data = new_basis_coeffs @ modes_data
+        reconstructed_data = new_basis_coeffs @ modes_data
         # The error when switching to the new basis representation
-        error = mse(row_data, reconstructed_row_data)
+        error = mse(data, reconstructed_data)
         print(f'Reconstruction MSE error of {error:0.3e}')
         dec_print_indent()
 
-        if cli_args.get('reconstruct_data_plots'):
-            step('Plotting the reconstruction')
-            base_filename = f'{datafile_tag}_table_{table_name}_row{row_idx}'
-            _plot_grid(
-                row_data,
-                f'{base_filename}_orig',
-                f'Row {row_idx}: Original',
-                'Original',
-            )
-            _plot_grid(
-                reconstructed_row_data,
-                f'{base_filename}_reconstructed',
-                f'Row {row_idx}: Reconstructed',
-                'Reconstructed',
-            )
-            _plot_grid(
-                row_data - reconstructed_row_data,
-                f'{base_filename}_diff',
-                f'Row {row_idx}: Original - Reconstructed',
-                'Diff',
-            )
+        row_idx = cli_args.get('reconstruct_data_select_row')
+        if row_idx is not None:
+            step(f'Analyzing row {row_idx}')
+            data = data[row_idx]
+            reconstructed_data = reconstructed_data[row_idx]
+            error = mse(data, reconstructed_data)
+            print(f'Reconstruction MSE error of {error:0.3e}')
             dec_print_indent()
+
+            if cli_args.get('reconstruct_data_plots'):
+                step(f'Plotting the reconstruction (row {row_idx})')
+                base_fname = f'{datafile_tag}_table_{table_name}_row{row_idx}'
+                _plot_grid(
+                    data,
+                    f'{base_fname}_orig',
+                    f'Row {row_idx}: Original',
+                    'Original',
+                )
+                _plot_grid(
+                    reconstructed_data,
+                    f'{base_fname}_reconstructed',
+                    f'Row {row_idx}: Reconstructed',
+                    'Reconstructed',
+                )
+                _plot_grid(
+                    data - reconstructed_data,
+                    f'{base_fname}_diff',
+                    f'Row {row_idx}: Original - Reconstructed',
+                    'Diff',
+                )
+                dec_print_indent()
