@@ -368,6 +368,12 @@ Both HODMs:
     python3 main.py convert_piccsim_fits_data_merger dh_both_hodms_efc_7broadband_full_gain_picd_54844 \
         /home/michael_jones6_student_uml_edu/work/piccsim/plots/ \
         dh_dm_dataset_ 0 99 5 --file-names dm1 dm2 sci_i sci_r # 274220 rows, 54844 simulations
+    python3 main.py convert_piccsim_fits_data_merger dh_both_hodms_efc_7broadband_full_gain_picd_59875 \
+        /home/michael_jones6_student_uml_edu/work/piccsim/plots/ \
+        dh_dm_dataset_ 0 99 5 --file-names dm1 dm2 sci_i sci_r # 299375 rows, 59875 simulations
+    python3 main.py convert_piccsim_fits_data_merger dh_both_hodms_efc_7broadband_full_gain_picd_1735 \
+        /home/michael_jones6_student_uml_edu/work/piccsim/plots/ \
+        dh_dm_dataset_ 0 99 5 --file-names dm1 dm2 sci_i sci_r # 1735 rows, 8675 simulations
     # ---------------
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_81804_1iter \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_81804 \
@@ -397,6 +403,14 @@ Both HODMs:
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_54844 \
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
         --load-from-existing-hdf-dataset 274220
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_59875_1iter \
+        /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_59875 \
+        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
+        --load-from-existing-hdf-dataset 299375
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_1735_1iter \
+        /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_1735 \
+        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
+        --load-from-existing-hdf-dataset 8675
 
 The 2D DM SVD modes from the inverted matrix:
 
