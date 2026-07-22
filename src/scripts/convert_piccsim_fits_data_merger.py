@@ -10,7 +10,7 @@ from astropy.io import fits
 from utils.cli_args import save_cli_args
 from utils.constants import DATA_F, RAW_DATA_P
 from utils.hdf_read_and_write import HDFWriteModule
-from utils.path import make_dir
+from utils.path import make_dir, path_exists
 from utils.printing_and_logging import step_ri, title
 from utils.terminate_with_message import terminate_with_message
 
@@ -54,6 +54,11 @@ def convert_piccsim_fits_data_merger_parser(subparsers):
         help=('name of each FITS datafile (omitting the extension); the same '
               'name will be used for each table in the HDF file'),
     )
+    subparser.add_argument(
+        '--allow-missing-dirs',
+        action='store_true',
+        help='allow sim directories to be missing',
+    )
 
 
 def convert_piccsim_fits_data_merger(cli_args):
@@ -77,6 +82,10 @@ def convert_piccsim_fits_data_merger(cli_args):
     print(f'Sim dir idx upper: {sim_dir_idx_upper}')
     print(f'Rows per sim: {rows_per_sim}')
 
+    allow_missing_dirs = cli_args['allow_missing_dirs']
+    if allow_missing_dirs:
+        step_ri('Missing sim directories allowed')
+
     step_ri('Setting up data that will be read')
     file_names = cli_args['file_names']
     print(f'File names: {file_names}')
@@ -84,11 +93,16 @@ def convert_piccsim_fits_data_merger(cli_args):
 
     step_ri('Iterating through each simulation directory')
     total_rows = 0
+    total_sim_dirs = 0
     for dir_idx in range(sim_dir_idx_lower, sim_dir_idx_upper + 1):
         full_sim_dir_name = f'{sim_dir_shared}{dir_idx}'
+        base_file_path = f'{base_path}/{full_sim_dir_name}'
+        if allow_missing_dirs and not path_exists(base_file_path):
+            continue
+        total_sim_dirs += 1
         rows_per_file = None
         for file_name in file_names:
-            fits_path = f'{base_path}/{full_sim_dir_name}/{file_name}.fits'
+            fits_path = f'{base_file_path}/{file_name}.fits'
             with fits.open(fits_path) as hdul:
                 file_rows = len(hdul) - 1
                 # Verify that each file in this simulation directory has the
@@ -114,7 +128,6 @@ def convert_piccsim_fits_data_merger(cli_args):
     print(f'Total rows: {total_rows}')
     total_sims = total_rows // rows_per_sim
     print(f'Total simulations: {total_sims}')
-    total_sim_dirs = sim_dir_idx_upper - sim_dir_idx_lower + 1
     print(f'Total simulation dirs: {total_sim_dirs}')
     print(f'Avg simulations per directory: {total_sims / total_sim_dirs}')
 
