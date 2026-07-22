@@ -1495,7 +1495,7 @@ Plot SVD basis reconstructions:
     python3 main.py analyze_basis_modes \
         ef_modes_flat ef_modes --modes-are-complex 1 \
         --display-as-circle 59 1.03 --display-with-hole 0.24 \
-        --reconstruct-data dh_both_hodms_efc_10_row_saved_surfaces 500 sci_r sci_i \
+        --reconstruct-data dh_both_hodms_efc_10_row_saved_surfaces 756 sci_r sci_i \
         --reconstruct-data-trim 21 80 21 80 \
         --reconstruct-data-circle-mask \
         --reconstruct-data-select-row 0 \
