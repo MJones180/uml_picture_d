@@ -15,7 +15,8 @@ from utils.constants import (ANALYSIS_P, EXTRA_VARS_F, MAE, MSE,
                              ZERNIKE_TERMS)
 from utils.group_data_from_list import group_data_from_list
 from utils.hdf_read_and_write import HDFWriteModule, read_hdf
-from utils.load_raw_sim_data import load_raw_sim_data_chunks
+from utils.load_raw_sim_data import (load_raw_sim_data_chunks,
+                                     raw_sim_data_chunk_paths)
 from utils.model import Model
 from utils.path import delete_dir, get_abs_path, make_dir
 from utils.plots.plot_coeff_comparison import plot_coeff_comparison
@@ -30,7 +31,7 @@ from utils.plots.plot_zernike_total_cross_coupling import plot_zernike_total_cro
 from utils.plots.paper_plots.total_crosstalk import paper_plot_total_crosstalk  # noqa
 from utils.plots.paper_plots.model_scatters import paper_plot_model_scatters  # noqa
 from utils.plots.paper_plots.zernike_response import paper_plot_zernike_response  # noqa
-from utils.printing_and_logging import step_ri, title
+from utils.printing_and_logging import dec_print_indent, step, step_ri, title
 from utils.shared_argparser_args import shared_argparser_args
 from utils.stats_and_error import (mae, mse,
                                    symmetric_mean_absolute_percentage_error)
@@ -116,6 +117,21 @@ def model_test_parser(subparsers):
         '--print-outputs',
         action='store_true',
         help='print out the truth and model outputs',
+    )
+    subparser.add_argument(
+        '--print-actuator-height-error',
+        nargs='*',
+        help=('convert the coefficients to actuator heights and compute '
+              'the MAE and MSE; three arguments should be passed for each '
+              'group: tag of the raw dataset containing the basis modes, '
+              'the table name, and the number of coefficients in the group; '
+              'all the output coefficients should be covered by the modes'),
+    )
+    subparser.add_argument(
+        '--print-actuator-height-error-transpose-modes',
+        action='store_true',
+        help=('should be used with the `--print-actuator-height-error` arg; '
+              'transpose the modes'),
     )
     subparser.add_argument(
         '--max-rows-per-model-call',
@@ -270,6 +286,45 @@ def model_test(cli_args):
     mse_val = mse(outputs_truth, outputs_model)
     print(f'Model MAE: {mae_val}')
     print(f'Model MSE: {mse_val}')
+
+    print_actuator_height_error = cli_args.get('print_actuator_height_error')
+    if print_actuator_height_error is not None:
+        step_ri('Determining actuator height error')
+        heights_truth_all = []
+        heights_model_all = []
+        lower_idx = 0
+        trans_modes = cli_args['print_actuator_height_error_transpose_modes']
+        for group_args in group_data_from_list(print_actuator_height_error, 3):
+            modes_tag = group_args[0]
+            table_name = group_args[1]
+            number_coeffs = int(group_args[2])
+            upper_idx = lower_idx + number_coeffs
+            step(f'Basis modes for {modes_tag}')
+            print(f'Table name: {table_name}')
+            print(f'Number of coeffs: {number_coeffs}')
+            modes_path = raw_sim_data_chunk_paths(modes_tag)[0]
+            modes_data = read_hdf(modes_path)[table_name][:]
+            print(f'Modes shape: {modes_data.shape}')
+            if trans_modes:
+                modes_data = np.transpose(modes_data)
+            # Grab just the used modes
+            modes_data = modes_data[:number_coeffs]
+            # Compute the actuator heights from these modes
+            heights_truth = outputs_truth[:, lower_idx:upper_idx] @ modes_data
+            heights_model = outputs_model[:, lower_idx:upper_idx] @ modes_data
+            heights_truth_all.append(heights_truth)
+            heights_model_all.append(heights_model)
+            print(f'Actuator heights shape: {np.array(heights_truth).shape}')
+            print(f'Actuator height MAE: {mae(heights_truth, heights_model)}')
+            print(f'Actuator height MSE: {mse(heights_truth, heights_model)}')
+            lower_idx = upper_idx
+            dec_print_indent()
+        rows = len(outputs_truth)
+        heights_truth = np.swapaxes(heights_truth_all, 0, 1).reshape(rows, -1)
+        heights_model = np.swapaxes(heights_model_all, 0, 1).reshape(rows, -1)
+        print(f'Actuator heights shape: {heights_truth.shape}')
+        print(f'Overall MAE: {mae(heights_truth, heights_model)}')
+        print(f'Overall MSE: {mse(heights_truth, heights_model)}')
 
     step_ri('Writing results to HDF')
     out_file_path = f'{analysis_path}/{RESULTS_F}'
