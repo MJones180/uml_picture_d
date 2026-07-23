@@ -458,17 +458,25 @@ Test the models:
     python3 main.py model_test \
         model_compare_ef_756_svd_dm_500_svd last test_compare_ef_756_svd_dm_500_svd \
         --plot-coeff-mae-smape 500 1000 --plot-layerscale-gamma gamma 25 45 \
-        --max-rows-per-model-call 1000 --plot-loss-curves
+        --max-rows-per-model-call 1000 --plot-loss-curves \
+        --print-actuator-height-error dm1_modes_flat dm1_modes 500 \
+                                      dm2_modes_flat dm2_modes 500 \
+        --print-actuator-height-error-transpose-modes
 
     python3 main.py model_test \
         model_compare_ef_756_pca_dm_500_svd last test_compare_ef_756_pca_dm_500_svd \
         --plot-coeff-mae-smape 500 1000 --plot-layerscale-gamma gamma 25 45 \
-        --max-rows-per-model-call 1000 --plot-loss-curves
+        --max-rows-per-model-call 1000 --plot-loss-curves \
+        --print-actuator-height-error dm1_modes_flat dm1_modes 500 \
+                                      dm2_modes_flat dm2_modes 500 \
+        --print-actuator-height-error-transpose-modes
 
     python3 main.py model_test \
         model_compare_ef_756_pca_dm_500_pca last test_compare_ef_756_pca_dm_500_pca \
         --plot-coeff-mae-smape 500 1000 --plot-layerscale-gamma gamma 25 45 \
-        --max-rows-per-model-call 1000 --plot-loss-curves
+        --max-rows-per-model-call 1000 --plot-loss-curves \
+        --print-actuator-height-error pca_dm1_basis_418k_rows_756_modes modes 500 \
+                                      pca_dm2_basis_418k_rows_756_modes modes 500
 
 Export the models:
 
@@ -494,10 +502,24 @@ Training results:
             Head [0]: 0.0019749135695549284
             Head [1]: 0.008148350716716104
     model_compare_ef_756_pca_dm_500_svd
+        EPOCH 3482/3500...
+        Train Loss:  0.012070626267549437
+            Head [0]: 0.003438986619348688
+            Head [1]: 0.00863163964820075
+        Validation Loss:  0.009242097695714262
+            Head [0]: 0.0018310537922573299
+            Head [1]: 0.00741104390345693
     model_compare_ef_756_pca_dm_500_pca
+        EPOCH 3481/3500...
+        Train Loss:  0.03511692143130653
+            Head [0]: 0.0038118271173586214
+            Head [1]: 0.031305094313947894
+        Validation Loss:  0.027165252977761255
+            Head [0]: 0.0023009441980226188
+            Head [1]: 0.02486430877973863
 
 Average dark hole contrasts across 10 realizations:
 
-    model_compare_ef_756_svd_dm_500_svd:
-    model_compare_ef_756_pca_dm_500_svd:
-    model_compare_ef_756_pca_dm_500_pca:
+    model_compare_ef_756_svd_dm_500_svd: 1.130e-8
+    model_compare_ef_756_pca_dm_500_svd: 1.069e-8
+    model_compare_ef_756_pca_dm_500_pca: 1.392e-8
