@@ -373,7 +373,10 @@ Both HODMs:
         dh_dm_dataset_ 0 99 5 --file-names dm1 dm2 sci_i sci_r # 299375 rows, 59875 simulations
     python3 main.py convert_piccsim_fits_data_merger dh_both_hodms_efc_7broadband_full_gain_picd_1735 \
         /home/michael_jones6_student_uml_edu/work/piccsim/plots/ \
-        dh_dm_dataset_ 0 99 5 --file-names dm1 dm2 sci_i sci_r # 1735 rows, 8675 simulations
+        dh_dm_dataset_ 0 99 5 --file-names dm1 dm2 sci_i sci_r # 8675   rows, 1735  simulations
+    python3 main.py convert_piccsim_fits_data_merger dh_both_hodms_efc_7broadband_full_gain_picd_2543 \
+        /home/michael_jones6_student_uml_edu/work/piccsim/plots/ \
+        dh_dm_dataset_ 0 99 5 --file-names dm1 dm2 sci_i sci_r # 12715  rows, 2543  simulations
     # ---------------
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_81804_1iter \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_81804 \
@@ -411,6 +414,10 @@ Both HODMs:
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_1735 \
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
         --load-from-existing-hdf-dataset 8675
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_2543_1iter \
+        /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_2543 \
+        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
+        --load-from-existing-hdf-dataset 12715
 
 The 2D DM SVD modes from the inverted matrix:
 
