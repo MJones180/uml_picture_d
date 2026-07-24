@@ -128,10 +128,10 @@ def model_test_parser(subparsers):
               'all the output coefficients should be covered by the modes'),
     )
     subparser.add_argument(
-        '--print-actuator-height-error-transpose-modes',
-        action='store_true',
+        '--print-actuator-height-error-trans-modes',
+        nargs='*',
         help=('should be used with the `--print-actuator-height-error` arg; '
-              'transpose the modes'),
+              'transpose the modes where the table names match'),
     )
     subparser.add_argument(
         '--max-rows-per-model-call',
@@ -293,7 +293,7 @@ def model_test(cli_args):
         heights_truth_all = []
         heights_model_all = []
         lower_idx = 0
-        trans_modes = cli_args['print_actuator_height_error_transpose_modes']
+        trans_modes = cli_args.get('print_actuator_height_error_trans_modes')
         for group_args in group_data_from_list(print_actuator_height_error, 3):
             modes_tag = group_args[0]
             table_name = group_args[1]
@@ -305,7 +305,7 @@ def model_test(cli_args):
             modes_path = raw_sim_data_chunk_paths(modes_tag)[0]
             modes_data = read_hdf(modes_path)[table_name][:]
             print(f'Modes shape: {modes_data.shape}')
-            if trans_modes:
+            if trans_modes is not None and table_name in trans_modes:
                 modes_data = np.transpose(modes_data)
             # Grab just the used modes
             modes_data = modes_data[:number_coeffs]

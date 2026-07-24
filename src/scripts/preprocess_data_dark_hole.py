@@ -187,6 +187,12 @@ def preprocess_data_dark_hole_parser(subparsers):
               'must be used with the `--use-dm-basis` argument'),
     )
     subparser.add_argument(
+        '--dm-basis-transpose',
+        nargs='*',
+        help=('transpose the given DM modes based on their table names; '
+              'must be used with the `--use-dm-basis` argument'),
+    )
+    subparser.add_argument(
         '--norm-inputs',
         action='store_true',
         help=('normalize training, validation, and test input values globally '
@@ -757,6 +763,7 @@ def preprocess_data_dark_hole(cli_args):
     if use_dm_basis is not None:
         step_ri('Using basis functions for the DM actuator heights')
         dm_basis_already_flat = cli_args.get('dm_basis_already_flat')
+        dm_basis_transpose = cli_args.get('dm_basis_transpose')
         for group in group_data_from_list(use_dm_basis, 4):
             dm_table, modes_tag, modes_table_name, max_modes = group
             print(f'[DM {dm_table}] Using {max_modes} modes from {modes_tag}')
@@ -767,6 +774,9 @@ def preprocess_data_dark_hole(cli_args):
                 # Filter out the inactive pixels from the modes
                 active_idxs = _use_var(DM_ACTIVE_IDXS(dm_idx_lookup[dm_table]))
                 modes = modes[:, active_idxs]
+            if (dm_basis_transpose is not None
+                    and dm_table in dm_basis_transpose):
+                modes = np.transpose(modes)
             # Pick out the correct number of modes from the start
             modes = modes[:int(max_modes)]
             # Invert the modes
