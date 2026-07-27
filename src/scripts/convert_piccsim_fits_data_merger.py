@@ -12,7 +12,7 @@ from utils.cli_args import save_cli_args
 from utils.constants import DATA_F, RAW_DATA_P
 from utils.hdf_read_and_write import HDFWriteModule
 from utils.path import make_dir, path_exists
-from utils.printing_and_logging import step_ri, title
+from utils.printing_and_logging import dec_print_indent, step, step_ri, title
 from utils.terminate_with_message import terminate_with_message
 
 
@@ -105,6 +105,8 @@ def convert_piccsim_fits_data_merger(cli_args):
         for file_name in file_names:
             with fits.open(f'{base_file_path}/{file_name}.fits') as hdul:
                 rows_per_file.append(len(hdul) - 1)
+        step(full_sim_dir_name)
+        print(f'Starting rows/file: {rows_per_file}')
         # If a job gets cancelled while data is being written out, then the
         # datafiles may not have the same number of rows; keep iterating until
         # - each datafile produces the same number of rows
@@ -131,13 +133,9 @@ def convert_piccsim_fits_data_merger(cli_args):
                 for row_idx in range(rows_per_file):
                     # Need to offset by 1 to ignore the empty primary
                     merged_data[file_name].append(hdul[row_idx + 1].data)
-        # Ensure all the data is present
-        if rows_per_file % rows_per_sim != 0:
-            terminate_with_message(f'{full_sim_dir_name}: incomplete data '
-                                   '(rows missing for one of the simulations)')
         sims_per_file = rows_per_file // rows_per_sim
-        print(f'{full_sim_dir_name}: {sims_per_file} simulations '
-              f'({rows_per_file} rows)')
+        print(f'{sims_per_file} simulations ({rows_per_file} rows)')
+        dec_print_indent()
 
     step_ri('Overall statistics')
     print(f'Total rows: {total_rows}')
