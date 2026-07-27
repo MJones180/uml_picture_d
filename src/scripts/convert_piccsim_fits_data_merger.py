@@ -7,6 +7,7 @@ and the FITS datafiles store the data differently.
 """
 
 from astropy.io import fits
+import numpy as np
 from utils.cli_args import save_cli_args
 from utils.constants import DATA_F, RAW_DATA_P
 from utils.hdf_read_and_write import HDFWriteModule
@@ -99,27 +100,41 @@ def convert_piccsim_fits_data_merger(cli_args):
         base_file_path = f'{base_path}/{full_sim_dir_name}'
         if allow_missing_dirs and not path_exists(base_file_path):
             continue
+        # Do an initial pass to count the number of rows in each datafile
+        rows_per_file = []
+        for file_name in file_names:
+            with fits.open(f'{base_file_path}/{file_name}.fits') as hdul:
+                rows_per_file.append(len(hdul) - 1)
+        # If a job gets cancelled while data is being written out, then the
+        # datafiles may not have the same number of rows; keep iterating until
+        # - each datafile produces the same number of rows
+        # - the rows encompass a complete set of simulations
+        while len(set(rows_per_file)) > 1 or rows_per_file[0] % rows_per_sim:
+            # Grab the file with the most rows
+            max_idx = np.argmax(rows_per_file)
+            max_val = rows_per_file[max_idx]
+            # The number of rows over a complete set of simulations;
+            # example: 16 rows when 5 rows/simulation -> leftover = 1
+            leftover = max_val % rows_per_sim
+            # This can occur if one datafile was completely written out, while
+            # another was not; example: 20 rows in A, 25 rows in B, 5 rows/sim
+            if leftover == 0:
+                leftover = rows_per_sim
+            rows_per_file[max_idx] = max_val - leftover
+        # Now, the same number of rows can be grabbed from each file
+        rows_per_file = rows_per_file[0]
+        total_rows += rows_per_file
         total_sim_dirs += 1
-        rows_per_file = None
         for file_name in file_names:
             fits_path = f'{base_file_path}/{file_name}.fits'
             with fits.open(fits_path) as hdul:
-                file_rows = len(hdul) - 1
-                # Verify that each file in this simulation directory has the
-                # same number of rows
-                if rows_per_file is None:
-                    rows_per_file = file_rows
-                    total_rows += rows_per_file
-                elif rows_per_file != file_rows:
-                    terminate_with_message(f'{fits_path} has a different '
-                                           f'number of rows ({file_rows})')
-                for row_idx in range(file_rows):
+                for row_idx in range(rows_per_file):
                     # Need to offset by 1 to ignore the empty primary
                     merged_data[file_name].append(hdul[row_idx + 1].data)
         # Ensure all the data is present
         if rows_per_file % rows_per_sim != 0:
-            terminate_with_message('Incomplete data (rows are missing '
-                                   'for one of the simulations)')
+            terminate_with_message(f'{full_sim_dir_name}: incomplete data '
+                                   '(rows missing for one of the simulations)')
         sims_per_file = rows_per_file // rows_per_sim
         print(f'{full_sim_dir_name}: {sims_per_file} simulations '
               f'({rows_per_file} rows)')
