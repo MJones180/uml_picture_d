@@ -146,7 +146,7 @@ def convert_piccsim_fits_data(cli_args):
         quit()
 
     use_existing_hdf = cli_args.get('load_from_existing_hdf_dataset')
-    use_single_fits_files = cli_args['load_from_single_fits_datafiles']
+    use_single_fits_files = cli_args.get('load_from_single_fits_datafiles')
     table_names = cli_args['fits_table_names']
     if use_existing_hdf is not None:
         step_ri('Working from an existing HDF dataset')
