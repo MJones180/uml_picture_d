@@ -13,7 +13,6 @@ from utils.constants import DATA_F, RAW_DATA_P
 from utils.hdf_read_and_write import HDFWriteModule
 from utils.path import make_dir, path_exists
 from utils.printing_and_logging import dec_print_indent, step, step_ri, title
-from utils.terminate_with_message import terminate_with_message
 
 
 def convert_piccsim_fits_data_merger_parser(subparsers):
