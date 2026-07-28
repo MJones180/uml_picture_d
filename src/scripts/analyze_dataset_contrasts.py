@@ -1,0 +1,118 @@
+import numpy as np
+from utils.hdf_read_and_write import read_hdf
+from utils.load_raw_sim_data import raw_sim_data_chunk_paths
+from utils.printing_and_logging import step_ri, title
+
+
+def analyze_dataset_contrasts_parser(subparsers):
+    subparser = subparsers.add_parser(
+        'analyze_dataset_contrasts',
+        help='analyze the dark hole contrasts in a dataset',
+    )
+    subparser.set_defaults(main=analyze_dataset_contrasts)
+    subparser.add_argument(
+        'raw_data_tag',
+        help='tag of the raw dataset; will only use first datafile',
+    )
+    subparser.add_argument(
+        'mask_tag',
+        help='tag of the raw dataset containing the dark zone mask',
+    )
+    subparser.add_argument(
+        'mask_table_name',
+        help='dark zone mask table name',
+    )
+    subparser.add_argument(
+        'tot_iterations',
+        type=int,
+        help='total number of iterations per DH',
+    )
+    subparser.add_argument(
+        'n_iteration',
+        type=int,
+        help='iteration number to look at the contrasts for (1-indexed)',
+    )
+    subparser.add_argument(
+        '--filter-contrasts',
+        nargs=2,
+        help=('calculate the number of rows which meet the contrast '
+              'requirement; two arguments expected: threshold (in log units) '
+              '[max_pixel, geometric_mean, arithmetic_mean]'),
+    )
+
+
+def analyze_dataset_contrasts(cli_args):
+    title('Analyze dataset contrasts script')
+
+    step_ri('Loading data')
+    raw_data_tag = cli_args['raw_data_tag']
+    print(f'Tag: {raw_data_tag}')
+    modes_path = raw_sim_data_chunk_paths(raw_data_tag)[0]
+    print(f'Modes path: {modes_path}')
+    tot_iterations = cli_args['tot_iterations']
+    print(f'Iterations per DH: {tot_iterations}')
+    n_iteration = cli_args['n_iteration']
+    print(f'Will use iteration (1-indexed): {n_iteration}')
+    print('Calculating intensity from `sci_r` and `sci_i`')
+    data = read_hdf(modes_path)
+    intensity = (data['sci_r'][n_iteration - 1::tot_iterations]**2 +
+                 data['sci_i'][n_iteration - 1::tot_iterations]**2)
+    print(f'Intensity shape: {intensity.shape}')
+
+    step_ri('Loading mask')
+    mask_tag = cli_args['mask_tag']
+    print(f'Tag: {mask_tag}')
+    mask_path = raw_sim_data_chunk_paths(mask_tag)[0]
+    print(f'Mask path: {mask_path}')
+    mask_table_name = cli_args['mask_table_name']
+    print(f'Mask table name: {mask_table_name}')
+    mask_data = read_hdf(mask_path)[mask_table_name][:]
+    print(f'Mask shape: {mask_data.shape}')
+
+    step_ri('Applying mask')
+    intensity = intensity[:, mask_data]
+    print(f'Intensity shape: {intensity.shape}')
+
+    step_ri('Taking log10 of intensity')
+    intensity_log10 = np.log10(intensity)
+
+    step_ri('Max Pixel Contrast / DH')
+    max_per_dh_lin = np.max(intensity, axis=1)
+    max_per_dh_log = np.max(intensity_log10, axis=1)
+    print(f'Global Arithmetic DH Mean: {np.log10(np.mean(max_per_dh_lin))}')
+    print(f'Global Geometric DH Mean: {np.mean(max_per_dh_log)}')
+    print(f'Global Darkest Pixel (Min): {np.min(max_per_dh_log)}')
+    print(f'Global Brightest Pixel (Max): {np.max(max_per_dh_log)}')
+
+    step_ri('Arithmetic Mean Contrast / DH')
+    ari_avg_per_dh = np.mean(intensity, axis=1)
+    print(f'Global DH Mean: {np.log10(np.mean(ari_avg_per_dh))}')
+    print(f'Deepest DH (Min): {np.log10(np.min(ari_avg_per_dh))}')
+    print(f'Brightest DH (Max): {np.log10(np.max(ari_avg_per_dh))}')
+
+    step_ri('Geometric Mean Contrast / DH')
+    geo_avg_per_dh = np.mean(intensity_log10, axis=1)
+    print(f'Global DH Mean: {np.mean(geo_avg_per_dh)}')
+    print(f'Deepest DH (Min): {np.min(geo_avg_per_dh)}')
+    print(f'Brightest DH (Max): {np.max(geo_avg_per_dh)}')
+
+    filter_contrasts = cli_args.get('filter_contrasts')
+    if filter_contrasts is not None:
+        step_ri('Filtering contrasts')
+        threshold, filter_type = filter_contrasts
+        threshold = float(threshold)
+        print(f'Threshold: {threshold}')
+        base_filter_str = 'Will filter based on'
+        if filter_type == 'max_pixel':
+            print(f'{base_filter_str} max value in each DH')
+            values = max_per_dh_log
+        elif filter_type == 'geometric_mean':
+            print(f'{base_filter_str} geometric mean of each DH')
+            values = geo_avg_per_dh
+        else:
+            print(f'{base_filter_str} arithmetic mean of each DH')
+            values = np.log10(ari_avg_per_dh)
+        total_rows = intensity.shape[0]
+        valid_rows = np.sum(values < threshold)
+        percent = valid_rows / total_rows * 100
+        print(f'Valid: {valid_rows}/{total_rows} ({percent:0.2f}%)')

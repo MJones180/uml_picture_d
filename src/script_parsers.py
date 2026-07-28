@@ -1,4 +1,5 @@
 from scripts.analyze_basis_modes import analyze_basis_modes_parser
+from scripts.analyze_dataset_contrasts import analyze_dataset_contrasts_parser
 from scripts.analyze_static_wavefront_convergence import analyze_static_wavefront_convergence_parser  # noqa: E501
 from scripts.batch_model_test import batch_model_test_parser
 from scripts.batch_model_train import batch_model_train_parser
@@ -37,6 +38,7 @@ from scripts.sim_data import sim_data_parser
 
 script_parsers = [
     analyze_basis_modes_parser,
+    analyze_dataset_contrasts_parser,
     analyze_static_wavefront_convergence_parser,
     batch_model_test_parser,
     batch_model_train_parser,
