@@ -330,53 +330,26 @@ Both HODMs:
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 12 11 1 dm1 dm2 \
         --rows-per-chunk 24000 --load-from-existing-hdf-dataset 31692
 
-    # 7 iterations of 7% broadband ([0, 2, 3]) EFC (gain -1) using the RM (single wl calibration)
-    # Uses the full PIC-D optical train (rx_picture_d_lab)
-    # Uses the newer single FITS file format
-    # Data simulated on Unity
-    python3 main.py convert_piccsim_fits_data_merger dh_both_hodms_efc_7broadband_full_gain_picd_26121 \
-        /home/michael_jones6_student_uml_edu/work/piccsim/plots/ \
-        dh_dm_dataset_ 0 49 7 --file-names dm1 dm2 sci_i sci_r # 182847 rows, 26121 simulations
-    # ---------------
-    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_26121_1iter \
-        /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_26121 \
-        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 7 6 1 dm1 dm2 \
-        --load-from-existing-hdf-dataset 182847
-
     # 5 iterations of 7% broadband ([0, 2, 3]) EFC (gain -1) using the RM (broadband calibration)
     # Uses the full PIC-D optical train (rx_picture_d_lab)
     # Uses the newer single FITS file format
     # Data simulated on Unity
-    python3 main.py convert_piccsim_fits_data_merger dh_both_hodms_efc_7broadband_full_gain_picd_81804 \
+    python3 main.py convert_piccsim_fits_data_merger dh_both_hodms_efc_7broadband_full_gain_picd_XXXXX \
         /home/michael_jones6_student_uml_edu/work/piccsim/plots/ \
-        dh_dm_dataset_ 0 99 5 --file-names dm1 dm2 sci_i sci_r # 409020 rows, 81804 simulations
-    python3 main.py convert_piccsim_fits_data_merger dh_both_hodms_efc_7broadband_full_gain_picd_44764 \
-        /home/michael_jones6_student_uml_edu/work/piccsim/plots/ \
-        dh_dm_dataset_ 0 99 5 --file-names dm1 dm2 sci_i sci_r # 223820 rows, 44764 simulations
-    python3 main.py convert_piccsim_fits_data_merger dh_both_hodms_efc_7broadband_full_gain_picd_23184 \
-        /home/michael_jones6_student_uml_edu/work/piccsim/plots/ \
-        dh_dm_dataset_ 0 99 5 --file-names dm1 dm2 sci_i sci_r # 115920 rows, 23184 simulations
-    python3 main.py convert_piccsim_fits_data_merger dh_both_hodms_efc_7broadband_full_gain_picd_53360 \
-        /home/michael_jones6_student_uml_edu/work/piccsim/plots/ \
-        dh_dm_dataset_ 0 99 5 --file-names dm1 dm2 sci_i sci_r # 266800 rows, 53360 simulations
-    python3 main.py convert_piccsim_fits_data_merger dh_both_hodms_efc_7broadband_full_gain_picd_54535 \
-        /home/michael_jones6_student_uml_edu/work/piccsim/plots/ \
-        dh_dm_dataset_ 0 99 5 --file-names dm1 dm2 sci_i sci_r # 272675 rows, 54535 simulations
-    python3 main.py convert_piccsim_fits_data_merger dh_both_hodms_efc_7broadband_full_gain_picd_69388 \
-        /home/michael_jones6_student_uml_edu/work/piccsim/plots/ \
-        dh_dm_dataset_ 0 99 5 --file-names dm1 dm2 sci_i sci_r # 346940 rows, 69388 simulations
-    python3 main.py convert_piccsim_fits_data_merger dh_both_hodms_efc_7broadband_full_gain_picd_54844 \
-        /home/michael_jones6_student_uml_edu/work/piccsim/plots/ \
-        dh_dm_dataset_ 0 99 5 --file-names dm1 dm2 sci_i sci_r # 274220 rows, 54844 simulations
-    python3 main.py convert_piccsim_fits_data_merger dh_both_hodms_efc_7broadband_full_gain_picd_59875 \
-        /home/michael_jones6_student_uml_edu/work/piccsim/plots/ \
-        dh_dm_dataset_ 0 99 5 --file-names dm1 dm2 sci_i sci_r # 299375 rows, 59875 simulations
-    python3 main.py convert_piccsim_fits_data_merger dh_both_hodms_efc_7broadband_full_gain_picd_1735 \
-        /home/michael_jones6_student_uml_edu/work/piccsim/plots/ \
-        dh_dm_dataset_ 0 99 5 --file-names dm1 dm2 sci_i sci_r # 8675   rows, 1735  simulations
-    python3 main.py convert_piccsim_fits_data_merger dh_both_hodms_efc_7broadband_full_gain_picd_2543 \
-        /home/michael_jones6_student_uml_edu/work/piccsim/plots/ \
-        dh_dm_dataset_ 0 99 5 --file-names dm1 dm2 sci_i sci_r # 12715  rows, 2543  simulations
+        dh_dm_dataset_ 0 99 5 --file-names dm1 dm2 sci_i sci_r --allow-missing-dirs
+    # dh_both_hodms_efc_7broadband_full_gain_picd_81804: 409020 rows, 81804 simulations
+    # dh_both_hodms_efc_7broadband_full_gain_picd_44764: 223820 rows, 44764 simulations
+    # dh_both_hodms_efc_7broadband_full_gain_picd_23184: 115920 rows, 23184 simulations
+    # dh_both_hodms_efc_7broadband_full_gain_picd_53360: 266800 rows, 53360 simulations
+    # dh_both_hodms_efc_7broadband_full_gain_picd_54535: 272675 rows, 54535 simulations
+    # dh_both_hodms_efc_7broadband_full_gain_picd_69388: 346940 rows, 69388 simulations
+    # dh_both_hodms_efc_7broadband_full_gain_picd_54844: 274220 rows, 54844 simulations
+    # dh_both_hodms_efc_7broadband_full_gain_picd_59875: 299375 rows, 59875 simulations
+    # dh_both_hodms_efc_7broadband_full_gain_picd_1735:  8675   rows, 1735  simulations
+    # dh_both_hodms_efc_7broadband_full_gain_picd_2543:  12715  rows, 2543  simulations
+    # dh_both_hodms_efc_7broadband_full_gain_picd_15789: 78945  rows, 15789 simulations
+    # dh_both_hodms_efc_7broadband_full_gain_picd_13124: 65620  rows, 13124 simulations
+    # dh_both_hodms_efc_7broadband_full_gain_picd_84076: 420380 rows, 84076 simulations
     # ---------------
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_81804_1iter \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_81804 \
@@ -418,6 +391,18 @@ Both HODMs:
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_2543 \
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
         --load-from-existing-hdf-dataset 12715
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_15789_1iter \
+        /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_15789 \
+        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
+        --load-from-existing-hdf-dataset 78945
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_13124_1iter \
+        /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_13124 \
+        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
+        --load-from-existing-hdf-dataset 65620
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_84076_1iter \
+        /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_84076 \
+        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
+        --load-from-existing-hdf-dataset 420380
 
 The 2D DM SVD modes from the inverted matrix:
 
