@@ -7,6 +7,7 @@ Portions of the code from this file are adapted from:
 The training and validation dataset must have their inputs pre-normalized.
 """
 
+from loss_functions.jacobian_ef import JacobianEF
 from loss_functions.weighted_two_dms import WeightedTwoDMs
 import numpy as np
 from time import time
@@ -14,8 +15,8 @@ import torch
 from utils.cli_args import save_cli_args
 from utils.constants import (EPOCH_LOSS_F, EXTRA_VARS_F, LEARNING_RATES_F,
                              OPTIMIZERS, OUTPUT_MASK, OUTPUT_P,
-                             OUTPUTS_Z_SCORE_STD, PROC_DATA_P, TAG_LOOKUP_F,
-                             TRAINED_MODELS_P)
+                             OUTPUTS_Z_SCORE_MEAN, OUTPUTS_Z_SCORE_STD,
+                             PROC_DATA_P, TAG_LOOKUP_F, TRAINED_MODELS_P)
 from utils.group_data_from_list import group_data_from_list
 from utils.hdf_read_and_write import read_hdf
 from utils.json import json_load, json_write
@@ -146,6 +147,16 @@ def model_train_parser(subparsers):
         '--divide-by-std-before-loss',
         action='store_true',
         help='divide the values by the std before calling the loss function',
+    )
+    subparser.add_argument(
+        '--add-secondary-loss-function',
+        nargs='+',
+        help=('call a secondary loss function; if there are multiple output '
+              'heads, then the outputs will be concatenated before calling '
+              'the secondary loss function; the secondary loss will be added '
+              'to the first loss; values expected: name of the custom loss '
+              'function, *[arg name, arg value]; arg types determined by the '
+              'loss function'),
     )
     subparser.add_argument(
         '--early-stopping',
@@ -727,9 +738,6 @@ def model_train(cli_args):
     step_ri('Setting the loss function')
     loss_name = cli_args['loss']
 
-    def unknown_loss_function():
-        terminate_with_message(f'Loss function unknown: {loss_name}')
-
     loss_params = cli_args.get('loss_params')
     if loss_params is not None:
         step('Loss parameters')
@@ -804,7 +812,7 @@ def model_train(cli_args):
         loss_function = loss_obj.forward
         loss_function_set_epoch = loss_obj.set_epoch
     else:
-        unknown_loss_function()
+        terminate_with_message(f'Loss function unknown: {loss_name}')
 
     multi_headed_output = cli_args.get('multi_headed_output')
     if multi_headed_output is not None:
@@ -824,6 +832,30 @@ def model_train(cli_args):
         print('Grabbing the STDs')
         outputs_std = extra_variables[OUTPUTS_Z_SCORE_STD][:]
         outputs_std = torch.from_numpy(outputs_std).to(device)
+
+    add_secondary_loss_function = cli_args.get('add_secondary_loss_function')
+    secondary_loss_function = None
+    if add_secondary_loss_function is not None:
+        step_ri('Adding a secondary loss function')
+        secondary_loss_name, *secondary_loss_args = add_secondary_loss_function
+        secondary_loss_params = {
+            key: val
+            for key, val in group_data_from_list(secondary_loss_args, 2)
+        }
+        for param_key, param_value in secondary_loss_params.items():
+            print(f'{param_key}: {param_value}')
+        if secondary_loss_name == 'jacobian_ef':
+            print('Using the Jacobian EF secondary loss function')
+            loss_obj = JacobianEF(
+                device,
+                extra_variables[OUTPUTS_Z_SCORE_MEAN][:],
+                extra_variables[OUTPUTS_Z_SCORE_STD][:],
+                **secondary_loss_params,
+            )
+            secondary_loss_function = loss_obj.forward
+        else:
+            terminate_with_message('Secondary loss function '
+                                   f'unknown: {secondary_loss_name}')
 
     early_stopping = cli_args['early_stopping']
     if early_stopping:
@@ -1207,11 +1239,21 @@ def model_train(cli_args):
                         outputs_truth[head_idx].float()) * loss_scale
                     loss = loss + loss_head
                     total_train_loss_heads[head_idx] += loss_head.item()
+                if secondary_loss_function is not None:
+                    loss = loss + secondary_loss_function(
+                        torch.cat(outputs_model, dim=-1).float(),
+                        torch.cat(outputs_truth, dim=-1).float(),
+                    )
             else:
                 if divide_by_std_before_loss:
                     outputs_model = outputs_model * outputs_std
                 loss = loss_function(outputs_model.float(),
                                      outputs_truth.float())
+                if secondary_loss_function is not None:
+                    loss = loss + secondary_loss_function(
+                        outputs_model.float(),
+                        outputs_truth.float(),
+                    )
             loss.backward()
             total_train_loss += loss.item()
             # Add the current batch's grad norm; value is from before clipping
@@ -1281,11 +1323,19 @@ def model_train(cli_args):
                             outputs_truth[head_idx]) * loss_scale
                         total_val_loss += loss_head.item()
                         total_val_loss_heads[head_idx] += loss_head.item()
+                    if secondary_loss_function is not None:
+                        total_val_loss += secondary_loss_function(
+                            torch.cat(outputs_model, dim=-1).float(),
+                            torch.cat(outputs_truth, dim=-1).float(),
+                        ).item()
                 else:
                     if divide_by_std_before_loss:
                         outputs_model = outputs_model * outputs_std
                     total_val_loss += loss_function(outputs_model,
                                                     outputs_truth).item()
+                    if secondary_loss_function is not None:
+                        total_val_loss += secondary_loss_function(
+                            outputs_model, outputs_truth).item()
         avg_val_loss = total_val_loss / validation_batches
         if multi_headed_output:
             avg_val_loss_heads = [
