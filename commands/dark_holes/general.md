@@ -1562,6 +1562,15 @@ Create a new basis from PCA:
             dh_both_hodms_efc_full_gain_29k_1iter_ch1 dh_both_hodms_efc_full_gain_29k_1iter_ch2 \
             dh_both_hodms_efc_full_gain_36k_1iter_ch1 dh_both_hodms_efc_full_gain_36k_1iter_ch2
 
+Analyze the contrasts in a dataset:
+
+    # Plot DH images and determine what percentage of the dataset is below a certain contrast
+    python3 main.py analyze_dataset_contrasts \
+        dh_both_hodms_efc_7broadband_full_gain_picd_23184 \
+        darkhole_mask dark_zone_mask unocc_lab_nn_7broadband unocc 5 5 \
+        --plot-contrasts 1e-10 1e-4 0 1 2 3 \
+        --filter-contrasts -9 mean
+
 ## Response Matrix
 
 Convert a `piccsim` RM to HDF:
