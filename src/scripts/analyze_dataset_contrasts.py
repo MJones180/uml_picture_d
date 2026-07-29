@@ -1,6 +1,9 @@
+import matplotlib.pyplot as plt
 import numpy as np
+from utils.constants import RANDOM_P
 from utils.hdf_read_and_write import read_hdf
 from utils.load_raw_sim_data import raw_sim_data_chunk_paths
+from utils.path import make_dir
 from utils.printing_and_logging import step_ri, title
 
 
@@ -47,6 +50,11 @@ def analyze_dataset_contrasts_parser(subparsers):
         help=('calculate the number of rows which meet the contrast '
               'requirement; two arguments expected: threshold (in log units) '
               '[max_pixel, mean]'),
+    )
+    subparser.add_argument(
+        '--plot-contrasts',
+        nargs='*',
+        help='plot the contrast; arguments expected: vmin, vmax, *idxs to plot',
     )
 
 
@@ -127,3 +135,24 @@ def analyze_dataset_contrasts(cli_args):
         valid_rows = np.sum(np.log10(values) < threshold)
         percent = valid_rows / total_rows * 100
         print(f'Valid: {valid_rows}/{total_rows} ({percent:0.2f}%)')
+
+    plot_contrasts = cli_args.get('plot_contrasts')
+    if plot_contrasts is not None:
+        step_ri('Plotting contrasts')
+        vmin, vmax, *idxs_to_plot = plot_contrasts
+        print(f'Plot vmin: {vmin}')
+        print(f'Plot vmax: {vmax}')
+        print(f'Will plot indices: {idxs_to_plot}')
+        output_dir = f'{RANDOM_P}/{raw_data_tag}'
+        make_dir(output_dir)
+        print(f'Will output plots at: {output_dir}')
+        for idx in idxs_to_plot:
+            plt.clf()
+            plt.title(f'Index {idx}, '
+                      f'Max Pixel {np.log10(max_per_dh[int(idx)]):.3f}, '
+                      f'Average {np.log10(avg_per_dh[int(idx)]):.3f}')
+            intensity_2d = np.zeros(mask_data.shape)
+            intensity_2d[mask_data] = intensity[int(idx)]
+            plt.imshow(intensity_2d, norm='log', vmin=vmin, vmax=vmax)
+            plt.colorbar()
+            plt.savefig(f'{output_dir}/{idx}.png')
