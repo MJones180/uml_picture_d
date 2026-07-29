@@ -23,6 +23,15 @@ def analyze_dataset_contrasts_parser(subparsers):
         help='dark zone mask table name',
     )
     subparser.add_argument(
+        'unocc_tag',
+        help=('tag of the raw dataset containing the unocc intensity image; '
+              'there should be no error in the system'),
+    )
+    subparser.add_argument(
+        'unocc_table_name',
+        help='unocc image table name',
+    )
+    subparser.add_argument(
         'tot_iterations',
         type=int,
         help='total number of iterations per DH',
@@ -37,14 +46,14 @@ def analyze_dataset_contrasts_parser(subparsers):
         nargs=2,
         help=('calculate the number of rows which meet the contrast '
               'requirement; two arguments expected: threshold (in log units) '
-              '[max_pixel, geometric_mean, arithmetic_mean]'),
+              '[max_pixel, mean]'),
     )
 
 
 def analyze_dataset_contrasts(cli_args):
     title('Analyze dataset contrasts script')
 
-    step_ri('Loading data')
+    step_ri('Loading intensity')
     raw_data_tag = cli_args['raw_data_tag']
     print(f'Tag: {raw_data_tag}')
     modes_path = raw_sim_data_chunk_paths(raw_data_tag)[0]
@@ -73,28 +82,33 @@ def analyze_dataset_contrasts(cli_args):
     intensity = intensity[:, mask_data]
     print(f'Intensity shape: {intensity.shape}')
 
-    step_ri('Taking log10 of intensity')
-    intensity_log10 = np.log10(intensity)
+    step_ri('Loading unocc image')
+    unocc_tag = cli_args['unocc_tag']
+    print(f'Tag: {unocc_tag}')
+    unocc_path = raw_sim_data_chunk_paths(unocc_tag)[0]
+    print(f'Unocc path: {unocc_path}')
+    unocc_table_name = cli_args['unocc_table_name']
+    print(f'Unocc table name: {unocc_table_name}')
+    unocc_data = read_hdf(unocc_path)[unocc_table_name][:]
+    print(f'Unocc shape: {unocc_data.shape}')
+
+    step_ri('Normalizing')
+    unocc_peak_intensity = np.max(unocc_data)
+    print(f'Peak intensity from unocc: {unocc_peak_intensity}')
+    print('Dividing intensity by peak')
+    intensity = intensity / unocc_peak_intensity
 
     step_ri('Max Pixel Contrast / DH')
-    max_per_dh_lin = np.max(intensity, axis=1)
-    max_per_dh_log = np.max(intensity_log10, axis=1)
-    print(f'Global Arithmetic DH Mean: {np.log10(np.mean(max_per_dh_lin))}')
-    print(f'Global Geometric DH Mean: {np.mean(max_per_dh_log)}')
-    print(f'Global Darkest Pixel (Min): {np.min(max_per_dh_log)}')
-    print(f'Global Brightest Pixel (Max): {np.max(max_per_dh_log)}')
+    max_per_dh = np.max(intensity, axis=1)
+    print(f'Global Arithmetic DH Mean: {np.log10(np.mean(max_per_dh))}')
+    print(f'Global Darkest Pixel (Min): {np.log10(np.min(max_per_dh))}')
+    print(f'Global Brightest Pixel (Max): {np.log10(np.max(max_per_dh))}')
 
     step_ri('Arithmetic Mean Contrast / DH')
-    ari_avg_per_dh = np.mean(intensity, axis=1)
-    print(f'Global DH Mean: {np.log10(np.mean(ari_avg_per_dh))}')
-    print(f'Deepest DH (Min): {np.log10(np.min(ari_avg_per_dh))}')
-    print(f'Brightest DH (Max): {np.log10(np.max(ari_avg_per_dh))}')
-
-    step_ri('Geometric Mean Contrast / DH')
-    geo_avg_per_dh = np.mean(intensity_log10, axis=1)
-    print(f'Global DH Mean: {np.mean(geo_avg_per_dh)}')
-    print(f'Deepest DH (Min): {np.min(geo_avg_per_dh)}')
-    print(f'Brightest DH (Max): {np.max(geo_avg_per_dh)}')
+    avg_per_dh = np.mean(intensity, axis=1)
+    print(f'Global DH Mean: {np.log10(np.mean(avg_per_dh))}')
+    print(f'Deepest DH (Min): {np.log10(np.min(avg_per_dh))}')
+    print(f'Brightest DH (Max): {np.log10(np.max(avg_per_dh))}')
 
     filter_contrasts = cli_args.get('filter_contrasts')
     if filter_contrasts is not None:
@@ -105,14 +119,11 @@ def analyze_dataset_contrasts(cli_args):
         base_filter_str = 'Will filter based on'
         if filter_type == 'max_pixel':
             print(f'{base_filter_str} max value in each DH')
-            values = max_per_dh_log
-        elif filter_type == 'geometric_mean':
-            print(f'{base_filter_str} geometric mean of each DH')
-            values = geo_avg_per_dh
+            values = max_per_dh
         else:
             print(f'{base_filter_str} arithmetic mean of each DH')
-            values = np.log10(ari_avg_per_dh)
+            values = avg_per_dh
         total_rows = intensity.shape[0]
-        valid_rows = np.sum(values < threshold)
+        valid_rows = np.sum(np.log10(values) < threshold)
         percent = valid_rows / total_rows * 100
         print(f'Valid: {valid_rows}/{total_rows} ({percent:0.2f}%)')
