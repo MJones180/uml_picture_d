@@ -1,9 +1,9 @@
 import numpy as np
 import torch
 import torch.nn as nn
-from utils.constants import DATA_F, RAW_DATA_P
 from utils.create_grid_mask import create_grid_mask
 from utils.hdf_read_and_write import read_hdf
+from utils.load_raw_sim_data import raw_sim_data_chunk_paths
 from utils.norm import min_max_norm, z_score_denormalize
 
 
@@ -88,7 +88,7 @@ class JacobianEF(nn.Module):
         self.z_score_std = torch.from_numpy(output_z_score_std).to(device)
 
         def _modes(tag, table, count, transpose, str_name):
-            modes_path = f'{RAW_DATA_P}/{tag}/0_{DATA_F}'
+            modes_path = raw_sim_data_chunk_paths(tag)[0]
             print(f'Loading the {str_name} modes: {modes_path}')
             modes = read_hdf(modes_path)[table][:]
             if bool(_grab_param(transpose, int)):
@@ -104,7 +104,7 @@ class JacobianEF(nn.Module):
         self.dm2_modes = _modes(dm2_modes_tag, dm2_modes_table,
                                 dm2_modes_count, dm2_modes_transpose, 'DM2')
 
-        jac_path = f'{RAW_DATA_P}/{jacobian_tag}/0_{DATA_F}'
+        jac_path = raw_sim_data_chunk_paths(jacobian_tag)[0]
         print(f'Loading the Jacobian: {jac_path}')
         jacobian = read_hdf(jac_path)[jacobian_table][:].astype(np.float32)
         self.jacobian = torch.from_numpy(jacobian).to(device)
@@ -155,8 +155,6 @@ class JacobianEF(nn.Module):
             rad_weights = 1 + (max_weight - 1) * distances_norm
             # Take just the weights from the DH and put them in a 1D array
             rad_weights = rad_weights[dh_mask]
-            # Create a copy for each EF component
-            rad_weights = np.tile(rad_weights, 2)
             self.radial_weight_mask = torch.from_numpy(rad_weights).to(device)
 
     def _get_actuator_heights(self, outputs):
@@ -178,20 +176,17 @@ class JacobianEF(nn.Module):
         residual_heights = model_output_heights - truth_output_heights
         # Obtain the residual EF based on the Jacobian
         residual_ef = torch.matmul(residual_heights, self.jacobian.T)
-        pixel_intensity_error = residual_ef**2
+        # Split into the real and imaginary components
+        residual_efr, residual_efi = torch.tensor_split(residual_ef, 2, dim=-1)
+        # Calculate the residual intensity
+        residual_int = residual_efr**2 + residual_efi**2
         if self.apply_log_scaling:
-            pixel_intensity_error = torch.log10(1 + pixel_intensity_error)
+            residual_int = torch.log10(1 + residual_int)
         if self.radial_weight_mask is not None:
-            pixel_intensity_error = (pixel_intensity_error *
-                                     self.radial_weight_mask)
+            residual_int = residual_int * self.radial_weight_mask
         if self.speckle_targeting:
-            k_pixels = int(pixel_intensity_error.shape[-1] *
-                           self.speckle_targeting)
-            worst_speckles, _ = torch.topk(
-                pixel_intensity_error,
-                k=k_pixels,
-                dim=-1,
-            )
+            k_pixels = int(residual_int.shape[-1] * self.speckle_targeting)
+            worst_speckles, _ = torch.topk(residual_int, k=k_pixels, dim=-1)
             return self.lambda_scaling * worst_speckles.mean()
         else:
-            return self.lambda_scaling * pixel_intensity_error.mean()
+            return self.lambda_scaling * residual_int.mean()
