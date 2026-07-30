@@ -25,6 +25,7 @@ class JacobianEF(nn.Module):
         jacobian_table=None,
         lambda_scaling=None,
         apply_log_scaling=None,
+        speckle_targeting=None,
     ):
         """The JacobianEF class.
 
@@ -59,7 +60,9 @@ class JacobianEF(nn.Module):
         lambda_scaling : float
             Scaling factor to apply to the loss.
         apply_log_scaling : bool
-            Take the log of the residual EF.
+            Take the log of the residual intensity.
+        speckle_targeting : float
+            Instead of targeting all pixels, only target the top N% speckles.
 
         Notes
         -----
@@ -105,6 +108,12 @@ class JacobianEF(nn.Module):
             self.lambda_scaling = 1
 
         self.apply_log_scaling = bool(_grab_param(apply_log_scaling, int))
+        if self.apply_log_scaling:
+            print('Applying log scaling to intensity')
+
+        self.speckle_targeting = _grab_param(speckle_targeting)
+        if self.speckle_targeting is not None:
+            print(f'Speckle targeting: {self.speckle_targeting*100}%')
 
     def _get_actuator_heights(self, outputs):
         # Denormalize the outputs
@@ -128,5 +137,14 @@ class JacobianEF(nn.Module):
         pixel_intensity_error = residual_ef**2
         if self.apply_log_scaling:
             pixel_intensity_error = torch.log10(1 + pixel_intensity_error)
-        loss = self.lambda_scaling * pixel_intensity_error
-        return loss.mean()
+        if self.speckle_targeting:
+            k_pixels = int(pixel_intensity_error.shape[-1] *
+                           self.speckle_targeting)
+            worst_speckles, _ = torch.topk(
+                pixel_intensity_error,
+                k=k_pixels,
+                dim=-1,
+            )
+            return self.lambda_scaling * worst_speckles.mean()
+        else:
+            return self.lambda_scaling * pixel_intensity_error.mean()
