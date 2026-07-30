@@ -1294,6 +1294,8 @@ def model_train(cli_args):
         model.eval()
 
         total_val_loss = 0
+        if secondary_loss_function is not None:
+            total_val_loss_secondary = 0
         if multi_headed_output:
             total_val_loss_heads = [0 for _ in range(output_heads)]
         # Disable gradient computation and reduce memory consumption
@@ -1324,19 +1326,26 @@ def model_train(cli_args):
                         total_val_loss += loss_head.item()
                         total_val_loss_heads[head_idx] += loss_head.item()
                     if secondary_loss_function is not None:
-                        total_val_loss += secondary_loss_function(
+                        secondary_loss = secondary_loss_function(
                             torch.cat(outputs_model, dim=-1).float(),
                             torch.cat(outputs_truth, dim=-1).float(),
                         ).item()
+                        total_val_loss += secondary_loss
+                        total_val_loss_secondary += secondary_loss
                 else:
                     if divide_by_std_before_loss:
                         outputs_model = outputs_model * outputs_std
                     total_val_loss += loss_function(outputs_model,
                                                     outputs_truth).item()
                     if secondary_loss_function is not None:
-                        total_val_loss += secondary_loss_function(
+                        secondary_loss = secondary_loss_function(
                             outputs_model, outputs_truth).item()
+                        total_val_loss += secondary_loss
+                        total_val_loss_secondary += secondary_loss
         avg_val_loss = total_val_loss / validation_batches
+        if secondary_loss_function is not None:
+            avg_val_loss_secondary = (total_val_loss_secondary /
+                                      validation_batches)
         if multi_headed_output:
             avg_val_loss_heads = [
                 head_loss / validation_batches
@@ -1394,6 +1403,10 @@ def model_train(cli_args):
             for idx, avg_val_loss_head in enumerate(avg_val_loss_heads):
                 print(f'Head [{idx}]: {avg_val_loss_head}')
             dec_print_indent()
+        if secondary_loss_function is not None:
+            print('Validation Loss Primary: ',
+                  float(avg_val_loss - avg_val_loss_secondary))
+            print('Validation Loss Secondary: ', float(avg_val_loss_secondary))
         epochs_since_improvement = epoch_idx - best_val_loss_epoch
         difference_from_best = abs(float(best_val_loss - avg_val_loss))
         inc_print_indent()
