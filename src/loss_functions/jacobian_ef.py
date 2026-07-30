@@ -125,8 +125,8 @@ class JacobianEF(nn.Module):
         residual_heights = model_output_heights - truth_output_heights
         # Obtain the residual EF based on the Jacobian
         residual_ef = torch.matmul(residual_heights, self.jacobian.T)
-        residual_ef = residual_ef**2
+        pixel_intensity_error = residual_ef**2
         if self.apply_log_scaling:
-            residual_ef = torch.log10(1 + residual_ef)
-        loss = self.lambda_scaling * residual_ef
+            pixel_intensity_error = torch.log10(1 + pixel_intensity_error)
+        loss = self.lambda_scaling * pixel_intensity_error
         return loss.mean()
