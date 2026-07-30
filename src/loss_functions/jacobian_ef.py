@@ -24,6 +24,7 @@ class JacobianEF(nn.Module):
         jacobian_tag=None,
         jacobian_table=None,
         lambda_scaling=None,
+        apply_log_scaling=None,
     ):
         """The JacobianEF class.
 
@@ -57,6 +58,8 @@ class JacobianEF(nn.Module):
             Name of the table containing the Jacobian.
         lambda_scaling : float
             Scaling factor to apply to the loss.
+        apply_log_scaling : bool
+            Take the log of the residual EF.
 
         Notes
         -----
@@ -101,6 +104,8 @@ class JacobianEF(nn.Module):
         if self.lambda_scaling is None:
             self.lambda_scaling = 1
 
+        self.apply_log_scaling = bool(_grab_param(apply_log_scaling, int))
+
     def _get_actuator_heights(self, outputs):
         # Denormalize the outputs
         outputs_denorm = z_score_denormalize(outputs, self.z_score_mean,
@@ -120,5 +125,8 @@ class JacobianEF(nn.Module):
         residual_heights = model_output_heights - truth_output_heights
         # Obtain the residual EF based on the Jacobian
         residual_ef = torch.matmul(residual_heights, self.jacobian.T)
-        loss = self.lambda_scaling * residual_ef**2
+        residual_ef = residual_ef**2
+        if self.apply_log_scaling:
+            residual_ef = torch.log10(1 + residual_ef)
+        loss = self.lambda_scaling * residual_ef
         return loss.mean()
