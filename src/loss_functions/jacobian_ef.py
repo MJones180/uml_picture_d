@@ -2,8 +2,9 @@ import numpy as np
 import torch
 import torch.nn as nn
 from utils.constants import DATA_F, RAW_DATA_P
+from utils.create_grid_mask import create_grid_mask
 from utils.hdf_read_and_write import read_hdf
-from utils.norm import z_score_denormalize
+from utils.norm import min_max_norm, z_score_denormalize
 
 
 class JacobianEF(nn.Module):
@@ -26,6 +27,7 @@ class JacobianEF(nn.Module):
         lambda_scaling=None,
         apply_log_scaling=None,
         speckle_targeting=None,
+        apply_radial_weighting=None,
     ):
         """The JacobianEF class.
 
@@ -63,6 +65,10 @@ class JacobianEF(nn.Module):
             Take the log of the residual intensity.
         speckle_targeting : float
             Instead of targeting all pixels, only target the top N% speckles.
+        apply_radial_weighting : str
+            Apply a radial weighting to the EF pixels; four arguments expected
+            as a single str separated by commas: mask size in pixels, inner
+            radius ratio, outer radius ratio, and max weight at center
 
         Notes
         -----
@@ -115,6 +121,44 @@ class JacobianEF(nn.Module):
         if self.speckle_targeting is not None:
             print(f'Speckle targeting: {self.speckle_targeting*100}%')
 
+        self.radial_weight_mask = None
+        apply_radial_weighting = apply_radial_weighting
+        if apply_radial_weighting is not None:
+            (mask_size, inner_radius, outer_radius,
+             max_weight) = apply_radial_weighting.split(',')
+            print(f'Applying radial weighting (pixels: {mask_size}, '
+                  f'inner radius: {inner_radius}, '
+                  f'outer radius: {outer_radius}, max weight: {max_weight})')
+            mask_size = int(mask_size)
+            inner_radius = float(inner_radius)
+            outer_radius = float(outer_radius)
+            max_weight = int(max_weight)
+            # Create the DH mask
+            dh_mask = create_grid_mask(mask_size, inner_radius)
+            dh_mask += create_grid_mask(mask_size, outer_radius)
+            # Mask out the center pixels inside the inner radius
+            dh_mask[dh_mask == 2] = 0
+            dh_mask = dh_mask.astype(bool)
+            # Create a grid of distances from the center
+            distances = np.arange(mask_size) - (mask_size // 2)
+            distance_grid = np.sqrt(distances[None, :]**2 +
+                                    distances[:, None]**2)
+            # A 1D list of all the distances inside the DH
+            distances_dh = distance_grid[dh_mask]
+            # Distance to the inner/outer radius of the DH from the center
+            r_inner = distances_dh.min()
+            r_outer = distances_dh.max()
+            # Normalize all the DH distances between [0, 1]
+            distances_norm = min_max_norm(distance_grid, r_inner - r_outer,
+                                          r_outer)
+            # Scale all the weights between [1, max_weight]
+            rad_weights = 1 + (max_weight - 1) * distances_norm
+            # Take just the weights from the DH and put them in a 1D array
+            rad_weights = rad_weights[dh_mask]
+            # Create a copy for each EF component
+            rad_weights = np.tile(rad_weights, 2)
+            self.radial_weight_mask = torch.from_numpy(rad_weights).to(device)
+
     def _get_actuator_heights(self, outputs):
         # Denormalize the outputs
         outputs_denorm = z_score_denormalize(outputs, self.z_score_mean,
@@ -137,6 +181,9 @@ class JacobianEF(nn.Module):
         pixel_intensity_error = residual_ef**2
         if self.apply_log_scaling:
             pixel_intensity_error = torch.log10(1 + pixel_intensity_error)
+        if self.radial_weight_mask is not None:
+            pixel_intensity_error = (pixel_intensity_error *
+                                     self.radial_weight_mask)
         if self.speckle_targeting:
             k_pixels = int(pixel_intensity_error.shape[-1] *
                            self.speckle_targeting)
