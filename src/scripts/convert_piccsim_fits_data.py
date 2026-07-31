@@ -14,6 +14,7 @@ import numpy as np
 from utils.cli_args import save_cli_args
 from utils.constants import DARK_ZONE_MASK, DATA_F, RAW_DATA_P, ZERNIKE_TERMS
 from utils.hdf_read_and_write import HDFWriteModule, read_hdf
+from utils.load_raw_sim_data import raw_sim_data_chunk_paths
 from utils.path import make_dir
 from utils.printing_and_logging import dec_print_indent, step, step_ri, title
 from utils.terminate_with_message import terminate_with_message
@@ -104,6 +105,13 @@ def convert_piccsim_fits_data_parser(subparsers):
               'the reference row in each group will not be saved'),
     )
     subparser.add_argument(
+        '--apply-filter-mask',
+        nargs=2,
+        help=('apply a mask to filter the data by; two arguments expected: '
+              'raw data tag containing the mask (table must be named `mask`), '
+              'number of times to repeat the data'),
+    )
+    subparser.add_argument(
         '--load-from-single-fits-datafiles',
         action='store_true',
         help=('load the data from single FITS files which contain all the '
@@ -118,7 +126,8 @@ def convert_piccsim_fits_data_parser(subparsers):
               'FITS datafiles; this option is helpful when there is a large '
               'dataset that would need to call this script multiple times '
               'with different arguments -- it is also easier to back up a '
-              'few HDF files rather than thousands of FITS files'),
+              'few HDF files rather than thousands of FITS files; the data '
+              'will be treated as float32'),
     )
 
 
@@ -254,6 +263,21 @@ def convert_piccsim_fits_data(cli_args):
         print(f'Will work on the tables: {save_difference_tables}')
         save_differences = True
 
+    filter_mask = None
+    apply_filter_mask = cli_args.get('apply_filter_mask')
+    if apply_filter_mask is not None:
+        step_ri('Will apply a filter mask to the data')
+        mask_tag, repeat_count = apply_filter_mask
+        print(f'Mask tag: {mask_tag}')
+        print(f'Repeat count: {repeat_count}')
+        mask_path = raw_sim_data_chunk_paths(mask_tag)[0]
+        print(f'Loading mask: {mask_path}')
+        filter_mask = read_hdf(mask_path)['mask'][:]
+        print(f'Mask shape: {filter_mask.shape}')
+        print('Repeating mask')
+        filter_mask = np.repeat(filter_mask, int(repeat_count))
+        print(f'Mask shape: {filter_mask.shape}')
+
     step_ri('Loading in data and writing out preprocessed data')
     for chunk_idx in range(chunk_count):
         idx_low = chunk_idx * rows_per_chunk
@@ -265,7 +289,8 @@ def convert_piccsim_fits_data(cli_args):
             print(f'Path: {hdf_path}')
             hdf_file_contents = read_hdf(hdf_path)
             for table_name in table_names:
-                tables[table_name] = hdf_file_contents[table_name][:]
+                tables[table_name] = hdf_file_contents[table_name][:].astype(
+                    np.float32)
                 print(f'Table: {table_name} - {tables[table_name].shape}')
         else:
             for file_glob, table_name in zip(file_globs, table_names):
@@ -296,9 +321,19 @@ def convert_piccsim_fits_data(cli_args):
                     ])
                 print(f'Data stored in the `{table_name}` table')
                 dec_print_indent()
+        if filter_mask is not None:
+            step('Applying filter mask')
+            filter_mask_slice = filter_mask[idx_low:idx_high]
+            print(f'Filter mask slice shape: {filter_mask_slice.shape}')
+            for table in table_names:
+                orig_shape = tables[table].shape
+                tables[table] = tables[table][filter_mask_slice]
+                new_shape = tables[table].shape
+                print(f'{table} shape: {orig_shape} -> {new_shape}')
+            dec_print_indent()
         if save_differences:
             step('Taking table differences')
-            rows = idx_high - idx_low
+            rows = len(tables[table_names[0]])
             # Index of each reference row that will be used
             ref_row_idxs = np.arange(reference_row, rows, rows_per_group)
             # Index of each row that the difference will be taken of
