@@ -817,7 +817,7 @@ def model_train(cli_args):
         )
         loss_function = loss_obj.forward
         loss_function_set_epoch = loss_obj.set_epoch
-    if loss_name == 'jacobian_ef':
+    elif loss_name == 'jacobian_ef':
         print('Jacobian EF')
         loss_obj = JacobianEF(
             device,
