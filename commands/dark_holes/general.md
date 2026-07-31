@@ -331,7 +331,7 @@ Both HODMs:
         --rows-per-chunk 24000 --load-from-existing-hdf-dataset 31692
 
     # 5 iterations of 7% broadband ([0, 2, 3]) EFC (gain -1) using the RM (broadband calibration)
-    # Uses the full PIC-D optical train (rx_picture_d_lab)
+    # Uses the full PIC-D optical train (rx_picture_d_lab_nn)
     # Uses the newer single FITS file format
     # Data simulated on Unity
     python3 main.py convert_piccsim_fits_data_merger dh_both_hodms_efc_7broadband_full_gain_picd_XXXXX \
@@ -403,6 +403,14 @@ Both HODMs:
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_84076 \
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
         --load-from-existing-hdf-dataset 420380
+
+Polarization data:
+
+    # Single wavelength using rx_picture_d_lab_nn
+    # Saves the camera image in both polarizations, along with the EF in the plane of HODM1
+    python3 main.py convert_piccsim_fits_data_merger dh_both_hodms_efc_polarization_XXXXX \
+        /home/michael-jones/Documents/piccsim/plots/ polarization_dataset_ 314 314 1 \
+        --file-names hodm1_600_i hodm1_600_r intensity_pol0 intensity_pol1 --allow-missing-dirs
 
 The 2D DM SVD modes from the inverted matrix:
 
