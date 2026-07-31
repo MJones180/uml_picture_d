@@ -1,7 +1,6 @@
-import matplotlib.pyplot as plt
 import numpy as np
-from utils.constants import RANDOM_P
-from utils.hdf_read_and_write import read_hdf
+from utils.constants import DATA_F, RANDOM_P, RAW_DATA_P
+from utils.hdf_read_and_write import HDFWriteModule, read_hdf
 from utils.load_raw_sim_data import raw_sim_data_chunk_paths
 from utils.path import make_dir
 from utils.plots.plot_dh_contrast import plot_dh_contrast
@@ -51,6 +50,11 @@ def analyze_dataset_contrasts_parser(subparsers):
         help=('calculate the number of rows which meet the contrast '
               'requirement; two arguments expected: threshold (in log units) '
               '[max_pixel, mean]'),
+    )
+    subparser.add_argument(
+        '--save-filter-mask',
+        help=('should be used with the `--filter-contrasts` argument; save '
+              'the filter mask as a raw dataset; one argument expected: tag'),
     )
     subparser.add_argument(
         '--plot-contrasts',
@@ -132,10 +136,21 @@ def analyze_dataset_contrasts(cli_args):
         else:
             print(f'{base_filter_str} arithmetic mean of each DH')
             values = avg_per_dh
+        mask = np.log10(values) < threshold
+        valid_rows = np.sum(mask)
         total_rows = intensity.shape[0]
-        valid_rows = np.sum(np.log10(values) < threshold)
         percent = valid_rows / total_rows * 100
         print(f'Valid: {valid_rows}/{total_rows} ({percent:0.2f}%)')
+        save_filter_mask = cli_args.get('save_filter_mask')
+        if save_filter_mask:
+            step_ri('Saving filter mask')
+            print(f'Raw tag: {save_filter_mask}')
+            output_dir = f'{RAW_DATA_P}/{save_filter_mask}'
+            make_dir(output_dir)
+            path = f'{output_dir}/0_{DATA_F}'
+            print(f'Writing to output HDF datafile: {path}')
+            out_data = {'mask': mask.astype(bool)}
+            HDFWriteModule(path).create_and_write_hdf_simple(out_data)
 
     plot_contrasts = cli_args.get('plot_contrasts')
     if plot_contrasts is not None:
