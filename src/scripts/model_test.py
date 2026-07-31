@@ -21,6 +21,7 @@ from utils.model import Model
 from utils.path import delete_dir, get_abs_path, make_dir
 from utils.plots.plot_coeff_comparison import plot_coeff_comparison
 from utils.plots.plot_comparison_scatter_grid import plot_comparison_scatter_grid  # noqa: E501
+from utils.plots.plot_dh_contrast import plot_dh_contrast
 from utils.plots.plot_gamma_bars import plot_gamma_bars
 from utils.plots.plot_model_loss import plot_model_loss
 from utils.plots.plot_zernike_cross_coupling_animation import plot_zernike_cross_coupling_animation  # noqa: E501
@@ -163,6 +164,17 @@ def model_test_parser(subparsers):
         '--plot-loss-curves',
         action='store_true',
         help='plot the training and validation loss curves',
+    )
+    subparser.add_argument(
+        '--plot-avg-dh-intensity-error',
+        nargs=6,
+        help=('plot a DH which represents the average intensity error based '
+              'on the DM command residuals; this requires that the output '
+              'be in terms of basis coefficients; this must be called with '
+              'the `--print-actuator-height-error` argument; the intensity '
+              'residual is computed using the Jacobian; six arguments '
+              'expected: DH mask tag, DH mask table, '
+              'Jacobian tag, Jacobian table, vmin, vmax'),
     )
     shared_argparser_args(subparser, ['force_cpu'])
 
@@ -525,3 +537,31 @@ def model_test(cli_args):
             model.training_args['loss'],
             f'{analysis_path}/loss.png',
         )
+
+    plot_avg_dh_intensity_error = cli_args.get('plot_avg_dh_intensity_error')
+    if plot_avg_dh_intensity_error is not None:
+        step_ri('Plotting average DH intensity error')
+        (mask_tag, mask_table, jac_tag, jac_table, vmin,
+         vmax) = plot_avg_dh_intensity_error
+        print(f'DH Mask: {mask_tag} ({mask_table})')
+        print('Loading DH Mask')
+        dh_mask_path = raw_sim_data_chunk_paths(mask_tag)[0]
+        dh_mask = read_hdf(dh_mask_path)[mask_table][:].astype(bool)
+        print(f'Jacobian: {jac_tag} ({jac_table})')
+        print('Loading Jacobian')
+        jac_path = raw_sim_data_chunk_paths(jac_tag)[0]
+        jacobian = read_hdf(jac_path)[jac_table][:].astype(np.float32)
+        # Compute the residual in terms of actuator heights; convert to m
+        residual_heights = (heights_model - heights_truth) * 1e-9
+        # Obtain the residual EF based on the Jacobian
+        residual_ef = residual_heights @ jacobian.T
+        residual_efr, residual_efi = np.split(residual_ef, 2, axis=-1)
+        # Compute the intensity
+        residual_intensity = residual_efr**2 + residual_efi**2
+        # Take the average across each row
+        avg_residual_intensity = np.mean(residual_intensity, axis=0)
+        intensity_2d = np.zeros(dh_mask.shape)
+        intensity_2d[dh_mask] = avg_residual_intensity
+        title_str = (f'Average Intensity Error ({rows} rows)')
+        plot_dh_contrast(intensity_2d, float(vmin), float(vmax), title_str,
+                         f'{analysis_path}/avg_intensity_error.png')

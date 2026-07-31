@@ -71,6 +71,21 @@ def batch_model_test_parser(subparsers):
         help='print out the truth and model outputs',
     )
     subparser.add_argument(
+        '--print-actuator-height-error',
+        nargs='*',
+        help=('convert the coefficients to actuator heights and compute '
+              'the MAE and MSE; three arguments should be passed for each '
+              'group: tag of the raw dataset containing the basis modes, '
+              'the table name, and the number of coefficients in the group; '
+              'all the output coefficients should be covered by the modes'),
+    )
+    subparser.add_argument(
+        '--print-actuator-height-error-trans-modes',
+        nargs='*',
+        help=('should be used with the `--print-actuator-height-error` arg; '
+              'transpose the modes where the table names match'),
+    )
+    subparser.add_argument(
         '--take-rss-model-outputs',
         action='store_true',
         help='print out the RSS of the model outputs',
@@ -99,6 +114,17 @@ def batch_model_test_parser(subparsers):
         '--plot-loss-curves',
         action='store_true',
         help='plot the training and validation loss curves',
+    )
+    subparser.add_argument(
+        '--plot-avg-dh-intensity-error',
+        nargs=6,
+        help=('plot a DH which represents the average intensity error based '
+              'on the DM command residuals; this requires that the output '
+              'be in terms of basis coefficients; this must be called with '
+              'the `--print-actuator-height-error` argument; the intensity '
+              'residual is computed using the Jacobian; six arguments '
+              'expected: DH mask tag, DH mask table, '
+              'Jacobian tag, Jacobian table, vmin, vmax'),
     )
     shared_argparser_args(subparser, ['force_cpu'])
 
@@ -145,12 +171,15 @@ def batch_model_test(cli_args):
             'disable_zernike_gif_plots',
             'zernike_crosstalk_grid',
             'print_outputs',
+            'print_actuator_height_error',
+            'print_actuator_height_error_trans_modes',
             'take_rss_model_outputs',
             'force_cpu',
             'max_rows_per_model_call',
             'plot_coeff_mae_smape',
             'plot_layerscale_gamma',
             'plot_loss_curves',
+            'plot_avg_dh_intensity_error',
         )
     }
 
