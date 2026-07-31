@@ -351,58 +351,98 @@ Both HODMs:
     # dh_both_hodms_efc_7broadband_full_gain_picd_13124: 65620  rows, 13124 simulations
     # dh_both_hodms_efc_7broadband_full_gain_picd_84076: 420380 rows, 84076 simulations
     # ---------------
-    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_81804_1iter \
+    python3 main.py analyze_dataset_contrasts dh_both_hodms_efc_7broadband_full_gain_picd_81804 \
+        darkhole_mask dark_zone_mask unocc_lab_nn_7broadband unocc 5 5 --filter-contrasts -8 mean \
+        --save-filter-mask dh_both_hodms_efc_7broadband_full_gain_picd_81804_filter_mask_8avg
+    python3 main.py analyze_dataset_contrasts dh_both_hodms_efc_7broadband_full_gain_picd_44764 \
+        darkhole_mask dark_zone_mask unocc_lab_nn_7broadband unocc 5 5 --filter-contrasts -8 mean \
+        --save-filter-mask dh_both_hodms_efc_7broadband_full_gain_picd_44764_filter_mask_8avg
+    python3 main.py analyze_dataset_contrasts dh_both_hodms_efc_7broadband_full_gain_picd_23184 \
+        darkhole_mask dark_zone_mask unocc_lab_nn_7broadband unocc 5 5 --filter-contrasts -8 mean \
+        --save-filter-mask dh_both_hodms_efc_7broadband_full_gain_picd_23184_filter_mask_8avg
+    python3 main.py analyze_dataset_contrasts dh_both_hodms_efc_7broadband_full_gain_picd_53360 \
+        darkhole_mask dark_zone_mask unocc_lab_nn_7broadband unocc 5 5 --filter-contrasts -8 mean \
+        --save-filter-mask dh_both_hodms_efc_7broadband_full_gain_picd_53360_filter_mask_8avg
+    python3 main.py analyze_dataset_contrasts dh_both_hodms_efc_7broadband_full_gain_picd_54535 \
+        darkhole_mask dark_zone_mask unocc_lab_nn_7broadband unocc 5 5 --filter-contrasts -8 mean \
+        --save-filter-mask dh_both_hodms_efc_7broadband_full_gain_picd_54535_filter_mask_8avg
+    python3 main.py analyze_dataset_contrasts dh_both_hodms_efc_7broadband_full_gain_picd_69388 \
+        darkhole_mask dark_zone_mask unocc_lab_nn_7broadband unocc 5 5 --filter-contrasts -8 mean \
+        --save-filter-mask dh_both_hodms_efc_7broadband_full_gain_picd_69388_filter_mask_8avg
+    python3 main.py analyze_dataset_contrasts dh_both_hodms_efc_7broadband_full_gain_picd_54844 \
+        darkhole_mask dark_zone_mask unocc_lab_nn_7broadband unocc 5 5 --filter-contrasts -8 mean \
+        --save-filter-mask dh_both_hodms_efc_7broadband_full_gain_picd_54844_filter_mask_8avg
+    python3 main.py analyze_dataset_contrasts dh_both_hodms_efc_7broadband_full_gain_picd_59875 \
+        darkhole_mask dark_zone_mask unocc_lab_nn_7broadband unocc 5 5 --filter-contrasts -8 mean \
+        --save-filter-mask dh_both_hodms_efc_7broadband_full_gain_picd_59875_filter_mask_8avg
+    python3 main.py analyze_dataset_contrasts dh_both_hodms_efc_7broadband_full_gain_picd_1735 \
+        darkhole_mask dark_zone_mask unocc_lab_nn_7broadband unocc 5 5 --filter-contrasts -8 mean \
+        --save-filter-mask dh_both_hodms_efc_7broadband_full_gain_picd_1735_filter_mask_8avg
+    python3 main.py analyze_dataset_contrasts dh_both_hodms_efc_7broadband_full_gain_picd_2543 \
+        darkhole_mask dark_zone_mask unocc_lab_nn_7broadband unocc 5 5 --filter-contrasts -8 mean \
+        --save-filter-mask dh_both_hodms_efc_7broadband_full_gain_picd_2543_filter_mask_8avg
+    python3 main.py analyze_dataset_contrasts dh_both_hodms_efc_7broadband_full_gain_picd_15789 \
+        darkhole_mask dark_zone_mask unocc_lab_nn_7broadband unocc 5 5 --filter-contrasts -8 mean \
+        --save-filter-mask dh_both_hodms_efc_7broadband_full_gain_picd_15789_filter_mask_8avg
+    python3 main.py analyze_dataset_contrasts dh_both_hodms_efc_7broadband_full_gain_picd_13124 \
+        darkhole_mask dark_zone_mask unocc_lab_nn_7broadband unocc 5 5 --filter-contrasts -8 mean \
+        --save-filter-mask dh_both_hodms_efc_7broadband_full_gain_picd_13124_filter_mask_8avg
+    python3 main.py analyze_dataset_contrasts dh_both_hodms_efc_7broadband_full_gain_picd_84076 \
+        darkhole_mask dark_zone_mask unocc_lab_nn_7broadband unocc 5 5 --filter-contrasts -8 mean \
+        --save-filter-mask dh_both_hodms_efc_7broadband_full_gain_picd_84076_filter_mask_8avg
+    # ---------------
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_81804_f77858_1iter \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_81804 \
-        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
-        --load-from-existing-hdf-dataset
-    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_44764_1iter \
+        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 --load-from-existing-hdf-dataset \
+        --apply-filter-mask dh_both_hodms_efc_7broadband_full_gain_picd_81804_filter_mask_8avg 5
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_44764_f42552_1iter \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_44764 \
-        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
-        --load-from-existing-hdf-dataset
-    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_23184_1iter \
+        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 --load-from-existing-hdf-dataset \
+        --apply-filter-mask dh_both_hodms_efc_7broadband_full_gain_picd_44764_filter_mask_8avg 5
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_23184_f22020_1iter \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_23184 \
-        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
-        --load-from-existing-hdf-dataset
-    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_53360_1iter \
+        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 --load-from-existing-hdf-dataset \
+        --apply-filter-mask dh_both_hodms_efc_7broadband_full_gain_picd_23184_filter_mask_8avg 5
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_53360_f50813_1iter \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_53360 \
-        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
-        --load-from-existing-hdf-dataset
-    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_54535_1iter \
+        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 --load-from-existing-hdf-dataset \
+        --apply-filter-mask dh_both_hodms_efc_7broadband_full_gain_picd_53360_filter_mask_8avg 5
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_54535_f51826_1iter \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_54535 \
-        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
-        --load-from-existing-hdf-dataset
-    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_69388_1iter \
+        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 --load-from-existing-hdf-dataset \
+        --apply-filter-mask dh_both_hodms_efc_7broadband_full_gain_picd_54535_filter_mask_8avg 5
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_69388_f66033_1iter \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_69388 \
-        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
-        --load-from-existing-hdf-dataset
-    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_54844_1iter \
+        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 --load-from-existing-hdf-dataset \
+        --apply-filter-mask dh_both_hodms_efc_7broadband_full_gain_picd_69388_filter_mask_8avg 5
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_54844_f52148_1iter \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_54844 \
-        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
-        --load-from-existing-hdf-dataset
-    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_59875_1iter \
+        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 --load-from-existing-hdf-dataset \
+        --apply-filter-mask dh_both_hodms_efc_7broadband_full_gain_picd_54844_filter_mask_8avg 5
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_59875_f56964_1iter \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_59875 \
-        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
-        --load-from-existing-hdf-dataset
-    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_1735_1iter \
+        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 --load-from-existing-hdf-dataset \
+        --apply-filter-mask dh_both_hodms_efc_7broadband_full_gain_picd_59875_filter_mask_8avg 5
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_1735_f1654_1iter \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_1735 \
-        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
-        --load-from-existing-hdf-dataset
-    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_2543_1iter \
+        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 --load-from-existing-hdf-dataset \
+        --apply-filter-mask dh_both_hodms_efc_7broadband_full_gain_picd_1735_filter_mask_8avg 5
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_2543_f2360_1iter \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_2543 \
-        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
-        --load-from-existing-hdf-dataset
-    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_15789_1iter \
+        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 --load-from-existing-hdf-dataset \
+        --apply-filter-mask dh_both_hodms_efc_7broadband_full_gain_picd_2543_filter_mask_8avg 5
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_15789_f14625_1iter \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_15789 \
-        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
-        --load-from-existing-hdf-dataset
-    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_13124_1iter \
+        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 --load-from-existing-hdf-dataset \
+        --apply-filter-mask dh_both_hodms_efc_7broadband_full_gain_picd_15789_filter_mask_8avg 5
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_13124_f12076_1iter \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_13124 \
-        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
-        --load-from-existing-hdf-dataset
-    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_84076_1iter \
+        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 --load-from-existing-hdf-dataset \
+        --apply-filter-mask dh_both_hodms_efc_7broadband_full_gain_picd_13124_filter_mask_8avg 5
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_84076_f77937_1iter \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_84076 \
-        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
-        --load-from-existing-hdf-dataset
+        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 --load-from-existing-hdf-dataset \
+        --apply-filter-mask dh_both_hodms_efc_7broadband_full_gain_picd_84076_filter_mask_8avg 5
 
 Polarization data:
 
