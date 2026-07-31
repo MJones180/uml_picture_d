@@ -4,6 +4,7 @@ from utils.constants import RANDOM_P
 from utils.hdf_read_and_write import read_hdf
 from utils.load_raw_sim_data import raw_sim_data_chunk_paths
 from utils.path import make_dir
+from utils.plots.plot_dh_contrast import plot_dh_contrast
 from utils.printing_and_logging import step_ri, title
 
 
@@ -147,12 +148,7 @@ def analyze_dataset_contrasts(cli_args):
         make_dir(output_dir)
         print(f'Will output plots at: {output_dir}')
         for idx in idxs_to_plot:
-            plt.clf()
-            plt.title(f'Index {idx}, '
-                      f'Max Pixel {np.log10(max_per_dh[int(idx)]):.3f}, '
-                      f'Average {np.log10(avg_per_dh[int(idx)]):.3f}')
             intensity_2d = np.zeros(mask_data.shape)
             intensity_2d[mask_data] = intensity[int(idx)]
-            plt.imshow(intensity_2d, norm='log', vmin=vmin, vmax=vmax)
-            plt.colorbar()
-            plt.savefig(f'{output_dir}/{idx}.png')
+            plot_dh_contrast(intensity_2d, vmin, vmax, f'Index {idx}',
+                             f'{output_dir}/{idx}.png')
