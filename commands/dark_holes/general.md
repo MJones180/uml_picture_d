@@ -175,38 +175,38 @@ Both HODMs:
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_30k_1iter_ch1 \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_30k_ch1 \
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 12 11 1 dm1 dm2 \
-        --rows-per-chunk 24000 --load-from-existing-hdf-dataset 365952
+        --rows-per-chunk 24000 --load-from-existing-hdf-dataset
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_30k_1iter_ch2 \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_30k_ch2 \
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 12 11 1 dm1 dm2 \
-        --rows-per-chunk 24000 --load-from-existing-hdf-dataset 368316
+        --rows-per-chunk 24000 --load-from-existing-hdf-dataset
     # ---------------
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_30k_4iter_ch1 \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_30k_ch1 \
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 12 11 4 dm1 dm2 \
-        --rows-per-chunk 24000 --load-from-existing-hdf-dataset 365952
+        --rows-per-chunk 24000 --load-from-existing-hdf-dataset
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_30k_4iter_ch2 \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_30k_ch2 \
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 12 11 4 dm1 dm2 \
-        --rows-per-chunk 24000 --load-from-existing-hdf-dataset 368316
+        --rows-per-chunk 24000 --load-from-existing-hdf-dataset
     # ---------------
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_30k_6iter_ch1 \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_30k_ch1 \
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 12 11 6 dm1 dm2 \
-        --rows-per-chunk 24000 --load-from-existing-hdf-dataset 365952
+        --rows-per-chunk 24000 --load-from-existing-hdf-dataset
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_30k_6iter_ch2 \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_30k_ch2 \
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 12 11 6 dm1 dm2 \
-        --rows-per-chunk 24000 --load-from-existing-hdf-dataset 368316
+        --rows-per-chunk 24000 --load-from-existing-hdf-dataset
     # ---------------
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_30k_8iter_ch1 \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_30k_ch1 \
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 12 11 8 dm1 dm2 \
-        --rows-per-chunk 24000 --load-from-existing-hdf-dataset 365952
+        --rows-per-chunk 24000 --load-from-existing-hdf-dataset
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_30k_8iter_ch2 \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_30k_ch2 \
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 12 11 8 dm1 dm2 \
-        --rows-per-chunk 24000 --load-from-existing-hdf-dataset 368316
+        --rows-per-chunk 24000 --load-from-existing-hdf-dataset
 
     # 12 iterations of EFC using the RM
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_27k_ch1 \
@@ -221,20 +221,20 @@ Both HODMs:
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_27k_1iter_ch1 \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_27k_ch1 \
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 12 11 1 dm1 dm2 \
-        --rows-per-chunk 24000 --load-from-existing-hdf-dataset 324072
+        --rows-per-chunk 24000 --load-from-existing-hdf-dataset
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_27k_1iter_ch2 \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_27k_ch2 \
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 12 11 1 dm1 dm2 \
-        --rows-per-chunk 24000 --load-from-existing-hdf-dataset 326052
+        --rows-per-chunk 24000 --load-from-existing-hdf-dataset
     # ---------------
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_27k_6iter_ch1 \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_27k_ch1 \
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 12 11 6 dm1 dm2 \
-        --rows-per-chunk 24000 --load-from-existing-hdf-dataset 324072
+        --rows-per-chunk 24000 --load-from-existing-hdf-dataset
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_27k_6iter_ch2 \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_27k_ch2 \
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 12 11 6 dm1 dm2 \
-        --rows-per-chunk 24000 --load-from-existing-hdf-dataset 326052
+        --rows-per-chunk 24000 --load-from-existing-hdf-dataset
 
     # 5 iterations of EFC (gain -1) using the RM
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_full_gain_24k_ch1 \
@@ -277,39 +277,39 @@ Both HODMs:
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_full_gain_24k_1iter_ch1 \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_full_gain_24k_ch1 \
         --fits-table-names dm1 dm2 sci_i sci_r  --save-difference-only 5 4 1 dm1 dm2 \
-        --rows-per-chunk 10000 --load-from-existing-hdf-dataset 121350
+        --rows-per-chunk 10000 --load-from-existing-hdf-dataset
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_full_gain_24k_1iter_ch2 \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_full_gain_24k_ch2 \
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
-        --rows-per-chunk 10000 --load-from-existing-hdf-dataset 121385
+        --rows-per-chunk 10000 --load-from-existing-hdf-dataset
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_full_gain_24k_1iter_ch3 \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_full_gain_24k_ch3 \
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
-        --rows-per-chunk 10000 --load-from-existing-hdf-dataset 120820
+        --rows-per-chunk 10000 --load-from-existing-hdf-dataset
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_full_gain_24k_1iter_ch4 \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_full_gain_24k_ch4 \
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
-        --rows-per-chunk 10000 --load-from-existing-hdf-dataset 122295
+        --rows-per-chunk 10000 --load-from-existing-hdf-dataset
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_full_gain_27k_1iter \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_full_gain_27k \
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
-        --rows-per-chunk 10000 --load-from-existing-hdf-dataset 133835
+        --rows-per-chunk 10000 --load-from-existing-hdf-dataset
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_full_gain_29k_1iter_ch1 \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_full_gain_29k_ch1 \
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
-        --rows-per-chunk 10000 --load-from-existing-hdf-dataset 147635
+        --rows-per-chunk 10000 --load-from-existing-hdf-dataset
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_full_gain_29k_1iter_ch2 \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_full_gain_29k_ch2 \
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
-        --rows-per-chunk 10000 --load-from-existing-hdf-dataset 147025
+        --rows-per-chunk 10000 --load-from-existing-hdf-dataset
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_full_gain_36k_1iter_ch1 \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_full_gain_36k_ch1 \
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
-        --rows-per-chunk 10000 --load-from-existing-hdf-dataset 182115
+        --rows-per-chunk 10000 --load-from-existing-hdf-dataset
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_full_gain_36k_1iter_ch2 \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_full_gain_36k_ch2 \
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
-        --rows-per-chunk 10000 --load-from-existing-hdf-dataset 183795
+        --rows-per-chunk 10000 --load-from-existing-hdf-dataset
 
     # 12 iterations of broadband EFC (gain -1) using the RM
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_broadband_full_gain_2640_ch1 \
@@ -324,11 +324,11 @@ Both HODMs:
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_broadband_full_gain_2640_1iter_ch1 \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_broadband_full_gain_2640_ch1 \
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 12 11 1 dm1 dm2 \
-        --rows-per-chunk 24000 --load-from-existing-hdf-dataset 31776
+        --rows-per-chunk 24000 --load-from-existing-hdf-dataset
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_broadband_full_gain_2640_1iter_ch2 \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_broadband_full_gain_2640_ch2 \
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 12 11 1 dm1 dm2 \
-        --rows-per-chunk 24000 --load-from-existing-hdf-dataset 31692
+        --rows-per-chunk 24000 --load-from-existing-hdf-dataset
 
     # 5 iterations of 7% broadband ([0, 2, 3]) EFC (gain -1) using the RM (broadband calibration)
     # Uses the full PIC-D optical train (rx_picture_d_lab_nn)
@@ -354,55 +354,55 @@ Both HODMs:
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_81804_1iter \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_81804 \
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
-        --load-from-existing-hdf-dataset 409020
+        --load-from-existing-hdf-dataset
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_44764_1iter \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_44764 \
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
-        --load-from-existing-hdf-dataset 223820
+        --load-from-existing-hdf-dataset
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_23184_1iter \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_23184 \
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
-        --load-from-existing-hdf-dataset 115920
+        --load-from-existing-hdf-dataset
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_53360_1iter \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_53360 \
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
-        --load-from-existing-hdf-dataset 266800
+        --load-from-existing-hdf-dataset
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_54535_1iter \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_54535 \
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
-        --load-from-existing-hdf-dataset 272675
+        --load-from-existing-hdf-dataset
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_69388_1iter \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_69388 \
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
-        --load-from-existing-hdf-dataset 346940
+        --load-from-existing-hdf-dataset
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_54844_1iter \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_54844 \
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
-        --load-from-existing-hdf-dataset 274220
+        --load-from-existing-hdf-dataset
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_59875_1iter \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_59875 \
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
-        --load-from-existing-hdf-dataset 299375
+        --load-from-existing-hdf-dataset
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_1735_1iter \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_1735 \
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
-        --load-from-existing-hdf-dataset 8675
+        --load-from-existing-hdf-dataset
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_2543_1iter \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_2543 \
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
-        --load-from-existing-hdf-dataset 12715
+        --load-from-existing-hdf-dataset
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_15789_1iter \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_15789 \
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
-        --load-from-existing-hdf-dataset 78945
+        --load-from-existing-hdf-dataset
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_13124_1iter \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_13124 \
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
-        --load-from-existing-hdf-dataset 65620
+        --load-from-existing-hdf-dataset
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_84076_1iter \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_84076 \
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
-        --load-from-existing-hdf-dataset 420380
+        --load-from-existing-hdf-dataset
 
 Polarization data:
 
