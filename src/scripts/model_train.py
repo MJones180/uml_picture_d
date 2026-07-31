@@ -138,6 +138,12 @@ def model_train_parser(subparsers):
               'must be equal in size; this affects the loss function'),
     )
     subparser.add_argument(
+        '--treat-multiheaded-as-single',
+        action='store_true',
+        help=('should be used with the `--multi-headed-output`; the loss '
+              'function will be called with output heads concat together'),
+    )
+    subparser.add_argument(
         '--multi-headed-scaled-loss',
         type=float,
         nargs='+',
@@ -811,6 +817,15 @@ def model_train(cli_args):
         )
         loss_function = loss_obj.forward
         loss_function_set_epoch = loss_obj.set_epoch
+    if loss_name == 'jacobian_ef':
+        print('Jacobian EF')
+        loss_obj = JacobianEF(
+            device,
+            extra_variables[OUTPUTS_Z_SCORE_MEAN][:],
+            extra_variables[OUTPUTS_Z_SCORE_STD][:],
+            **loss_params,
+        )
+        loss_function = loss_obj.forward
     else:
         terminate_with_message(f'Loss function unknown: {loss_name}')
 
@@ -825,6 +840,10 @@ def model_train(cli_args):
         if multi_headed_scaled_loss is not None:
             step_ri('Using scaled multi-headed loss')
             print(f'Head loss scalings: {multi_headed_scaled_loss}')
+
+    treat_multiheaded_as_single = cli_args['treat_multiheaded_as_single']
+    if treat_multiheaded_as_single:
+        step_ri('Multiheaded output will be treated as single, concat head')
 
     divide_by_std_before_loss = cli_args['divide_by_std_before_loss']
     if divide_by_std_before_loss:
@@ -1247,8 +1266,14 @@ def model_train(cli_args):
             else:
                 if divide_by_std_before_loss:
                     outputs_model = outputs_model * outputs_std
-                loss = loss_function(outputs_model.float(),
-                                     outputs_truth.float())
+                if treat_multiheaded_as_single:
+                    loss = loss_function(
+                        torch.cat(outputs_model, dim=-1).float(),
+                        outputs_truth,
+                    )
+                else:
+                    loss = loss_function(outputs_model.float(),
+                                         outputs_truth.float())
                 if secondary_loss_function is not None:
                     loss = loss + secondary_loss_function(
                         outputs_model.float(),
@@ -1335,8 +1360,12 @@ def model_train(cli_args):
                 else:
                     if divide_by_std_before_loss:
                         outputs_model = outputs_model * outputs_std
-                    total_val_loss += loss_function(outputs_model,
-                                                    outputs_truth).item()
+                    if treat_multiheaded_as_single:
+                        total_val_loss += loss_function(
+                            torch.cat(outputs_model, dim=-1), outputs_truth)
+                    else:
+                        total_val_loss += loss_function(
+                            outputs_model, outputs_truth).item()
                     if secondary_loss_function is not None:
                         secondary_loss = secondary_loss_function(
                             outputs_model, outputs_truth).item()
