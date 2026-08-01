@@ -28,6 +28,7 @@ class JacobianEF(nn.Module):
         apply_log_scaling=None,
         speckle_targeting=None,
         apply_radial_weighting=None,
+        add_residual_stroke_mse=None,
     ):
         """The JacobianEF class.
 
@@ -69,6 +70,10 @@ class JacobianEF(nn.Module):
             Apply a radial weighting to the EF pixels; four arguments expected
             as a single str separated by commas: mask size in pixels, inner
             radius ratio, outer radius ratio, and max weight at center
+        add_residual_stroke_mse : float
+            Add the MSE of the residual stroke to the total loss; passed
+            value specifies the scaling factor. This loss is added after the
+            existing loss is multiplied by the `lambda_scaling`.
 
         Notes
         -----
@@ -157,6 +162,8 @@ class JacobianEF(nn.Module):
             rad_weights = rad_weights[dh_mask]
             self.radial_weight_mask = torch.from_numpy(rad_weights).to(device)
 
+        self.add_residual_stroke_mse = _grab_param(add_residual_stroke_mse)
+
     def _get_actuator_heights(self, outputs):
         # Denormalize the outputs
         outputs_denorm = z_score_denormalize(outputs, self.z_score_mean,
@@ -187,6 +194,11 @@ class JacobianEF(nn.Module):
         if self.speckle_targeting:
             k_pixels = int(residual_int.shape[-1] * self.speckle_targeting)
             worst_speckles, _ = torch.topk(residual_int, k=k_pixels, dim=-1)
-            return self.lambda_scaling * worst_speckles.mean()
+            loss = self.lambda_scaling * worst_speckles.mean()
         else:
-            return self.lambda_scaling * residual_int.mean()
+            loss = self.lambda_scaling * residual_int.mean()
+
+        if self.add_residual_stroke_mse is not None:
+            stroke_mse = torch.mean(residual_heights**2)
+            loss = loss + (self.add_residual_stroke_mse * stroke_mse)
+        return loss
