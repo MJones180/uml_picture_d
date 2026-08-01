@@ -197,7 +197,6 @@ class JacobianEF(nn.Module):
             loss = self.lambda_scaling * worst_speckles.mean()
         else:
             loss = self.lambda_scaling * residual_int.mean()
-
         if self.add_residual_stroke_mse is not None:
             stroke_mse = torch.mean(residual_heights**2)
             loss = loss + (self.add_residual_stroke_mse * stroke_mse)
