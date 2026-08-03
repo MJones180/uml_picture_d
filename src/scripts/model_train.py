@@ -1433,9 +1433,10 @@ def model_train(cli_args):
                 print(f'Head [{idx}]: {avg_val_loss_head}')
             dec_print_indent()
         if secondary_loss_function is not None:
-            print('Validation Loss Primary: ',
-                  float(avg_val_loss - avg_val_loss_secondary))
-            print('Validation Loss Secondary: ', float(avg_val_loss_secondary))
+            inc_print_indent()
+            print('Primary: ', float(avg_val_loss - avg_val_loss_secondary))
+            print('Secondary: ', float(avg_val_loss_secondary))
+            dec_print_indent()
         epochs_since_improvement = epoch_idx - best_val_loss_epoch
         difference_from_best = abs(float(best_val_loss - avg_val_loss))
         inc_print_indent()
