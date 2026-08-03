@@ -30,6 +30,7 @@ class JacobianEF(nn.Module):
         speckle_targeting=None,
         apply_radial_weighting=None,
         add_residual_stroke_mse=None,
+        add_residual_stroke_mse_return_tuple=None,
     ):
         """The JacobianEF class.
 
@@ -81,6 +82,8 @@ class JacobianEF(nn.Module):
             Add the MSE of the residual stroke to the total loss; passed
             value specifies the scaling factor. This loss is added after the
             existing loss is multiplied by the `lambda_scaling`.
+        add_residual_stroke_mse_return_tuple : bool
+            When using `add_residual_stroke_mse`, return the losses as a tuple.
 
         Notes
         -----
@@ -140,6 +143,7 @@ class JacobianEF(nn.Module):
 
             def dynamic_lambda_func():
                 current_epoch = self.current_epoch
+                print('Lambda scaling', self.lambda_scaling)
                 # Keep the initial lambda until dynamic scaling starts
                 if current_epoch <= start_scaling_epoch:
                     return init_lambda
@@ -198,6 +202,9 @@ class JacobianEF(nn.Module):
 
         self.add_residual_stroke_mse = _grab_param(add_residual_stroke_mse)
 
+        self.add_residual_stroke_mse_return_tuple = bool(
+            _grab_param(add_residual_stroke_mse_return_tuple, int))
+
         # Keep track of the current epoch incase it is needed
         self.current_epoch = None
 
@@ -241,5 +248,8 @@ class JacobianEF(nn.Module):
             loss = self.lambda_scaling * residual_int.mean()
         if self.add_residual_stroke_mse is not None:
             stroke_mse = torch.mean(residual_heights**2)
-            loss = loss + (self.add_residual_stroke_mse * stroke_mse)
+            scaled_stroke_mse = self.add_residual_stroke_mse * stroke_mse
+            if self.add_residual_stroke_mse_return_tuple:
+                return loss, scaled_stroke_mse
+            loss = loss + scaled_stroke_mse
         return loss

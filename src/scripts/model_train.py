@@ -1272,13 +1272,11 @@ def model_train(cli_args):
                 if divide_by_std_before_loss:
                     outputs_model = outputs_model * outputs_std
                 if treat_multiheaded_as_single:
-                    loss = loss_function(
-                        torch.cat(outputs_model, dim=-1).float(),
-                        outputs_truth,
-                    )
-                else:
-                    loss = loss_function(outputs_model.float(),
-                                         outputs_truth.float())
+                    outputs_model = torch.cat(outputs_model, dim=-1)
+                loss = loss_function(outputs_model.float(),
+                                     outputs_truth.float())
+                if isinstance(loss, tuple):
+                    loss = sum(loss)
                 if secondary_loss_function is not None:
                     loss = loss + secondary_loss_function(
                         outputs_model.float(),
@@ -1324,6 +1322,8 @@ def model_train(cli_args):
         model.eval()
 
         total_val_loss = 0
+        # If the primary loss returns multiple values
+        total_val_loss_multi = None
         if secondary_loss_function is not None:
             total_val_loss_secondary = 0
         if multi_headed_output:
@@ -1366,17 +1366,27 @@ def model_train(cli_args):
                     if divide_by_std_before_loss:
                         outputs_model = outputs_model * outputs_std
                     if treat_multiheaded_as_single:
-                        total_val_loss += loss_function(
-                            torch.cat(outputs_model, dim=-1), outputs_truth)
+                        outputs_model = torch.cat(outputs_model, dim=-1)
+                    val_loss = loss_function(outputs_model, outputs_truth)
+                    if isinstance(val_loss, tuple):
+                        if total_val_loss_multi is None:
+                            total_val_loss_multi = [0 for _ in val_loss]
+                        for idx, val_loss_term in enumerate(val_loss):
+                            total_val_loss += val_loss_term.item()
+                            total_val_loss_multi[idx] += val_loss_term.item()
                     else:
-                        total_val_loss += loss_function(
-                            outputs_model, outputs_truth).item()
+                        total_val_loss += val_loss.item()
                     if secondary_loss_function is not None:
                         secondary_loss = secondary_loss_function(
                             outputs_model, outputs_truth).item()
                         total_val_loss += secondary_loss
                         total_val_loss_secondary += secondary_loss
         avg_val_loss = total_val_loss / validation_batches
+        if total_val_loss_multi is not None:
+            avg_val_loss_multi = [
+                val_loss / validation_batches
+                for val_loss in total_val_loss_multi
+            ]
         if secondary_loss_function is not None:
             avg_val_loss_secondary = (total_val_loss_secondary /
                                       validation_batches)
@@ -1436,6 +1446,11 @@ def model_train(cli_args):
             inc_print_indent()
             for idx, avg_val_loss_head in enumerate(avg_val_loss_heads):
                 print(f'Head [{idx}]: {avg_val_loss_head}')
+            dec_print_indent()
+        if total_val_loss_multi is not None:
+            inc_print_indent()
+            for idx, val_loss in enumerate(avg_val_loss_multi):
+                print(f'Tuple {idx}: ', float(val_loss))
             dec_print_indent()
         if secondary_loss_function is not None:
             inc_print_indent()
