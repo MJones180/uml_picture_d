@@ -31,6 +31,7 @@ class JacobianEF(nn.Module):
         apply_radial_weighting=None,
         add_residual_stroke_mse=None,
         add_residual_stroke_mse_return_tuple=None,
+        residual_stroke_eps=None,
     ):
         """The JacobianEF class.
 
@@ -84,6 +85,9 @@ class JacobianEF(nn.Module):
             existing loss is multiplied by the `lambda_scaling`.
         add_residual_stroke_mse_return_tuple : bool
             When using `add_residual_stroke_mse`, return the losses as a tuple.
+        residual_stroke_eps : float
+            When using `add_residual_stroke_mse`, zero out all stroke error that
+            is less than the passed value in nm.
 
         Notes
         -----
@@ -201,9 +205,15 @@ class JacobianEF(nn.Module):
             self.radial_weight_mask = torch.from_numpy(rad_weights).to(device)
 
         self.add_residual_stroke_mse = _grab_param(add_residual_stroke_mse)
+        if self.add_residual_stroke_mse is not None:
+            print('Will apply a residual stroke MSE')
 
         self.add_residual_stroke_mse_return_tuple = bool(
             _grab_param(add_residual_stroke_mse_return_tuple, int))
+
+        self.residual_stroke_eps = _grab_param(residual_stroke_eps)
+        if self.residual_stroke_eps is not None:
+            print(f'Ignoring all stroke error <{self.residual_stroke_eps}nm')
 
         # Keep track of the current epoch incase it is needed
         self.current_epoch = None
@@ -247,6 +257,11 @@ class JacobianEF(nn.Module):
         else:
             loss = self.lambda_scaling * residual_int.mean()
         if self.add_residual_stroke_mse is not None:
+            if self.residual_stroke_eps is not None:
+                residual_heights = torch.abs(residual_heights)
+                # Zero out all stroke error smaller than eps
+                residual_heights = torch.relu(residual_heights -
+                                              self.residual_stroke_eps)
             stroke_mse = torch.mean(residual_heights**2)
             scaled_stroke_mse = self.add_residual_stroke_mse * stroke_mse
             if self.add_residual_stroke_mse_return_tuple:
