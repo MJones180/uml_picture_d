@@ -25,6 +25,7 @@ class JacobianEF(nn.Module):
         jacobian_tag=None,
         jacobian_table=None,
         lambda_scaling=None,
+        lambda_scaling_dynamic_1=None,
         apply_log_scaling=None,
         speckle_targeting=None,
         apply_radial_weighting=None,
@@ -62,6 +63,12 @@ class JacobianEF(nn.Module):
             Name of the table containing the Jacobian.
         lambda_scaling : float
             Scaling factor to apply to the loss.
+        lambda_scaling_dynamic_1 : str
+            Dynamically scale the lambda using a Cosine Annealing curve. This
+            scaling holds lambda constant, then applies a Cosine Annealing curve
+            till the end. Three arguments expected as a single str separated by
+            commas: epoch to start dynamic scaling, total epochs, final lambda;
+            starting lambda is specified by `lambda_scaling`.
         apply_log_scaling : bool
             Take the log of the residual intensity.
         speckle_targeting : float
@@ -118,6 +125,33 @@ class JacobianEF(nn.Module):
         if self.lambda_scaling is None:
             self.lambda_scaling = 1
 
+        self.calc_dynamic_lambda = None
+        lambda_scaling_dynamic_1 = _grab_param(lambda_scaling_dynamic_1, str)
+        if lambda_scaling_dynamic_1 is not None:
+            print('Applying dynamic lambda scaling')
+            (start_scaling_epoch, total_epochs,
+             final_lambda) = lambda_scaling_dynamic_1.split(',')
+            start_scaling_epoch = int(start_scaling_epoch)
+            total_epochs = int(total_epochs)
+            final_lambda = float(final_lambda)
+            init_lambda = self.lambda_scaling
+            print(f'Epochs {start_scaling_epoch} -> {total_epochs}; '
+                  f'Lambda {init_lambda} -> {final_lambda}')
+
+            def dynamic_lambda_func():
+                current_epoch = self.current_epoch
+                # Keep the initial lambda until dynamic scaling starts
+                if current_epoch <= start_scaling_epoch:
+                    return init_lambda
+                # Progress along the dyanmic scaling ramp, [0, 1]
+                progress = (current_epoch - start_scaling_epoch) / (
+                    total_epochs - start_scaling_epoch)
+                scale = 0.5 * (1.0 - np.cos(np.pi * progress))
+                # Cosine Annealing up to the final lambda
+                return init_lambda + (final_lambda - init_lambda) * scale
+
+            self.calc_dynamic_lambda = dynamic_lambda_func
+
         self.apply_log_scaling = bool(_grab_param(apply_log_scaling, int))
         if self.apply_log_scaling:
             print('Applying log scaling to intensity')
@@ -163,6 +197,14 @@ class JacobianEF(nn.Module):
             self.radial_weight_mask = torch.from_numpy(rad_weights).to(device)
 
         self.add_residual_stroke_mse = _grab_param(add_residual_stroke_mse)
+
+        # Keep track of the current epoch incase it is needed
+        self.current_epoch = None
+
+    def set_epoch(self, epoch):
+        self.current_epoch = epoch
+        if self.calc_dynamic_lambda is not None:
+            self.lambda_scaling = self.calc_dynamic_lambda()
 
     def _get_actuator_heights(self, outputs):
         # Denormalize the outputs

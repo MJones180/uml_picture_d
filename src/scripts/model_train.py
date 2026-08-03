@@ -758,6 +758,7 @@ def model_train(cli_args):
 
     # Set the current epoch if the loss function needs it
     loss_function_set_epoch = None
+    secondary_loss_function_set_epoch = None
 
     if loss_name in ('mae', 'mse'):
         if loss_name == 'mae':
@@ -826,6 +827,7 @@ def model_train(cli_args):
             **loss_params,
         )
         loss_function = loss_obj.forward
+        loss_function_set_epoch = loss_obj.set_epoch
     else:
         terminate_with_message(f'Loss function unknown: {loss_name}')
 
@@ -872,6 +874,7 @@ def model_train(cli_args):
                 **secondary_loss_params,
             )
             secondary_loss_function = loss_obj.forward
+            secondary_loss_function_set_epoch = loss_obj.set_epoch
         else:
             terminate_with_message('Secondary loss function '
                                    f'unknown: {secondary_loss_name}')
@@ -1221,6 +1224,8 @@ def model_train(cli_args):
         # Update the current epoch
         if loss_function_set_epoch is not None:
             loss_function_set_epoch(epoch_idx)
+        if secondary_loss_function_set_epoch is not None:
+            secondary_loss_function_set_epoch(epoch_idx)
         total_train_loss = 0
         if multi_headed_output:
             total_train_loss_heads = [0 for _ in range(output_heads)]
