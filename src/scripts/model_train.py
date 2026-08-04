@@ -257,6 +257,12 @@ def model_train_parser(subparsers):
               'value for the `pct_start` param'),
     )
     subparser.add_argument(
+        '--set-fixed-epoch-for-val-loss',
+        type=int,
+        help=('before calculating the validation loss, set the epoch inside '
+              'the loss function to the specified epoch'),
+    )
+    subparser.add_argument(
         '--clip-gradient-norm',
         type=float,
         help=('clip the gradient norm to the specified value; '
@@ -1157,6 +1163,11 @@ def model_train(cli_args):
             pct_start=pct_start,
         )
 
+    set_fixed_epoch_for_val_loss = cli_args.get('set_fixed_epoch_for_val_loss')
+    if set_fixed_epoch_for_val_loss is not None:
+        step_ri(f'Will set the epoch to {set_fixed_epoch_for_val_loss} for '
+                'each validation loss')
+
     clip_gradient_norm = cli_args.get('clip_gradient_norm')
     step_ri('Gradient norm clipping')
     if clip_gradient_norm is None:
@@ -1320,6 +1331,13 @@ def model_train(cli_args):
 
         # Set the model to evaluation mode (disables dropout)
         model.eval()
+
+        # Set a fixed epoch for the val loss to keep results consistent
+        if set_fixed_epoch_for_val_loss is not None:
+            if loss_function_set_epoch is not None:
+                loss_function_set_epoch(set_fixed_epoch_for_val_loss)
+            if secondary_loss_function_set_epoch is not None:
+                secondary_loss_function_set_epoch(set_fixed_epoch_for_val_loss)
 
         total_val_loss = 0
         # If the primary loss returns multiple values

@@ -147,7 +147,6 @@ class JacobianEF(nn.Module):
 
             def dynamic_lambda_func():
                 current_epoch = self.current_epoch
-                print('Lambda scaling', self.lambda_scaling)
                 # Keep the initial lambda until dynamic scaling starts
                 if current_epoch <= start_scaling_epoch:
                     return init_lambda
