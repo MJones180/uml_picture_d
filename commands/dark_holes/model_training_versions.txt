@@ -10606,30 +10606,13 @@ After model testing, it is useful to rank the model analyses:
                       lambda_scaling 1e-10 lambda_scaling_dynamic_1 400,650,1e-9 \
                       add_residual_stroke_mse 2 add_residual_stroke_mse_return_tuple 1 \
                       residual_stroke_eps 1 \
-        --treat-multiheaded-as-single \
+        --treat-multiheaded-as-single --set-fixed-epoch-for-val-loss 0 \
         --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
         --use-one-cycle-lr-scheduler --drop-last --init-weights-kaiming-normal-simple 0.20 head_1 head_2 \
         --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates --fix-seed 314
 
     python3 main_scnp.py model_train \
         dh_v137_8 train_dh_both_hodms_efc_final_dh_5xlg_1iter_pca_ef_756_svd_dm_500_z_score_individual \
-        val_dh_both_hodms_efc_final_dh_5xlg_1iter_pca_ef_756_svd_dm_500_z_score_individual \
-        dh_t78_756_h25do10dp30_h45do30dp30 jacobian_ef adamw 1e-2 3500 --batch-size 1024 \
-        --loss-params dm1_modes_tag dm1_modes_flat dm1_modes_table dm1_modes \
-                      dm1_modes_count 500 dm1_modes_transpose 1 \
-                      dm2_modes_tag dm2_modes_flat dm2_modes_table dm2_modes \
-                      dm2_modes_count 500 dm2_modes_transpose 1 \
-                      jacobian_tag efcnn_jacobian jacobian_table matrix \
-                      lambda_scaling 1e-10 lambda_scaling_dynamic_1 2150,3500,1e-9 \
-                      add_residual_stroke_mse 2 add_residual_stroke_mse_return_tuple 1 \
-                      residual_stroke_eps 1 \
-        --treat-multiheaded-as-single \
-        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
-        --use-one-cycle-lr-scheduler --drop-last --init-weights-kaiming-normal-simple 0.20 head_1 head_2 \
-        --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates --fix-seed 314
-
-    python3 main_scnp.py model_train \
-        dh_v137_9 train_dh_both_hodms_efc_final_dh_5xlg_1iter_pca_ef_756_svd_dm_500_z_score_individual \
         val_dh_both_hodms_efc_final_dh_5xlg_1iter_pca_ef_756_svd_dm_500_z_score_individual \
         dh_t78_756_h25do10dp30_h45do30dp30 jacobian_ef adamw 1e-2 650 --batch-size 1024 \
         --loss-params dm1_modes_tag dm1_modes_flat dm1_modes_table dm1_modes \
@@ -10641,14 +10624,14 @@ After model testing, it is useful to rank the model analyses:
                       add_residual_stroke_mse 2 add_residual_stroke_mse_return_tuple 1 \
                       residual_stroke_eps 1 \
                       apply_radial_weighting 59,0.24,1.03,3 \
-        --treat-multiheaded-as-single \
+        --treat-multiheaded-as-single --set-fixed-epoch-for-val-loss 0 \
         --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
         --use-one-cycle-lr-scheduler --drop-last --init-weights-kaiming-normal-simple 0.20 head_1 head_2 \
         --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates --fix-seed 314
 
     python3 main.py batch_model_test \
         test_dh_both_hodms_efc_final_dh_5xlg_1iter_pca_ef_756_svd_dm_500_z_score_individual \
-        --epoch-and-tag-range last dh_v137_ 1 9 --plot-loss-curves \
+        --epoch-and-tag-range last dh_v137_ 1 8 --plot-loss-curves \
         --plot-coeff-mae-smape 500 1000 --plot-layerscale-gamma gamma 25 45 \
         --max-rows-per-model-call 1000 \
         --print-actuator-height-error dm1_modes_flat dm1_modes 500 \
