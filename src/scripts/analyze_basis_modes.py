@@ -40,6 +40,12 @@ def analyze_basis_modes_parser(subparsers):
               'imaginary components; one argument expected: axis to split'),
     )
     subparser.add_argument(
+        '--two-dms',
+        type=int,
+        help=('the dm1 modes are followed by the dm2 modes; one argument '
+              'expected: axis to split'),
+    )
+    subparser.add_argument(
         '--display-as-circle',
         nargs=2,
         type=float,
@@ -72,7 +78,7 @@ def analyze_basis_modes_parser(subparsers):
         help=('reconstruct data in terms of the basis being analyzed; the '
               'following arguments are expected: raw datafile tag, number of '
               'modes to use, *datafile table names (multiple may be needed '
-              'for complex data)'),
+              'for complex data or two DMs)'),
     )
     subparser.add_argument(
         '--reconstruct-data-circle-mask',
@@ -132,6 +138,13 @@ def analyze_basis_modes(cli_args):
         )
         print(f'Real modes shape: {modes_data_real.shape}')
         print(f'Imag modes shape: {modes_data_imag.shape}')
+
+    two_dms = cli_args.get('two_dms')
+    if two_dms is not None:
+        step_ri('Splitting into DM1 and DM2')
+        modes_dm1, modes_dm2 = np.split(modes_data, 2, axis=two_dms)
+        print(f'DM1 modes shape: {modes_dm1.shape}')
+        print(f'DM2 modes shape: {modes_dm2.shape}')
 
     step_ri('Creating output directory')
     output_dir = f'{MODE_ANALYSIS_P}/{modes_tag}'
@@ -213,6 +226,19 @@ def analyze_basis_modes(cli_args):
                     modes_data_imag[mode_idx],
                     f'mode_{mode_idx}_imag',
                     f'Imag Mode {mode_idx}',
+                    print_prefix,
+                )
+            elif two_dms is not None:
+                _plot_grid(
+                    modes_dm1[mode_idx],
+                    f'mode_{mode_idx}_dm1',
+                    f'DM1 Mode {mode_idx}',
+                    print_prefix,
+                )
+                _plot_grid(
+                    modes_dm2[mode_idx],
+                    f'mode_{mode_idx}_dm2',
+                    f'DM2 Mode {mode_idx}',
                     print_prefix,
                 )
             else:
@@ -324,6 +350,15 @@ def analyze_basis_modes(cli_args):
                             f'{base_fname}_real', ' (real)')
                 _plot_recon(data_imag, reconstructed_data_imag,
                             f'{base_fname}_imag', ' (imag)')
+            elif two_dms is not None:
+                data_dm1, data_dm2 = np.split(data, 2)
+                reconstructed_data_dm1, reconstructed_data_dm2 = np.split(
+                    reconstructed_data, 2)
+                _plot_recon(data_dm1, reconstructed_data_dm1,
+                            f'{base_fname}_dm1', ' (dm1)')
+                _plot_recon(data_dm2, reconstructed_data_dm2,
+                            f'{base_fname}_dm2', ' (dm2)')
+                pass
             else:
                 _plot_recon(data, reconstructed_data, base_fname)
             dec_print_indent()
