@@ -24,24 +24,25 @@ def plot_coeff_comparison(
         1,
         figsize=(12, 10),
         constrained_layout=True,
+        squeeze=False,
     )
-    for idx in range(numb_groups):
+    # for idx in range(numb_groups):
+    for idx, ax in enumerate(axs.flatten()):
         lower_bound = coeff_group_idxs[idx]
         upper_bound = coeff_group_idxs[idx + 1]
         indices = np.arange(lower_bound, upper_bound)
-        axs[idx].set_title(
-            f'Coefficient Errors ({lower_bound + 1}-{upper_bound})')
-        axs[idx].set_xlabel('Coefficient Index')
-        axs[idx].set_ylabel(metric_one_label, color=metric_one_color)
-        axs[idx].plot(
+        ax.set_title(f'Coefficient Errors ({lower_bound + 1}-{upper_bound})')
+        ax.set_xlabel('Coefficient Index')
+        ax.set_ylabel(metric_one_label, color=metric_one_color)
+        ax.plot(
             indices,
             metric_one_data[lower_bound:upper_bound],
             color=metric_one_color,
             alpha=0.75,
         )
-        axs[idx].tick_params(axis='y', labelcolor=metric_one_color)
-        axs[idx].set_ylim(0, np.max(metric_one_data) * 1.1)
-        ax_twin = axs[idx].twinx()
+        ax.tick_params(axis='y', labelcolor=metric_one_color)
+        ax.set_ylim(0, np.max(metric_one_data) * 1.1)
+        ax_twin = ax.twinx()
         ax_twin.set_ylabel(metric_two_label, color=metric_two_color)
         ax_twin.plot(
             indices,
