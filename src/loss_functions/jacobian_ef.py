@@ -30,6 +30,7 @@ class JacobianEF(nn.Module):
         speckle_targeting=None,
         apply_radial_weighting=None,
         add_residual_stroke_mse=None,
+        residual_stroke_mse_dynamic_1=None,
         add_residual_stroke_mse_return_tuple=None,
         residual_stroke_eps=None,
     ):
@@ -81,8 +82,14 @@ class JacobianEF(nn.Module):
             radius ratio, outer radius ratio, and max weight at center
         add_residual_stroke_mse : float
             Add the MSE of the residual stroke to the total loss; passed
-            value specifies the scaling factor. This loss is added after the
-            existing loss is multiplied by the `lambda_scaling`.
+            value specifies the scaling factor, alpha. This loss is added after
+            the existing loss is multiplied by the `lambda_scaling`.
+        residual_stroke_mse_dynamic_1 : str
+            Dynamically scale the MSE using a Cosine Annealing curve. This
+            scaling holds alpha constant, then applies a Cosine Annealing curve
+            till the end. Three arguments expected as a single str separated by
+            commas: epoch to start dynamic scaling, total epochs, final alpha;
+            starting alpha is specified by `add_residual_stroke_mse`.
         add_residual_stroke_mse_return_tuple : bool
             When using `add_residual_stroke_mse`, return the losses as a tuple.
         residual_stroke_eps : float
@@ -132,32 +139,37 @@ class JacobianEF(nn.Module):
         if self.lambda_scaling is None:
             self.lambda_scaling = 1
 
+        def _dynamic_scaling_1(init_val, final_val, start_scaling_epoch,
+                               total_epochs):
+
+            def curried():
+                current_epoch = self.current_epoch
+                # Keep the initial val until dynamic scaling starts
+                if current_epoch <= start_scaling_epoch:
+                    return init_val
+                # Progress along the dyanmic scaling ramp, [0, 1]
+                progress = (current_epoch - start_scaling_epoch) / (
+                    total_epochs - start_scaling_epoch)
+                scale = 0.5 * (1.0 - np.cos(np.pi * progress))
+                # Cosine Annealing up to the final val
+                return init_val + (final_val - init_val) * scale
+
+            return curried
+
         self.calc_dynamic_lambda = None
-        lambda_scaling_dynamic_1 = _grab_param(lambda_scaling_dynamic_1, str)
-        if lambda_scaling_dynamic_1 is not None:
+        dynamic_lambda_1 = _grab_param(lambda_scaling_dynamic_1, str)
+        if dynamic_lambda_1 is not None:
             print('Applying dynamic lambda scaling')
             (start_scaling_epoch, total_epochs,
-             final_lambda) = lambda_scaling_dynamic_1.split(',')
+             final_lambda) = dynamic_lambda_1.split(',')
             start_scaling_epoch = int(start_scaling_epoch)
             total_epochs = int(total_epochs)
             final_lambda = float(final_lambda)
             init_lambda = self.lambda_scaling
             print(f'Epochs {start_scaling_epoch} -> {total_epochs}; '
                   f'Lambda {init_lambda} -> {final_lambda}')
-
-            def dynamic_lambda_func():
-                current_epoch = self.current_epoch
-                # Keep the initial lambda until dynamic scaling starts
-                if current_epoch <= start_scaling_epoch:
-                    return init_lambda
-                # Progress along the dyanmic scaling ramp, [0, 1]
-                progress = (current_epoch - start_scaling_epoch) / (
-                    total_epochs - start_scaling_epoch)
-                scale = 0.5 * (1.0 - np.cos(np.pi * progress))
-                # Cosine Annealing up to the final lambda
-                return init_lambda + (final_lambda - init_lambda) * scale
-
-            self.calc_dynamic_lambda = dynamic_lambda_func
+            self.calc_dynamic_lambda = _dynamic_scaling_1(
+                init_lambda, final_lambda, start_scaling_epoch, total_epochs)
 
         self.apply_log_scaling = bool(_grab_param(apply_log_scaling, int))
         if self.apply_log_scaling:
@@ -203,9 +215,24 @@ class JacobianEF(nn.Module):
             rad_weights = rad_weights[dh_mask]
             self.radial_weight_mask = torch.from_numpy(rad_weights).to(device)
 
-        self.add_residual_stroke_mse = _grab_param(add_residual_stroke_mse)
-        if self.add_residual_stroke_mse is not None:
+        self.mse_alpha = _grab_param(add_residual_stroke_mse)
+        if self.mse_alpha is not None:
             print('Will apply a residual stroke MSE')
+
+        self.calc_dynamic_alpha = None
+        dynamic_alpha_1 = _grab_param(residual_stroke_mse_dynamic_1, str)
+        if dynamic_alpha_1 is not None:
+            print('Applying dynamic alpha scaling')
+            (start_scaling_epoch, total_epochs,
+             final_alpha) = dynamic_alpha_1.split(',')
+            start_scaling_epoch = int(start_scaling_epoch)
+            total_epochs = int(total_epochs)
+            final_alpha = float(final_alpha)
+            init_alpha = self.mse_alpha
+            print(f'Epochs {start_scaling_epoch} -> {total_epochs}; '
+                  f'Alpha {init_alpha} -> {final_alpha}')
+            self.calc_dynamic_alpha = _dynamic_scaling_1(
+                init_alpha, final_alpha, start_scaling_epoch, total_epochs)
 
         self.add_residual_stroke_mse_return_tuple = bool(
             _grab_param(add_residual_stroke_mse_return_tuple, int))
@@ -221,6 +248,8 @@ class JacobianEF(nn.Module):
         self.current_epoch = epoch
         if self.calc_dynamic_lambda is not None:
             self.lambda_scaling = self.calc_dynamic_lambda()
+        if self.calc_dynamic_alpha is not None:
+            self.mse_alpha = self.calc_dynamic_alpha()
 
     def _get_actuator_heights(self, outputs):
         # Denormalize the outputs
@@ -255,14 +284,14 @@ class JacobianEF(nn.Module):
             loss = self.lambda_scaling * worst_speckles.mean()
         else:
             loss = self.lambda_scaling * residual_int.mean()
-        if self.add_residual_stroke_mse is not None:
+        if self.mse_alpha is not None:
             if self.residual_stroke_eps is not None:
                 residual_heights = torch.abs(residual_heights)
                 # Zero out all stroke error smaller than eps
                 residual_heights = torch.relu(residual_heights -
                                               self.residual_stroke_eps)
             stroke_mse = torch.mean(residual_heights**2)
-            scaled_stroke_mse = self.add_residual_stroke_mse * stroke_mse
+            scaled_stroke_mse = self.mse_alpha * stroke_mse
             if self.add_residual_stroke_mse_return_tuple:
                 return loss, scaled_stroke_mse
             loss = loss + scaled_stroke_mse
