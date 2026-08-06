@@ -507,6 +507,9 @@ Convert a flat SVD matrix from FITS to HDF:
     python3 main.py convert_flat_svd_matrix dm2_modes_flat \
         /home/michael-jones/Documents/piccsim/output/svd_modes/dm2_v_matrix.fits \
         dm2_modes
+    python3 main.py convert_flat_svd_matrix dm1_dm2_joint_modes_flat \
+        /home/michael-jones/Documents/piccsim/output/svd_modes/dm1_dm2_v_matrix.fits \
+        modes
 
     # The singular values associated with the first DM
     python3 main.py convert_flat_svd_matrix dm1_singular_values_flat \
@@ -1587,6 +1590,11 @@ Plot SVD basis modes:
         ef_modes_flat ef_modes --modes-are-complex 1 \
         --display-as-circle 59 1.03 --display-with-hole 0.24 \
         --plot-modes-range 0 3
+
+    # First four DM1/DM2 SVD modes
+    python3 main.py analyze_basis_modes \
+        dm1_dm2_joint_modes_flat modes --transpose-modes --two-dms 1 \
+        --display-as-circle 30 1.08 --plot-modes-range 0 3
 
 Plot SVD basis reconstructions:
 
