@@ -354,6 +354,7 @@ Both HODMs:
     # dh_both_hodms_efc_7broadband_full_gain_picd_58199: 290995 rows, 58199 simulations
     # dh_both_hodms_efc_7broadband_full_gain_picd_59526: 297630 rows, 59526 simulations
     # dh_both_hodms_efc_7broadband_full_gain_picd_64799: 323995 rows, 64799 simulations
+    # dh_both_hodms_efc_7broadband_full_gain_picd_15484: 77420  rows, 15484 simulations
     # ---------------
     python3 main.py analyze_dataset_contrasts dh_both_hodms_efc_7broadband_full_gain_picd_81804 \
         darkhole_mask dark_zone_mask unocc_lab_nn_7broadband unocc 5 5 --filter-contrasts -8 mean \
@@ -406,6 +407,9 @@ Both HODMs:
     python3 main.py analyze_dataset_contrasts dh_both_hodms_efc_7broadband_full_gain_picd_64799 \
         darkhole_mask dark_zone_mask unocc_lab_nn_7broadband unocc 5 5 --filter-contrasts -8 mean \
         --save-filter-mask dh_both_hodms_efc_7broadband_full_gain_picd_64799_filter_mask_8avg
+    python3 main.py analyze_dataset_contrasts dh_both_hodms_efc_7broadband_full_gain_picd_15484 \
+        darkhole_mask dark_zone_mask unocc_lab_nn_7broadband unocc 5 5 --filter-contrasts -8 mean \
+        --save-filter-mask dh_both_hodms_efc_7broadband_full_gain_picd_15484_filter_mask_8avg
     # ---------------
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_81804_f77858_1iter \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_81804 \
@@ -475,6 +479,10 @@ Both HODMs:
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_64799 \
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 --load-from-existing-hdf-dataset \
         --apply-filter-mask dh_both_hodms_efc_7broadband_full_gain_picd_64799_filter_mask_8avg 5
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_15484_f14307_1iter \
+        /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_15484 \
+        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 --load-from-existing-hdf-dataset \
+        --apply-filter-mask dh_both_hodms_efc_7broadband_full_gain_picd_15484_filter_mask_8avg 5
 
 Polarization data:
 
