@@ -22,6 +22,10 @@ class JacobianEF(nn.Module):
         dm2_modes_table=None,
         dm2_modes_count=None,
         dm2_modes_transpose=None,
+        dm1_dm2_modes_tag=None,
+        dm1_dm2_modes_table=None,
+        dm1_dm2_modes_count=None,
+        dm1_dm2_modes_transpose=None,
         jacobian_tag=None,
         jacobian_table=None,
         lambda_scaling=None,
@@ -60,6 +64,14 @@ class JacobianEF(nn.Module):
             Number of modes to use from DM2.
         dm2_modes_transpose : bool
             Whether to transpose the modes of DM2.
+        dm1_dm2_modes_tag : str
+            Tag of the raw dataset which contains the joint modes for DM1/DM2.
+        dm1_dm2_modes_table : str
+            Name of the table containing the joint modes for DM1/DM2.
+        dm1_dm2_modes_count : str
+            Number of joint modes to use from DM1/DM2.
+        dm1_dm2_modes_transpose : bool
+            Whether to transpose the joint modes of DM1/DM2.
         jacobian_tag : str
             Tag of the raw dataset which contains the Jacobian (DMs -> EF).
         jacobian_table : str
@@ -113,7 +125,7 @@ class JacobianEF(nn.Module):
         self.z_score_mean = torch.from_numpy(output_z_score_mean).to(device)
         self.z_score_std = torch.from_numpy(output_z_score_std).to(device)
 
-        def _modes(tag, table, count, transpose, str_name):
+        def modes(tag, table, count, transpose, str_name):
             modes_path = raw_sim_data_chunk_paths(tag)[0]
             print(f'Loading the {str_name} modes: {modes_path}')
             modes = read_hdf(modes_path)[table][:]
@@ -125,10 +137,19 @@ class JacobianEF(nn.Module):
             modes = modes.astype(np.float32)
             return torch.from_numpy(modes).to(device)
 
-        self.dm1_modes = _modes(dm1_modes_tag, dm1_modes_table,
-                                dm1_modes_count, dm1_modes_transpose, 'DM1')
-        self.dm2_modes = _modes(dm2_modes_tag, dm2_modes_table,
-                                dm2_modes_count, dm2_modes_transpose, 'DM2')
+        if dm1_dm2_modes_tag is not None:
+            print('Using joint modes for DM1 and DM2')
+            self.dm1_dm2_modes = modes(dm1_dm2_modes_tag, dm1_dm2_modes_table,
+                                       dm1_dm2_modes_count,
+                                       dm1_dm2_modes_transpose, 'DM1/DM2')
+            self.use_joint_dm_modes = True
+        else:
+            print('Using separate modes for DM1 and DM2')
+            self.dm1_modes = modes(dm1_modes_tag, dm1_modes_table,
+                                   dm1_modes_count, dm1_modes_transpose, 'DM1')
+            self.dm2_modes = modes(dm2_modes_tag, dm2_modes_table,
+                                   dm2_modes_count, dm2_modes_transpose, 'DM2')
+            self.use_joint_dm_modes = False
 
         jac_path = raw_sim_data_chunk_paths(jacobian_tag)[0]
         print(f'Loading the Jacobian: {jac_path}')
@@ -255,13 +276,16 @@ class JacobianEF(nn.Module):
         # Denormalize the outputs
         outputs_denorm = z_score_denormalize(outputs, self.z_score_mean,
                                              self.z_score_std)
-        # Split the coefficients associated with each DM
-        dm1_coeffs, dm2_coeffs = torch.tensor_split(outputs_denorm, 2, -1)
-        # Convert from coefficients to actuator heights
-        dm1_heights = torch.matmul(dm1_coeffs, self.dm1_modes)
-        dm2_heights = torch.matmul(dm2_coeffs, self.dm2_modes)
-        # Join the actuator heights together
-        return torch.cat((dm1_heights, dm2_heights), dim=-1)
+        if self.use_joint_dm_modes:
+            return torch.matmul(outputs_denorm, self.dm1_dm2_modes)
+        else:
+            # Split the coefficients associated with each DM
+            dm1_coeffs, dm2_coeffs = torch.tensor_split(outputs_denorm, 2, -1)
+            # Convert from coefficients to actuator heights
+            dm1_heights = torch.matmul(dm1_coeffs, self.dm1_modes)
+            dm2_heights = torch.matmul(dm2_coeffs, self.dm2_modes)
+            # Join the actuator heights together
+            return torch.cat((dm1_heights, dm2_heights), dim=-1)
 
     def forward(self, model_outputs, truth_outputs):
         model_output_heights = self._get_actuator_heights(model_outputs)
