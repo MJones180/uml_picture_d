@@ -169,7 +169,7 @@ def preprocess_data_dark_hole_parser(subparsers):
               'argument'),
     )
     subparser.add_argument(
-        '--combine-flattened-dms ',
+        '--combine-flattened-dms',
         nargs=3,
         metavar='[dm1 key] [dm2 key] [combined dm key]',
         help='merge multiple DMs into a single DM',
@@ -775,6 +775,8 @@ def preprocess_data_dark_hole(cli_args):
                 axis=-1,
             )
             print(f'Merged DM shape: {all_dm_data[merged_dm_key].shape}')
+            dm_idx_lookup[merged_dm_key] = dm_idx_lookup.pop(dm_key_1)
+            dm_idx_lookup.pop(dm_key_2)
 
     # ==========================================================================
 
