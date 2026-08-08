@@ -169,6 +169,12 @@ def preprocess_data_dark_hole_parser(subparsers):
               'argument'),
     )
     subparser.add_argument(
+        '--combine-flattened-dms ',
+        nargs=3,
+        metavar='[dm1 key] [dm2 key] [combined dm key]',
+        help='merge multiple DMs into a single DM',
+    )
+    subparser.add_argument(
         '--use-dm-basis',
         nargs='+',
         metavar=('[dm table] [datafile] [datafile table] '
@@ -756,6 +762,19 @@ def preprocess_data_dark_hole(cli_args):
             # Filter out the inactive actuators
             all_dm_data[dm_table] = dm_data[:, active_idxs]
             print(f'DM {dm_table} shape: {all_dm_data[dm_table].shape}')
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        combine_flattened_dms = cli_args.get('combine_flattened_dms')
+        if combine_flattened_dms is not None:
+            step_ri('Combining DM commands')
+            dm_key_1, dm_key_2, merged_dm_key = combine_flattened_dms
+            print(f'DM1: {dm_key_1}')
+            print(f'DM2: {dm_key_2}')
+            print(f'Merged DM: {merged_dm_key}')
+            all_dm_data[merged_dm_key] = np.concatenate(
+                (all_dm_data.pop(dm_key_1), all_dm_data.pop(dm_key_2)),
+                axis=-1,
+            )
+            print(f'Merged DM shape: {all_dm_data[merged_dm_key].shape}')
 
     # ==========================================================================
 
