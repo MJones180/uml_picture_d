@@ -142,7 +142,7 @@ def convert_piccsim_fits_data_merger(cli_args):
                     # Need to offset by 1 to ignore the empty primary
                     row_data = hdul[row_idx + 1].data
                     if save_as_float32:
-                        row_data.astype(np.float32)
+                        row_data = row_data.astype(np.float32)
                     merged_data[file_name].append(row_data)
         sims_per_file = rows_per_file // rows_per_sim
         print(f'{sims_per_file} simulations ({rows_per_file} rows)')
