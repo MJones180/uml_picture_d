@@ -1,5 +1,5 @@
-# `dh_t81_50d_do30dp30_mixed` network { 756 -> 800 }.
-# Trainable parameters: 41,278,240
+# `dh_t82_50d_do30dp30` network { 756 -> 800 }.
+# Trainable parameters: 40,685,344
 import numpy as np
 import torch
 import torch.nn as nn
@@ -80,13 +80,6 @@ class Network(nn.Module):
             BottleneckResidualBlock(DROPOUT, DP_PROBS[layer_idx])
             for layer_idx in range(DEPTH)
         ])
-        self.output_mixer = nn.Sequential(
-            nn.BatchNorm1d(OUTER_DIM),
-            nn.LeakyReLU(LEAKY_RELU),
-            nn.Linear(OUTER_DIM, OUTER_DIM, bias=False),
-            nn.BatchNorm1d(OUTER_DIM),
-            nn.LeakyReLU(LEAKY_RELU),
-        )
         self.output = nn.Linear(OUTER_DIM, OUT_DIM)
 
     def forward(self, x):
