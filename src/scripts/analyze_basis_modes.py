@@ -46,6 +46,13 @@ def analyze_basis_modes_parser(subparsers):
               'expected: axis to split'),
     )
     subparser.add_argument(
+        '--display-from-mask',
+        nargs=3,
+        help=('display the modes on a given mask; the row loaded in will be '
+              'masked based on nonzero values; three arguments expected: '
+              'raw data tag, table name, row to use'),
+    )
+    subparser.add_argument(
         '--display-as-circle',
         nargs=2,
         type=float,
@@ -179,11 +186,26 @@ def analyze_basis_modes(cli_args):
         total_active_pixels = np.sum(grid_mask)
         print(f'Total of {total_active_pixels} active pixels')
 
+    display_from_mask = cli_args.get('display_from_mask')
+    if display_from_mask is not None:
+        step_ri('Loading display mask')
+        mask_tag, mask_table, mask_row = display_from_mask
+        mask_path = raw_sim_data_chunk_paths(mask_tag)[0]
+        print(f'Mask path: {mask_path}')
+        print(f'Table name: {mask_table}')
+        print(f'Row: {mask_row}')
+        mask_data = read_hdf(mask_path)[mask_table][int(mask_row)] != 0
+        print(f'Mask shape: {mask_data.shape}')
+
     def _plot_grid(plot_data, filename, plot_title, print_prefix):
         mode_plot_path = f'{output_dir}/{filename}.png'
         if display_as_circle is not None:
             plot_data_2d = np.zeros((grid_size, grid_size))
             plot_data_2d[active_pixel_idxs] = plot_data
+            plot_data = plot_data_2d
+        if display_from_mask is not None:
+            plot_data_2d = np.zeros(mask_data.shape)
+            plot_data_2d[mask_data] = plot_data
             plot_data = plot_data_2d
         plot_wavefront(
             plot_data,
