@@ -59,6 +59,11 @@ def convert_piccsim_fits_data_merger_parser(subparsers):
         action='store_true',
         help='allow sim directories to be missing',
     )
+    subparser.add_argument(
+        '--save-as-float32',
+        action='store_true',
+        help='save the data as float32',
+    )
 
 
 def convert_piccsim_fits_data_merger(cli_args):
@@ -142,6 +147,12 @@ def convert_piccsim_fits_data_merger(cli_args):
     print(f'Total simulations: {total_sims}')
     print(f'Total simulation dirs: {total_sim_dirs}')
     print(f'Avg simulations per directory: {total_sims / total_sim_dirs}')
+
+    save_as_float32 = cli_args['save_as_float32']
+    if save_as_float32:
+        step_ri('Will save the data as float32')
+        for key in merged_data.keys():
+            merged_data[key] = merged_data[key].astype(np.float32)
 
     step_ri('Writing out merged HDF data')
     outfile = f'{output_path}/0_{DATA_F}'
