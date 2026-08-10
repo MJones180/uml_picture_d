@@ -96,6 +96,10 @@ def convert_piccsim_fits_data_merger(cli_args):
     print(f'File names: {file_names}')
     merged_data = {key: [] for key in file_names}
 
+    save_as_float32 = cli_args['save_as_float32']
+    if save_as_float32:
+        step_ri('Will save the data as float32')
+
     step_ri('Iterating through each simulation directory')
     total_rows = 0
     total_sim_dirs = 0
@@ -136,7 +140,10 @@ def convert_piccsim_fits_data_merger(cli_args):
             with fits.open(fits_path) as hdul:
                 for row_idx in range(rows_per_file):
                     # Need to offset by 1 to ignore the empty primary
-                    merged_data[file_name].append(hdul[row_idx + 1].data)
+                    row_data = hdul[row_idx + 1].data
+                    if save_as_float32:
+                        row_data.astype(np.float32)
+                    merged_data[file_name].append(row_data)
         sims_per_file = rows_per_file // rows_per_sim
         print(f'{sims_per_file} simulations ({rows_per_file} rows)')
         dec_print_indent()
@@ -147,12 +154,6 @@ def convert_piccsim_fits_data_merger(cli_args):
     print(f'Total simulations: {total_sims}')
     print(f'Total simulation dirs: {total_sim_dirs}')
     print(f'Avg simulations per directory: {total_sims / total_sim_dirs}')
-
-    save_as_float32 = cli_args['save_as_float32']
-    if save_as_float32:
-        step_ri('Will save the data as float32')
-        for key in merged_data.keys():
-            merged_data[key] = merged_data[key].astype(np.float32)
 
     step_ri('Writing out merged HDF data')
     outfile = f'{output_path}/0_{DATA_F}'
