@@ -488,8 +488,8 @@ Polarization data:
 
     # Single wavelength using rx_picture_d_lab_nn
     # Saves the camera image in both polarizations, along with the EF in the plane of HODM1
-    python3 main.py convert_piccsim_fits_data_merger dh_both_hodms_efc_polarization_XXXXX \
-        /home/michael-jones/Documents/piccsim/plots/ polarization_dataset_ 314 314 1 \
+    python3 main.py convert_piccsim_fits_data_merger dh_pol_XXXXX \
+        /home/michael_jones6_student_uml_edu/work/piccsim/plots/ polarization_dataset_ 314 314 1 \
         --file-names hodm1_600_i hodm1_600_r intensity_pol0 intensity_pol1 --allow-missing-dirs
 
 The 2D DM SVD modes from the inverted matrix:
