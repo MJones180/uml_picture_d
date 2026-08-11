@@ -101,6 +101,12 @@ def analyze_basis_modes_parser(subparsers):
               'trim the data, four argument expected: x0, x1, y0, y1'),
     )
     subparser.add_argument(
+        '--reconstruct-data-first-n-rows',
+        type=int,
+        help=('used in conjunction with the `--reconstruct-data` arg; '
+              'take the first n rows of data'),
+    )
+    subparser.add_argument(
         '--reconstruct-data-select-row',
         type=int,
         help=('used in conjunction with the `--reconstruct-data` arg; '
@@ -314,6 +320,13 @@ def analyze_basis_modes(cli_args):
         data = data.transpose(1, 0, 2).reshape(data.shape[1], -1)
         print(f'Data shape: {data.shape}')
         dec_print_indent()
+
+        first_n_rows = cli_args.get('reconstruct_data_first_n_rows')
+        if first_n_rows is not None:
+            step('Taking first n rows')
+            data = data[:int(first_n_rows)]
+            print(f'Data shape: {data.shape}')
+            dec_print_indent()
 
         step('Taking desired number of modes')
         modes_data = modes_data[:int(number_of_modes)]
