@@ -79,7 +79,10 @@ def convert_ef_to_phase_and_amp(cli_args):
 
     step_ri('Converting to phase and amp')
     phase = np.arctan2(ef_i_data, ef_r_data)
-    amp = (ef_r_data**2 + ef_i_data**2)**0.5
+    amp = np.hypot(ef_r_data, ef_i_data)
+    # Delete arrays to free up memory
+    del ef_r_data
+    del ef_i_data
     # Set all inactive pixels back to zero
     phase[:, ~active_pixels_mask] = 0
     amp[:, ~active_pixels_mask] = 0
