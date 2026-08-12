@@ -110,8 +110,10 @@ def create_pca_basis_modes(cli_args):
     print(f'Merged shape: {all_table_data.shape}')
 
     step_ri('Computing PCA modes')
+    # Find the mean vals
+    mean_vals = np.mean(all_table_data, axis=0)
     # Subtract off the mean
-    all_table_data -= np.mean(all_table_data, axis=0)
+    all_table_data -= mean_vals
     # The PCA modes are calculated in torch since `svd_lowrank` doesn't
     # require every mode to be computed; convert to a torch tensor
     tensor_data = torch.from_numpy(all_table_data)
@@ -133,4 +135,7 @@ def create_pca_basis_modes(cli_args):
     save_cli_args(out_dir, cli_args, 'create_pca_basis_modes')
     datafile_path = f'{out_dir}/0_{DATA_F}'
     print(f'Path: {datafile_path}')
-    HDFWriteModule(datafile_path).create_and_write_hdf_simple({'modes': modes})
+    HDFWriteModule(datafile_path).create_and_write_hdf_simple({
+        'modes': modes,
+        'mean': mean_vals,
+    })
