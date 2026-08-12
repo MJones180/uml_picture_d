@@ -1470,6 +1470,28 @@ Preprocess the datasets:
         --bounding-input-rows-train-only --bounding-output-rows-train-only --fix-seed 314
 
     python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_final_dh_14k_ch1 \
+        train_dh_both_hodms_efc_final_dh_5xlg_1iter_pca_ef_756_cent_svd_joint_dm_800_z_score_individual \
+        val_dh_both_hodms_efc_final_dh_5xlg_1iter_pca_ef_756_cent_svd_joint_dm_800_z_score_individual \
+        test_dh_both_hodms_efc_final_dh_5xlg_1iter_pca_ef_756_cent_svd_joint_dm_800_z_score_individual 88 6 6 \
+        --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
+        --additional-raw-data-tags dh_both_hodms_efc_final_dh_14k_ch2 \
+            dh_both_hodms_efc_final_dh_9k_ch1 dh_both_hodms_efc_final_dh_9k_ch2 \
+            dh_both_hodms_efc_30k_1iter_ch1 dh_both_hodms_efc_30k_1iter_ch2 \
+            dh_both_hodms_efc_27k_1iter_ch1 dh_both_hodms_efc_27k_1iter_ch2 \
+            dh_both_hodms_efc_full_gain_24k_1iter_ch1 dh_both_hodms_efc_full_gain_24k_1iter_ch2 \
+            dh_both_hodms_efc_full_gain_24k_1iter_ch3 dh_both_hodms_efc_full_gain_24k_1iter_ch4 \
+            dh_both_hodms_efc_full_gain_27k_1iter \
+            dh_both_hodms_efc_full_gain_29k_1iter_ch1 dh_both_hodms_efc_full_gain_29k_1iter_ch2 \
+            dh_both_hodms_efc_full_gain_36k_1iter_ch1 dh_both_hodms_efc_full_gain_36k_1iter_ch2 \
+        --use-ef-basis pca_ef_basis_418k_rows_756_modes modes 756 --flatten-input \
+        --use-ef-basis-mean-subtraction \
+        --use-dm-basis dm1_dm2 dm1_dm2_joint_modes_flat modes 800 \
+        --combine-flattened-dms dm1 dm2 dm1_dm2 --dm-basis-already-flat --dm-basis-transpose dm1_dm2 \
+        --z-score-inputs-individual --z-score-outputs-individual \
+        --bounding-input-rows-train-only --bounding-output-rows-train-only --fix-seed 314
+
+    python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_final_dh_14k_ch1 \
         train_dh_both_hodms_efc_final_dh_5xlg_1iter_pca_ef_756_pca_dm_500_z_score_individual \
         val_dh_both_hodms_efc_final_dh_5xlg_1iter_pca_ef_756_pca_dm_500_z_score_individual \
         test_dh_both_hodms_efc_final_dh_5xlg_1iter_pca_ef_756_pca_dm_500_z_score_individual 88 6 6 \
