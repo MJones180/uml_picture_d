@@ -88,6 +88,12 @@ def analyze_basis_modes_parser(subparsers):
               'for complex data or two DMs)'),
     )
     subparser.add_argument(
+        '--reconstruct-data-mean-subtraction',
+        nargs=2,
+        help=('subtract the mean from the data; two arguments expected: '
+              'raw datafile tag, table name for the mean values'),
+    )
+    subparser.add_argument(
         '--reconstruct-data-circle-mask',
         action='store_true',
         help=('used in conjunction with the `--reconstruct-data` arg; '
@@ -328,6 +334,20 @@ def analyze_basis_modes(cli_args):
             print(f'Data shape: {data.shape}')
             dec_print_indent()
 
+        mean_subtraction = cli_args.get('reconstruct_data_mean_subtraction')
+        if mean_subtraction is not None:
+            step('Mean subtracting the data')
+            mean_tag, mean_table = mean_subtraction
+            print(f'Tag: {mean_tag}')
+            mean_path = raw_sim_data_chunk_paths(mean_tag)[0]
+            print(f'Mean path: {mean_path}')
+            print(f'Table name: {mean_table}')
+            mean_vals = read_hdf(mean_path)[mean_table][:]
+            print(f'Mean shape: {mean_vals.shape}')
+            dec_print_indent()
+        else:
+            mean_vals = np.zeros(data.shape[-1])
+
         step('Taking desired number of modes')
         modes_data = modes_data[:int(number_of_modes)]
         print(f'Modes shape: {modes_data.shape}')
@@ -335,9 +355,9 @@ def analyze_basis_modes(cli_args):
 
         step('Inverting the modes to find the new basis coeffs')
         modes_inv = np.linalg.pinv(modes_data)
-        new_basis_coeffs = data @ modes_inv
+        new_basis_coeffs = (data - mean_vals) @ modes_inv
+        reconstructed_data = (new_basis_coeffs @ modes_data) + mean_vals
         print(f'New basis coeffs shape: {new_basis_coeffs.shape}')
-        reconstructed_data = new_basis_coeffs @ modes_data
         # The error when switching to the new basis representation
         error = mse(data, reconstructed_data)
         print(f'Reconstruction MSE error of {error:0.3e}')
