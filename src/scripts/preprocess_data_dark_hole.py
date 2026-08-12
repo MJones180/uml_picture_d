@@ -169,6 +169,12 @@ def preprocess_data_dark_hole_parser(subparsers):
               'argument'),
     )
     subparser.add_argument(
+        '--use-ef-basis-mean-subtraction',
+        action='store_true',
+        help=('for use with the `use-ef-basis` arg; mean center the data '
+              'before finding the coefficients'),
+    )
+    subparser.add_argument(
         '--combine-flattened-dms',
         nargs=3,
         metavar='[dm1 key] [dm2 key] [combined dm key]',
@@ -648,6 +654,7 @@ def preprocess_data_dark_hole(cli_args):
         max_modes,
         combine_components=True,
         real_modes_for_both_components=False,
+        mean_center=True,
     ):
         print(f'Modes tag: {modes_tag}')
         print(f'Modes table name: {modes_table_name}')
@@ -656,6 +663,10 @@ def preprocess_data_dark_hole(cli_args):
         modes = read_hdf(modes_path)[modes_table_name][:].astype(F32)
         # Pick out the correct number of modes from the start
         modes = modes[:int(max_modes)]
+        if mean_center:
+            print('Mean centering the data')
+            mean = read_hdf(modes_path)['mean'][:].astype(F32)
+            input_data -= mean
 
         def _switch_to_coeffs(input_data_chunk, modes_chunk, comp):
             # Invert the modes
@@ -693,7 +704,11 @@ def preprocess_data_dark_hole(cli_args):
     use_ef_basis = cli_args.get('use_ef_basis')
     if use_ef_basis is not None:
         step_ri('Using different basis functions for the EF')
-        input_data = _convert_ef_basis(input_data, *use_ef_basis)
+        input_data = _convert_ef_basis(
+            input_data,
+            *use_ef_basis,
+            mean_center=cli_args['use_ef_basis_mean_subtraction'],
+        )
 
     use_ef_svd_basis = cli_args.get('use_ef_svd_basis')
     if use_ef_svd_basis is not None:
