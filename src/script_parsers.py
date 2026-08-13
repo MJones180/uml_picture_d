@@ -1,13 +1,13 @@
 from scripts.analyze_basis_modes import analyze_basis_modes_parser
 from scripts.analyze_dataset_contrasts import analyze_dataset_contrasts_parser
 from scripts.analyze_static_wavefront_convergence import analyze_static_wavefront_convergence_parser  # noqa: E501
+from scripts.apply_data_transformation import apply_data_transformation_parser
 from scripts.batch_model_test import batch_model_test_parser
 from scripts.batch_model_train import batch_model_train_parser
 from scripts.benchmark_model import benchmark_model_parser
 from scripts.control_loop_run import control_loop_run_parser
 from scripts.control_loop_static_wavefronts import control_loop_static_wf_parser
 from scripts.convert_analysis_outputs_from_svd_basis import convert_analysis_outputs_from_svd_basis_parser  # noqa: E501
-from scripts.convert_data_to_log_data import convert_data_to_log_data_parser
 from scripts.convert_dh_rm import convert_dh_rm_parser
 from scripts.convert_ef_to_phase_and_amp import convert_ef_to_phase_and_amp_parser  # noqa: E501
 from scripts.convert_flat_svd_matrix import convert_flat_svd_matrix_parser
@@ -42,13 +42,13 @@ script_parsers = [
     analyze_basis_modes_parser,
     analyze_dataset_contrasts_parser,
     analyze_static_wavefront_convergence_parser,
+    apply_data_transformation_parser,
     batch_model_test_parser,
     batch_model_train_parser,
     benchmark_model_parser,
     control_loop_run_parser,
     control_loop_static_wf_parser,
     convert_analysis_outputs_from_svd_basis_parser,
-    convert_data_to_log_data_parser,
     convert_dh_rm_parser,
     convert_ef_to_phase_and_amp_parser,
     convert_flat_svd_matrix_parser,
