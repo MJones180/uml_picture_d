@@ -66,6 +66,9 @@ def create_pca_basis_modes(cli_args):
     print(f'Number of modes: {number_modes}')
     print(f'Output tag: {output_tag}')
 
+    step_ri('Seeding torch')
+    torch.manual_seed(314)
+
     dh_mask = cli_args.get('dh_mask')
     if dh_mask:
         step_ri('Will apply a dark hole mask to the data')
