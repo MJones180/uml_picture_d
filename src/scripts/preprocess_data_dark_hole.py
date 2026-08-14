@@ -336,7 +336,7 @@ def preprocess_data_dark_hole_parser(subparsers):
     subparser.add_argument(
         '--z-score-outputs-individual',
         action='store_true',
-        help=('z-score normalize the inputs; every output value is '
+        help=('z-score normalize the outputs; every output value is '
               'normalized independently'),
     )
     subparser.add_argument(
@@ -654,7 +654,7 @@ def preprocess_data_dark_hole(cli_args):
         max_modes,
         combine_components=True,
         real_modes_for_both_components=False,
-        mean_center=True,
+        mean_center=False,
     ):
         print(f'Modes tag: {modes_tag}')
         print(f'Modes table name: {modes_table_name}')
