@@ -1,0 +1,11 @@
+Model Training and Testing Polarization
+---------------------------------------
+
+Model training is listed from oldest to newest (newest at the bottom).
+
+[V1] The `pol_v1_` tag:
+
+    python3 main_scnp.py model_train \
+        pol_v1_1
+
+    python3 main.py batch_model_test \
