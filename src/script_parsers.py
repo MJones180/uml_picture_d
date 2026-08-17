@@ -31,6 +31,7 @@ from scripts.plot_output_coeff_ranges import plot_output_coeff_ranges_parser
 from scripts.preprocess_data_bare import preprocess_data_bare_parser
 from scripts.preprocess_data_complete import preprocess_data_complete_parser
 from scripts.preprocess_data_dark_hole import preprocess_data_dark_hole_parser  # noqa: E501
+from scripts.preprocess_data_pol import preprocess_data_pol_parser
 from scripts.prune_tag_lookup import prune_tag_lookup_parser
 from scripts.prune_trained_model import prune_trained_model_parser
 from scripts.random_trim_raw_dataset import random_trim_raw_dataset_parser
@@ -72,6 +73,7 @@ script_parsers = [
     preprocess_data_bare_parser,
     preprocess_data_complete_parser,
     preprocess_data_dark_hole_parser,
+    preprocess_data_pol_parser,
     prune_tag_lookup_parser,
     prune_trained_model_parser,
     random_trim_raw_dataset_parser,
