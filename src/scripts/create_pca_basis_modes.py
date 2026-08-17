@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 from utils.cli_args import save_cli_args
-from utils.constants import DARK_ZONE_MASK, DATA_F, RAW_DATA_P
+from utils.constants import DARK_ZONE_MASK, DATA_F, MEAN, RAW_DATA_P
 from utils.create_grid_mask import create_grid_mask
 from utils.hdf_read_and_write import HDFWriteModule, read_hdf
 from utils.load_raw_sim_data import raw_sim_data_chunk_paths
@@ -105,11 +105,15 @@ def create_pca_basis_modes(cli_args):
 
     step_ri('Joining together all the data')
     for table_name, table_data in all_table_data.items():
-        table_data = np.array(table_data)
-        print(f'{table_name}: {table_data.shape}')
+        # Instead of converting to a np array first to obtain the shape,
+        # manually print out the dimensions; this is done due to the conversion
+        # being slow when the data takes up a lot of memory
+        first_dim = len(table_data)
+        other_dims = ', '.join([str(v) for v in table_data[0].shape])
+        print(f'{table_name}: ({first_dim}, {other_dims})')
     # Convert from a dict to a numpy array containing the combined data
-    all_table_data = np.concat([all_table_data[name] for name in table_names],
-                               axis=-1)
+    all_table_data = np.concat(
+        [all_table_data.pop(name) for name in table_names], axis=-1)
     print(f'Merged shape: {all_table_data.shape}')
 
     step_ri('Computing PCA modes')
@@ -140,5 +144,5 @@ def create_pca_basis_modes(cli_args):
     print(f'Path: {datafile_path}')
     HDFWriteModule(datafile_path).create_and_write_hdf_simple({
         'modes': modes,
-        'mean': mean_vals,
+        MEAN: mean_vals,
     })
