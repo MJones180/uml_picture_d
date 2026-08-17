@@ -57,17 +57,8 @@ Polarization data:
         dh_pol_41728_phase_and_amp dh_pol_41728_phase_and_amp_sqrt_int \
         --tables-to-transform intensity_pol0 intensity_pol1 \
         --tables-to-copy phase amp --sqrt-data
-    # ---------------
-    python3 main.py apply_data_transformation \
-        dh_pol_36910_phase_and_amp dh_pol_36910_phase_and_amp_log_int  \
-        --tables-to-transform intensity_pol0 intensity_pol1 \
-        --tables-to-copy phase amp --log10-data 1e-10
 
-## Data Preprocessing
-
-Preprocess the datasets:
-
-## Random Commands
+## Basis commands
 
 Create a new basis from PCA:
 
@@ -81,25 +72,122 @@ Create a new basis from PCA:
         --raw-data-tags dh_pol_36910_phase_and_amp \
         --table-names phase --auto-mask
 
+    # Not enough memory to create the modes from more data
+    python3 main.py create_pca_basis_modes \
+        pol_hodm_plane_phase_modes_1000_79650 1000 \
+        --raw-data-tags dh_pol_37922_phase_and_amp_sqrt_int \
+                        dh_pol_41728_phase_and_amp_sqrt_int \
+        --table-names phase --auto-mask
+
     python3 main.py create_pca_basis_modes \
         pol_hodm_plane_amp_modes_1000_36910 1000 \
         --raw-data-tags dh_pol_36910_phase_and_amp \
         --table-names amp --auto-mask
 
+    # Not enough memory to create the modes from more data
     python3 main.py create_pca_basis_modes \
-        pol_hodm_plane_pol0_pol1_modes_2000_masked_36910 2000 \
+        pol_hodm_plane_amp_modes_1000_79650 1000 \
+        --raw-data-tags dh_pol_37922_phase_and_amp_sqrt_int \
+                        dh_pol_41728_phase_and_amp_sqrt_int \
+        --table-names amp --auto-mask
+
+    python3 main.py create_pca_basis_modes \
+        pol_psfs_pol0_pol1_modes_2000_masked_36910 2000 \
         --raw-data-tags dh_pol_36910_phase_and_amp \
         --table-names intensity_pol0 intensity_pol1 --dh-mask darkhole_mask
 
     python3 main.py create_pca_basis_modes \
-        pol_hodm_plane_pol0_pol1_modes_2000_log_masked_36910 2000 \
-        --raw-data-tags dh_pol_36910_phase_and_amp_log_int \
+        pol_psfs_pol0_pol1_modes_2000_sqrt_masked_36910 2000 \
+        --raw-data-tags dh_pol_36910_phase_and_amp_sqrt_int \
         --table-names intensity_pol0 intensity_pol1 --dh-mask darkhole_mask
 
     python3 main.py create_pca_basis_modes \
-        pol_hodm_plane_pol0_pol1_modes_2000_sqrt_masked_36910 2000 \
-        --raw-data-tags dh_pol_36910_phase_and_amp_sqrt_int \
+        pol_psfs_pol0_pol1_modes_2000_sqrt_masked_151931 2000 \
+        --raw-data-tags dh_pol_35371_phase_and_amp_sqrt_int \
+                        dh_pol_36910_phase_and_amp_sqrt_int \
+                        dh_pol_37922_phase_and_amp_sqrt_int \
+                        dh_pol_41728_phase_and_amp_sqrt_int \
         --table-names intensity_pol0 intensity_pol1 --dh-mask darkhole_mask
+
+## Data Preprocessing
+
+V1:
+
+    python3 main.py preprocess_data_pol \
+        --output-tags train_pol_v1 \
+        --output-tag-percentages 100 \
+        --raw-data-tags dh_pol_35371_phase_and_amp_sqrt_int \
+        --tables-to-load intensity_pol0 intensity_pol1 phase amp \
+        --apply-mask darkhole_mask dark_zone_mask intensity_pol0 intensity_pol1 \
+        --merge-tables intensity_pol0 intensity_pol1 intensity \
+        --switch-basis intensity pol_psfs_pol0_pol1_modes_2000_sqrt_masked_151931 modes 2000 \
+                       phase     pol_hodm_plane_phase_modes_1000_79650            modes 1000 \
+                       amp       pol_hodm_plane_amp_modes_1000_79650              modes 1000 \
+        --input-tables intensity --output-tables phase amp --fix-seed 314
+    python3 main.py preprocess_data_pol \
+        --output-tags train_pol_v1 \
+        --output-tag-percentages 100 \
+        --raw-data-tags dh_pol_36910_phase_and_amp_sqrt_int \
+        --tables-to-load intensity_pol0 intensity_pol1 phase amp \
+        --apply-mask darkhole_mask dark_zone_mask intensity_pol0 intensity_pol1 \
+        --merge-tables intensity_pol0 intensity_pol1 intensity \
+        --switch-basis intensity pol_psfs_pol0_pol1_modes_2000_sqrt_masked_151931 modes 2000 \
+                       phase     pol_hodm_plane_phase_modes_1000_79650            modes 1000 \
+                       amp       pol_hodm_plane_amp_modes_1000_79650              modes 1000 \
+        --input-tables intensity --output-tables phase amp --fix-seed 314 \
+        --extend-existing-preprocessed-data
+    python3 main.py preprocess_data_pol \
+        --output-tags train_pol_v1 \
+        --output-tag-percentages 100 \
+        --raw-data-tags dh_pol_37922_phase_and_amp_sqrt_int \
+        --tables-to-load intensity_pol0 intensity_pol1 phase amp \
+        --apply-mask darkhole_mask dark_zone_mask intensity_pol0 intensity_pol1 \
+        --merge-tables intensity_pol0 intensity_pol1 intensity \
+        --switch-basis intensity pol_psfs_pol0_pol1_modes_2000_sqrt_masked_151931 modes 2000 \
+                       phase     pol_hodm_plane_phase_modes_1000_79650            modes 1000 \
+                       amp       pol_hodm_plane_amp_modes_1000_79650              modes 1000 \
+        --input-tables intensity --output-tables phase amp --fix-seed 314 \
+        --extend-existing-preprocessed-data
+    python3 main.py preprocess_data_pol \
+        --output-tags train_pol_v1 \
+        --output-tag-percentages 100 \
+        --raw-data-tags dh_pol_41728_phase_and_amp_sqrt_int \
+        --tables-to-load intensity_pol0 intensity_pol1 phase amp \
+        --apply-mask darkhole_mask dark_zone_mask intensity_pol0 intensity_pol1 \
+        --merge-tables intensity_pol0 intensity_pol1 intensity \
+        --switch-basis intensity pol_psfs_pol0_pol1_modes_2000_sqrt_masked_151931 modes 2000 \
+                       phase     pol_hodm_plane_phase_modes_1000_79650            modes 1000 \
+                       amp       pol_hodm_plane_amp_modes_1000_79650              modes 1000 \
+        --input-tables intensity --output-tables phase amp --fix-seed 314 \
+        --extend-existing-preprocessed-data
+
+    python3 main.py normalize_processed_dataset \
+        train_pol_v1_norm train_pol_v1 \
+        --norm-inputs --norm-outputs --z-score-norm
+
+    python3 main.py preprocess_data_pol \
+        --output-tags val_pol_v1 test_pol_v1 \
+        --output-tag-percentages 75 25 \
+        --raw-data-tags dh_pol_34957_phase_and_amp_sqrt_int \
+        --tables-to-load intensity_pol0 intensity_pol1 phase amp \
+        --apply-mask darkhole_mask dark_zone_mask intensity_pol0 intensity_pol1 \
+        --merge-tables intensity_pol0 intensity_pol1 intensity \
+        --switch-basis intensity pol_psfs_pol0_pol1_modes_2000_sqrt_masked_151931 modes 2000 \
+                       phase     pol_hodm_plane_phase_modes_1000_79650            modes 1000 \
+                       amp       pol_hodm_plane_amp_modes_1000_79650              modes 1000 \
+        --input-tables intensity --output-tables phase amp --fix-seed 314
+
+    python3 main.py normalize_processed_dataset \
+        val_pol_v1_norm val_pol_v1 \
+        --norm-inputs --norm-outputs --z-score-norm \
+        --use-existing-norm-vals train_pol_v1_norm
+
+    python3 main.py normalize_processed_dataset \
+        test_pol_v1_norm test_pol_v1 \
+        --norm-inputs --z-score-norm \
+        --use-existing-norm-vals train_pol_v1_norm
+
+## Random Commands
 
 Plot SVD basis reconstructions:
 
@@ -129,26 +217,26 @@ Plot SVD basis reconstructions:
         --reconstruct-data-mean-subtraction pol_hodm_plane_amp_modes_1000_36910 mean
 
     python3 main.py analyze_basis_modes \
-        pol_hodm_plane_pol0_pol1_modes_2000_masked_36910 modes \
+        pol_psfs_pol0_pol1_modes_2000_masked_36910 modes \
         --display-as-circle 59 1.03 --display-with-hole 0.24 \
         --modes-are-complex 1 \
         --reconstruct-data dh_pol_34957_phase_and_amp 2000 intensity_pol0 intensity_pol1 \
         --reconstruct-data-circle-mask --reconstruct-data-trim 21 80 21 80 \
-        --reconstruct-data-mean-subtraction pol_hodm_plane_pol0_pol1_modes_2000_masked_36910 mean \
+        --reconstruct-data-mean-subtraction pol_psfs_pol0_pol1_modes_2000_masked_36910 mean \
         --reconstruct-data-first-n-rows 2000 \
         --reconstruct-data-select-row 0 --reconstruct-data-plots
 
     python3 main.py analyze_basis_modes \
-        pol_hodm_plane_pol0_pol1_modes_2000_sqrt_masked_36910 modes \
+        pol_psfs_pol0_pol1_modes_2000_sqrt_masked_36910 modes \
         --display-as-circle 59 1.03 --display-with-hole 0.24 \
         --modes-are-complex 1 --plot-modes-range 0 10
 
     python3 main.py analyze_basis_modes \
-        pol_hodm_plane_pol0_pol1_modes_2000_sqrt_masked_36910 modes \
+        pol_psfs_pol0_pol1_modes_2000_sqrt_masked_36910 modes \
         --display-as-circle 59 1.03 --display-with-hole 0.24 \
         --modes-are-complex 1 \
         --reconstruct-data dh_pol_34957_phase_and_amp_sqrt_int 2000 intensity_pol0 intensity_pol1 \
         --reconstruct-data-circle-mask --reconstruct-data-trim 21 80 21 80 \
-        --reconstruct-data-mean-subtraction pol_hodm_plane_pol0_pol1_modes_2000_sqrt_masked_36910 mean \
+        --reconstruct-data-mean-subtraction pol_psfs_pol0_pol1_modes_2000_sqrt_masked_36910 mean \
         --reconstruct-data-first-n-rows 2000 \
         --reconstruct-data-select-row 0 --reconstruct-data-plots
