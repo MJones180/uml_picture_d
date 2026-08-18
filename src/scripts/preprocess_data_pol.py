@@ -66,6 +66,11 @@ def preprocess_data_pol_parser(subparsers):
               'modes, name of table in modes file, number of modes to use'),
     )
     subparser.add_argument(
+        '--switch-basis-skip-reconstruction-error',
+        action='store_true',
+        help='do not calculate the reconstruction error',
+    )
+    subparser.add_argument(
         '--input-tables',
         nargs='*',
         help='tables to join together at the end into the input',
@@ -237,9 +242,10 @@ def preprocess_data_pol(cli_args):
             new_basis_coeffs = table_data @ modes_inv
             # What the data look like in the new basis
             reconstructed_values = new_basis_coeffs @ modes
-            # The error when switching to the new basis representation
-            error = mse(table_data, reconstructed_values)
-            print(f'{table} reconstruction MSE error of {error:0.3e}')
+            if not cli_args.get('switch_basis_skip_reconstruction_error'):
+                # The error when switching to the new basis representation
+                error = mse(table_data, reconstructed_values)
+                print(f'{table} reconstruction MSE error of {error:0.3e}')
             all_table_data[table] = new_basis_coeffs
             print(f'{table} shape: {all_table_data[table].shape}')
             print('-----')
