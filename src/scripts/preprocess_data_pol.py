@@ -46,6 +46,12 @@ def preprocess_data_pol_parser(subparsers):
         help='tables to load in and preprocess',
     )
     subparser.add_argument(
+        '--apply-crop',
+        nargs='*',
+        help=('apply a crop to a table; five arguments expected per group: '
+              'table name, x1, x2, y1, y2'),
+    )
+    subparser.add_argument(
         '--apply-mask',
         nargs='+',
         help=('apply a mask to the data; arguments expected: name of the raw '
@@ -167,6 +173,21 @@ def preprocess_data_pol(cli_args):
 
     # ==========================================================================
 
+    apply_crop = cli_args.get('apply_crop')
+    if apply_crop is not None:
+        step_ri('Cropping tables')
+        for tab, x1, x2, y1, y2 in group_data_from_list(apply_crop, 5):
+            print(f'Table: {tab}')
+            print(f'x1, x2: {x1}, {x2}')
+            print(f'y1, y2: {y1}, {y2}')
+            orig_shape = all_table_data[tab].shape
+            all_table_data[tab] = all_table_data[tab][:, int(x1):int(x2)]
+            all_table_data[tab] = all_table_data[tab][:, :, int(y1):int(y2)]
+            new_shape = all_table_data[tab].shape
+            print(f'{tab} shape: {orig_shape} -> {new_shape}')
+
+    # ==========================================================================
+
     apply_mask = cli_args.get('apply_mask')
     if apply_mask is not None:
         step_ri('Applying mask to the data')
@@ -239,15 +260,14 @@ def preprocess_data_pol(cli_args):
             # Invert the modes
             modes_inv = np.linalg.pinv(modes)
             # The coefficients in the new basis
-            new_basis_coeffs = table_data @ modes_inv
-            # What the data look like in the new basis
-            reconstructed_values = new_basis_coeffs @ modes
+            all_table_data[table] = table_data @ modes_inv
+            print(f'{table} shape: {all_table_data[table].shape}')
             if not cli_args.get('switch_basis_skip_reconstruction_error'):
+                # What the data look like in the new basis
+                reconstructed_values = all_table_data[table] @ modes
                 # The error when switching to the new basis representation
                 error = mse(table_data, reconstructed_values)
                 print(f'{table} reconstruction MSE error of {error:0.3e}')
-            all_table_data[table] = new_basis_coeffs
-            print(f'{table} shape: {all_table_data[table].shape}')
             print('-----')
 
     # ==========================================================================
