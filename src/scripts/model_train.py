@@ -95,6 +95,12 @@ def model_train_parser(subparsers):
         help='if existing model with tag, delete before training',
     )
     subparser.add_argument(
+        '--network-params',
+        nargs='+',
+        help=('pass params to the network; two values expected for each '
+              'group: name, value'),
+    )
+    subparser.add_argument(
         '--optimizer-params',
         nargs='+',
         help=('pass params to the optimizer; three values expected for each '
@@ -505,8 +511,17 @@ def model_train(cli_args):
     device = torch_grab_device(cli_args.get('force_cpu'))
 
     step_ri('Loading the network')
+    network_params_dict = {}
+    network_params = cli_args.get('network_params')
+    if network_params is not None:
+        print('Setting network params:')
+        network_params_dict = {
+            key: val
+            for key, val in group_data_from_list(network_params, 2)
+        }
+        print(network_params_dict)
     network_name = cli_args['network_name']
-    model = load_network(network_name)().to(device)
+    model = load_network(network_name)(**network_params_dict).to(device)
     print(model)
 
     init_weights = cli_args.get('init_weights')
