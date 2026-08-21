@@ -71,19 +71,25 @@ def batch_model_test_parser(subparsers):
         help='print out the truth and model outputs',
     )
     subparser.add_argument(
-        '--print-actuator-height-error',
+        '--convert-basis',
         nargs='*',
-        help=('convert the coefficients to actuator heights and compute '
-              'the MAE and MSE; three arguments should be passed for each '
+        help=('convert the coefficients to another basis and compute the MAE '
+              'and MSE; three arguments should be passed for each '
               'group: tag of the raw dataset containing the basis modes, '
               'the table name, and the number of coefficients in the group; '
               'all the output coefficients should be covered by the modes'),
     )
     subparser.add_argument(
-        '--print-actuator-height-error-trans-modes',
+        '--convert-basis-trans-modes',
         nargs='*',
-        help=('should be used with the `--print-actuator-height-error` arg; '
+        help=('should be used with the `--convert-basis` arg; '
               'transpose the modes where the table names match'),
+    )
+    subparser.add_argument(
+        '--convert-basis-save-values',
+        action='store_true',
+        help=('should be used with the `--convert-basis` arg; '
+              'save the values in the new basis to the output datafile'),
     )
     subparser.add_argument(
         '--take-rss-model-outputs',
@@ -121,10 +127,9 @@ def batch_model_test_parser(subparsers):
         help=('plot a DH which represents the average intensity error based '
               'on the DM command residuals; this requires that the output '
               'be in terms of basis coefficients; this must be called with '
-              'the `--print-actuator-height-error` argument; the intensity '
-              'residual is computed using the Jacobian; six arguments '
-              'expected: DH mask tag, DH mask table, '
-              'Jacobian tag, Jacobian table, vmin, vmax'),
+              'the `--convert-basis` argument; the intensity residual is '
+              'computed using the Jacobian; six arguments expected: DH mask '
+              'tag, DH mask table, Jacobian tag, Jacobian table, vmin, vmax'),
     )
     shared_argparser_args(subparser, ['force_cpu'])
 
@@ -171,8 +176,9 @@ def batch_model_test(cli_args):
             'disable_zernike_gif_plots',
             'zernike_crosstalk_grid',
             'print_outputs',
-            'print_actuator_height_error',
-            'print_actuator_height_error_trans_modes',
+            'convert_basis',
+            'convert_basis_trans_modes',
+            'convert_basis_save_values',
             'take_rss_model_outputs',
             'force_cpu',
             'max_rows_per_model_call',
