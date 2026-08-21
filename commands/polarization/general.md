@@ -190,7 +190,7 @@ V1:
 
     python3 main.py normalize_processed_dataset \
         train_pol_v1_norm train_pol_v1 \
-        --norm-inputs --norm-outputs --z-score-norm
+        --z-score-norm-inputs --z-score-norm-outputs
 
     python3 main.py preprocess_data_pol \
         --output-tags val_pol_v1 test_pol_v1 \
@@ -206,12 +206,12 @@ V1:
 
     python3 main.py normalize_processed_dataset \
         val_pol_v1_norm val_pol_v1 \
-        --norm-inputs --norm-outputs --z-score-norm \
+        --z-score-norm-inputs --z-score-norm-outputs \
         --use-existing-norm-vals train_pol_v1_norm
 
     python3 main.py normalize_processed_dataset \
         test_pol_v1_norm test_pol_v1 \
-        --norm-inputs --z-score-norm \
+        --z-score-norm-inputs \
         --use-existing-norm-vals train_pol_v1_norm
 
 V2:
@@ -250,7 +250,7 @@ V2:
         --switch-basis intensity pol_psfs_pol0_pol1_modes_2000_sqrt_masked_151931 modes 2000 \
                        ef        pol_hodm_plane_ef_modes_2000_41728               modes 2000 \
         --input-tables intensity --output-tables ef --fix-seed 314 \
-        --extend-existing-preprocessed-data
+        --extend-existing-preprocessed-data --switch-asis-skip-reconstruction-error
     python3 main.py preprocess_data_pol \
         --output-tags train_pol_v2 \
         --output-tag-percentages 100 \
@@ -266,7 +266,7 @@ V2:
 
     python3 main.py normalize_processed_dataset \
         train_pol_v2_norm train_pol_v2 \
-        --norm-inputs --norm-outputs --z-score-norm
+        --z-score-norm-inputs --z-score-norm-outputs
 
     python3 main.py preprocess_data_pol \
         --output-tags val_pol_v2 test_pol_v2 \
@@ -282,13 +282,84 @@ V2:
 
     python3 main.py normalize_processed_dataset \
         val_pol_v2_norm val_pol_v2 \
-        --norm-inputs --norm-outputs --z-score-norm \
+        --z-score-norm-inputs --z-score-norm-outputs \
         --use-existing-norm-vals train_pol_v2_norm
 
     python3 main.py normalize_processed_dataset \
         test_pol_v2_norm test_pol_v2 \
-        --norm-inputs --z-score-norm \
+        --z-score-norm-inputs \
         --use-existing-norm-vals train_pol_v2_norm
+
+V3:
+
+    python3 main.py preprocess_data_pol \
+        --output-tags train_pol_v3 \
+        --output-tag-percentages 100 \
+        --raw-data-tags pol_35371_sqrt_int \
+        --tables-to-load intensity_pol0 intensity_pol1 hodm1_600_r hodm1_600_i \
+        --apply-crop intensity_pol0 21 80 21 80 intensity_pol1 21 80 21 80 \
+        --merge-tables intensity_pol0 intensity_pol1 intensity \
+                       hodm1_600_r    hodm1_600_i    ef \
+        --switch-basis ef pol_hodm_plane_ef_modes_2000_41728 modes 2000 \
+        --input-tables intensity --output-tables ef --fix-seed 314
+    python3 main.py preprocess_data_pol \
+        --output-tags train_pol_v3 \
+        --output-tag-percentages 100 \
+        --raw-data-tags pol_36910_sqrt_int \
+        --tables-to-load intensity_pol0 intensity_pol1 hodm1_600_r hodm1_600_i \
+        --apply-crop intensity_pol0 21 80 21 80 intensity_pol1 21 80 21 80 \
+        --merge-tables intensity_pol0 intensity_pol1 intensity \
+                       hodm1_600_r    hodm1_600_i    ef \
+        --switch-basis ef pol_hodm_plane_ef_modes_2000_41728 modes 2000 \
+        --input-tables intensity --output-tables ef --fix-seed 314 \
+        --extend-existing-preprocessed-data --switch-basis-skip-reconstruction-error
+    python3 main.py preprocess_data_pol \
+        --output-tags train_pol_v3 \
+        --output-tag-percentages 100 \
+        --raw-data-tags pol_37922_sqrt_int \
+        --tables-to-load intensity_pol0 intensity_pol1 hodm1_600_r hodm1_600_i \
+        --apply-crop intensity_pol0 21 80 21 80 intensity_pol1 21 80 21 80 \
+        --merge-tables intensity_pol0 intensity_pol1 intensity \
+                       hodm1_600_r    hodm1_600_i    ef \
+        --switch-basis ef pol_hodm_plane_ef_modes_2000_41728 modes 2000 \
+        --input-tables intensity --output-tables ef --fix-seed 314 \
+        --extend-existing-preprocessed-data --switch-basis-skip-reconstruction-error
+    python3 main.py preprocess_data_pol \
+        --output-tags train_pol_v3 \
+        --output-tag-percentages 100 \
+        --raw-data-tags pol_41728_sqrt_int \
+        --tables-to-load intensity_pol0 intensity_pol1 hodm1_600_r hodm1_600_i \
+        --apply-crop intensity_pol0 21 80 21 80 intensity_pol1 21 80 21 80 \
+        --merge-tables intensity_pol0 intensity_pol1 intensity \
+                       hodm1_600_r    hodm1_600_i    ef \
+        --switch-basis ef pol_hodm_plane_ef_modes_2000_41728 modes 2000 \
+        --input-tables intensity --output-tables ef --fix-seed 314 \
+        --extend-existing-preprocessed-data --switch-basis-skip-reconstruction-error
+
+    python3 main.py normalize_processed_dataset \
+        train_pol_v3_norm train_pol_v3 \
+        --max-scale-inputs --z-score-norm-outputs
+
+    python3 main.py preprocess_data_pol \
+        --output-tags val_pol_v3 test_pol_v3 \
+        --output-tag-percentages 75 25 \
+        --raw-data-tags pol_34957_sqrt_int \
+        --tables-to-load intensity_pol0 intensity_pol1 hodm1_600_r hodm1_600_i \
+        --apply-crop intensity_pol0 21 80 21 80 intensity_pol1 21 80 21 80 \
+        --merge-tables intensity_pol0 intensity_pol1 intensity \
+                       hodm1_600_r    hodm1_600_i    ef \
+        --switch-basis ef pol_hodm_plane_ef_modes_2000_41728 modes 2000 \
+        --input-tables intensity --output-tables ef --fix-seed 314
+
+    python3 main.py normalize_processed_dataset \
+        val_pol_v3_norm val_pol_v3 \
+        --max-scale-inputs --z-score-norm-outputs \
+        --use-existing-norm-vals train_pol_v3_norm
+
+    python3 main.py normalize_processed_dataset \
+        test_pol_v3_norm test_pol_v3 \
+        --max-scale-inputs \
+        --use-existing-norm-vals train_pol_v3_norm
 
 ## Random Commands
 
