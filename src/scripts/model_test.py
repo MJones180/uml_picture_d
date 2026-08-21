@@ -120,19 +120,25 @@ def model_test_parser(subparsers):
         help='print out the truth and model outputs',
     )
     subparser.add_argument(
-        '--print-actuator-height-error',
+        '--convert-basis',
         nargs='*',
-        help=('convert the coefficients to actuator heights and compute '
-              'the MAE and MSE; three arguments should be passed for each '
+        help=('convert the coefficients to another basis and compute the MAE '
+              'and MSE; three arguments should be passed for each '
               'group: tag of the raw dataset containing the basis modes, '
               'the table name, and the number of coefficients in the group; '
               'all the output coefficients should be covered by the modes'),
     )
     subparser.add_argument(
-        '--print-actuator-height-error-trans-modes',
+        '--convert-basis-trans-modes',
         nargs='*',
-        help=('should be used with the `--print-actuator-height-error` arg; '
+        help=('should be used with the `--convert-basis` arg; '
               'transpose the modes where the table names match'),
+    )
+    subparser.add_argument(
+        '--convert-basis-save-values',
+        action='store_true',
+        help=('should be used with the `--convert-basis` arg; '
+              'save the values in the new basis to the output datafile'),
     )
     subparser.add_argument(
         '--max-rows-per-model-call',
@@ -171,10 +177,9 @@ def model_test_parser(subparsers):
         help=('plot a DH which represents the average intensity error based '
               'on the DM command residuals; this requires that the output '
               'be in terms of basis coefficients; this must be called with '
-              'the `--print-actuator-height-error` argument; the intensity '
-              'residual is computed using the Jacobian; six arguments '
-              'expected: DH mask tag, DH mask table, '
-              'Jacobian tag, Jacobian table, vmin, vmax'),
+              'the `--convert-basis` argument; the intensity residual is '
+              'computed using the Jacobian; six arguments expected: DH mask '
+              'tag, DH mask table, Jacobian tag, Jacobian table, vmin, vmax'),
     )
     shared_argparser_args(subparser, ['force_cpu'])
 
@@ -299,18 +304,26 @@ def model_test(cli_args):
     print(f'Model MAE: {mae_val}')
     print(f'Model MSE: {mse_val}')
 
-    print_actuator_height_error = cli_args.get('print_actuator_height_error')
-    if print_actuator_height_error is not None:
-        step_ri('Determining actuator height error')
-        heights_truth_all = []
-        heights_model_all = []
-        lower_idx = 0
-        trans_modes = cli_args.get('print_actuator_height_error_trans_modes')
-        for group_args in group_data_from_list(print_actuator_height_error, 3):
+    # The data that will be written out
+    out_data = {
+        'outputs_truth': outputs_truth,
+        'outputs_model': outputs_model,
+        MAE: mae_val,
+        MSE: mse_val,
+    }
+
+    convert_basis = cli_args.get('convert_basis')
+    if convert_basis is not None:
+        step_ri('Switching basis')
+        new_basis_truth = []
+        new_basis_model = []
+        idx_low = 0
+        trans_modes = cli_args.get('convert_basis_trans_modes')
+        for group_args in group_data_from_list(convert_basis, 3):
             modes_tag = group_args[0]
             table_name = group_args[1]
             number_coeffs = int(group_args[2])
-            upper_idx = lower_idx + number_coeffs
+            idx_high = idx_low + number_coeffs
             step(f'Basis modes for {modes_tag}')
             print(f'Table name: {table_name}')
             print(f'Number of coeffs: {number_coeffs}')
@@ -319,34 +332,31 @@ def model_test(cli_args):
             print(f'Modes shape: {modes_data.shape}')
             if trans_modes is not None and table_name in trans_modes:
                 modes_data = np.transpose(modes_data)
-            # Grab just the used modes
             modes_data = modes_data[:number_coeffs]
-            # Compute the actuator heights from these modes
-            heights_truth = outputs_truth[:, lower_idx:upper_idx] @ modes_data
-            heights_model = outputs_model[:, lower_idx:upper_idx] @ modes_data
-            heights_truth_all.append(heights_truth)
-            heights_model_all.append(heights_model)
-            print(f'Actuator heights shape: {np.array(heights_truth).shape}')
-            print(f'Actuator height MAE: {mae(heights_truth, heights_model)}')
-            print(f'Actuator height MSE: {mse(heights_truth, heights_model)}')
-            lower_idx = upper_idx
+            # The values in the new basis
+            truth_vals = outputs_truth[:, idx_low:idx_high] @ modes_data
+            model_vals = outputs_model[:, idx_low:idx_high] @ modes_data
+            new_basis_truth.append(truth_vals)
+            new_basis_model.append(model_vals)
+            print(f'New basis shape: {np.array(truth_vals).shape}')
+            print(f'New basis MAE: {mae(truth_vals, model_vals)}')
+            print(f'New basis MSE: {mse(truth_vals, model_vals)}')
+            idx_low = idx_high
             dec_print_indent()
         rows = len(outputs_truth)
-        heights_truth = np.swapaxes(heights_truth_all, 0, 1).reshape(rows, -1)
-        heights_model = np.swapaxes(heights_model_all, 0, 1).reshape(rows, -1)
-        print(f'Actuator heights shape: {heights_truth.shape}')
-        print(f'Overall MAE: {mae(heights_truth, heights_model)}')
-        print(f'Overall MSE: {mse(heights_truth, heights_model)}')
+        new_basis_truth = np.swapaxes(new_basis_truth, 0, 1).reshape(rows, -1)
+        new_basis_model = np.swapaxes(new_basis_model, 0, 1).reshape(rows, -1)
+        print(f'Overall new shape: {new_basis_truth.shape}')
+        print(f'Overall MAE: {mae(new_basis_truth, new_basis_model)}')
+        print(f'Overall MSE: {mse(new_basis_truth, new_basis_model)}')
+        if cli_args['convert_basis_save_values']:
+            print('Will save these values to the output datafile')
+            out_data['new_basis_truth'] = new_basis_truth
+            out_data['new_basis_model'] = new_basis_model
 
     step_ri('Writing results to HDF')
     out_file_path = f'{analysis_path}/{RESULTS_F}'
     print(f'File location: {out_file_path}')
-    out_data = {
-        'outputs_truth': outputs_truth,
-        'outputs_model': outputs_model,
-        MAE: mae_val,
-        MSE: mse_val,
-    }
     HDFWriteModule(out_file_path).create_and_write_hdf_simple(out_data)
 
     plot_title = 'Neural Network'
@@ -552,7 +562,7 @@ def model_test(cli_args):
         jac_path = raw_sim_data_chunk_paths(jac_tag)[0]
         jacobian = read_hdf(jac_path)[jac_table][:].astype(np.float32)
         # Compute the residual in terms of actuator heights; convert to m
-        residual_heights = (heights_model - heights_truth) * 1e-9
+        residual_heights = (new_basis_model - new_basis_truth) * 1e-9
         # Obtain the residual EF based on the Jacobian
         residual_ef = residual_heights @ jacobian.T
         residual_efr, residual_efi = np.split(residual_ef, 2, axis=-1)
