@@ -136,9 +136,10 @@ def model_test_parser(subparsers):
     )
     subparser.add_argument(
         '--convert-basis-save-values',
-        action='store_true',
+        type=int,
         help=('should be used with the `--convert-basis` arg; '
-              'save the values in the new basis to the output datafile'),
+              'save the values in the new basis to the output datafile; '
+              'the passed argument specifies the first n rows to save'),
     )
     subparser.add_argument(
         '--max-rows-per-model-call',
@@ -349,10 +350,12 @@ def model_test(cli_args):
         print(f'Overall new shape: {new_basis_truth.shape}')
         print(f'Overall MAE: {mae(new_basis_truth, new_basis_model)}')
         print(f'Overall MSE: {mse(new_basis_truth, new_basis_model)}')
-        if cli_args['convert_basis_save_values']:
+        save_values = cli_args.get('convert_basis_save_values')
+        if save_values is not None:
             print('Will save these values to the output datafile')
-            out_data['new_basis_truth'] = new_basis_truth
-            out_data['new_basis_model'] = new_basis_model
+            print(f'Saving first {save_values} rows')
+            out_data['new_basis_truth'] = new_basis_truth[:save_values]
+            out_data['new_basis_model'] = new_basis_model[:save_values]
 
     step_ri('Writing results to HDF')
     out_file_path = f'{analysis_path}/{RESULTS_F}'

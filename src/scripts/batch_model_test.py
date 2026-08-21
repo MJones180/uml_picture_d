@@ -87,9 +87,10 @@ def batch_model_test_parser(subparsers):
     )
     subparser.add_argument(
         '--convert-basis-save-values',
-        action='store_true',
+        type=int,
         help=('should be used with the `--convert-basis` arg; '
-              'save the values in the new basis to the output datafile'),
+              'save the values in the new basis to the output datafile; '
+              'the passed argument specifies the first n rows to save'),
     )
     subparser.add_argument(
         '--take-rss-model-outputs',
