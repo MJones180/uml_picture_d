@@ -29,6 +29,7 @@ from utils.plots.plot_zernike_cross_coupling_mat_animation import plot_zernike_c
 from utils.plots.plot_zernike_crosstalk_grid import plot_zernike_crosstalk_grid
 from utils.plots.plot_zernike_response import plot_zernike_response
 from utils.plots.plot_zernike_total_cross_coupling import plot_zernike_total_cross_coupling  # noqa: E501
+from utils.plots.plot_2d_comparison import plot_2d_comparison
 from utils.plots.paper_plots.total_crosstalk import paper_plot_total_crosstalk  # noqa
 from utils.plots.paper_plots.model_scatters import paper_plot_model_scatters  # noqa
 from utils.plots.paper_plots.zernike_response import paper_plot_zernike_response  # noqa
@@ -181,6 +182,37 @@ def model_test_parser(subparsers):
               'the `--convert-basis` argument; the intensity residual is '
               'computed using the Jacobian; six arguments expected: DH mask '
               'tag, DH mask table, Jacobian tag, Jacobian table, vmin, vmax'),
+    )
+    subparser.add_argument(
+        '--plot-reconstructions',
+        nargs='*',
+        type=int,
+        help=('plot reconstructions between the model output and the truth '
+              'in the new basis; this must be called with the '
+              '`--convert-basis` argument; arguments expected: idxs to plot'),
+    )
+    subparser.add_argument(
+        '--plot-reconstructions-mask',
+        nargs=2,
+        help=('mask that maps the 1D outputs in the new basis back to the '
+              'original 2D shape; the first row will be used from the passed '
+              'datafile to create the mask; this must be called with the '
+              '`--plot-reconstructions` argument; two arguments expected: '
+              'raw data tag, table'),
+    )
+    subparser.add_argument(
+        '--plot-reconstructions-is-ef',
+        action='store_true',
+        help=('the reconstructions are of an electric field; '
+              'must be called with the `--plot-reconstructions` argument'),
+    )
+    subparser.add_argument(
+        '--plot-reconstructions-groups',
+        nargs='*',
+        help=('the names of the data groupings contained in each output; '
+              'must be called with the `--plot-reconstructions` argument; '
+              'if the output is an EF then `--plot-reconstructions-is-ef` '
+              'should be used instead; arguments expected: grouping names'),
     )
     shared_argparser_args(subparser, ['force_cpu'])
 
@@ -578,3 +610,48 @@ def model_test(cli_args):
         title_str = (f'Average Intensity Error ({rows} rows)')
         plot_dh_contrast(intensity_2d, float(vmin), float(vmax), title_str,
                          f'{analysis_path}/avg_intensity_error.png')
+
+    plot_reconstructions = cli_args.get('plot_reconstructions')
+    if plot_reconstructions is not None:
+        step_ri('Plotting reconstructions')
+        mask = None
+        apply_mask = cli_args.get('plot_reconstructions_mask')
+        if apply_mask is not None:
+            mask_tag, mask_table = apply_mask
+            print(f'Loading mask from: {mask_tag}')
+            mask_path = raw_sim_data_chunk_paths(mask_tag)[0]
+            mask = read_hdf(mask_path)[mask_table][0] != 0
+            print(f'Mask shape: {mask.shape}')
+        is_ef = cli_args['plot_reconstructions_is_ef']
+        group_names = cli_args.get('plot_reconstructions_groups')
+        if is_ef:
+            print('Plotting EF')
+            groups = 2
+            group_names = ['Real(EF)', 'Imag(EF)', 'Intensity']
+        elif group_names is not None:
+            print(f'Plotting group names: {group_names}')
+            groups = len(group_names)
+        else:
+            terminate_with_message('Required arg not passed')
+        for idx in plot_reconstructions:
+            print(f'Plotting {idx}')
+            truth_row = np.split(new_basis_truth[idx], groups)
+            model_row = np.split(new_basis_model[idx], groups)
+            if is_ef:
+                truth_row.append(truth_row[0]**2 + truth_row[1]**2)
+                model_row.append(model_row[0]**2 + model_row[1]**2)
+            # The first dim is the rows in the plot: truth, model, diff
+            # The second dim is the columns in the plot
+            # The final two dims are the images
+            data_to_plot = np.zeros((3, len(truth_row), *mask.shape))
+            data_to_plot[:, :, mask] = [
+                truth_row, model_row,
+                np.asarray(truth_row) - np.asarray(model_row)
+            ]
+            plot_2d_comparison(
+                data=data_to_plot,
+                row_identifiers=['Truth', 'Model', 'Truth - Model'],
+                col_identifiers=group_names,
+                fix_colorbars=True,
+                plot_path=f'{analysis_path}/reconstruction_{idx}.png',
+            )

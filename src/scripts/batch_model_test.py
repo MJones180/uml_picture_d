@@ -132,6 +132,37 @@ def batch_model_test_parser(subparsers):
               'computed using the Jacobian; six arguments expected: DH mask '
               'tag, DH mask table, Jacobian tag, Jacobian table, vmin, vmax'),
     )
+    subparser.add_argument(
+        '--plot-reconstructions',
+        nargs='*',
+        type=int,
+        help=('plot reconstructions between the model output and the truth '
+              'in the new basis; this must be called with the '
+              '`--convert-basis` argument; arguments expected: idxs to plot'),
+    )
+    subparser.add_argument(
+        '--plot-reconstructions-mask',
+        nargs=2,
+        help=('mask that maps the 1D outputs in the new basis back to the '
+              'original 2D shape; the first row will be used from the passed '
+              'datafile to create the mask; this must be called with the '
+              '`--plot-reconstructions` argument; two arguments expected: '
+              'raw data tag, table'),
+    )
+    subparser.add_argument(
+        '--plot-reconstructions-is-ef',
+        action='store_true',
+        help=('the reconstructions are of an electric field; '
+              'must be called with the `--plot-reconstructions` argument'),
+    )
+    subparser.add_argument(
+        '--plot-reconstructions-groups',
+        nargs='*',
+        help=('the names of the data groupings contained in each output; '
+              'must be called with the `--plot-reconstructions` argument; '
+              'if the output is an EF then `--plot-reconstructions-is-ef` '
+              'should be used instead; arguments expected: grouping names'),
+    )
     shared_argparser_args(subparser, ['force_cpu'])
 
     selection_group = subparser.add_mutually_exclusive_group()
@@ -187,6 +218,10 @@ def batch_model_test(cli_args):
             'plot_layerscale_gamma',
             'plot_loss_curves',
             'plot_avg_dh_intensity_error',
+            'plot_reconstructions',
+            'plot_reconstructions_mask',
+            'plot_reconstructions_is_ef',
+            'plot_reconstructions_groups',
         )
     }
 
