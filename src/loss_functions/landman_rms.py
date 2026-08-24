@@ -21,6 +21,8 @@ class LandmanRMS(torch.nn.Module):
         self.epsilon = epsilon
         if self.epsilon is None:
             self.epsilon = 1
+        else:
+            self.epsilon = float(epsilon)
         print(f'Epsilon: {self.epsilon}')
 
     def forward(self, model_outputs, truth_outputs):
