@@ -94,6 +94,12 @@ def analyze_basis_modes_parser(subparsers):
               'raw datafile tag, table name for the mean values'),
     )
     subparser.add_argument(
+        '--reconstruct-data-mean-subtraction-keep',
+        action='store_true',
+        help=('should be used with the `--reconstruct-data-mean-subtraction` '
+              'argument; keep the mean out of the data for reconstructions'),
+    )
+    subparser.add_argument(
         '--reconstruct-data-circle-mask',
         action='store_true',
         help=('used in conjunction with the `--reconstruct-data` arg; '
@@ -355,8 +361,13 @@ def analyze_basis_modes(cli_args):
 
         step('Inverting the modes to find the new basis coeffs')
         modes_inv = np.linalg.pinv(modes_data)
-        new_basis_coeffs = (data - mean_vals) @ modes_inv
-        reconstructed_data = (new_basis_coeffs @ modes_data) + mean_vals
+        if cli_args['reconstruct_data_mean_subtraction_keep']:
+            data = data - mean_vals
+            new_basis_coeffs = data @ modes_inv
+            reconstructed_data = (new_basis_coeffs @ modes_data)
+        else:
+            new_basis_coeffs = (data - mean_vals) @ modes_inv
+            reconstructed_data = (new_basis_coeffs @ modes_data) + mean_vals
         print(f'New basis coeffs shape: {new_basis_coeffs.shape}')
         # The error when switching to the new basis representation
         error = mse(data, reconstructed_data)
