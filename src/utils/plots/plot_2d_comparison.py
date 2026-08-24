@@ -34,7 +34,7 @@ def plot_2d_comparison(
     nrows, ncols, _, _ = data.shape
 
     fig = plt.figure(figsize=(ncols * 5, nrows * 4))
-    ax = fig.subplots(nrows=nrows, ncols=ncols)
+    ax = fig.subplots(nrows=nrows, ncols=ncols, squeeze=False)
 
     # Accumulate the bounds for each column
     if fix_colorbars:
