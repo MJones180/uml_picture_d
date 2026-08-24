@@ -361,6 +361,77 @@ V3:
         --max-scale-inputs \
         --use-existing-norm-vals train_pol_v3_norm
 
+V4:
+
+    python3 main.py preprocess_data_pol \
+        --output-tags train_pol_v4 \
+        --output-tag-percentages 100 \
+        --raw-data-tags pol_35371_phase_and_amp_sqrt_int \
+        --tables-to-load intensity_pol0 intensity_pol1 phase \
+        --apply-mask darkhole_mask dark_zone_mask intensity_pol0 intensity_pol1 \
+        --merge-tables intensity_pol0 intensity_pol1 intensity \
+        --switch-basis intensity pol_psfs_pol0_pol1_modes_2000_sqrt_masked_151931 modes 2000 \
+                       phase     pol_hodm_plane_phase_modes_1000_79650            modes 1000 \
+        --input-tables intensity --output-tables phase --fix-seed 314
+    python3 main.py preprocess_data_pol \
+        --output-tags train_pol_v4 \
+        --output-tag-percentages 100 \
+        --raw-data-tags pol_36910_phase_and_amp_sqrt_int \
+        --tables-to-load intensity_pol0 intensity_pol1 phase \
+        --apply-mask darkhole_mask dark_zone_mask intensity_pol0 intensity_pol1 \
+        --merge-tables intensity_pol0 intensity_pol1 intensity \
+        --switch-basis intensity pol_psfs_pol0_pol1_modes_2000_sqrt_masked_151931 modes 2000 \
+                       phase     pol_hodm_plane_phase_modes_1000_79650            modes 1000 \
+        --input-tables intensity --output-tables phase --fix-seed 314 \
+        --extend-existing-preprocessed-data
+    python3 main.py preprocess_data_pol \
+        --output-tags train_pol_v4 \
+        --output-tag-percentages 100 \
+        --raw-data-tags pol_37922_phase_and_amp_sqrt_int \
+        --tables-to-load intensity_pol0 intensity_pol1 phase \
+        --apply-mask darkhole_mask dark_zone_mask intensity_pol0 intensity_pol1 \
+        --merge-tables intensity_pol0 intensity_pol1 intensity \
+        --switch-basis intensity pol_psfs_pol0_pol1_modes_2000_sqrt_masked_151931 modes 2000 \
+                       phase     pol_hodm_plane_phase_modes_1000_79650            modes 1000 \
+        --input-tables intensity --output-tables phase --fix-seed 314 \
+        --extend-existing-preprocessed-data
+    python3 main.py preprocess_data_pol \
+        --output-tags train_pol_v4 \
+        --output-tag-percentages 100 \
+        --raw-data-tags pol_41728_phase_and_amp_sqrt_int \
+        --tables-to-load intensity_pol0 intensity_pol1 phase \
+        --apply-mask darkhole_mask dark_zone_mask intensity_pol0 intensity_pol1 \
+        --merge-tables intensity_pol0 intensity_pol1 intensity \
+        --switch-basis intensity pol_psfs_pol0_pol1_modes_2000_sqrt_masked_151931 modes 2000 \
+                       phase     pol_hodm_plane_phase_modes_1000_79650            modes 1000 \
+        --input-tables intensity --output-tables phase --fix-seed 314 \
+        --extend-existing-preprocessed-data
+
+    python3 main.py normalize_processed_dataset \
+        train_pol_v4_norm train_pol_v4 \
+        --z-score-norm-inputs --z-score-norm-outputs
+
+    python3 main.py preprocess_data_pol \
+        --output-tags val_pol_v4 test_pol_v4 \
+        --output-tag-percentages 75 25 \
+        --raw-data-tags pol_34957_phase_and_amp_sqrt_int \
+        --tables-to-load intensity_pol0 intensity_pol1 phase \
+        --apply-mask darkhole_mask dark_zone_mask intensity_pol0 intensity_pol1 \
+        --merge-tables intensity_pol0 intensity_pol1 intensity \
+        --switch-basis intensity pol_psfs_pol0_pol1_modes_2000_sqrt_masked_151931 modes 2000 \
+                       phase     pol_hodm_plane_phase_modes_1000_79650            modes 1000 \
+        --input-tables intensity --output-tables phase --fix-seed 314
+
+    python3 main.py normalize_processed_dataset \
+        val_pol_v4_norm val_pol_v4 \
+        --z-score-norm-inputs --z-score-norm-outputs \
+        --use-existing-norm-vals train_pol_v4_norm
+
+    python3 main.py normalize_processed_dataset \
+        test_pol_v4_norm test_pol_v4 \
+        --z-score-norm-inputs \
+        --use-existing-norm-vals train_pol_v4_norm
+
 ## Random Commands
 
 Plot SVD basis reconstructions:
