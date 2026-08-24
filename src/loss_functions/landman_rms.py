@@ -1,10 +1,10 @@
 import torch
 
 
-class LandmanMSE(torch.nn.Module):
+class LandmanRMS(torch.nn.Module):
 
     def __init__(self, epsilon=None):
-        """The LandmanMSE class.
+        """The LandmanRMS class.
 
         Parameters
         ----------
@@ -13,7 +13,7 @@ class LandmanMSE(torch.nn.Module):
 
         Notes
         -----
-        MSE loss function based on 2024 Landman paper (Making the unmodulated
+        RMS loss function based on 2024 Landman paper (Making the unmodulated
         Pyramid wavefront sensor smart).
         """
         super().__init__()
