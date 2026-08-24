@@ -8,6 +8,7 @@ The training and validation dataset must have their inputs pre-normalized.
 """
 
 from loss_functions.jacobian_ef import JacobianEF
+from loss_functions.landman_mse import LandmanMSE
 from loss_functions.weighted_two_dms import WeightedTwoDMs
 import numpy as np
 from time import time
@@ -830,6 +831,10 @@ def model_train(cli_args):
             model_outputs = apply_mlog_trans(model_outputs)
             loss = (truth_outputs - model_outputs)**2
             return loss.mean()
+    elif loss_name == 'landman_mse':
+        print('Landman MSE')
+        loss_obj = LandmanMSE(**loss_params)
+        loss_function = loss_obj.forward
     elif 'weighted_two_dms' in loss_name:
         print('Weighted Two DMs')
         loss_obj = WeightedTwoDMs(
