@@ -42,6 +42,12 @@ def apply_data_transformation_parser(subparsers):
         action='store_true',
         help='apply a sqrt transformation',
     )
+    subparser.add_argument(
+        '--table-difference',
+        nargs=3,
+        help=('take the difference between two tables; three args expected: '
+              'table 1, table 2, new table; new table = table 1 - table 2'),
+    )
 
 
 def apply_data_transformation(cli_args):
@@ -80,6 +86,13 @@ def apply_data_transformation(cli_args):
             np.log10(values + log10_data, out=table_data[table_name])
         elif sqrt_data is not None:
             np.sqrt(values, out=table_data[table_name])
+
+    table_difference = cli_args.get('table_difference')
+    if table_difference is not None:
+        step_ri('Taking difference of two tables')
+        table1, table2, new_table = table_difference
+        print(f'{new_table} = {table1} - {table2}')
+        table_data[new_table] = table_data.pop(table1) - table_data.pop(table2)
 
     step_ri('Creating output directory and writing out CLI args')
     new_tag = cli_args['new_tag']
