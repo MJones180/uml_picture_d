@@ -18,6 +18,8 @@ def plot_wavefront(
     disable_plot_ticks=False,
     cmap_name='Greys_r',
     set_zero_to_black=False,
+    linear_vmin=None,
+    linear_vmax=None,
 ):
     # Load in the style file
     plt.style.use(PLOT_STYLE_FILE)
@@ -38,7 +40,11 @@ def plot_wavefront(
         if set_zero_to_black:
             cmap.set_bad(color='black')
             data[data == 0] = np.nan
-        plt.imshow(data, cmap=cmap)
+        if linear_vmin is None:
+            linear_vmin = np.nanmin(data)
+        if linear_vmax is None:
+            linear_vmax = np.nanmax(data)
+        plt.imshow(data, cmap=cmap, vmin=linear_vmin, vmax=linear_vmax)
     plt.xlabel('X [mm]')
     plt.ylabel('Y [mm]')
     tick_count = 3
