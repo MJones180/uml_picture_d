@@ -1,5 +1,5 @@
-# `pol_t3_50d_dyn` network { 6962 -> 1000 }.
-# Trainable parameters: 45,605,352
+# `pol_t3_50d_dyn` network { 750 -> 400 }.
+# Trainable parameters: 40,373,136
 import numpy as np
 import torch
 import torch.nn as nn
@@ -8,9 +8,9 @@ import torch.nn as nn
 # CONFIG OPTIONS
 # ==============================================================================
 # Number of input neurons
-IN_DIM = 6962
+IN_DIM = 750
 # Number of output neurons
-OUT_DIM = 1000
+OUT_DIM = 400
 # Number of neurons expanded out to
 OUTER_DIM = 768
 # Number of neurons for the bottleneck
