@@ -7,7 +7,7 @@ in both polarizations; output: EF being estimated).
 import numpy as np
 from utils.cli_args import save_cli_args
 from utils.constants import (DATA_F, EXTRA_VARS_F, INPUTS, MEAN, OUTPUTS,
-                             PROC_DATA_P)
+                             PROC_DATA_P, STD)
 from utils.group_data_from_list import group_data_from_list
 from utils.hdf_read_and_write import HDFWriteModule, read_hdf
 from utils.load_raw_sim_data import raw_sim_data_chunk_paths
@@ -248,15 +248,31 @@ def preprocess_data_pol(cli_args):
             # Pick out the correct number of modes from the start
             modes = modes[:int(number_modes)]
             table_data = all_table_data[table]
-            # Mean center the data if the table exists in the modes datafile
-            if MEAN in list(modes_data):
-                mean_name = f'{modes_tag}_{MEAN}'
-                if extend_existing_data:
-                    mean_values = _use_var(mean_name)
-                else:
-                    mean_values = modes_data[MEAN][:].astype(np.float32)
-                    _save_var(mean_name, mean_values)
+
+            # The modes may contain extra variables
+            def _grab_mode_var(name):
+                if name in list(modes_data):
+                    save_name = f'{modes_tag}_{name}'
+                    if extend_existing_data:
+                        values = _use_var(save_name)
+                    else:
+                        values = modes_data[name][:].astype(np.float32)
+                        _save_var(save_name, values)
+                    return values
+                return None
+
+            # Give each pixel a zero mean
+            mean_values = _grab_mode_var(MEAN)
+            if mean_values is not None:
+                print('Giving zero mean')
                 table_data -= mean_values
+
+            # Give each pixel a unit variance
+            std_values = _grab_mode_var(STD)
+            if std_values is not None:
+                print('Giving unit variance')
+                table_data /= std_values
+
             # Invert the modes
             modes_inv = np.linalg.pinv(modes)
             # The coefficients in the new basis
