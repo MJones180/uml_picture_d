@@ -1,7 +1,8 @@
 import numpy as np
 import torch
 from utils.cli_args import save_cli_args
-from utils.constants import DARK_ZONE_MASK, DATA_F, MEAN, RAW_DATA_P
+from utils.constants import (DARK_ZONE_MASK, DATA_F, EXPLAINED_VARIANCE_RATIO,
+                             MEAN, MODES, RAW_DATA_P, SINGULAR_VALUES, STD)
 from utils.create_grid_mask import create_grid_mask
 from utils.hdf_read_and_write import HDFWriteModule, read_hdf
 from utils.load_raw_sim_data import raw_sim_data_chunk_paths
@@ -50,6 +51,16 @@ def create_pca_basis_modes_parser(subparsers):
         '--auto-mask',
         action='store_true',
         help='mask out all the inactive pixels',
+    )
+    subparser.add_argument(
+        '--unit-variance',
+        action='store_true',
+        help='give the data a unit variance before finding the modes',
+    )
+    subparser.add_argument(
+        '--save-explained-variance',
+        action='store_true',
+        help='calculate and save the explained variance ratio',
     )
 
 
@@ -117,10 +128,18 @@ def create_pca_basis_modes(cli_args):
     print(f'Merged shape: {all_table_data.shape}')
 
     step_ri('Computing PCA modes')
+    # Data that will be written out
+    output_data = {}
     # Find the mean vals
-    mean_vals = np.mean(all_table_data, axis=0)
-    # Subtract off the mean
-    all_table_data -= mean_vals
+    output_data[MEAN] = np.mean(all_table_data, axis=0)
+    # Give each pixel a zero mean
+    all_table_data -= output_data[MEAN]
+    if cli_args['unit_variance']:
+        print('Giving the data a unit variance')
+        # Find the std vals
+        output_data[STD] = np.std(all_table_data, axis=0)
+        # Give each pixel a unit variance
+        all_table_data /= output_data[STD]
     # The PCA modes are calculated in torch since `svd_lowrank` doesn't
     # require every mode to be computed; convert to a torch tensor
     tensor_data = torch.from_numpy(all_table_data)
@@ -133,6 +152,14 @@ def create_pca_basis_modes(cli_args):
     # Go from shape (pixels, modes) to (modes, pixels)
     modes = modes.T
     print(f'Modes shape: {modes.shape}')
+    output_data[MODES] = modes
+    output_data[SINGULAR_VALUES] = sing_vals
+
+    if cli_args['save_explained_variance']:
+        step_ri('Calculating explained variance')
+        mode_variances = (sing_vals**2) / (tensor_data.shape[0] - 1)
+        ds_variance = torch.var(tensor_data, dim=0).sum()
+        output_data[EXPLAINED_VARIANCE_RATIO] = mode_variances / ds_variance
 
     step_ri('Writing out modes')
     out_dir = f'{RAW_DATA_P}/{output_tag}'
@@ -142,7 +169,4 @@ def create_pca_basis_modes(cli_args):
     save_cli_args(out_dir, cli_args, 'create_pca_basis_modes')
     datafile_path = f'{out_dir}/0_{DATA_F}'
     print(f'Path: {datafile_path}')
-    HDFWriteModule(datafile_path).create_and_write_hdf_simple({
-        'modes': modes,
-        MEAN: mean_vals,
-    })
+    HDFWriteModule(datafile_path).create_and_write_hdf_simple(output_data)
