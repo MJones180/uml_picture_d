@@ -426,15 +426,18 @@ def analyze_basis_modes(cli_args):
         if cli_args.get('reconstruct_data_plots'):
             step(f'Plotting the reconstruction (row {row_idx})')
             table_name = '_'.join(table_names)
-            base_fname = f'{datafile_tag}_table_{table_name}_row{row_idx}'
+            base_fname = (f'{datafile_tag}_table_{table_name}_row{row_idx}'
+                          f'_modes{number_of_modes}')
 
             def _plot_recon(data, recon_data, base_filename, title_info=''):
                 vmin = np.min(data)
                 vmax = np.max(data)
+                base_title = (f'Row {row_idx}{title_info} '
+                              f'({number_of_modes} modes): ')
                 _plot_grid(
                     data,
                     f'{base_filename}_orig',
-                    f'Row {row_idx}{title_info}: Original',
+                    base_title + 'Original',
                     f'Original{title_info}',
                     vmin,
                     vmax,
@@ -442,7 +445,7 @@ def analyze_basis_modes(cli_args):
                 _plot_grid(
                     recon_data,
                     f'{base_filename}_reconstructed',
-                    f'Row {row_idx}{title_info}: Reconstructed',
+                    base_title + 'Recon',
                     f'Reconstructed{title_info}',
                     vmin,
                     vmax,
@@ -450,7 +453,7 @@ def analyze_basis_modes(cli_args):
                 _plot_grid(
                     data - recon_data,
                     f'{base_filename}_diff',
-                    f'Row {row_idx}{title_info}: Original - Reconstructed',
+                    base_title + 'Diff',
                     f'Diff{title_info}',
                     vmin,
                     vmax,
