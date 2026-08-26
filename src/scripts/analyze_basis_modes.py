@@ -3,11 +3,13 @@ Analyze modes from a basis set (for instance, SVD modes).
 """
 
 import numpy as np
-from utils.constants import MODE_ANALYSIS_P
+from utils.constants import (EXPLAINED_VARIANCE_RATIO, MEAN, MODE_ANALYSIS_P,
+                             SINGULAR_VALUES, STD)
 from utils.create_grid_mask import create_grid_mask
 from utils.hdf_read_and_write import read_hdf
 from utils.load_raw_sim_data import raw_sim_data_chunk_paths
 from utils.path import make_dir
+from utils.plots.plot_line import plot_line
 from utils.plots.plot_wavefront import plot_wavefront
 from utils.printing_and_logging import dec_print_indent, step, step_ri, title
 from utils.stats_and_error import mse
@@ -80,24 +82,22 @@ def analyze_basis_modes_parser(subparsers):
               'two arguments expected: low mode idx, high mode idx '),
     )
     subparser.add_argument(
+        '--plot-singular-values',
+        action='store_true',
+        help='plot the singular values',
+    )
+    subparser.add_argument(
+        '--plot-explained-variance',
+        action='store_true',
+        help='plot the explained variance',
+    )
+    subparser.add_argument(
         '--reconstruct-data',
         nargs='*',
         help=('reconstruct data in terms of the basis being analyzed; the '
               'following arguments are expected: raw datafile tag, number of '
               'modes to use, *datafile table names (multiple may be needed '
               'for complex data or two DMs)'),
-    )
-    subparser.add_argument(
-        '--reconstruct-data-mean-subtraction',
-        nargs=2,
-        help=('subtract the mean from the data; two arguments expected: '
-              'raw datafile tag, table name for the mean values'),
-    )
-    subparser.add_argument(
-        '--reconstruct-data-mean-subtraction-keep',
-        action='store_true',
-        help=('should be used with the `--reconstruct-data-mean-subtraction` '
-              'argument; keep the mean out of the data for reconstructions'),
     )
     subparser.add_argument(
         '--reconstruct-data-circle-mask',
@@ -143,8 +143,17 @@ def analyze_basis_modes(cli_args):
     print(f'Modes path: {modes_path}')
     modes_table_name = cli_args['modes_table_name']
     print(f'Table name: {modes_table_name}')
-    modes_data = read_hdf(modes_path)[modes_table_name][:]
+    modes_datafile = read_hdf(modes_path)
+    modes_data = modes_datafile[modes_table_name][:]
     print(f'Modes shape: {modes_data.shape}')
+
+    modes_mean = None
+    if MEAN in list(modes_datafile):
+        modes_mean = modes_datafile[MEAN][:]
+
+    modes_std = None
+    if STD in list(modes_datafile):
+        modes_std = modes_datafile[STD][:]
 
     if cli_args.get('transpose_modes'):
         step_ri('Transposing the modes')
@@ -215,7 +224,14 @@ def analyze_basis_modes(cli_args):
         mask_data = read_hdf(mask_path)[mask_table][int(mask_row)] != 0
         print(f'Mask shape: {mask_data.shape}')
 
-    def _plot_grid(plot_data, filename, plot_title, print_prefix):
+    def _plot_grid(
+        plot_data,
+        filename,
+        plot_title,
+        print_prefix,
+        vmin=None,
+        vmax=None,
+    ):
         mode_plot_path = f'{output_dir}/{filename}.png'
         if display_as_circle is not None:
             plot_data_2d = np.zeros((grid_size, grid_size))
@@ -234,6 +250,8 @@ def analyze_basis_modes(cli_args):
             disable_plot_ticks=True,
             cmap_name='viridis',
             set_zero_to_black=True,
+            linear_vmin=vmin,
+            linear_vmax=vmax,
         )
         print(f'{print_prefix}: {mode_plot_path}')
 
@@ -289,6 +307,37 @@ def analyze_basis_modes(cli_args):
                     print_prefix,
                 )
 
+    if cli_args['plot_singular_values']:
+        step_ri('Plotting singular values')
+        singular_values = modes_datafile[SINGULAR_VALUES][:]
+        plot_line(
+            singular_values,
+            'Singular Values',
+            'Mode Index',
+            'Singular Value',
+            f'{output_dir}/singular_values.png',
+            show_grid=True,
+        )
+
+    if cli_args['plot_explained_variance']:
+        step_ri('Plotting explained variance')
+        explained_variance = modes_datafile[EXPLAINED_VARIANCE_RATIO][:]
+        plot_line(
+            [
+                explained_variance / np.max(explained_variance),
+                np.cumsum(explained_variance),
+            ],
+            'Explained Variance',
+            'Mode Index',
+            'Value',
+            f'{output_dir}/explained_variance.png',
+            labels=[
+                'Normalized Explained Variance',
+                'Cumulative Explained Variance',
+            ],
+            show_grid=True,
+        )
+
     reconstruct_data = cli_args.get('reconstruct_data')
     if reconstruct_data is not None:
         step_ri('Data reconstruction')
@@ -340,19 +389,15 @@ def analyze_basis_modes(cli_args):
             print(f'Data shape: {data.shape}')
             dec_print_indent()
 
-        mean_subtraction = cli_args.get('reconstruct_data_mean_subtraction')
-        if mean_subtraction is not None:
-            step('Mean subtracting the data')
-            mean_tag, mean_table = mean_subtraction
-            print(f'Tag: {mean_tag}')
-            mean_path = raw_sim_data_chunk_paths(mean_tag)[0]
-            print(f'Mean path: {mean_path}')
-            print(f'Table name: {mean_table}')
-            mean_vals = read_hdf(mean_path)[mean_table][:]
-            print(f'Mean shape: {mean_vals.shape}')
+        if modes_mean is not None:
+            step('Giving data zero mean')
+            data = data - modes_mean
             dec_print_indent()
-        else:
-            mean_vals = np.zeros(data.shape[-1])
+
+        if modes_std is not None:
+            step('Giving data unit variance')
+            data = data / modes_std
+            dec_print_indent()
 
         step('Taking desired number of modes')
         modes_data = modes_data[:int(number_of_modes)]
@@ -361,13 +406,8 @@ def analyze_basis_modes(cli_args):
 
         step('Inverting the modes to find the new basis coeffs')
         modes_inv = np.linalg.pinv(modes_data)
-        if cli_args['reconstruct_data_mean_subtraction_keep']:
-            data = data - mean_vals
-            new_basis_coeffs = data @ modes_inv
-            reconstructed_data = (new_basis_coeffs @ modes_data)
-        else:
-            new_basis_coeffs = (data - mean_vals) @ modes_inv
-            reconstructed_data = (new_basis_coeffs @ modes_data) + mean_vals
+        new_basis_coeffs = data @ modes_inv
+        reconstructed_data = (new_basis_coeffs @ modes_data)
         print(f'New basis coeffs shape: {new_basis_coeffs.shape}')
         # The error when switching to the new basis representation
         error = mse(data, reconstructed_data)
@@ -389,23 +429,31 @@ def analyze_basis_modes(cli_args):
             base_fname = f'{datafile_tag}_table_{table_name}_row{row_idx}'
 
             def _plot_recon(data, recon_data, base_filename, title_info=''):
+                vmin = np.min(data)
+                vmax = np.max(data)
                 _plot_grid(
                     data,
                     f'{base_filename}_orig',
                     f'Row {row_idx}{title_info}: Original',
                     f'Original{title_info}',
+                    vmin,
+                    vmax,
                 )
                 _plot_grid(
                     recon_data,
                     f'{base_filename}_reconstructed',
                     f'Row {row_idx}{title_info}: Reconstructed',
                     f'Reconstructed{title_info}',
+                    vmin,
+                    vmax,
                 )
                 _plot_grid(
                     data - recon_data,
                     f'{base_filename}_diff',
                     f'Row {row_idx}{title_info}: Original - Reconstructed',
                     f'Diff{title_info}',
+                    vmin,
+                    vmax,
                 )
 
             if modes_are_complex is not None:
