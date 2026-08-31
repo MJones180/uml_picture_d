@@ -361,3 +361,22 @@ Model training is listed from oldest to newest (newest at the bottom).
         --plot-reconstructions 0 1 2 \
         --plot-reconstructions-mask pol_41728_phase_and_amp_log10_int_diff phase \
         --plot-reconstructions-groups phase
+
+[V5] The `pol_v5_` tag:
+
+    python3 main_scnp.py model_train \
+        pol_v5_2 train_pol_v5_norm train_pol_v5_norm \
+        pol_t4_25d_dyn mse adamw 1e-2 500 --batch-size 4096 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-one-cycle-lr-scheduler --drop-last --init-weights-kaiming-normal-simple 0.20 input blocks \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates --fix-seed 314
+
+    python3 -u main.py batch_model_test \
+        test_pol_v5_norm \
+        --epoch-and-tag-range last pol_v5_ 1 6 --plot-loss-curves \
+        --convert-basis pol_hodm_plane_phase_modes_1000_79650 modes 400 \
+        --convert-basis-save-values 5 --convert-basis-max-rows-to-use 10000 \
+        --plot-coeff-mae-smape 400 --max-rows-per-model-call 1000 \
+        --plot-reconstructions 0 1 2 \
+        --plot-reconstructions-mask pol_41728_phase_and_amp_log10_int_diff phase \
+        --plot-reconstructions-groups phase
