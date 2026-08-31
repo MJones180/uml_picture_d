@@ -113,6 +113,29 @@ Take the log10 difference of the intensities (with phase and amp):
         --tables-to-copy phase amp --log10-data 1e-7 \
         --table-difference intensity_pol0 intensity_pol1 intensity
 
+Take the log10 of the intensities (with phase and amp):
+
+    python3 main.py apply_data_transformation \
+        pol_34957_phase_and_amp pol_34957_phase_and_amp_log10_int \
+        --tables-to-transform intensity_pol0 intensity_pol1 \
+        --tables-to-copy phase amp --log10-data 1e-15
+    python3 main.py apply_data_transformation \
+        pol_35371_phase_and_amp pol_35371_phase_and_amp_log10_int \
+        --tables-to-transform intensity_pol0 intensity_pol1 \
+        --tables-to-copy phase amp --log10-data 1e-15
+    python3 main.py apply_data_transformation \
+        pol_36910_phase_and_amp pol_36910_phase_and_amp_log10_int \
+        --tables-to-transform intensity_pol0 intensity_pol1 \
+        --tables-to-copy phase amp --log10-data 1e-15
+    python3 main.py apply_data_transformation \
+        pol_37922_phase_and_amp pol_37922_phase_and_amp_log10_int \
+        --tables-to-transform intensity_pol0 intensity_pol1 \
+        --tables-to-copy phase amp --log10-data 1e-15
+    python3 main.py apply_data_transformation \
+        pol_41728_phase_and_amp pol_41728_phase_and_amp_log10_int \
+        --tables-to-transform intensity_pol0 intensity_pol1 \
+        --tables-to-copy phase amp --log10-data 1e-15
+
 ## Basis commands
 
 Create a new EF basis from PCA:
@@ -460,65 +483,65 @@ V5:
     python3 main.py preprocess_data_pol \
         --output-tags train_pol_v5 \
         --output-tag-percentages 100 \
-        --raw-data-tags pol_35371_phase_and_amp_log10_int_diff \
-        --tables-to-load intensity phase \
-        --apply-mask darkhole_mask dark_zone_mask intensity \
-        --switch-basis intensity pol_psfs_pol0_pol1_modes_2000_log10_diff_masked_151931 modes 750 \
-                       phase     pol_hodm_plane_phase_modes_1000_79650                  modes 100 \
+        --raw-data-tags pol_35371_phase_and_amp_log10_int \
+        --tables-to-load intensity_pol0 intensity_pol1 phase \
+        --apply-mask darkhole_mask dark_zone_mask intensity_pol0 intensity_pol1 \
+        --merge-tables intensity_pol0 intensity_pol1 intensity \
+        --switch-basis phase pol_hodm_plane_phase_modes_1000_79650 modes 100 \
         --input-tables intensity --output-tables phase --fix-seed 314
     python3 main.py preprocess_data_pol \
         --output-tags train_pol_v5 \
         --output-tag-percentages 100 \
-        --raw-data-tags pol_36910_phase_and_amp_log10_int_diff \
-        --tables-to-load intensity phase \
-        --apply-mask darkhole_mask dark_zone_mask intensity \
-        --switch-basis intensity pol_psfs_pol0_pol1_modes_2000_log10_diff_masked_151931 modes 750 \
-                       phase     pol_hodm_plane_phase_modes_1000_79650                  modes 100 \
+        --raw-data-tags pol_36910_phase_and_amp_log10_int \
+        --tables-to-load intensity_pol0 intensity_pol1 phase \
+        --apply-mask darkhole_mask dark_zone_mask intensity_pol0 intensity_pol1 \
+        --merge-tables intensity_pol0 intensity_pol1 intensity \
+        --switch-basis phase pol_hodm_plane_phase_modes_1000_79650 modes 100 \
         --input-tables intensity --output-tables phase --fix-seed 314 \
         --extend-existing-preprocessed-data
     python3 main.py preprocess_data_pol \
         --output-tags train_pol_v5 \
         --output-tag-percentages 100 \
-        --raw-data-tags pol_37922_phase_and_amp_log10_int_diff \
-        --tables-to-load intensity phase \
-        --apply-mask darkhole_mask dark_zone_mask intensity \
-        --switch-basis intensity pol_psfs_pol0_pol1_modes_2000_log10_diff_masked_151931 modes 750 \
-                       phase     pol_hodm_plane_phase_modes_1000_79650                  modes 100 \
+        --raw-data-tags pol_37922_phase_and_amp_log10_int \
+        --tables-to-load intensity_pol0 intensity_pol1 phase \
+        --apply-mask darkhole_mask dark_zone_mask intensity_pol0 intensity_pol1 \
+        --merge-tables intensity_pol0 intensity_pol1 intensity \
+        --switch-basis phase pol_hodm_plane_phase_modes_1000_79650 modes 100 \
         --input-tables intensity --output-tables phase --fix-seed 314 \
         --extend-existing-preprocessed-data
     python3 main.py preprocess_data_pol \
         --output-tags train_pol_v5 \
         --output-tag-percentages 100 \
-        --raw-data-tags pol_41728_phase_and_amp_log10_int_diff \
-        --tables-to-load intensity phase \
-        --apply-mask darkhole_mask dark_zone_mask intensity \
-        --switch-basis intensity pol_psfs_pol0_pol1_modes_2000_log10_diff_masked_151931 modes 750 \
-                       phase     pol_hodm_plane_phase_modes_1000_79650                  modes 100 \
+        --raw-data-tags pol_41728_phase_and_amp_log10_int \
+        --tables-to-load intensity_pol0 intensity_pol1 phase \
+        --apply-mask darkhole_mask dark_zone_mask intensity_pol0 intensity_pol1 \
+        --merge-tables intensity_pol0 intensity_pol1 intensity \
+        --switch-basis phase pol_hodm_plane_phase_modes_1000_79650 modes 100 \
         --input-tables intensity --output-tables phase --fix-seed 314 \
         --extend-existing-preprocessed-data
 
     python3 main.py normalize_processed_dataset \
         train_pol_v5_norm train_pol_v5 \
-        --z-score-norm-inputs --z-score-norm-outputs
+        --z-score-norm-inputs-global --z-score-norm-outputs
 
     python3 main.py preprocess_data_pol \
         --output-tags val_pol_v5 test_pol_v5 \
         --output-tag-percentages 75 25 \
-        --raw-data-tags pol_34957_phase_and_amp_log10_int_diff \
-        --tables-to-load intensity phase \
-        --apply-mask darkhole_mask dark_zone_mask intensity \
-        --switch-basis intensity pol_psfs_pol0_pol1_modes_2000_log10_diff_masked_151931 modes 750 \
-                       phase     pol_hodm_plane_phase_modes_1000_79650                  modes 100 \
+        --raw-data-tags pol_34957_phase_and_amp_log10_int \
+        --tables-to-load intensity_pol0 intensity_pol1 phase \
+        --apply-mask darkhole_mask dark_zone_mask intensity_pol0 intensity_pol1 \
+        --merge-tables intensity_pol0 intensity_pol1 intensity \
+        --switch-basis phase pol_hodm_plane_phase_modes_1000_79650 modes 100 \
         --input-tables intensity --output-tables phase --fix-seed 314
 
     python3 main.py normalize_processed_dataset \
         val_pol_v5_norm val_pol_v5 \
-        --max-scale-inputs --z-score-norm-outputs \
+        --z-score-norm-inputs-global --z-score-norm-outputs \
         --use-existing-norm-vals train_pol_v5_norm
 
     python3 main.py normalize_processed_dataset \
         test_pol_v5_norm test_pol_v5 \
-        --max-scale-inputs \
+        --z-score-norm-inputs-global \
         --use-existing-norm-vals train_pol_v5_norm
 
 ## Mode Reconstructions

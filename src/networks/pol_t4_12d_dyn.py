@@ -1,5 +1,5 @@
-# `pol_t4_25d_dyn` network { 750 -> 100 }.
-# Trainable parameters: 20,398,436
+# `pol_t4_12d_dyn` network { 5312 -> 100 }.
+# Trainable parameters: 13,635,172
 import numpy as np
 import torch
 import torch.nn as nn
@@ -8,7 +8,7 @@ import torch.nn as nn
 # CONFIG OPTIONS
 # ==============================================================================
 # Number of input neurons
-IN_DIM = 750
+IN_DIM = 5312
 # Number of output neurons
 OUT_DIM = 100
 # Number of neurons expanded out to
@@ -18,9 +18,9 @@ INNER_DIM = 512
 # Activation slope
 LEAKY_RELU = 0.2
 # LayerScale starting value
-GAMMA_INIT = 1e-2
+GAMMA_INIT = 1.0
 # Number of blocks
-DEPTH = 25
+DEPTH = 12
 
 
 # Also known as Stochastic Depth
