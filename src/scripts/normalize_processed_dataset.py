@@ -109,8 +109,8 @@ def normalize_processed_dataset(cli_args):
     if z_score_norm_inputs_global:
         step_ri('Z-score normalizing input values globally')
         if use_existing_norm_vals:
-            inputs_mean = existing_norm_ev[INPUTS_Z_SCORE_MEAN][:]
-            inputs_std = existing_norm_ev[INPUTS_Z_SCORE_STD][:]
+            inputs_mean = existing_norm_ev[INPUTS_Z_SCORE_MEAN][()]
+            inputs_std = existing_norm_ev[INPUTS_Z_SCORE_STD][()]
         else:
             inputs_mean = np.mean(input_data)
             inputs_std = np.std(input_data)
