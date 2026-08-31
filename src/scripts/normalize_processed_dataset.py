@@ -35,6 +35,11 @@ def normalize_processed_dataset_parser(subparsers):
         help='perform max scaling on the inputs',
     )
     subparser.add_argument(
+        '--z-score-norm-inputs-global',
+        action='store_true',
+        help='perform global z-score normalization on the inputs',
+    )
+    subparser.add_argument(
         '--z-score-norm-inputs',
         action='store_true',
         help='perform individual z-score normalization on the inputs',
@@ -97,6 +102,21 @@ def normalize_processed_dataset(cli_args):
             max_value = np.max(input_data)
         extra_vars['max_value'] = max_value
         input_data /= max_value
+        print(f'Inputs min: {np.min(input_data)}')
+        print(f'Inputs max: {np.max(input_data)}')
+
+    z_score_norm_inputs_global = cli_args['z_score_norm_inputs_global']
+    if z_score_norm_inputs_global:
+        step_ri('Z-score normalizing input values globally')
+        if use_existing_norm_vals:
+            inputs_mean = existing_norm_ev[INPUTS_Z_SCORE_MEAN][:]
+            inputs_std = existing_norm_ev[INPUTS_Z_SCORE_STD][:]
+        else:
+            inputs_mean = np.mean(input_data)
+            inputs_std = np.std(input_data)
+        extra_vars[INPUTS_Z_SCORE_MEAN] = inputs_mean
+        extra_vars[INPUTS_Z_SCORE_STD] = inputs_std
+        input_data = z_score_normalize(input_data, inputs_mean, inputs_std)
         print(f'Inputs min: {np.min(input_data)}')
         print(f'Inputs max: {np.max(input_data)}')
 
