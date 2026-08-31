@@ -113,8 +113,6 @@ Take the log10 difference of the intensities (with phase and amp):
         --tables-to-copy phase amp --log10-data 1e-7 \
         --table-difference intensity_pol0 intensity_pol1 intensity
 
-pol_34957_phase_and_amp
-
 ## Basis commands
 
 Create a new EF basis from PCA:

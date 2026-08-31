@@ -356,7 +356,7 @@ Model training is listed from oldest to newest (newest at the bottom).
         test_on_train_pol_v4_norm \
         --epoch-and-tag-range last pol_v4_ 1 6 --plot-loss-curves \
         --convert-basis pol_hodm_plane_phase_modes_1000_79650 modes 400 \
-        --convert-basis-save-values 5 \
+        --convert-basis-save-values 5 --convert-basis-max-rows-to-use 10000 \
         --plot-coeff-mae-smape 400 --max-rows-per-model-call 1000 \
         --plot-reconstructions 0 1 2 \
         --plot-reconstructions-mask pol_41728_phase_and_amp_log10_int_diff phase \
