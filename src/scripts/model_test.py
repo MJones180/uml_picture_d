@@ -143,6 +143,12 @@ def model_test_parser(subparsers):
               'the passed argument specifies the first n rows to save'),
     )
     subparser.add_argument(
+        '--convert-basis-max-rows-to-use',
+        type=int,
+        help=('should be used with the `--convert-basis` arg; '
+              'the max number of rows to convert over'),
+    )
+    subparser.add_argument(
         '--max-rows-per-model-call',
         type=int,
         help='limit the number of rows per model call',
@@ -352,6 +358,8 @@ def model_test(cli_args):
         new_basis_model = []
         idx_low = 0
         trans_modes = cli_args.get('convert_basis_trans_modes')
+        # Only convert the first n rows
+        max_row = cli_args.get('convert_basis_max_rows_to_use')
         for group_args in group_data_from_list(convert_basis, 3):
             modes_tag = group_args[0]
             table_name = group_args[1]
@@ -367,8 +375,8 @@ def model_test(cli_args):
                 modes_data = np.transpose(modes_data)
             modes_data = modes_data[:number_coeffs]
             # The values in the new basis
-            truth_vals = outputs_truth[:, idx_low:idx_high] @ modes_data
-            model_vals = outputs_model[:, idx_low:idx_high] @ modes_data
+            truth_vals = outputs_truth[:max_row, idx_low:idx_high] @ modes_data
+            model_vals = outputs_model[:max_row, idx_low:idx_high] @ modes_data
             new_basis_truth.append(truth_vals)
             new_basis_model.append(model_vals)
             print(f'New basis shape: {np.array(truth_vals).shape}')
@@ -376,7 +384,7 @@ def model_test(cli_args):
             print(f'New basis MSE: {mse(truth_vals, model_vals)}')
             idx_low = idx_high
             dec_print_indent()
-        rows = len(outputs_truth)
+        rows = max_row or len(outputs_truth)
         new_basis_truth = np.swapaxes(new_basis_truth, 0, 1).reshape(rows, -1)
         new_basis_model = np.swapaxes(new_basis_model, 0, 1).reshape(rows, -1)
         print(f'Overall new shape: {new_basis_truth.shape}')

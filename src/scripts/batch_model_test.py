@@ -93,6 +93,12 @@ def batch_model_test_parser(subparsers):
               'the passed argument specifies the first n rows to save'),
     )
     subparser.add_argument(
+        '--convert-basis-max-rows-to-use',
+        type=int,
+        help=('should be used with the `--convert-basis` arg; '
+              'the max number of rows to convert over'),
+    )
+    subparser.add_argument(
         '--take-rss-model-outputs',
         action='store_true',
         help='print out the RSS of the model outputs',
@@ -211,6 +217,7 @@ def batch_model_test(cli_args):
             'convert_basis',
             'convert_basis_trans_modes',
             'convert_basis_save_values',
+            'convert_basis_max_rows_to_use',
             'take_rss_model_outputs',
             'force_cpu',
             'max_rows_per_model_call',
