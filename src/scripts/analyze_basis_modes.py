@@ -82,26 +82,6 @@ def analyze_basis_modes_parser(subparsers):
               'two arguments expected: low mode idx, high mode idx '),
     )
     subparser.add_argument(
-        '--plot-singular-values',
-        action='store_true',
-        help='plot the singular values',
-    )
-    subparser.add_argument(
-        '--plot-explained-variance',
-        action='store_true',
-        help='plot the explained variance',
-    )
-    subparser.add_argument(
-        '--plot-orthogonality',
-        action='store_true',
-        help='plot the orthogonality matrix',
-    )
-    subparser.add_argument(
-        '--print-mean-and-std',
-        action='store_true',
-        help='print the mean and std of each mode',
-    )
-    subparser.add_argument(
         '--reconstruct-data',
         nargs='*',
         help=('reconstruct data in terms of the basis being analyzed; the '
@@ -140,6 +120,32 @@ def analyze_basis_modes_parser(subparsers):
         help=('used in conjunction with the `--reconstruct-data` and '
               '`--reconstruct-data-select-row` args; '
               'plot the row and the reconstruction'),
+    )
+    subparser.add_argument(
+        '--plot-singular-values',
+        action='store_true',
+        help='plot the singular values',
+    )
+    subparser.add_argument(
+        '--plot-explained-variance',
+        action='store_true',
+        help='plot the explained variance',
+    )
+    subparser.add_argument(
+        '--compute-explained-variance',
+        action='store_true',
+        help=('compute the explained variance on the fly; requires that '
+              'the `--reconstruct-data` argument is passed'),
+    )
+    subparser.add_argument(
+        '--plot-orthogonality',
+        action='store_true',
+        help='plot the orthogonality matrix',
+    )
+    subparser.add_argument(
+        '--print-mean-and-std',
+        action='store_true',
+        help='print the mean and std of each mode',
     )
 
 
@@ -317,65 +323,6 @@ def analyze_basis_modes(cli_args):
                     print_prefix,
                 )
 
-    if cli_args['plot_singular_values']:
-        step_ri('Plotting singular values')
-        singular_values = modes_datafile[SINGULAR_VALUES][:]
-        plot_line(
-            singular_values,
-            'Singular Values',
-            'Mode Index',
-            'Singular Value',
-            f'{output_dir}/singular_values.png',
-            show_grid=True,
-        )
-
-    if cli_args['plot_explained_variance']:
-        step_ri('Plotting explained variance')
-        explained_variance = modes_datafile[EXPLAINED_VARIANCE_RATIO][:]
-        plot_line(
-            [
-                explained_variance / np.max(explained_variance),
-                np.cumsum(explained_variance),
-            ],
-            'Explained Variance',
-            'Mode Index',
-            'Value',
-            f'{output_dir}/explained_variance.png',
-            labels=[
-                'Normalized Explained Variance',
-                'Cumulative Explained Variance',
-            ],
-            show_grid=True,
-        )
-
-    if cli_args['plot_orthogonality']:
-        step_ri('Plotting the orthogonality')
-        ortho_mat = modes_data @ modes_data.T
-        plot_wavefront(
-            ortho_mat,
-            '',
-            1,
-            'Orthogonality',
-            f'{output_dir}/orthogonality.png',
-            disable_plot_ticks=True,
-            cmap_name='viridis',
-        )
-        diag = np.diag(ortho_mat)
-        print(f'Diagonal Min: {diag.min()}')
-        print(f'Diagonal Max: {diag.max()}')
-        print(f'Off-diagonal Max: {np.abs(ortho_mat - np.diag(diag)).max()}')
-
-    if cli_args['print_mean_and_std']:
-        step_ri('Printing the mean and std of the modes')
-        means = np.mean(modes_data, axis=1)
-        print(f'Mean Min: {np.min(means)}')
-        print(f'Mean Max: {np.max(means)}')
-        print(f'Mean Avg: {np.mean(means)}')
-        stds = np.std(modes_data, axis=1)
-        print(f'STD Min: {np.min(stds)}')
-        print(f'STD Max: {np.max(stds)}')
-        print(f'STD Avg: {np.mean(stds)}')
-
     reconstruct_data = cli_args.get('reconstruct_data')
     if reconstruct_data is not None:
         step_ri('Data reconstruction')
@@ -455,9 +402,9 @@ def analyze_basis_modes(cli_args):
         row_idx = cli_args.get('reconstruct_data_select_row')
         if row_idx is not None:
             step(f'Analyzing row {row_idx}')
-            data = data[row_idx]
-            reconstructed_data = reconstructed_data[row_idx]
-            error = mse(data, reconstructed_data)
+            orig_row = data[row_idx]
+            recon_row = reconstructed_data[row_idx]
+            error = mse(orig_row, recon_row)
             print(f'Reconstruction MSE error of {error:0.3e}')
             dec_print_indent()
 
@@ -467,13 +414,16 @@ def analyze_basis_modes(cli_args):
             base_fname = (f'{datafile_tag}_table_{table_name}_row{row_idx}'
                           f'_modes{number_of_modes}')
 
-            def _plot_recon(data, recon_data, base_filename, title_info=''):
-                vmin = np.min(data)
-                vmax = np.max(data)
+            def _plot_recon(orig_row,
+                            recon_data,
+                            base_filename,
+                            title_info=''):
+                vmin = np.min(orig_row)
+                vmax = np.max(orig_row)
                 base_title = (f'Row {row_idx}{title_info} '
                               f'({number_of_modes} modes): ')
                 _plot_grid(
-                    data,
+                    orig_row,
                     f'{base_filename}_orig',
                     base_title + 'Original',
                     f'Original{title_info}',
@@ -489,7 +439,7 @@ def analyze_basis_modes(cli_args):
                     vmax,
                 )
                 _plot_grid(
-                    data - recon_data,
+                    orig_row - recon_data,
                     f'{base_filename}_diff',
                     base_title + 'Diff',
                     f'Diff{title_info}',
@@ -498,22 +448,86 @@ def analyze_basis_modes(cli_args):
                 )
 
             if modes_are_complex is not None:
-                data_real, data_imag = np.split(data, 2)
+                data_real, data_imag = np.split(orig_row, 2)
                 reconstructed_data_real, reconstructed_data_imag = np.split(
-                    reconstructed_data, 2)
+                    recon_row, 2)
                 _plot_recon(data_real, reconstructed_data_real,
                             f'{base_fname}_real', ' (real)')
                 _plot_recon(data_imag, reconstructed_data_imag,
                             f'{base_fname}_imag', ' (imag)')
             elif two_dms is not None:
-                data_dm1, data_dm2 = np.split(data, 2)
+                data_dm1, data_dm2 = np.split(orig_row, 2)
                 reconstructed_data_dm1, reconstructed_data_dm2 = np.split(
-                    reconstructed_data, 2)
+                    recon_row, 2)
                 _plot_recon(data_dm1, reconstructed_data_dm1,
                             f'{base_fname}_dm1', ' (dm1)')
                 _plot_recon(data_dm2, reconstructed_data_dm2,
                             f'{base_fname}_dm2', ' (dm2)')
                 pass
             else:
-                _plot_recon(data, reconstructed_data, base_fname)
+                _plot_recon(orig_row, recon_row, base_fname)
             dec_print_indent()
+
+    if cli_args['plot_singular_values']:
+        step_ri('Plotting singular values')
+        singular_values = modes_datafile[SINGULAR_VALUES][:]
+        plot_line(
+            singular_values,
+            'Singular Values',
+            'Mode Index',
+            'Singular Value',
+            f'{output_dir}/singular_values.png',
+            show_grid=True,
+        )
+
+    if cli_args['plot_explained_variance']:
+        step_ri('Plotting explained variance')
+        if cli_args['compute_explained_variance']:
+            print('Computing explained variance')
+            explained_variance = (new_basis_coeffs.var(axis=0) /
+                                  data.var(axis=0).sum())
+        else:
+            explained_variance = modes_datafile[EXPLAINED_VARIANCE_RATIO][:]
+        plot_line(
+            [
+                explained_variance / np.max(explained_variance),
+                np.cumsum(explained_variance),
+            ],
+            'Explained Variance',
+            'Mode Index',
+            'Value',
+            f'{output_dir}/explained_variance.png',
+            labels=[
+                'Normalized Explained Variance',
+                'Cumulative Explained Variance',
+            ],
+            show_grid=True,
+        )
+
+    if cli_args['plot_orthogonality']:
+        step_ri('Plotting the orthogonality')
+        ortho_mat = modes_data @ modes_data.T
+        plot_wavefront(
+            ortho_mat,
+            '',
+            1,
+            'Orthogonality',
+            f'{output_dir}/orthogonality.png',
+            disable_plot_ticks=True,
+            cmap_name='viridis',
+        )
+        diag = np.diag(ortho_mat)
+        print(f'Diagonal Min: {diag.min()}')
+        print(f'Diagonal Max: {diag.max()}')
+        print(f'Off-diagonal Max: {np.abs(ortho_mat - np.diag(diag)).max()}')
+
+    if cli_args['print_mean_and_std']:
+        step_ri('Printing the mean and std of the modes')
+        means = np.mean(modes_data, axis=1)
+        print(f'Mean Min: {np.min(means)}')
+        print(f'Mean Max: {np.max(means)}')
+        print(f'Mean Avg: {np.mean(means)}')
+        stds = np.std(modes_data, axis=1)
+        print(f'STD Min: {np.min(stds)}')
+        print(f'STD Max: {np.max(stds)}')
+        print(f'STD Avg: {np.mean(stds)}')
