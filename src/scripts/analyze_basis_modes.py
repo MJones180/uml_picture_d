@@ -92,6 +92,16 @@ def analyze_basis_modes_parser(subparsers):
         help='plot the explained variance',
     )
     subparser.add_argument(
+        '--plot-orthogonality',
+        action='store_true',
+        help='plot the orthogonality matrix',
+    )
+    subparser.add_argument(
+        '--print-mean-and-std',
+        action='store_true',
+        help='print the mean and std of each mode',
+    )
+    subparser.add_argument(
         '--reconstruct-data',
         nargs='*',
         help=('reconstruct data in terms of the basis being analyzed; the '
@@ -337,6 +347,34 @@ def analyze_basis_modes(cli_args):
             ],
             show_grid=True,
         )
+
+    if cli_args['plot_orthogonality']:
+        step_ri('Plotting the orthogonality')
+        ortho_mat = modes_data @ modes_data.T
+        plot_wavefront(
+            ortho_mat,
+            '',
+            1,
+            'Orthogonality',
+            f'{output_dir}/orthogonality.png',
+            disable_plot_ticks=True,
+            cmap_name='viridis',
+        )
+        diag = np.diag(ortho_mat)
+        print(f'Diagonal Min: {diag.min()}')
+        print(f'Diagonal Max: {diag.max()}')
+        print(f'Off-diagonal Max: {np.abs(ortho_mat - np.diag(diag)).max()}')
+
+    if cli_args['print_mean_and_std']:
+        step_ri('Printing the mean and std of the modes')
+        means = np.mean(modes_data, axis=1)
+        print(f'Mean Min: {np.min(means)}')
+        print(f'Mean Max: {np.max(means)}')
+        print(f'Mean Avg: {np.mean(means)}')
+        stds = np.std(modes_data, axis=1)
+        print(f'STD Min: {np.min(stds)}')
+        print(f'STD Max: {np.max(stds)}')
+        print(f'STD Avg: {np.mean(stds)}')
 
     reconstruct_data = cli_args.get('reconstruct_data')
     if reconstruct_data is not None:
