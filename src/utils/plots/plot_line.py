@@ -11,6 +11,7 @@ def plot_line(
     plot_path,
     labels=None,
     show_grid=False,
+    hlines=None,
 ):
     # Load in the style file
     plt.style.use(PLOT_STYLE_FILE)
@@ -24,6 +25,9 @@ def plot_line(
         plt.plot(line, label=label)
     if labels is not None:
         plt.legend()
+    if hlines is not None:
+        for hline in hlines:
+            plt.axhline(hline, color='black', linestyle='--')
     plt.title(title)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
