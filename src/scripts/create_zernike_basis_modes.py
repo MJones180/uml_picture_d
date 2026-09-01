@@ -46,6 +46,7 @@ def create_zernike_basis_modes(cli_args):
     pixels = cli_args['number_pixels']
     print(f'Zernikes will go on grid {pixels}x{pixels}')
     for mode_idx in range(numb_modes):
+        print(f'Mode: {mode_idx}')
         modes.append(create_zernike_mode(mode_idx + 2, pixels))
     modes = np.array(modes)
     print(f'Modes shape: {modes.shape}')
