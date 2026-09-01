@@ -39,16 +39,6 @@ def create_zernike_basis_modes_parser(subparsers):
 def create_zernike_basis_modes(cli_args):
     title('Create zernike basis modes script')
 
-    step_ri('Data information')
-    raw_data_tags = cli_args.get('raw_data_tags')
-    table_names = cli_args.get('table_names')
-    number_modes = cli_args['number_modes']
-    output_tag = cli_args['output_tag']
-    print(f'Will load data from: {raw_data_tags}')
-    print(f'Table names: {table_names}')
-    print(f'Number of modes: {number_modes}')
-    print(f'Output tag: {output_tag}')
-
     step_ri('Computing Zernike modes')
     modes = []
     numb_modes = cli_args['number_modes']
@@ -72,12 +62,13 @@ def create_zernike_basis_modes(cli_args):
         print(f'Modes shape: {modes.shape}')
 
     step_ri('Performing QR decomposition on the modes')
-    # Gives each mode a zero mean and unit norm;
-    # Makes all the modes orthogonal
+    # Gives each mode a zero mean and unit norm; makes orthonormal modes
     Q, R = np.linalg.qr(modes.T, mode='reduced')
     modes = Q.T
 
     step_ri('Writing out modes')
+    output_tag = cli_args['output_tag']
+    print(f'Output tag: {output_tag}')
     out_dir = f'{RAW_DATA_P}/{output_tag}'
     print(f'Creating {out_dir}')
     make_dir(out_dir)
