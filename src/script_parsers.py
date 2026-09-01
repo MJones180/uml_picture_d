@@ -24,6 +24,7 @@ from scripts.export_zernike_inputs_to_binary import export_zernike_inputs_to_bin
 from scripts.gen_zernike_time_steps import gen_zernike_time_steps_parser
 from scripts.hdf_file_ops import hdf_file_ops_parser
 from scripts.interactive_model_test_plots import inter_model_test_plots_parser
+from scripts.linear_observability_analysis import linear_observability_analysis_parser  # noqa: E501
 from scripts.model_test import model_test_parser
 from scripts.model_train import model_train_parser
 from scripts.network_info import network_info_parser
@@ -68,6 +69,7 @@ script_parsers = [
     gen_zernike_time_steps_parser,
     hdf_file_ops_parser,
     inter_model_test_plots_parser,
+    linear_observability_analysis_parser,
     model_test_parser,
     model_train_parser,
     network_info_parser,
