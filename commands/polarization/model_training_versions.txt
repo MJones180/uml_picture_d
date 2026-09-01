@@ -374,9 +374,9 @@ Model training is listed from oldest to newest (newest at the bottom).
     python3 -u main.py batch_model_test \
         test_pol_v5_norm \
         --epoch-and-tag-range last pol_v5_ 1 1 --plot-loss-curves \
-        --convert-basis pol_hodm_plane_phase_modes_1000_79650 modes 400 \
+        --convert-basis zernike_modes_331_2000_modes modes 500 \
         --convert-basis-save-values 5 --convert-basis-max-rows-to-use 10000 \
-        --plot-coeff-mae-smape 400 --max-rows-per-model-call 1000 \
+        --plot-coeff-mae-smape 500 --max-rows-per-model-call 1000 --plot-r2 \
         --plot-reconstructions 0 1 2 \
         --plot-reconstructions-mask pol_41728_phase_and_amp_log10_int_diff phase \
         --plot-reconstructions-groups phase

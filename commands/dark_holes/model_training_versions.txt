@@ -11439,7 +11439,7 @@ After model testing, it is useful to rank the model analyses:
         --plot-coeff-mae-smape 800 --plot-layerscale-gamma gamma 50 \
         --max-rows-per-model-call 1000 \
         --convert-basis dm1_dm2_joint_modes_flat modes 800 \
-        --convert-basis-trans-modes modes \
+        --convert-basis-trans-modes modes --plot-r2 \
         --plot-avg-dh-intensity-error darkhole_mask dark_zone_mask efcnn_jacobian matrix 1e-11 1e-8
 
 [V141] The `dh_v141_` tag:

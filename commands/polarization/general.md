@@ -160,6 +160,12 @@ Create a new phase basis from PCA:
                         pol_41728_phase_and_amp_log10_int_diff \
         --table-names phase --auto-mask --save-explained-variance
 
+Create a Zernike basis:
+
+    python3 main.py create_zernike_basis_modes \
+        zernike_modes_331_2000_modes 2000 331 \
+        --apply-mask pol_34957_phase_and_amp phase
+
 Create a new amp basis from PCA:
 
     python3 main.py create_pca_basis_modes \
@@ -182,11 +188,6 @@ Create a new intensity basis from PCA:
         --table-names intensity_pol0 intensity_pol1 --dh-mask darkhole_mask
 
     python3 main.py create_pca_basis_modes \
-        pol_psfs_pol0_pol1_modes_2000_sqrt_masked_36910 2000 \
-        --raw-data-tags pol_36910_phase_and_amp_sqrt_int \
-        --table-names intensity_pol0 intensity_pol1 --dh-mask darkhole_mask
-
-    python3 main.py create_pca_basis_modes \
         pol_psfs_pol0_pol1_modes_2000_sqrt_masked_151931 2000 \
         --raw-data-tags pol_35371_sqrt_int \
                         pol_36910_sqrt_int \
@@ -201,6 +202,14 @@ Create a new intensity basis from PCA:
                         pol_37922_phase_and_amp_log10_int_diff \
                         pol_41728_phase_and_amp_log10_int_diff \
         --table-names intensity --dh-mask darkhole_mask --unit-variance --save-explained-variance
+
+    python3 main.py create_pca_basis_modes \
+        pol_psfs_pol0_pol1_modes_2000_log10_masked_151931 2000 \
+        --raw-data-tags pol_35371_phase_and_amp_log10_int \
+                        pol_36910_phase_and_amp_log10_int \
+                        pol_37922_phase_and_amp_log10_int \
+                        pol_41728_phase_and_amp_log10_int \
+        --table-names intensity_pol0 intensity_pol1 --dh-mask darkhole_mask --unit-variance --save-explained-variance
 
 ## Data Preprocessing
 
@@ -487,7 +496,7 @@ V5:
         --tables-to-load intensity_pol0 intensity_pol1 phase \
         --apply-mask darkhole_mask dark_zone_mask intensity_pol0 intensity_pol1 \
         --merge-tables intensity_pol0 intensity_pol1 intensity \
-        --switch-basis phase pol_hodm_plane_phase_modes_1000_79650 modes 100 \
+        --switch-basis phase zernike_modes_331_2000_modes modes 500 \
         --input-tables intensity --output-tables phase --fix-seed 314
     python3 main.py preprocess_data_pol \
         --output-tags train_pol_v5 \
@@ -496,7 +505,7 @@ V5:
         --tables-to-load intensity_pol0 intensity_pol1 phase \
         --apply-mask darkhole_mask dark_zone_mask intensity_pol0 intensity_pol1 \
         --merge-tables intensity_pol0 intensity_pol1 intensity \
-        --switch-basis phase pol_hodm_plane_phase_modes_1000_79650 modes 100 \
+        --switch-basis phase zernike_modes_331_2000_modes modes 500 \
         --input-tables intensity --output-tables phase --fix-seed 314 \
         --extend-existing-preprocessed-data
     python3 main.py preprocess_data_pol \
@@ -506,7 +515,7 @@ V5:
         --tables-to-load intensity_pol0 intensity_pol1 phase \
         --apply-mask darkhole_mask dark_zone_mask intensity_pol0 intensity_pol1 \
         --merge-tables intensity_pol0 intensity_pol1 intensity \
-        --switch-basis phase pol_hodm_plane_phase_modes_1000_79650 modes 100 \
+        --switch-basis phase zernike_modes_331_2000_modes modes 500 \
         --input-tables intensity --output-tables phase --fix-seed 314 \
         --extend-existing-preprocessed-data
     python3 main.py preprocess_data_pol \
@@ -516,7 +525,7 @@ V5:
         --tables-to-load intensity_pol0 intensity_pol1 phase \
         --apply-mask darkhole_mask dark_zone_mask intensity_pol0 intensity_pol1 \
         --merge-tables intensity_pol0 intensity_pol1 intensity \
-        --switch-basis phase pol_hodm_plane_phase_modes_1000_79650 modes 100 \
+        --switch-basis phase zernike_modes_331_2000_modes modes 500 \
         --input-tables intensity --output-tables phase --fix-seed 314 \
         --extend-existing-preprocessed-data
 
@@ -531,7 +540,7 @@ V5:
         --tables-to-load intensity_pol0 intensity_pol1 phase \
         --apply-mask darkhole_mask dark_zone_mask intensity_pol0 intensity_pol1 \
         --merge-tables intensity_pol0 intensity_pol1 intensity \
-        --switch-basis phase pol_hodm_plane_phase_modes_1000_79650 modes 100 \
+        --switch-basis phase zernike_modes_331_2000_modes modes 500 \
         --input-tables intensity --output-tables phase --fix-seed 314
 
     python3 main.py normalize_processed_dataset \
@@ -560,11 +569,21 @@ Phase Modes:
 
     python3 main.py analyze_basis_modes \
         pol_hodm_plane_phase_modes_1000_79650 modes \
-        --display-from-mask pol_34957_phase_and_amp_log10_int_diff phase 0 \
-        --plot-singular-values --plot-explained-variance \
-        --reconstruct-data pol_34957_phase_and_amp_log10_int_diff 400 phase \
+        --display-from-mask pol_34957_phase_and_amp phase 0 \
+        --reconstruct-data pol_34957_phase_and_amp 400 phase \
         --reconstruct-data-first-n-rows 2000 \
-        --reconstruct-data-select-row 0 --reconstruct-data-plots
+        --reconstruct-data-select-row 0 --reconstruct-data-plots \
+        --plot-modes-range 0 10 --plot-orthogonality --print-mean-and-std \
+        --plot-singular-values --plot-explained-variance
+
+    python3 main.py analyze_basis_modes \
+        zernike_modes_331_2000_modes modes \
+        --display-from-mask pol_34957_phase_and_amp phase 0 \
+        --reconstruct-data pol_34957_phase_and_amp 1000 phase \
+        --reconstruct-data-first-n-rows 2000 \
+        --reconstruct-data-select-row 0 --reconstruct-data-plots \
+        --plot-modes-range 0 10 --plot-orthogonality --print-mean-and-std \
+        --plot-explained-variance --compute-explained-variance
 
 Amp Modes:
 
@@ -587,12 +606,12 @@ Intensity Modes:
         --reconstruct-data-select-row 0 --reconstruct-data-plots
 
     python3 main.py analyze_basis_modes \
-        pol_psfs_pol0_pol1_modes_2000_sqrt_masked_36910 modes \
+        pol_psfs_pol0_pol1_modes_2000_sqrt_masked_151931 modes \
         --display-as-circle 59 1.03 --display-with-hole 0.24 \
         --modes-are-complex 1 --plot-modes-range 0 10
 
     python3 main.py analyze_basis_modes \
-        pol_psfs_pol0_pol1_modes_2000_sqrt_masked_36910 modes \
+        pol_psfs_pol0_pol1_modes_2000_sqrt_masked_151931 modes \
         --display-as-circle 59 1.03 --display-with-hole 0.24 \
         --modes-are-complex 1 \
         --reconstruct-data pol_34957_phase_and_amp_sqrt_int 2000 intensity_pol0 intensity_pol1 \
@@ -603,8 +622,21 @@ Intensity Modes:
     python3 main.py analyze_basis_modes \
         pol_psfs_pol0_pol1_modes_2000_log10_diff_masked_151931 modes \
         --display-as-circle 59 1.03 --display-with-hole 0.24 \
-        --plot-singular-values --plot-explained-variance \
+        --plot-singular-values --plot-explained-variance --plot-modes-range 0 10 \
         --reconstruct-data pol_34957_phase_and_amp_log10_int_diff 750 intensity \
         --reconstruct-data-circle-mask --reconstruct-data-trim 21 80 21 80 \
         --reconstruct-data-first-n-rows 2000 \
         --reconstruct-data-select-row 0 --reconstruct-data-plots
+
+    python3 main.py analyze_basis_modes \
+        pol_psfs_pol0_pol1_modes_2000_log10_masked_151931 modes \
+        --display-as-circle 59 1.03 --display-with-hole 0.24 \
+        --plot-singular-values --plot-explained-variance --plot-modes-range 0 10 \
+        --modes-are-complex 1 \
+
+## Random
+
+    # Create a response matrix from a processed dataset to determine how well the
+    # output data can be determined from the input data (linear approximation)
+    python3 main.py linear_observability_analysis \
+        train_pol_v5_norm val_pol_v5_norm --alpha 1e6

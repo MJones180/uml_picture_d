@@ -1,5 +1,5 @@
-# `pol_t4_12d_dyn` network { 5312 -> 100 }.
-# Trainable parameters: 13,635,172
+# `pol_t4_12d_dyn` network { 5312 -> 500 }.
+# Trainable parameters: 13,942,772
 import numpy as np
 import torch
 import torch.nn as nn
@@ -10,7 +10,7 @@ import torch.nn as nn
 # Number of input neurons
 IN_DIM = 5312
 # Number of output neurons
-OUT_DIM = 100
+OUT_DIM = 500
 # Number of neurons expanded out to
 OUTER_DIM = 768
 # Number of neurons for the bottleneck
