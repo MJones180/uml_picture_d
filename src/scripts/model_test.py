@@ -24,6 +24,7 @@ from utils.plots.plot_comparison_scatter_grid import plot_comparison_scatter_gri
 from utils.plots.plot_dh_contrast import plot_dh_contrast
 from utils.plots.plot_gamma_bars import plot_gamma_bars
 from utils.plots.plot_model_loss import plot_model_loss
+from utils.plots.plot_r2 import plot_r2
 from utils.plots.plot_zernike_cross_coupling_animation import plot_zernike_cross_coupling_animation  # noqa: E501
 from utils.plots.plot_zernike_cross_coupling_mat_animation import plot_zernike_cross_coupling_mat_animation  # noqa: E501
 from utils.plots.plot_zernike_crosstalk_grid import plot_zernike_crosstalk_grid
@@ -219,6 +220,11 @@ def model_test_parser(subparsers):
               'must be called with the `--plot-reconstructions` argument; '
               'if the output is an EF then `--plot-reconstructions-is-ef` '
               'should be used instead; arguments expected: grouping names'),
+    )
+    subparser.add_argument(
+        '--plot-r2',
+        action='store_true',
+        help='plot the R^2 of the outputs',
     )
     shared_argparser_args(subparser, ['force_cpu'])
 
@@ -663,3 +669,7 @@ def model_test(cli_args):
                 fix_colorbars=True,
                 plot_path=f'{analysis_path}/reconstruction_{idx}.png',
             )
+
+    if cli_args['plot_r2']:
+        step_ri('Plotting the R^2')
+        plot_r2(outputs_truth, outputs_model, f'{analysis_path}/r2.png')

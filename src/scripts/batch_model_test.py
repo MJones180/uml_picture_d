@@ -169,6 +169,11 @@ def batch_model_test_parser(subparsers):
               'if the output is an EF then `--plot-reconstructions-is-ef` '
               'should be used instead; arguments expected: grouping names'),
     )
+    subparser.add_argument(
+        '--plot-r2',
+        action='store_true',
+        help='plot the R^2 of the outputs',
+    )
     shared_argparser_args(subparser, ['force_cpu'])
 
     selection_group = subparser.add_mutually_exclusive_group()
@@ -229,6 +234,7 @@ def batch_model_test(cli_args):
             'plot_reconstructions_mask',
             'plot_reconstructions_is_ef',
             'plot_reconstructions_groups',
+            'plot_r2',
         )
     }
 
