@@ -47,7 +47,7 @@ def linear_observability_analysis(cli_args):
     train_input, train_output = _load_data(train_tag)
     val_input, val_output = _load_data(val_tag)
 
-    step_ri('Finding response matrix')
+    step_ri('Computing response matrix')
     alpha = cli_args.get('alpha') or 0
     print(f'alpha: {alpha}')
     # The penalty due to the Ridge regression

@@ -14,7 +14,7 @@ def plot_r2(truth_output, pred_output, plot_path, title_append=''):
     cumulative_r2 = 1 - np.cumsum(model_error) / np.cumsum(mean_error)
     plot_line(
         [r2_per_output, cumulative_r2],
-        'Output Index',
+        rf'$R^2$ Per Output{title_append}',
         'Output Index',
         'Value',
         plot_path,
