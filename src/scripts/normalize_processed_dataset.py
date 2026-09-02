@@ -30,6 +30,11 @@ def normalize_processed_dataset_parser(subparsers):
         help='tag of the processed data to normalize',
     )
     subparser.add_argument(
+        '--input-zero-mean-pixels',
+        action='store_true',
+        help='perform input pixel mean subtraction',
+    )
+    subparser.add_argument(
         '--max-scale-inputs',
         action='store_true',
         help='perform max scaling on the inputs',
@@ -93,8 +98,18 @@ def normalize_processed_dataset(cli_args):
         existing_norm_path = _get_tag_path(use_existing_norm_vals)
         existing_norm_ev = read_hdf(f'{existing_norm_path}/{EXTRA_VARS_F}')
 
-    max_scale_inputs = cli_args['max_scale_inputs']
-    if max_scale_inputs:
+    if cli_args['input_zero_mean_pixels']:
+        step_ri('Input pixel mean subtraction')
+        if use_existing_norm_vals:
+            pixel_means = existing_norm_ev['pixel_means'][()]
+        else:
+            pixel_means = np.mean(input_data, axis=0)
+        extra_vars['pixel_means'] = pixel_means
+        input_data -= pixel_means
+        print(f'Inputs min: {np.min(input_data)}')
+        print(f'Inputs max: {np.max(input_data)}')
+
+    if cli_args['max_scale_inputs']:
         step_ri('Max scaling input values')
         if use_existing_norm_vals:
             max_value = existing_norm_ev['max_value'][()]
@@ -105,8 +120,7 @@ def normalize_processed_dataset(cli_args):
         print(f'Inputs min: {np.min(input_data)}')
         print(f'Inputs max: {np.max(input_data)}')
 
-    z_score_norm_inputs_global = cli_args['z_score_norm_inputs_global']
-    if z_score_norm_inputs_global:
+    if cli_args['z_score_norm_inputs_global']:
         step_ri('Z-score normalizing input values globally')
         if use_existing_norm_vals:
             inputs_mean = existing_norm_ev[INPUTS_Z_SCORE_MEAN][()]
@@ -120,8 +134,7 @@ def normalize_processed_dataset(cli_args):
         print(f'Inputs min: {np.min(input_data)}')
         print(f'Inputs max: {np.max(input_data)}')
 
-    z_score_norm_inputs = cli_args['z_score_norm_inputs']
-    if z_score_norm_inputs:
+    if cli_args['z_score_norm_inputs']:
         step_ri('Z-score normalizing input values')
         if use_existing_norm_vals:
             inputs_mean = existing_norm_ev[INPUTS_Z_SCORE_MEAN][:]
@@ -135,8 +148,7 @@ def normalize_processed_dataset(cli_args):
         print(f'Inputs min: {np.min(input_data)}')
         print(f'Inputs max: {np.max(input_data)}')
 
-    z_score_norm_outputs = cli_args['z_score_norm_outputs']
-    if z_score_norm_outputs:
+    if cli_args['z_score_norm_outputs']:
         step_ri('Z-score normalizing output values')
         if use_existing_norm_vals:
             outputs_mean = existing_norm_ev[OUTPUTS_Z_SCORE_MEAN][:]
