@@ -18,6 +18,9 @@ def plot_r2(truth_output, pred_output, plot_path, title_append=''):
         'Output Index',
         'Value',
         plot_path,
-        labels=[r'$R^2$', r'Cumulative $R^2$'],
+        labels=[
+            rf'$R^2$ (Avg {np.mean(r2_per_output):0.4f})',
+            r'Cumulative $R^2$',
+        ],
         hlines=[0],
     )
