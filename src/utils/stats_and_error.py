@@ -21,6 +21,7 @@ The following error metrics are implemented (takes two arrays):
     percent_error                     abs((x2 - x1)/x1); x1 is truth
     symmetric_mean_absolute_percentage_error
                             SMAPE     mean(abs(x1-x2)/((abs(x1)+abs(x2))/2))*100
+    r2
 
 If a function has an acronym, it can be accessed via it instead.
 
@@ -91,6 +92,20 @@ def symmetric_mean_absolute_percentage_error(truth, x, axes=None):
     numerator = np.abs(truth - x)
     denominator = (np.abs(truth) + np.abs(x)) / 2
     return np.mean(numerator / denominator, axis=axes) * 100
+
+
+def r2(truth, x, return_errors=False):
+    # Data should be shape (rows, ...)
+    # Error from the predictions
+    model_error = sum_of_squares(truth - x, 0)
+    # Error from guessing the mean
+    mean_error = sum_of_squares(truth - truth.mean(axis=0), 0)
+    # R^2 describes much better the model predictions are
+    # than just guessing the mean of the data
+    r2_per_value = 1 - model_error / mean_error
+    if return_errors:
+        return r2_per_value, model_error, mean_error
+    return r2_per_value
 
 
 # ==============================================================================
