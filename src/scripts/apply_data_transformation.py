@@ -43,6 +43,11 @@ def apply_data_transformation_parser(subparsers):
         help='apply a sqrt transformation',
     )
     subparser.add_argument(
+        '--arcsinh-data',
+        type=float,
+        help='apply a arcsinh transformation; passed arg should be the scale',
+    )
+    subparser.add_argument(
         '--table-difference',
         nargs=3,
         help=('take the difference between two tables; three args expected: '
@@ -75,18 +80,22 @@ def apply_data_transformation(cli_args):
 
     step_ri('Transforming the data')
     log10_data = cli_args.get('log10_data')
-    sqrt_data = cli_args.get('sqrt_data')
+    sqrt_data = cli_args['sqrt_data']
+    arcsinh_data = cli_args.get('arcsinh_data')
     if log10_data is not None:
         print(f'Will apply a log10 transform, epsilon = {log10_data}')
-    elif sqrt_data is not None:
+    elif sqrt_data:
         print('Will apply a sqrt transform')
+    elif arcsinh_data is not None:
+        print(f'Will apply a arcsinh transform, scale = {arcsinh_data}')
     for table_name in tables_to_transform:
         values = table_data[table_name]
         if log10_data is not None:
             np.log10(values + log10_data, out=table_data[table_name])
-        elif sqrt_data is not None:
+        elif sqrt_data:
             np.sqrt(values, out=table_data[table_name])
-
+        elif arcsinh_data is not None:
+            np.arcsinh(values / arcsinh_data, out=table_data[table_name])
     table_difference = cli_args.get('table_difference')
     if table_difference is not None:
         step_ri('Taking difference of two tables')
