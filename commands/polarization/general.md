@@ -227,16 +227,21 @@ Create a new amp basis from PCA:
 Create a new intensity basis from PCA:
 
     python3 main.py create_pca_basis_modes \
-        pol_psfs_pol0_pol1_modes_2000_masked_36910 2000 \
-        --raw-data-tags pol_36910_phase_and_amp \
+        pol_psfs_pol0_pol1_modes_2000_masked_151931 2000 \
+        --raw-data-tags pol_35371_phase_and_amp pol_36910_phase_and_amp \
+                        pol_37922_phase_and_amp pol_41728_phase_and_amp \
+        --table-names intensity_pol0 intensity_pol1 --dh-mask darkhole_mask --save-explained-variance
+
+    python3 main.py create_pca_basis_modes \
+        pol_psfs_pol0_pol1_modes_4000_masked_151931 4000 \
+        --raw-data-tags pol_35371_phase_and_amp pol_36910_phase_and_amp \
+                        pol_37922_phase_and_amp pol_41728_phase_and_amp \
         --table-names intensity_pol0 intensity_pol1 --dh-mask darkhole_mask --save-explained-variance
 
     python3 main.py create_pca_basis_modes \
         pol_psfs_pol0_pol1_modes_2000_sqrt_masked_151931 2000 \
-        --raw-data-tags pol_35371_sqrt_int \
-                        pol_36910_sqrt_int \
-                        pol_37922_sqrt_int \
-                        pol_41728_sqrt_int \
+        --raw-data-tags pol_35371_sqrt_int pol_36910_sqrt_int \
+                        pol_37922_sqrt_int pol_41728_sqrt_int \
         --table-names intensity_pol0 intensity_pol1 --dh-mask darkhole_mask
 
     python3 main.py create_pca_basis_modes \
@@ -846,6 +851,200 @@ V10:
         --input-zero-mean-pixels --z-score-norm-inputs-global \
         --use-existing-norm-vals train_pol_v10_norm
 
+V11:
+
+    python3 main.py preprocess_data_pol \
+        --output-tags train_pol_v11 \
+        --output-tag-percentages 100 \
+        --raw-data-tags pol_41728_phase_and_amp \
+        --tables-to-load intensity_pol0 intensity_pol1 phase \
+        --apply-mask darkhole_mask dark_zone_mask intensity_pol0 intensity_pol1 \
+        --merge-tables intensity_pol0 intensity_pol1 intensity \
+        --switch-basis intensity pol_psfs_pol0_pol1_modes_4000_masked_151931 modes 2000 \
+                       phase     zernike_modes_331_2000_modes                modes 555 \
+        --input-tables intensity --output-tables phase --fix-seed 314
+    python3 main.py normalize_processed_dataset \
+        train_pol_v11_norm train_pol_v11 \
+        --z-score-norm-inputs --z-score-norm-outputs
+    python3 main.py preprocess_data_pol \
+        --output-tags val_pol_v11 \
+        --output-tag-percentages 100 \
+        --raw-data-tags pol_34957_phase_and_amp \
+        --tables-to-load intensity_pol0 intensity_pol1 phase \
+        --apply-mask darkhole_mask dark_zone_mask intensity_pol0 intensity_pol1 \
+        --merge-tables intensity_pol0 intensity_pol1 intensity \
+        --switch-basis intensity pol_psfs_pol0_pol1_modes_4000_masked_151931 modes 2000 \
+                       phase     zernike_modes_331_2000_modes                modes 555 \
+        --input-tables intensity --output-tables phase --fix-seed 314
+    python3 main.py normalize_processed_dataset \
+        val_pol_v11_norm val_pol_v11 \
+        --z-score-norm-inputs --z-score-norm-outputs \
+        --use-existing-norm-vals train_pol_v11_norm
+
+V12:
+
+    python3 main.py preprocess_data_pol \
+        --output-tags train_pol_v12 \
+        --output-tag-percentages 100 \
+        --raw-data-tags pol_41728_phase_and_amp \
+        --tables-to-load intensity_pol0 intensity_pol1 phase \
+        --apply-mask darkhole_mask dark_zone_mask intensity_pol0 intensity_pol1 \
+        --merge-tables intensity_pol0 intensity_pol1 intensity \
+        --switch-basis intensity pol_psfs_pol0_pol1_modes_4000_masked_151931 modes 4000 \
+                       phase     zernike_modes_331_2000_modes                modes 555 \
+        --input-tables intensity --output-tables phase --fix-seed 314
+    python3 main.py normalize_processed_dataset \
+        train_pol_v12_norm train_pol_v12 \
+        --z-score-norm-inputs --z-score-norm-outputs
+    python3 main.py preprocess_data_pol \
+        --output-tags val_pol_v12 \
+        --output-tag-percentages 100 \
+        --raw-data-tags pol_34957_phase_and_amp \
+        --tables-to-load intensity_pol0 intensity_pol1 phase \
+        --apply-mask darkhole_mask dark_zone_mask intensity_pol0 intensity_pol1 \
+        --merge-tables intensity_pol0 intensity_pol1 intensity \
+        --switch-basis intensity pol_psfs_pol0_pol1_modes_4000_masked_151931 modes 4000 \
+                       phase     zernike_modes_331_2000_modes                modes 555 \
+        --input-tables intensity --output-tables phase --fix-seed 314
+    python3 main.py normalize_processed_dataset \
+        val_pol_v12_norm val_pol_v12 \
+        --z-score-norm-inputs --z-score-norm-outputs \
+        --use-existing-norm-vals train_pol_v12_norm
+
+V13:
+
+    python3 main.py preprocess_data_pol \
+        --output-tags train_pol_v13 \
+        --output-tag-percentages 100 \
+        --raw-data-tags pol_35371_phase_and_amp \
+        --tables-to-load intensity_pol0 intensity_pol1 phase \
+        --apply-mask darkhole_mask dark_zone_mask intensity_pol0 intensity_pol1 \
+        --merge-tables intensity_pol0 intensity_pol1 intensity \
+        --switch-basis intensity pol_psfs_pol0_pol1_modes_4000_masked_151931 modes 2000 \
+                       phase     zernike_modes_331_2000_modes                modes 555 \
+        --input-tables intensity --output-tables phase --fix-seed 314
+    python3 main.py preprocess_data_pol \
+        --output-tags train_pol_v13 \
+        --output-tag-percentages 100 \
+        --raw-data-tags pol_36910_phase_and_amp \
+        --tables-to-load intensity_pol0 intensity_pol1 phase \
+        --apply-mask darkhole_mask dark_zone_mask intensity_pol0 intensity_pol1 \
+        --merge-tables intensity_pol0 intensity_pol1 intensity \
+        --switch-basis intensity pol_psfs_pol0_pol1_modes_4000_masked_151931 modes 2000 \
+                       phase     zernike_modes_331_2000_modes                modes 555 \
+        --input-tables intensity --output-tables phase --fix-seed 314 \
+        --extend-existing-preprocessed-data
+    python3 main.py preprocess_data_pol \
+        --output-tags train_pol_v13 \
+        --output-tag-percentages 100 \
+        --raw-data-tags pol_37922_phase_and_amp \
+        --tables-to-load intensity_pol0 intensity_pol1 phase \
+        --apply-mask darkhole_mask dark_zone_mask intensity_pol0 intensity_pol1 \
+        --merge-tables intensity_pol0 intensity_pol1 intensity \
+        --switch-basis intensity pol_psfs_pol0_pol1_modes_4000_masked_151931 modes 2000 \
+                       phase     zernike_modes_331_2000_modes                modes 555 \
+        --input-tables intensity --output-tables phase --fix-seed 314 \
+        --extend-existing-preprocessed-data
+    python3 main.py preprocess_data_pol \
+        --output-tags train_pol_v13 \
+        --output-tag-percentages 100 \
+        --raw-data-tags pol_41728_phase_and_amp \
+        --tables-to-load intensity_pol0 intensity_pol1 phase \
+        --apply-mask darkhole_mask dark_zone_mask intensity_pol0 intensity_pol1 \
+        --merge-tables intensity_pol0 intensity_pol1 intensity \
+        --switch-basis intensity pol_psfs_pol0_pol1_modes_4000_masked_151931 modes 2000 \
+                       phase     zernike_modes_331_2000_modes                modes 555 \
+        --input-tables intensity --output-tables phase --fix-seed 314 \
+        --extend-existing-preprocessed-data
+    python3 main.py normalize_processed_dataset \
+        train_pol_v13_norm train_pol_v13 \
+        --input-zero-mean-pixels --z-score-norm-inputs-global --z-score-norm-outputs
+    python3 main.py preprocess_data_pol \
+        --output-tags val_pol_v13 test_pol_v13 \
+        --output-tag-percentages 75 25 \
+        --raw-data-tags pol_34957_phase_and_amp \
+        --tables-to-load intensity_pol0 intensity_pol1 phase \
+        --apply-mask darkhole_mask dark_zone_mask intensity_pol0 intensity_pol1 \
+        --merge-tables intensity_pol0 intensity_pol1 intensity \
+        --switch-basis intensity pol_psfs_pol0_pol1_modes_4000_masked_151931 modes 2000 \
+                       phase     zernike_modes_331_2000_modes                modes 555 \
+        --input-tables intensity --output-tables phase --fix-seed 314
+    python3 main.py normalize_processed_dataset \
+        val_pol_v13_norm val_pol_v13 \
+        --input-zero-mean-pixels --z-score-norm-inputs-global --z-score-norm-outputs \
+        --use-existing-norm-vals train_pol_v13_norm
+    python3 main.py normalize_processed_dataset \
+        test_pol_v13_norm test_pol_v13 \
+        --input-zero-mean-pixels --z-score-norm-inputs-global \
+        --use-existing-norm-vals train_pol_v13_norm
+
+V14:
+
+    python3 main.py preprocess_data_pol \
+        --output-tags train_pol_v14 \
+        --output-tag-percentages 100 \
+        --raw-data-tags pol_35371_phase_and_amp \
+        --tables-to-load intensity_pol0 intensity_pol1 phase \
+        --apply-mask darkhole_mask dark_zone_mask intensity_pol0 intensity_pol1 \
+        --merge-tables intensity_pol0 intensity_pol1 intensity \
+        --switch-basis intensity pol_psfs_pol0_pol1_modes_4000_masked_151931 modes 4000 \
+                       phase     zernike_modes_331_2000_modes                modes 555 \
+        --input-tables intensity --output-tables phase --fix-seed 314
+    python3 main.py preprocess_data_pol \
+        --output-tags train_pol_v14 \
+        --output-tag-percentages 100 \
+        --raw-data-tags pol_36910_phase_and_amp \
+        --tables-to-load intensity_pol0 intensity_pol1 phase \
+        --apply-mask darkhole_mask dark_zone_mask intensity_pol0 intensity_pol1 \
+        --merge-tables intensity_pol0 intensity_pol1 intensity \
+        --switch-basis intensity pol_psfs_pol0_pol1_modes_4000_masked_151931 modes 4000 \
+                       phase     zernike_modes_331_2000_modes                modes 555 \
+        --input-tables intensity --output-tables phase --fix-seed 314 \
+        --extend-existing-preprocessed-data
+    python3 main.py preprocess_data_pol \
+        --output-tags train_pol_v14 \
+        --output-tag-percentages 100 \
+        --raw-data-tags pol_37922_phase_and_amp \
+        --tables-to-load intensity_pol0 intensity_pol1 phase \
+        --apply-mask darkhole_mask dark_zone_mask intensity_pol0 intensity_pol1 \
+        --merge-tables intensity_pol0 intensity_pol1 intensity \
+        --switch-basis intensity pol_psfs_pol0_pol1_modes_4000_masked_151931 modes 4000 \
+                       phase     zernike_modes_331_2000_modes                modes 555 \
+        --input-tables intensity --output-tables phase --fix-seed 314 \
+        --extend-existing-preprocessed-data
+    python3 main.py preprocess_data_pol \
+        --output-tags train_pol_v14 \
+        --output-tag-percentages 100 \
+        --raw-data-tags pol_41728_phase_and_amp \
+        --tables-to-load intensity_pol0 intensity_pol1 phase \
+        --apply-mask darkhole_mask dark_zone_mask intensity_pol0 intensity_pol1 \
+        --merge-tables intensity_pol0 intensity_pol1 intensity \
+        --switch-basis intensity pol_psfs_pol0_pol1_modes_4000_masked_151931 modes 4000 \
+                       phase     zernike_modes_331_2000_modes                modes 555 \
+        --input-tables intensity --output-tables phase --fix-seed 314 \
+        --extend-existing-preprocessed-data
+    python3 main.py normalize_processed_dataset \
+        train_pol_v14_norm train_pol_v14 \
+        --input-zero-mean-pixels --z-score-norm-inputs-global --z-score-norm-outputs
+    python3 main.py preprocess_data_pol \
+        --output-tags val_pol_v14 test_pol_v14 \
+        --output-tag-percentages 75 25 \
+        --raw-data-tags pol_34957_phase_and_amp \
+        --tables-to-load intensity_pol0 intensity_pol1 phase \
+        --apply-mask darkhole_mask dark_zone_mask intensity_pol0 intensity_pol1 \
+        --merge-tables intensity_pol0 intensity_pol1 intensity \
+        --switch-basis intensity pol_psfs_pol0_pol1_modes_4000_masked_151931 modes 4000 \
+                       phase     zernike_modes_331_2000_modes                modes 555 \
+        --input-tables intensity --output-tables phase --fix-seed 314
+    python3 main.py normalize_processed_dataset \
+        val_pol_v14_norm val_pol_v14 \
+        --input-zero-mean-pixels --z-score-norm-inputs-global --z-score-norm-outputs \
+        --use-existing-norm-vals train_pol_v14_norm
+    python3 main.py normalize_processed_dataset \
+        test_pol_v14_norm test_pol_v14 \
+        --input-zero-mean-pixels --z-score-norm-inputs-global \
+        --use-existing-norm-vals train_pol_v14_norm
+
 ## Mode Reconstructions
 
 EF Modes:
@@ -890,13 +1089,14 @@ Amp Modes:
 Intensity Modes:
 
     python3 main.py analyze_basis_modes \
-        pol_psfs_pol0_pol1_modes_2000_masked_36910 modes \
+        pol_psfs_pol0_pol1_modes_2000_masked_151931 modes \
         --display-as-circle 59 1.03 --display-with-hole 0.24 \
         --modes-are-complex 1 \
         --reconstruct-data pol_34957_phase_and_amp 2000 intensity_pol0 intensity_pol1 \
         --reconstruct-data-circle-mask --reconstruct-data-trim 21 80 21 80 \
         --reconstruct-data-first-n-rows 2000 \
         --reconstruct-data-select-row 0 --reconstruct-data-plots \
+        --plot-modes-range 0 10 --plot-orthogonality --print-mean-and-std \
         --plot-explained-variance
 
     python3 main.py analyze_basis_modes \
@@ -931,3 +1131,7 @@ Intensity Modes:
         train_pol_v5_norm val_pol_v5_norm --alpha 1e6
     python3 main.py linear_observability_analysis \
         train_pol_v9_norm val_pol_v9_norm --alpha 1
+    python3 main.py linear_observability_analysis \
+        train_pol_v11_norm val_pol_v11_norm --alpha 1e4
+    python3 main.py linear_observability_analysis \
+        train_pol_v12_norm val_pol_v12_norm --alpha 1e4

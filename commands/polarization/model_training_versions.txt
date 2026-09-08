@@ -478,12 +478,119 @@ Model training is listed from oldest to newest (newest at the bottom).
         --use-one-cycle-lr-scheduler --drop-last --init-weights-kaiming-normal-simple 0.20 input blocks \
         --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates --fix-seed 314
 
-    python3 -u main.py model_test \
-        pol_v9_1 last test_pol_v10_norm \
-        --plot-loss-curves --plot-r2 --plot-layerscale-gamma gamma 12 \
-        --convert-basis zernike_modes_331_2000_modes modes 20 \
+    python3 main_scnp.py model_train \
+        pol_v9_2 train_pol_v10_norm val_pol_v10_norm \
+        pol_t6_12d_dyn mse adamw 1e-3 80 --batch-size 512 \
+        --network-params dropout 0.2 dp_max_prob 0 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-one-cycle-lr-scheduler --drop-last --init-weights-kaiming-normal-simple 0.20 input blocks \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        pol_v9_3 train_pol_v10_norm val_pol_v10_norm \
+        pol_t6_12d_dyn mse adamw 1e-3 80 --batch-size 512 \
+        --network-params dropout 0.3 dp_max_prob 0 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-one-cycle-lr-scheduler --drop-last --init-weights-kaiming-normal-simple 0.20 input blocks \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        pol_v9_4 train_pol_v10_norm val_pol_v10_norm \
+        pol_t6_12d_dyn mse adamw 1e-3 80 --batch-size 512 \
+        --network-params dropout 0.1 dp_max_prob 0.05 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-one-cycle-lr-scheduler --drop-last --init-weights-kaiming-normal-simple 0.20 input blocks \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        pol_v9_5 train_pol_v10_norm val_pol_v10_norm \
+        pol_t6_12d_dyn mse adamw 1e-3 80 --batch-size 512 \
+        --network-params dropout 0.2 dp_max_prob 0.05 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-one-cycle-lr-scheduler --drop-last --init-weights-kaiming-normal-simple 0.20 input blocks \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        pol_v9_6 train_pol_v10_norm val_pol_v10_norm \
+        pol_t6_12d_dyn mse adamw 1e-3 80 --batch-size 512 \
+        --network-params dropout 0.3 dp_max_prob 0.05 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-one-cycle-lr-scheduler --drop-last --init-weights-kaiming-normal-simple 0.20 input blocks \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        pol_v9_7 train_pol_v10_norm val_pol_v10_norm \
+        pol_t6_12d_dyn mse adamw 1e-3 80 --batch-size 512 \
+        --network-params dropout 0.1 dp_max_prob 0.1 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-one-cycle-lr-scheduler --drop-last --init-weights-kaiming-normal-simple 0.20 input blocks \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        pol_v9_8 train_pol_v10_norm val_pol_v10_norm \
+        pol_t6_12d_dyn mse adamw 1e-3 80 --batch-size 512 \
+        --network-params dropout 0.2 dp_max_prob 0.1 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-one-cycle-lr-scheduler --drop-last --init-weights-kaiming-normal-simple 0.20 input blocks \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        pol_v9_9 train_pol_v10_norm val_pol_v10_norm \
+        pol_t6_12d_dyn mse adamw 1e-3 80 --batch-size 512 \
+        --network-params dropout 0.3 dp_max_prob 0.1 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-one-cycle-lr-scheduler --drop-last --init-weights-kaiming-normal-simple 0.20 input blocks \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates --fix-seed 314
+
+    python3 -u main.py batch_model_test \
+        test_pol_v10_norm \
+        --epoch-and-tag-range last pol_v9_ 1 9 --plot-loss-curves \
+        --convert-basis zernike_modes_331_2000_modes modes 555 \
         --convert-basis-save-values 5 \
-        --plot-coeff-mae-smape 20 --max-rows-per-model-call 1000 \
+        --plot-coeff-mae-smape 555 --max-rows-per-model-call 1000 \
         --plot-reconstructions 0 1 2 \
         --plot-reconstructions-mask pol_41728_phase_and_amp phase \
-        --plot-reconstructions-groups phase
+        --plot-reconstructions-groups phase \
+        --plot-layerscale-gamma gamma 12 --plot-r2
+
+[V10] The `pol_v10_` tag:
+
+    python3 main_scnp.py model_train \
+        pol_v10_1 train_pol_v13_norm val_pol_v13_norm \
+        pol_t7_12d_dyn mse adamw 1e-3 80 --batch-size 512 \
+        --network-params dropout 0.3 dp_max_prob 0.1 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-one-cycle-lr-scheduler --drop-last --init-weights-kaiming-normal-simple 0.20 input blocks \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates --fix-seed 314
+
+    python3 -u main.py batch_model_test \
+        test_pol_v13_norm \
+        --epoch-and-tag-range last pol_v10_ 1 1 --plot-loss-curves \
+        --convert-basis zernike_modes_331_2000_modes modes 555 \
+        --convert-basis-save-values 5 \
+        --plot-coeff-mae-smape 555 --max-rows-per-model-call 1000 \
+        --plot-reconstructions 0 1 2 \
+        --plot-reconstructions-mask pol_41728_phase_and_amp phase \
+        --plot-reconstructions-groups phase \
+        --plot-layerscale-gamma gamma 12 --plot-r2
+
+[V11] The `pol_v11_` tag:
+
+    python3 main_scnp.py model_train \
+        pol_v11_1 train_pol_v14_norm val_pol_v14_norm \
+        pol_t8_12d_dyn mse adamw 1e-3 80 --batch-size 512 \
+        --network-params dropout 0.3 dp_max_prob 0.1 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-one-cycle-lr-scheduler --drop-last --init-weights-kaiming-normal-simple 0.20 input blocks \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates --fix-seed 314
+
+    python3 -u main.py batch_model_test \
+        test_pol_v14_norm \
+        --epoch-and-tag-range last pol_v11_ 1 1 --plot-loss-curves \
+        --convert-basis zernike_modes_331_2000_modes modes 555 \
+        --convert-basis-save-values 5 \
+        --plot-coeff-mae-smape 555 --max-rows-per-model-call 1000 \
+        --plot-reconstructions 0 1 2 \
+        --plot-reconstructions-mask pol_41728_phase_and_amp phase \
+        --plot-reconstructions-groups phase \
+        --plot-layerscale-gamma gamma 12 --plot-r2
