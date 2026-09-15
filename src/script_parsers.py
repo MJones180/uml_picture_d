@@ -5,6 +5,7 @@ from scripts.apply_data_transformation import apply_data_transformation_parser
 from scripts.batch_model_test import batch_model_test_parser
 from scripts.batch_model_train import batch_model_train_parser
 from scripts.benchmark_model import benchmark_model_parser
+from scripts.compute_stats_from_difference import compute_stats_from_difference_parser  # noqa: E501
 from scripts.control_loop_run import control_loop_run_parser
 from scripts.control_loop_static_wavefronts import control_loop_static_wf_parser
 from scripts.convert_analysis_outputs_from_svd_basis import convert_analysis_outputs_from_svd_basis_parser  # noqa: E501
@@ -50,6 +51,7 @@ script_parsers = [
     batch_model_test_parser,
     batch_model_train_parser,
     benchmark_model_parser,
+    compute_stats_from_difference_parser,
     control_loop_run_parser,
     control_loop_static_wf_parser,
     convert_analysis_outputs_from_svd_basis_parser,
