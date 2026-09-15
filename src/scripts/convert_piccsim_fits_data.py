@@ -156,7 +156,7 @@ def convert_piccsim_fits_data(cli_args):
     use_existing_hdf = cli_args.get('load_from_existing_hdf_dataset')
     use_single_fits_files = cli_args.get('load_from_single_fits_datafiles')
     table_names = cli_args['fits_table_names']
-    if use_existing_hdf is not None:
+    if use_existing_hdf:
         step_ri('Working from an existing HDF dataset')
         print(f'Path: {dir_path}')
         print(f'Table names: {table_names}')
@@ -285,6 +285,8 @@ def convert_piccsim_fits_data(cli_args):
         step(f'On chunk {chunk_idx} [idx {idx_low} - {idx_high}]')
         tables = base_tables.copy()
         if use_existing_hdf:
+            print(use_existing_hdf)
+            print('I am getting here')
             hdf_path = f'{dir_path}/{chunk_idx}_{DATA_F}'
             print(f'Path: {hdf_path}')
             hdf_file_contents = read_hdf(hdf_path)
