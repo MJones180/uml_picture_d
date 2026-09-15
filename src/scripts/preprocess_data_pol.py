@@ -304,8 +304,10 @@ def preprocess_data_pol(cli_args):
     print(f'Input shape: {input_data.shape}')
 
     step_ri('Creating output array')
-    output_data = _create_merged_arrs(cli_args['output_tables'])
-    print(f'Output shape: {output_data.shape}')
+    output_tables = cli_args['output_tables']
+    if output_tables is not None:
+        output_data = _create_merged_arrs(output_tables)
+        print(f'Output shape: {output_data.shape}')
 
     # ==========================================================================
 
@@ -313,7 +315,8 @@ def preprocess_data_pol(cli_args):
         step_ri('Shuffling')
         random_shuffle_idxs = np.random.permutation(len(input_data))
         input_data = input_data[random_shuffle_idxs]
-        output_data = output_data[random_shuffle_idxs]
+        if output_tables is not None:
+            output_data = output_data[random_shuffle_idxs]
 
     # ==========================================================================
 
@@ -329,7 +332,9 @@ def preprocess_data_pol(cli_args):
         print(f'[{output_tag}] Rows: {rows} ({percentage}%)')
         # Grab the data that should be written to this tag
         input_chunk = input_data[rows_low:rows_low + rows]
-        output_chunk = output_data[rows_low:rows_low + rows]
+        output_chunk = np.array([])
+        if output_tables is not None:
+            output_chunk = output_data[rows_low:rows_low + rows]
         rows_low += rows
         out_path = output_tag_paths[idx]
         datafile_path = f'{out_path}/{DATA_F}'
@@ -340,8 +345,9 @@ def preprocess_data_pol(cli_args):
             with read_hdf(datafile_path) as existing_data:
                 input_chunk = np.vstack(
                     (existing_data[INPUTS][:], input_chunk))
-                output_chunk = np.vstack(
-                    (existing_data[OUTPUTS][:], output_chunk))
+                if output_tables is not None:
+                    output_chunk = np.vstack(
+                        (existing_data[OUTPUTS][:], output_chunk))
         else:
             # Add a file with extra necessary variables
             file_path = f'{out_path}/{EXTRA_VARS_F}'
