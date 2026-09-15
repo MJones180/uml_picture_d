@@ -81,7 +81,5 @@ def compute_stats_from_difference(cli_args):
     })
 
     step_ri('Saving plots')
-    plot_line(mean, 'Difference Mean', 'Output Index', 'Mean',
-              f'{out_dir}/mean.png')
-    plot_line(std, 'Difference STD', 'Output Index', 'STD',
-              f'{out_dir}/std.png')
+    plot_line(mean, 'Difference Mean', 'Index', 'Mean', f'{out_dir}/mean.png')
+    plot_line(std, 'Difference STD', 'Index', 'STD', f'{out_dir}/std.png')
