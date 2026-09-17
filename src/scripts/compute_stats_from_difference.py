@@ -33,6 +33,11 @@ def compute_stats_from_difference_parser(subparsers):
         'second_dataset_table',
         help='name of the table to use from the second dataset',
     )
+    subparser.add_argument(
+        '--use-first-n-values',
+        type=int,
+        help='only use the first N values',
+    )
 
 
 def compute_stats_from_difference(cli_args):
@@ -61,6 +66,13 @@ def compute_stats_from_difference(cli_args):
 
     first_ds = load_data('First', 'first_tag', 'first_dataset_table')
     second_ds = load_data('Second', 'second_tag', 'second_dataset_table')
+
+    use_first_n_values = cli_args.get('use_first_n_values')
+    if use_first_n_values is not None:
+        step_ri(f'Using first {use_first_n_values} values')
+        first_ds = first_ds[:, :use_first_n_values]
+        second_ds = second_ds[:, :use_first_n_values]
+        print(f'New shape: {first_ds.shape}')
 
     step_ri('Computing difference')
     diff = first_ds - second_ds
