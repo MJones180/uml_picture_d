@@ -38,6 +38,12 @@ def compute_stats_from_difference_parser(subparsers):
         type=int,
         help='only use the first N values',
     )
+    subparser.add_argument(
+        '--zero-small-means',
+        type=int,
+        help=('mean values set to zero when the following condition is met: '
+              'SEM (Standard Error of the Mean) >= |mean| / N; N is passed'),
+    )
 
 
 def compute_stats_from_difference(cli_args):
@@ -84,6 +90,21 @@ def compute_stats_from_difference(cli_args):
     print(f'Mean shape: {mean.shape}')
     print(f'STD shape: {std.shape}')
 
+    step_ri('Saving plots')
+    plot_line(mean, 'Difference Mean', 'Index', 'Mean', f'{out_dir}/mean.png')
+    plot_line(std, 'Difference STD', 'Index', 'STD', f'{out_dir}/std.png')
+
+    zero_small_means = cli_args.get('zero_small_means')
+    if zero_small_means is not None:
+        step_ri('Zeroing small values using SEM')
+        print(f'N: {zero_small_means}')
+        # Standard Error of the Mean
+        sem = std / np.sqrt(len(diff))
+        # Zero out the required mean values
+        mean[sem >= np.abs(mean) / zero_small_means] = 0
+        plot_line(mean, f'Difference Mean (Zero Means, N={zero_small_means})',
+                  'Index', 'Mean', f'{out_dir}/mean_sem.png')
+
     step_ri('Writing out mean and std')
     datafile_path = f'{out_dir}/0_{DATA_F}'
     print(f'Path: {datafile_path}')
@@ -91,7 +112,3 @@ def compute_stats_from_difference(cli_args):
         MEAN: mean,
         STD: std,
     })
-
-    step_ri('Saving plots')
-    plot_line(mean, 'Difference Mean', 'Index', 'Mean', f'{out_dir}/mean.png')
-    plot_line(std, 'Difference STD', 'Index', 'STD', f'{out_dir}/std.png')
