@@ -1875,7 +1875,7 @@ A RM can also be added to the weights of a layer in a NN:
 ## Exact vs PWP EF
 
     # Data simulated with the piccsim `create_pwp_sensing_dataset.pro` script
-    # Convert from FITS to HDF
+    # Convert from FITS to HDF; 1119 rows
     python3 main.py convert_piccsim_fits_data ef_sensing_accuracy \
         /home/michael-jones/Documents/piccsim/plots/dh_sensing_dataset_314 \
         --fits-file-globs true_real true_imag sense_real sense_imag \
