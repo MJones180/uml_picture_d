@@ -15,13 +15,14 @@ from time import time
 import torch
 from utils.cli_args import save_cli_args
 from utils.constants import (EPOCH_LOSS_F, EXTRA_VARS_F, LEARNING_RATES_F,
-                             OPTIMIZERS, OUTPUT_MASK, OUTPUT_P,
+                             MEAN, OPTIMIZERS, OUTPUT_MASK, OUTPUT_P,
                              OUTPUTS_Z_SCORE_MEAN, OUTPUTS_Z_SCORE_STD,
-                             PROC_DATA_P, TAG_LOOKUP_F, TRAINED_MODELS_P)
+                             PROC_DATA_P, STD, TAG_LOOKUP_F, TRAINED_MODELS_P)
 from utils.group_data_from_list import group_data_from_list
 from utils.hdf_read_and_write import read_hdf
 from utils.json import json_load, json_write
 from utils.load_network import load_network
+from utils.load_raw_sim_data import raw_sim_data_chunk_paths
 from utils.model import Model
 from utils.path import (copy_files, delete_dir, delete_file, make_dir,
                         path_exists)
@@ -268,6 +269,15 @@ def model_train_parser(subparsers):
         type=int,
         help=('before calculating the validation loss, set the epoch inside '
               'the loss function to the specified epoch'),
+    )
+    subparser.add_argument(
+        '--inject-input-noise',
+        nargs=3,
+        help=('inject noise randomly into the inputs; three arguments '
+              'expected: tag of raw dataset containing `mean` and `std` '
+              'tables, probablity of adding noise to a given row, '
+              'sigma clipping value; currently, the input noise is only '
+              'added to the training data, NOT the validation data'),
     )
     subparser.add_argument(
         '--clip-gradient-norm',
@@ -1188,6 +1198,45 @@ def model_train(cli_args):
         step_ri(f'Will set the epoch to {set_fixed_epoch_for_val_loss} for '
                 'each validation loss')
 
+    inject_input_noise = cli_args.get('inject_input_noise')
+    if inject_input_noise is not None:
+        step_ri('Will inject input noise')
+        noise_data_tag, noise_probability, noise_sigma_clip = inject_input_noise
+        noise_probability = float(noise_probability)
+        noise_sigma_clip = float(noise_sigma_clip)
+        print(f'Tag containing noise: {noise_data_tag}')
+        print(f'Noise probablity: {noise_probability}')
+        print(f'Sigma clip: {noise_sigma_clip}')
+        noise_data = read_hdf(raw_sim_data_chunk_paths(noise_data_tag)[0])
+        if MEAN not in noise_data or STD not in noise_data:
+            terminate_with_message(f'{noise_data_tag} must contain the '
+                                   f'`{MEAN}` and `{STD}` tables')
+        noise_mean = torch.from_numpy(noise_data[MEAN][:]).to(device)
+        noise_std = torch.from_numpy(noise_data[STD][:]).to(device)
+        print(f'Noise mean shape: {noise_mean.shape}')
+        print(f'Noise std shape: {noise_std.shape}')
+
+        def add_input_noise(input_batch):
+            rows_in_batch, input_size = input_batch.shape
+            # The noise per row
+            noise = torch.randn(
+                rows_in_batch,
+                input_size,
+                device=device,
+            ) * noise_std + noise_mean
+            # Clamp the noise so it isn't too large
+            noise = torch.clamp(
+                noise,
+                noise_mean - noise_sigma_clip * noise_std,
+                noise_mean + noise_sigma_clip * noise_std,
+            )
+            # Only apply noise to some of the rows
+            noise_mask = (torch.rand(rows_in_batch, device=device)
+                          < noise_probability).float()[:, None]
+            return input_batch + noise * noise_mask
+    else:
+        add_input_noise = None
+
     clip_gradient_norm = cli_args.get('clip_gradient_norm')
     step_ri('Gradient norm clipping')
     if clip_gradient_norm is None:
@@ -1262,6 +1311,8 @@ def model_train(cli_args):
             total_train_loss_heads = [0 for _ in range(output_heads)]
         for inputs, outputs_truth in train_loader:
             inputs = inputs.to(device)
+            if add_input_noise is not None:
+                inputs = add_input_noise(inputs)
             outputs_truth = outputs_truth.to(device)
             # Zero gradients for every batch
             optimizer.zero_grad(set_to_none=True)
