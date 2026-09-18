@@ -6,6 +6,7 @@ A datafile will be outputted for every worker.
 
 import numpy as np
 from pathos.multiprocessing import ProcessPool
+from scipy.stats import gennorm, qmc
 from utils.cli_args import save_cli_args
 from utils.constants import (ABERRATIONS_F, DATA_F, DM_ACTUATOR_HEIGHTS,
                              DM_MASK, OT_DM_LIST, PLOTTING_LINEAR_INT,
@@ -223,6 +224,17 @@ def sim_data_parser(subparsers):
               'must be sequential), then will simulate `pert_nrows` with '
               '`std` (in meters) normal error around the base row | NOTE: for '
               'any negative values, write them as \" -number\"'),
+    )
+    aberrations_group.add_argument(
+        '--sobol-sequence-with-per-zernike-transform',
+        nargs='+',
+        metavar=('[N] [zernike term low] [zernike term high] '
+                 '[gennorm beta] [gennorm scale]'),
+        help=('will simulate 2**`N` rows from a Sobol sequence | the bounds '
+              'can be different for different Zernike terms, the four '
+              'arguments can be repeated as many times as necessary to cover '
+              'all the groupings, the Zernike terms just have to be '
+              'sequential and have no overlap'),
     )
 
     dm_group = subparser.add_mutually_exclusive_group()
@@ -463,6 +475,28 @@ def sim_data(cli_args):
         perturb_amounts = rng.normal(0, float(std), size=(rows, col_count))
         return np.concatenate((base_row, base_row + perturb_amounts))
 
+    def sobol_sequence_with_per_zernike_transform(N, *group_args):
+        print('Will use a Sobol sequence with transformations')
+        groups = _arg_groups(group_args, 4)
+        dims = len(zernike_terms)
+        N = int(N)
+        print(f'Dimension: {dims}')
+        print(f'Rows: 2**{N}')
+        sobol_sampler = qmc.Sobol(d=dims, scramble=True, seed=314)
+        aberrations = sobol_sampler.random_base2(N)
+        low_idx = 0
+        for group in groups:
+            group_desc, cols, beta, scale = group
+            beta = float(beta)
+            scale = float(scale)
+            print(group_desc + f'Beta: {beta}, Scale: {scale}')
+            gennorm_inst = gennorm(beta=beta, scale=scale)
+            for idx in range(low_idx, low_idx + cols):
+                aberrations[:, idx] = gennorm_inst.ppf(aberrations[:, idx])
+                aberrations[:, idx] *= 1e-9
+            low_idx += cols
+        return aberrations
+
     for key in (
             'no_aberrations',
             'explicit',
@@ -475,6 +509,7 @@ def sim_data(cli_args):
             'rand_amount_per_zernike_single',
             'rand_amount_per_zernike_single_each',
             'rand_amount_per_zernike_row_then_gaussian_pert',
+            'sobol_sequence_with_per_zernike_transform',
     ):
         if cli_args[key]:
             step_ri(f'Calling `{key}`')
