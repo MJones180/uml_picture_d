@@ -355,6 +355,14 @@ More random aberrations but with a random normal distribution (Gaussian):
         --rand-amount-per-zernike-normal 100000 2 3 0 2.5e-10 4 8 0 1.25e-10 9 24 0 0.1e-10 \
         --cores 7
 
+Sobol sequence aberrations:
+
+    python3 main_scnp.py sim_data sobol_N19_v1 v84_approx 600e-9 \
+        --output-write-batch 5000 --append-no-aberrations-row \
+        --sobol-sequence-with-per-zernike-transform 19 \
+            2 3 1 80    4 8 0.5 0.2    9 24 0.5 0.075 \
+        --cores 8
+
 Just the aberrations for groups with different ranges:
 
     python3 main_scnp.py sim_data random_group_500_20_10_just_aberrations v84_approx 600e-9 \
