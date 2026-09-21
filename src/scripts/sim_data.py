@@ -228,7 +228,7 @@ def sim_data_parser(subparsers):
     aberrations_group.add_argument(
         '--sobol-sequence-with-per-zernike-transform',
         nargs='+',
-        metavar=('[N] [zernike term low] [zernike term high] '
+        metavar=('[seed] [N] [zernike term low] [zernike term high] '
                  '[gennorm beta] [gennorm scale]'),
         help=('will simulate 2**`N` rows from a Sobol sequence | the bounds '
               'can be different for different Zernike terms, the four '
@@ -475,14 +475,16 @@ def sim_data(cli_args):
         perturb_amounts = rng.normal(0, float(std), size=(rows, col_count))
         return np.concatenate((base_row, base_row + perturb_amounts))
 
-    def sobol_sequence_with_per_zernike_transform(N, *group_args):
+    def sobol_sequence_with_per_zernike_transform(seed, N, *group_args):
         print('Will use a Sobol sequence with transformations')
+        seed = int(seed)
+        N = int(N)
+        print(f'Seed: {seed}')
+        print(f'Rows: 2**{N}')
         groups = _arg_groups(group_args, 4)
         dims = len(zernike_terms)
-        N = int(N)
         print(f'Dimension: {dims}')
-        print(f'Rows: 2**{N}')
-        sobol_sampler = qmc.Sobol(d=dims, scramble=True, seed=314)
+        sobol_sampler = qmc.Sobol(d=dims, scramble=True, seed=seed)
         aberrations = sobol_sampler.random_base2(N)
         low_idx = 0
         for group in groups:
