@@ -1874,6 +1874,8 @@ A RM can also be added to the weights of a layer in a NN:
 
 ## Exact vs PWP EF
 
+    # --- V1 ---
+
     # Data simulated with the piccsim `create_pwp_sensing_dataset.pro` script
     # Convert from FITS to HDF; 1119 rows
     python3 main.py convert_piccsim_fits_data ef_sensing_accuracy \
@@ -1915,4 +1917,48 @@ A RM can also be added to the weights of a layer in a NN:
         ef_sensing_accuracy_pwp_diff_stats \
         ef_sensing_accuracy_pwp_ef_norm inputs \
         ef_sensing_accuracy_exact_ef_norm inputs \
+        --use-first-n-values 700 --zero-small-means 2
+
+    # --- V2 ---
+
+    # Data simulated with the piccsim `create_pwp_sensing_dataset.pro` script
+    # Convert from FITS to HDF; 56009 rows
+    python3 main.py convert_piccsim_fits_data_merger ef_sensing_accuracy_v2 \
+        /home/michael_jones6_student_uml_edu/work/piccsim/plots/ \
+        dh_sensing_dataset_ 0 102 1 \
+        --file-names true_real true_imag sense_real sense_imag --allow-missing-dirs
+
+    # Convert to the PCA coeffs
+    python3 main.py preprocess_data_pol \
+        --output-tags ef_sensing_accuracy_exact_ef_v2 \
+        --output-tag-percentages 100 \
+        --raw-data-tags ef_sensing_accuracy_v2 \
+        --tables-to-load true_real true_imag \
+        --apply-mask darkhole_mask dark_zone_mask true_real true_imag \
+        --merge-tables true_real true_imag ef \
+        --switch-basis ef pca_ef_basis_418k_rows_756_modes modes 756 \
+        --input-tables ef --fix-seed 314
+    python3 main.py preprocess_data_pol \
+        --output-tags ef_sensing_accuracy_pwp_ef_v2 \
+        --output-tag-percentages 100 \
+        --raw-data-tags ef_sensing_accuracy_v2 \
+        --tables-to-load sense_real sense_imag \
+        --apply-mask darkhole_mask dark_zone_mask sense_real sense_imag \
+        --merge-tables sense_real sense_imag ef \
+        --switch-basis ef pca_ef_basis_418k_rows_756_modes modes 756 \
+        --input-tables ef --fix-seed 314
+
+    # Normalize the coeffs
+    python3 main.py normalize_processed_dataset \
+        ef_sensing_accuracy_exact_ef_norm_v2 ef_sensing_accuracy_exact_ef_v2 \
+        --z-score-norm-inputs --use-existing-norm-vals train_dh_both_hodms_efc_final_dh_5xlg_1iter_pca_ef_756_svd_joint_dm_732_z_score_individual
+    python3 main.py normalize_processed_dataset \
+        ef_sensing_accuracy_pwp_ef_norm_v2 ef_sensing_accuracy_pwp_ef_v2 \
+        --z-score-norm-inputs --use-existing-norm-vals train_dh_both_hodms_efc_final_dh_5xlg_1iter_pca_ef_756_svd_joint_dm_732_z_score_individual
+
+    # Compute the mean and STD of the difference
+    python3 main.py compute_stats_from_difference \
+        ef_sensing_accuracy_pwp_diff_stats_v2 \
+        ef_sensing_accuracy_pwp_ef_norm_v2 inputs \
+        ef_sensing_accuracy_exact_ef_norm_v2 inputs \
         --use-first-n-values 700 --zero-small-means 2

@@ -359,8 +359,38 @@ Sobol sequence aberrations:
 
     python3 main_scnp.py sim_data sobol_N19_v1 v84_approx 600e-9 \
         --output-write-batch 5000 --append-no-aberrations-row \
-        --sobol-sequence-with-per-zernike-transform 19 \
+        --sobol-sequence-with-per-zernike-transform 314 19 \
             2 3 1 80    4 8 0.5 0.2    9 24 0.5 0.075 \
+        --cores 8
+
+    python3 main_scnp.py sim_data sobol_N20_v1 v84_approx 600e-9 \
+        --output-write-batch 5000 --append-no-aberrations-row \
+        --sobol-sequence-with-per-zernike-transform 314 20 \
+            2 3 1 80    4 8 0.5 0.2    9 24 0.5 0.075 \
+        --cores 8
+
+    python3 main_scnp.py sim_data sobol_lg_v2 v84_approx 600e-9 \
+        --output-write-batch 5000 --append-no-aberrations-row \
+        --sobol-sequence-with-per-zernike-transform 314 16 \
+            2 3 1 80    4 8 0.5 0.2    9 24 0.5 0.075 \
+        --cores 8
+
+    python3 main_scnp.py sim_data sobol_md_v2 v84_approx 600e-9 \
+        --output-write-batch 5000 --append-no-aberrations-row \
+        --sobol-sequence-with-per-zernike-transform 3141 19 \
+            2 3 1 4     4 8 0.5 0.2    9 24 0.5 0.075 \
+        --cores 8
+
+    python3 main_scnp.py sim_data sobol_sm_v2 v84_approx 600e-9 \
+        --output-write-batch 5000 --append-no-aberrations-row \
+        --sobol-sequence-with-per-zernike-transform 31415 16 \
+            2 3 1 0.75  4 8 0.5 0.05   9 24 0.5 0.025 \
+        --cores 8
+
+    python3 main_scnp.py sim_data sobol_sm_v3 v84_approx 600e-9 \
+        --output-write-batch 5000 --append-no-aberrations-row \
+        --sobol-sequence-with-per-zernike-transform 31415 16 \
+            2 3 1 4  4 8 0.5 0.05   9 24 0.5 0.025 \
         --cores 8
 
 Just the aberrations for groups with different ranges:
@@ -849,6 +879,39 @@ Can be used for model training/validation:
         --additional-raw-data-tags-train-only fixed_50nm_range_2000_approx \
         --camera-for-wfs imperx_b0620 0.0025 2.1e8
 
+    python3 main.py preprocess_data_complete \
+        sobol_N19_v1 \
+        train_sobol_N19_v1 val_sobol_N19_v1 test_sobol_N19_v1 80 15 5 \
+        --disable-norm-inputs --inputs-sum-to-one \
+        --norm-outputs individually --norm-range-ones \
+        --use-field-diff no_aberrations \
+        --additional-raw-data-tags-train-only fixed_10nm_range_401_approx fixed_50nm_range_2000_approx 
+
+    python3 main.py preprocess_data_complete \
+        sobol_N20_v1 \
+        train_sobol_N20_v1 val_sobol_N20_v1 test_sobol_N20_v1 80 15 5 \
+        --disable-norm-inputs --inputs-sum-to-one \
+        --norm-outputs individually --norm-range-ones \
+        --use-field-diff no_aberrations \
+        --additional-raw-data-tags-train-only fixed_10nm_range_401_approx fixed_50nm_range_2000_approx 
+
+    python3 main.py preprocess_data_complete \
+        sobol_lg_v2 \
+        train_sobol_v2 val_sobol_v2 test_sobol_v2 80 15 5 \
+        --disable-norm-inputs --inputs-sum-to-one \
+        --norm-outputs individually --norm-range-ones \
+        --use-field-diff no_aberrations \
+        --additional-raw-data-tags-train-only sobol_md_v2 sobol_sm_v2 \
+        --additional-raw-data-tags-train-only fixed_10nm_range_401_approx fixed_50nm_range_2000_approx 
+
+    python3 main.py preprocess_data_complete \
+        sobol_lg_v2 \
+        train_sobol_v3 val_sobol_v3 test_sobol_v3 80 15 5 \
+        --disable-norm-inputs --inputs-sum-to-one \
+        --norm-outputs individually --norm-range-ones \
+        --use-field-diff no_aberrations \
+        --additional-raw-data-tags sobol_md_v2 sobol_sm_v3 \
+        --additional-raw-data-tags-train-only fixed_10nm_range_401_approx fixed_50nm_range_2000_approx 
 
 Can be used for testing:
 

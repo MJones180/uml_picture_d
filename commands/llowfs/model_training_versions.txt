@@ -2956,3 +2956,99 @@ After model testing, it is useful to rank the model analyses:
         wavefront_stabilization_sim_cam_v6 last \
         test_fixed_2000_and_random_weighted_group_ranges_local_v5_c_sim_cam \
         --scatter-plot 4 6 2 0 15
+
+[V75] The `sobol_v1` tag:
+
+    python3 main_scnp.py model_train \
+        sobol_v1 train_sobol_N19_v1 val_sobol_N19_v1 \
+        llowfs_cnn_4_no_dropout mae adamw 1e-3 400 --batch-size 512 \
+        --use-cosine-annealing-lr-scheduler 30 1e-6 5e-8 --clip-gradient-norm 10 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main.py model_test \
+        sobol_v1 last fixed_1nm_range_301_approx_processed \
+        --zernike-plots --inputs-need-norm --inputs-need-diff --enable-paper-plots 1 --norm-stability-value 0
+
+    python3 main.py model_test \
+        sobol_v1 last fixed_50nm_range_approx_processed \
+        --zernike-plots --inputs-need-norm --inputs-need-diff --enable-paper-plots 1 --norm-stability-value 0
+
+    python3 main.py model_test \
+        sobol_v1 last random_2nm_med_processed \
+        --inputs-need-norm --inputs-need-diff \
+        --scatter-plot 4 6 2 1e-7 15 --enable-paper-plots 1 --norm-stability-value 0
+
+    python3 main.py model_test \
+        sobol_v1 last test_sobol_N19_v1 --scatter-plot 4 6 2 0 15 --norm-stability-value 0
+
+[V76] The `sobol_v2` tag:
+
+    python3 main_scnp.py model_train \
+        sobol_v2 train_sobol_N20_v1 val_sobol_N20_v1 \
+        llowfs_cnn_4_no_dropout mae adamw 1e-3 400 --batch-size 512 \
+        --use-cosine-annealing-lr-scheduler 30 1e-6 5e-8 --clip-gradient-norm 10 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main.py model_test \
+        sobol_v2 last fixed_1nm_range_301_approx_processed \
+        --zernike-plots --inputs-need-norm --inputs-need-diff --enable-paper-plots 1 --norm-stability-value 0
+
+    python3 main.py model_test \
+        sobol_v2 last fixed_50nm_range_approx_processed \
+        --zernike-plots --inputs-need-norm --inputs-need-diff --enable-paper-plots 1 --norm-stability-value 0
+
+    python3 main.py model_test \
+        sobol_v2 last random_2nm_med_processed \
+        --inputs-need-norm --inputs-need-diff \
+        --scatter-plot 4 6 2 1e-7 15 --enable-paper-plots 1 --norm-stability-value 0
+
+    python3 main.py model_test \
+        sobol_v2 last test_sobol_N20_v1 --scatter-plot 4 6 2 0 15 --norm-stability-value 0
+
+[V77] The `sobol_v3` tag:
+
+    python3 main_scnp.py model_train \
+        sobol_v3 train_sobol_v2 val_sobol_v2 \
+        llowfs_cnn_4_no_dropout mae adamw 1e-3 400 --batch-size 512 \
+        --use-cosine-annealing-lr-scheduler 30 1e-6 5e-8 --clip-gradient-norm 10 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main.py model_test \
+        sobol_v3 last fixed_1nm_range_301_approx_processed \
+        --zernike-plots --inputs-need-norm --inputs-need-diff --enable-paper-plots 1 --norm-stability-value 0
+
+    python3 main.py model_test \
+        sobol_v3 last fixed_50nm_range_approx_processed \
+        --zernike-plots --inputs-need-norm --inputs-need-diff --enable-paper-plots 1 --norm-stability-value 0
+
+    python3 main.py model_test \
+        sobol_v3 last random_2nm_med_processed \
+        --inputs-need-norm --inputs-need-diff \
+        --scatter-plot 4 6 2 1e-7 15 --enable-paper-plots 1 --norm-stability-value 0
+
+    python3 main.py model_test \
+        sobol_v3 last test_sobol_v2 --scatter-plot 4 6 2 0 15 --norm-stability-value 0
+
+[V78] The `sobol_v4` tag:
+
+    python3 main_scnp.py model_train \
+        sobol_v4 train_sobol_v3 val_sobol_v3 \
+        llowfs_cnn_4_no_dropout mae adamw 1e-3 400 --batch-size 512 \
+        --use-cosine-annealing-lr-scheduler 30 1e-6 5e-8 --clip-gradient-norm 10 \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --fix-seed 314
+
+    python3 main.py model_test \
+        sobol_v4 last fixed_1nm_range_301_approx_processed \
+        --zernike-plots --inputs-need-norm --inputs-need-diff --enable-paper-plots 1 --norm-stability-value 0
+
+    python3 main.py model_test \
+        sobol_v4 last fixed_50nm_range_approx_processed \
+        --zernike-plots --inputs-need-norm --inputs-need-diff --enable-paper-plots 1 --norm-stability-value 0
+
+    python3 main.py model_test \
+        sobol_v4 last random_2nm_med_processed \
+        --inputs-need-norm --inputs-need-diff \
+        --scatter-plot 4 6 2 1e-7 15 --enable-paper-plots 1 --norm-stability-value 0
+
+    python3 main.py model_test \
+        sobol_v4 last test_sobol_v3 --scatter-plot 4 6 2 0 15 --norm-stability-value 0
