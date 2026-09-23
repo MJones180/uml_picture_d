@@ -1,9 +1,11 @@
 import numpy as np
 from utils.cli_args import save_cli_args
-from utils.constants import DATA_F, MEAN, PROC_DATA_P, RAW_DATA_P, STD
+from utils.constants import (CHOLESKY_L, DATA_F, MEAN, PROC_DATA_P, RAW_DATA_P,
+                             STD)
 from utils.hdf_read_and_write import HDFWriteModule, read_hdf
 from utils.path import make_dir
 from utils.plots.plot_line import plot_line
+from utils.plots.plot_2d import plot_2d
 from utils.printing_and_logging import step_ri, title
 
 
@@ -43,6 +45,16 @@ def compute_stats_from_difference_parser(subparsers):
         type=int,
         help=('mean values set to zero when the following condition is met: '
               'SEM (Standard Error of the Mean) >= |mean| / N; N is passed'),
+    )
+    subparser.add_argument(
+        '--calculate-cov',
+        action='store_true',
+        help='calculate the covariance and Cholesky factor',
+    )
+    subparser.add_argument(
+        '--calculate-cov-mode-limit',
+        type=int,
+        help='zero out all covariance after a given mode',
     )
 
 
@@ -89,6 +101,7 @@ def compute_stats_from_difference(cli_args):
     std = np.std(diff, axis=0)
     print(f'Mean shape: {mean.shape}')
     print(f'STD shape: {std.shape}')
+    out_data = {MEAN: mean, STD: std}
 
     step_ri('Saving plots')
     plot_line(mean, 'Difference Mean', 'Index', 'Mean', f'{out_dir}/mean.png')
@@ -105,10 +118,39 @@ def compute_stats_from_difference(cli_args):
         plot_line(mean, f'Difference Mean (Zero Means, N={zero_small_means})',
                   'Index', 'Mean', f'{out_dir}/mean_sem.png')
 
+    if cli_args['calculate_cov']:
+        step_ri('Calculating the covariance')
+        # Perform the covariance calculation in float32 for precision
+        cov = np.cov(diff.astype(np.float64), rowvar=False)
+        print(f'Covariance shape: {cov.shape}')
+        # Potentially limit the number of correlated modes; modes that end up
+        # being uncorrelated will still have their independent STDs
+        mode_limit = cli_args.get('calculate_cov_mode_limit')
+        if mode_limit is not None:
+            print(f'Zeroing out all modes after index {mode_limit}')
+            cov_mask = np.zeros_like(cov, dtype=bool)
+            cov_mask[mode_limit:, :] = True
+            cov_mask[:, mode_limit:] = True
+            np.fill_diagonal(cov_mask, False)
+            cov[cov_mask] = 0
+        # Calculate the Cholesky factor, L @ L.T = cov
+        L_matrix = np.linalg.cholesky(cov).astype(np.float32)
+        print(f'L (Cholesky factor) shape: {L_matrix.shape}')
+        out_data[CHOLESKY_L] = L_matrix
+        # Plot out the eigenvalues of the covariance matrix
+        plot_line(np.linalg.eigvalsh(cov), 'Covariance Matrix Eigenvalues',
+                  'Index', 'Eigenvalue', f'{out_dir}/cov_eigvals.png')
+        # Plot out the correlation
+        diag_std = np.sqrt(np.diag(cov))
+        corr = cov / np.outer(diag_std, diag_std)
+        plot_2d(corr, 'Correlation', 'Index', 'Index',
+                f'{out_dir}/correlation.png')
+        # Plot out the absolute Cholesky factor
+        plot_2d(np.abs(L_matrix), 'Magnitude of L (Cholesky Factor)',
+                'Input Index', 'Output Index',
+                f'{out_dir}/cholesky_factor.png')
+
     step_ri('Writing out mean and std')
     datafile_path = f'{out_dir}/0_{DATA_F}'
     print(f'Path: {datafile_path}')
-    HDFWriteModule(datafile_path).create_and_write_hdf_simple({
-        MEAN: mean,
-        STD: std,
-    })
+    HDFWriteModule(datafile_path).create_and_write_hdf_simple(out_data)

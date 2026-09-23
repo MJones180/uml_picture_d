@@ -71,6 +71,7 @@ BASE_INT_FIELD = 'base_intensity_field'
 CAMERA_EF = 'camera_efield'
 CAMERA_INTENSITY = 'ccd_intensity'
 CAMERA_SAMPLING = 'ccd_sampling'
+CHOLESKY_L = 'cholesky_l'
 DARK_ZONE_MASK = 'dark_zone_mask'
 DM_ACTIVE_IDXS = lambda idx: f'dm_active_idxs_{idx}'  # noqa: E731
 DM_ACTIVE_COL_IDXS = lambda idx: f'dm_active_col_idxs_{idx}'  # noqa: E731
