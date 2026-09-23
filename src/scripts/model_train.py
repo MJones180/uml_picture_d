@@ -14,10 +14,11 @@ import numpy as np
 from time import time
 import torch
 from utils.cli_args import save_cli_args
-from utils.constants import (EPOCH_LOSS_F, EXTRA_VARS_F, LEARNING_RATES_F,
-                             MEAN, OPTIMIZERS, OUTPUT_MASK, OUTPUT_P,
-                             OUTPUTS_Z_SCORE_MEAN, OUTPUTS_Z_SCORE_STD,
-                             PROC_DATA_P, STD, TAG_LOOKUP_F, TRAINED_MODELS_P)
+from utils.constants import (CHOLESKY_L, EPOCH_LOSS_F, EXTRA_VARS_F,
+                             LEARNING_RATES_F, MEAN, OPTIMIZERS, OUTPUT_MASK,
+                             OUTPUT_P, OUTPUTS_Z_SCORE_MEAN,
+                             OUTPUTS_Z_SCORE_STD, PROC_DATA_P, STD,
+                             TAG_LOOKUP_F, TRAINED_MODELS_P)
 from utils.group_data_from_list import group_data_from_list
 from utils.hdf_read_and_write import read_hdf
 from utils.json import json_load, json_write
@@ -278,6 +279,13 @@ def model_train_parser(subparsers):
               'tables, probablity of adding noise to a given row, '
               'sigma clipping value; currently, the input noise is only '
               'added to the training data, NOT the validation data'),
+    )
+    subparser.add_argument(
+        '--inject-input-noise-corr',
+        action='store_true',
+        help=('must still be called with the `--inject-input-noise-corr` '
+              'argument; inject correlated noise instead of individual '
+              'noise on each input'),
     )
     subparser.add_argument(
         '--clip-gradient-norm',
@@ -1208,22 +1216,30 @@ def model_train(cli_args):
         print(f'Noise probablity: {noise_probability}')
         print(f'Sigma clip: {noise_sigma_clip}')
         noise_data = read_hdf(raw_sim_data_chunk_paths(noise_data_tag)[0])
-        if MEAN not in noise_data or STD not in noise_data:
-            terminate_with_message(f'{noise_data_tag} must contain the '
-                                   f'`{MEAN}` and `{STD}` tables')
-        noise_mean = torch.from_numpy(noise_data[MEAN][:]).to(device)
-        noise_std = torch.from_numpy(noise_data[STD][:]).to(device)
-        print(f'Noise mean shape: {noise_mean.shape}')
-        print(f'Noise std shape: {noise_std.shape}')
+
+        def _load_noise_table(table_name):
+            if table_name not in noise_data:
+                terminate_with_message(f'{noise_data_tag} must contain the '
+                                       f'`{table_name}` table')
+            table = torch.from_numpy(noise_data[table_name][:]).to(device)
+            print(f'Noise {table_name} shape: {table.shape}')
+            return table
+
+        noise_mean = _load_noise_table(MEAN)
+        noise_std = _load_noise_table(STD)
+        corr_noise = cli_args['inject_input_noise_corr']
+        if corr_noise:
+            print('Will add correlated noise')
+            noise_L = _load_noise_table(CHOLESKY_L).T
 
         def add_input_noise(input_batch):
             rows_in_batch, input_size = input_batch.shape
             # The noise per row
-            noise = torch.randn(
-                rows_in_batch,
-                input_size,
-                device=device,
-            ) * noise_std + noise_mean
+            noise_z = torch.randn(rows_in_batch, input_size, device=device)
+            if corr_noise:
+                noise = noise_z @ noise_L + noise_mean
+            else:
+                noise = noise_z * noise_std + noise_mean
             # Clamp the noise so it isn't too large
             noise = torch.clamp(
                 noise,
