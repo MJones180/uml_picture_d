@@ -105,6 +105,12 @@ def convert_piccsim_fits_data_parser(subparsers):
               'the reference row in each group will not be saved'),
     )
     subparser.add_argument(
+        '--save-difference-only-offset',
+        type=int,
+        help=('should be used with the `--save-difference-only` argument; '
+              'offset x for the first n rows to keep ([x, x+n-1])'),
+    )
+    subparser.add_argument(
         '--apply-filter-mask',
         nargs=2,
         help=('apply a mask to filter the data by; two arguments expected: '
@@ -262,6 +268,14 @@ def convert_piccsim_fits_data(cli_args):
         save_difference_tables = save_difference_only[3:]
         print(f'Will work on the tables: {save_difference_tables}')
         save_differences = True
+        offset = cli_args.get('save_difference_only_offset')
+        if offset is not None:
+            print(f'Will offset the first {first_n_rows} rows '
+                  f'saved by {offset}')
+        else:
+            offset = 0
+        iters_to_keep = list(range(offset, offset + first_n_rows))
+        print(f'Keeping iterations from difference: {iters_to_keep}')
 
     filter_mask = None
     apply_filter_mask = cli_args.get('apply_filter_mask')
@@ -360,7 +374,7 @@ def convert_piccsim_fits_data(cli_args):
             # Now, figure out how many rows at the start of each group to keep
             idxs_to_keep = []
             # Build up the indexes to keep one row per group at a time
-            for start in range(first_n_rows):
+            for start in iters_to_keep:
                 idxs_to_keep.extend(np.arange(start, rows, rows_per_group_m1))
             idxs_to_keep = [int(idx) for idx in idxs_to_keep]
             # Keep the rows grouped together
