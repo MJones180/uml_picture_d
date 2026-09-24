@@ -1962,3 +1962,17 @@ A RM can also be added to the weights of a layer in a NN:
         ef_sensing_accuracy_pwp_ef_norm_v2 inputs \
         ef_sensing_accuracy_exact_ef_norm_v2 inputs \
         --use-first-n-values 700 --zero-small-means 2
+    # Compute with the covariance
+    python3 main.py compute_stats_from_difference \
+        ef_sensing_accuracy_pwp_diff_stats_cov_v2 \
+        ef_sensing_accuracy_pwp_ef_norm_v2 inputs \
+        ef_sensing_accuracy_exact_ef_norm_v2 inputs \
+        --use-first-n-values 700 --zero-small-means 2 \
+        --calculate-cov
+    # Compute with the covariance only across the first 450 modes
+    python3 main.py compute_stats_from_difference \
+        ef_sensing_accuracy_pwp_diff_stats_cov_450_v2 \
+        ef_sensing_accuracy_pwp_ef_norm_v2 inputs \
+        ef_sensing_accuracy_exact_ef_norm_v2 inputs \
+        --use-first-n-values 700 --zero-small-means 2 \
+        --calculate-cov --calculate-cov-mode-limit 450
