@@ -181,6 +181,17 @@ Both HODMs:
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 12 11 1 dm1 dm2 \
         --rows-per-chunk 24000 --load-from-existing-hdf-dataset
     # ---------------
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_30k_2iter_offset_ch1 \
+        /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_30k_ch1 \
+        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 12 11 2 dm1 dm2 \
+        --save-difference-only-offset 5 \
+        --rows-per-chunk 24000 --load-from-existing-hdf-dataset
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_30k_2iter_offset_ch2 \
+        /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_30k_ch2 \
+        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 12 11 2 dm1 dm2 \
+        --save-difference-only-offset 5 \
+        --rows-per-chunk 24000 --load-from-existing-hdf-dataset
+    # ---------------
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_30k_4iter_ch1 \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_30k_ch1 \
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 12 11 4 dm1 dm2 \
@@ -225,6 +236,17 @@ Both HODMs:
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_27k_1iter_ch2 \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_27k_ch2 \
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 12 11 1 dm1 dm2 \
+        --rows-per-chunk 24000 --load-from-existing-hdf-dataset
+    # ---------------
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_27k_2iter_offset_ch1 \
+        /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_27k_ch1 \
+        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 12 11 2 dm1 dm2 \
+        --save-difference-only-offset 5 \
+        --rows-per-chunk 24000 --load-from-existing-hdf-dataset
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_27k_2iter_offset_ch2 \
+        /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_27k_ch2 \
+        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 12 11 2 dm1 dm2 \
+        --save-difference-only-offset 5 \
         --rows-per-chunk 24000 --load-from-existing-hdf-dataset
     # ---------------
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_27k_6iter_ch1 \
@@ -309,6 +331,52 @@ Both HODMs:
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_full_gain_36k_1iter_ch2 \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_full_gain_36k_ch2 \
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
+        --rows-per-chunk 10000 --load-from-existing-hdf-dataset
+    # ---------------
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_full_gain_24k_2iter_offset_ch1 \
+        /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_full_gain_24k_ch1 \
+        --fits-table-names dm1 dm2 sci_i sci_r  --save-difference-only 5 4 1 dm1 dm2 \
+        --save-difference-only-offset 2 \
+        --rows-per-chunk 10000 --load-from-existing-hdf-dataset
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_full_gain_24k_2iter_offset_ch2 \
+        /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_full_gain_24k_ch2 \
+        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
+        --save-difference-only-offset 2 \
+        --rows-per-chunk 10000 --load-from-existing-hdf-dataset
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_full_gain_24k_2iter_offset_ch3 \
+        /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_full_gain_24k_ch3 \
+        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
+        --save-difference-only-offset 2 \
+        --rows-per-chunk 10000 --load-from-existing-hdf-dataset
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_full_gain_24k_2iter_offset_ch4 \
+        /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_full_gain_24k_ch4 \
+        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
+        --save-difference-only-offset 2 \
+        --rows-per-chunk 10000 --load-from-existing-hdf-dataset
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_full_gain_27k_2iter_offset_ch1 \
+        /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_full_gain_27k \
+        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
+        --save-difference-only-offset 2 \
+        --rows-per-chunk 10000 --load-from-existing-hdf-dataset
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_full_gain_29k_2iter_offset_ch1 \
+        /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_full_gain_29k_ch1 \
+        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
+        --save-difference-only-offset 2 \
+        --rows-per-chunk 10000 --load-from-existing-hdf-dataset
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_full_gain_29k_2iter_offset_ch2 \
+        /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_full_gain_29k_ch2 \
+        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
+        --save-difference-only-offset 2 \
+        --rows-per-chunk 10000 --load-from-existing-hdf-dataset
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_full_gain_36k_2iter_offset_ch1 \
+        /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_full_gain_36k_ch1 \
+        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
+        --save-difference-only-offset 2 \
+        --rows-per-chunk 10000 --load-from-existing-hdf-dataset
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_full_gain_36k_2iter_offset_ch2 \
+        /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_full_gain_36k_ch2 \
+        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
+        --save-difference-only-offset 2 \
         --rows-per-chunk 10000 --load-from-existing-hdf-dataset
 
     # 12 iterations of broadband EFC (gain -1) using the RM
@@ -1699,6 +1767,57 @@ Preprocess the datasets:
         --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
         --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
         --norm-inputs --norm-outputs --use-rm-residuals dh_dm1_dm2 \
+        --extend-existing-preprocessed-data
+
+    python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_30k_1iter_ch1 \
+        train_dh_both_hodms_efc_final_dh_5xlg_multi_iter_pca_ef_700_svd_joint_dm_600_z_score_individual \
+        val_dh_both_hodms_efc_final_dh_5xlg_multi_iter_pca_ef_700_svd_joint_dm_600_z_score_individual \
+        test_dh_both_hodms_efc_final_dh_5xlg_multi_iter_pca_ef_700_svd_joint_dm_600_z_score_individual 88 6 6 \
+        --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
+        --additional-raw-data-tags dh_both_hodms_efc_30k_2iter_offset_ch1 \
+            dh_both_hodms_efc_final_dh_9k_ch1 dh_both_hodms_efc_final_dh_9k_ch2 \
+            dh_both_hodms_efc_full_gain_24k_1iter_ch1 dh_both_hodms_efc_full_gain_24k_2iter_offset_ch1 \
+            dh_both_hodms_efc_full_gain_24k_1iter_ch2 dh_both_hodms_efc_full_gain_24k_2iter_offset_ch2 \
+            dh_both_hodms_efc_full_gain_24k_1iter_ch3 dh_both_hodms_efc_full_gain_24k_2iter_offset_ch3 \
+            dh_both_hodms_efc_full_gain_24k_1iter_ch4 dh_both_hodms_efc_full_gain_24k_2iter_offset_ch4 \
+            dh_both_hodms_efc_full_gain_29k_1iter_ch1 dh_both_hodms_efc_full_gain_29k_2iter_offset_ch1 \
+            dh_both_hodms_efc_full_gain_29k_1iter_ch2 dh_both_hodms_efc_full_gain_29k_2iter_offset_ch2 \
+        --use-ef-basis pca_ef_basis_418k_rows_756_modes modes 700 --flatten-input \
+        --use-dm-basis dm1_dm2 dm1_dm2_joint_modes_flat modes 600 \
+        --combine-flattened-dms dm1 dm2 dm1_dm2 --dm-basis-already-flat --dm-basis-transpose dm1_dm2 \
+        --z-score-inputs-individual --z-score-outputs-individual \
+        --bounding-input-rows-train-only --bounding-output-rows-train-only --fix-seed 314
+    python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_final_dh_14k_ch1 \
+        train_dh_both_hodms_efc_final_dh_5xlg_multi_iter_pca_ef_700_svd_joint_dm_600_z_score_individual \
+        val_dh_both_hodms_efc_final_dh_5xlg_multi_iter_pca_ef_700_svd_joint_dm_600_z_score_individual \
+        test_dh_both_hodms_efc_final_dh_5xlg_multi_iter_pca_ef_700_svd_joint_dm_600_z_score_individual 88 6 6 \
+        --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
+        --additional-raw-data-tags dh_both_hodms_efc_final_dh_14k_ch2 \
+            dh_both_hodms_efc_30k_1iter_ch2 dh_both_hodms_efc_30k_2iter_offset_ch2 \
+            dh_both_hodms_efc_27k_1iter_ch1 dh_both_hodms_efc_27k_2iter_offset_ch1 \
+            dh_both_hodms_efc_27k_1iter_ch2 dh_both_hodms_efc_27k_2iter_offset_ch2 \
+        --use-ef-basis pca_ef_basis_418k_rows_756_modes modes 700 --flatten-input \
+        --use-dm-basis dm1_dm2 dm1_dm2_joint_modes_flat modes 600 \
+        --combine-flattened-dms dm1 dm2 dm1_dm2 --dm-basis-already-flat --dm-basis-transpose dm1_dm2 \
+        --z-score-inputs-individual --z-score-outputs-individual \
+        --bounding-input-rows-train-only --bounding-output-rows-train-only --fix-seed 314 \
+        --extend-existing-preprocessed-data
+    python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_full_gain_36k_1iter_ch1 \
+        train_dh_both_hodms_efc_final_dh_5xlg_multi_iter_pca_ef_700_svd_joint_dm_600_z_score_individual \
+        val_dh_both_hodms_efc_final_dh_5xlg_multi_iter_pca_ef_700_svd_joint_dm_600_z_score_individual \
+        test_dh_both_hodms_efc_final_dh_5xlg_multi_iter_pca_ef_700_svd_joint_dm_600_z_score_individual 88 6 6 \
+        --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
+        --additional-raw-data-tags dh_both_hodms_efc_full_gain_36k_2iter_offset_ch1 \
+            dh_both_hodms_efc_full_gain_36k_1iter_ch2 dh_both_hodms_efc_full_gain_36k_2iter_offset_ch2 \
+            dh_both_hodms_efc_full_gain_27k_1iter dh_both_hodms_efc_full_gain_27k_2iter_offset_ch1 \
+        --use-ef-basis pca_ef_basis_418k_rows_756_modes modes 700 --flatten-input \
+        --use-dm-basis dm1_dm2 dm1_dm2_joint_modes_flat modes 600 \
+        --combine-flattened-dms dm1 dm2 dm1_dm2 --dm-basis-already-flat --dm-basis-transpose dm1_dm2 \
+        --z-score-inputs-individual --z-score-outputs-individual \
+        --bounding-input-rows-train-only --bounding-output-rows-train-only --fix-seed 314 \
         --extend-existing-preprocessed-data
 
 ## Analysis Conversion
