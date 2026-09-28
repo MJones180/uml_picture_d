@@ -305,6 +305,12 @@ def preprocess_data_dark_hole_parser(subparsers):
               'output norm from the training dataset will be used'),
     )
     subparser.add_argument(
+        '--use-existing-training-data',
+        action='store_true',
+        help=('used to create validation and testing datasets from '
+              'an existing training dataset'),
+    )
+    subparser.add_argument(
         '--fix-seed',
         type=int,
         help='fix the seed value for reproducible results',
@@ -365,6 +371,7 @@ def preprocess_data_dark_hole(cli_args):
     testing_tag_path = _get_out_path('testing_tag')
 
     extend_existing_data = cli_args['extend_existing_preprocessed_data']
+    use_existing_training_data = cli_args['use_existing_training_data']
     if extend_existing_data:
         step_ri('Will extend existing data')
         # Verifying all the datasets exist
@@ -376,6 +383,24 @@ def preprocess_data_dark_hole(cli_args):
             terminate_with_message(f'{testing_tag_path} must exist')
         # Loading in the extra variables so they can just be used
         extra_vars = read_hdf(f'{training_tag_path}/{EXTRA_VARS_F}')
+    elif use_existing_training_data:
+        step_ri('Will base data on existing training data')
+        # Verifying the training dataset exist
+        if not path_exists(training_tag_path):
+            terminate_with_message(f'{training_tag_path} must exist')
+        # Loading in the extra variables so they can just be used
+        extra_vars = read_hdf(f'{training_tag_path}/{EXTRA_VARS_F}')
+        # The arg that the rest of this script will use
+        extend_existing_data = True
+
+        def _create_dataset(out_path):
+            print(f'Making {out_path}')
+            make_dir(out_path)
+            # Write out the CLI args that this script was called with
+            save_cli_args(out_path, cli_args, 'preprocess_data_dark_hole')
+
+        _create_dataset(validation_tag_path)
+        _create_dataset(testing_tag_path)
     else:
         step_ri('Setting up dataset outputs')
 
@@ -1174,7 +1199,12 @@ def preprocess_data_dark_hole(cli_args):
     def _write_data(out_path, inputs, outputs):
         datafile_path = f'{out_path}/{DATA_F}'
         step_ri(f'Writing out to {datafile_path}')
-        if extend_existing_data:
+        if use_existing_training_data:
+            # Create the file with the extra necessary variables
+            file_path = f'{out_path}/{EXTRA_VARS_F}'
+            ev_copy = {key: _use_var(key) for key in list(extra_vars)}
+            HDFWriteModule(file_path).create_and_write_hdf_simple(ev_copy)
+        elif extend_existing_data:
             print('Merging existing data in')
             # Add on to the existing datafiles
             with read_hdf(datafile_path) as existing_data:
