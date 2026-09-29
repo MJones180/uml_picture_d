@@ -11849,7 +11849,7 @@ After model testing, it is useful to rank the model analyses:
         val_dh_both_hodms_efc_final_dh_broadband_1iter_700_600_v1 \
         dh_t87_50d_dyn jacobian_ef adamw 1e-2 3500 --batch-size 4096 \
         --network-params dropout 0.3 dp_max_prob 0.3 \
-        --loss-params dm1_dm2_modes_tag dm1_dm2_joint_modes_flat dm1_dm2_modes_table modes \
+        --loss-params dm1_dm2_modes_tag dm2_dm3_broadband_joint_modes_flat dm1_dm2_modes_table modes \
                       dm1_dm2_modes_count 600 dm1_dm2_modes_transpose 1 \
                       jacobian_tag efcnn_jacobian jacobian_table matrix \
                       lambda_scaling 1e-10 lambda_scaling_dynamic_1 2142,3500,1e-8 \
@@ -11866,6 +11866,6 @@ After model testing, it is useful to rank the model analyses:
         --epoch-and-tag-range last dh_v151_ 1 1 --plot-loss-curves \
         --plot-coeff-mae-smape 600 --plot-layerscale-gamma gamma 50 \
         --max-rows-per-model-call 1000 \
-        --convert-basis dm1_dm2_joint_modes_flat modes 600 \
+        --convert-basis dm2_dm3_broadband_joint_modes_flat modes 600 \
         --convert-basis-trans-modes modes --plot-r2 \
         --plot-avg-dh-intensity-error darkhole_mask dark_zone_mask efcnn_jacobian matrix 1e-11 1e-8
