@@ -1924,7 +1924,11 @@ Plot SVD basis modes:
     # First four DM1/DM2 SVD modes
     python3 main.py analyze_basis_modes \
         dm1_dm2_joint_modes_flat modes --transpose-modes --two-dms 1 \
-        --display-as-circle 30 1.08 --plot-modes-range 0 3
+        --display-as-circle 30 1.08 --plot-modes-range 0 10
+
+    python3 main.py analyze_basis_modes \
+        dm2_dm3_broadband_joint_modes_flat modes --transpose-modes --two-dms 1 \
+        --display-as-circle 30 1.08 --plot-modes-range 0 10
 
 Plot SVD basis reconstructions:
 
@@ -2029,6 +2033,17 @@ Plot PCA basis analysis:
         --reconstruct-data dh_both_hodms_efc_final_dh_9k_ch1 1000 sci_r sci_i \
         --reconstruct-data-first-n-rows 2000 \
         --reconstruct-data-circle-mask --reconstruct-data-trim 21 80 21 80 \
+        --plot-orthogonality --print-mean-and-std \
+        --plot-explained-variance --compute-explained-variance
+
+    python3 main.py analyze_basis_modes \
+        pca_ef_basis_broadband_733k_rows_756_modes modes \
+        --display-as-circle 59 1.03 --display-with-hole 0.24 \
+        --modes-are-complex 1 --plot-modes-range 0 10 \
+        --reconstruct-data dh_both_hodms_efc_7broadband_full_gain_picd_53360_f50813_1iter 700 sci_r sci_i \
+        --reconstruct-data-first-n-rows 2000 \
+        --reconstruct-data-circle-mask --reconstruct-data-trim 21 80 21 80 \
+        --reconstruct-data-select-row 0 --reconstruct-data-plots \
         --plot-orthogonality --print-mean-and-std \
         --plot-explained-variance --compute-explained-variance
 
