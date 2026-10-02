@@ -1167,3 +1167,16 @@ Intensity Modes:
         train_pol_v11_norm val_pol_v11_norm --alpha 1e4
     python3 main.py linear_observability_analysis \
         train_pol_v12_norm val_pol_v12_norm --alpha 1e4
+
+    python3 main.py linear_observability_analysis \
+        train_pol_v15_norm val_pol_v15_norm --alpha 0
+    python3 main.py linear_observability_analysis \
+        train_pol_v15_norm val_pol_v15_norm --alpha 1e1
+    python3 main.py linear_observability_analysis \
+        train_pol_v15_norm val_pol_v15_norm --alpha 1e2
+    python3 main.py linear_observability_analysis \
+        train_pol_v15_norm val_pol_v15_norm --alpha 1e3
+    python3 main.py linear_observability_analysis \
+        train_pol_v15_norm val_pol_v15_norm --alpha 1e4
+    python3 main.py linear_observability_analysis \
+        train_pol_v15_norm val_pol_v15_norm --alpha 1e5
