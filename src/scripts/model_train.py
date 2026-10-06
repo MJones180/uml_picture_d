@@ -1404,9 +1404,9 @@ def model_train(cli_args):
         def _print_grad_norm_stats(clip_str, norms):
             print(f'Gradient Norm ({clip_str}):')
             inc_print_indent()
-            print(f'Min norm: {float(np.min(norms))}')
-            print(f'Max norm: {float(np.max(norms))}')
-            print(f'Average norm: {float(np.mean(norms))}')
+            print(f'Min|Max: {np.min(norms):0.4f}|{np.max(norms):0.4f}')
+            print(f'Avg|Med: {np.mean(norms):0.4f}|{np.median(norms):0.4f}')
+            print(f'90 Percentile: {np.percentile(norms, 90):0.4f}')
             dec_print_indent()
 
         _print_grad_norm_stats('Unclipped', batch_grad_norms)
