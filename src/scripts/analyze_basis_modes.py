@@ -12,7 +12,7 @@ from utils.path import make_dir
 from utils.plots.plot_line import plot_line
 from utils.plots.plot_wavefront import plot_wavefront
 from utils.printing_and_logging import dec_print_indent, step, step_ri, title
-from utils.stats_and_error import mse
+from utils.stats_and_error import mse, smape
 
 
 def analyze_basis_modes_parser(subparsers):
@@ -397,6 +397,8 @@ def analyze_basis_modes(cli_args):
         # The error when switching to the new basis representation
         error = mse(data, reconstructed_data)
         print(f'Reconstruction MSE error of {error:0.3e}')
+        error = smape(data, reconstructed_data)
+        print(f'Reconstruction sMAPE error of {error:0.3e}')
         dec_print_indent()
 
         row_idx = cli_args.get('reconstruct_data_select_row')
