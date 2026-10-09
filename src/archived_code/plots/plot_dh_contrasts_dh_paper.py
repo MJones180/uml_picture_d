@@ -52,7 +52,7 @@ for values in data.values():
 ax.set_title('DH Contrast After First Iteration', pad=40)
 ax.legend(loc='upper center', ncol=2, bbox_to_anchor=(0.5, 1.175))
 ax.set_yscale('log')
-ax.set_ylabel('Contrast', labelpad=-18)
+ax.set_ylabel('Contrast')
 ax.set_xlabel('DH Realization')
 ax.locator_params(axis='x', nbins=10)
 
