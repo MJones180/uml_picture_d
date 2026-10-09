@@ -13,20 +13,17 @@ def plot_coeff_comparison(
     metric_one_color='tab:blue',
     metric_two_color='tab:red',
 ):
-    # Load in the style file
     plt.style.use(PLOT_STYLE_FILE)
-    # Reset the plot
     plt.clf()
     numb_groups = len(upper_coeff_group_idxs)
     coeff_group_idxs = [0, *upper_coeff_group_idxs]
     fig, axs = plt.subplots(
         numb_groups,
         1,
-        figsize=(12, 10),
+        figsize=(12, 5 * numb_groups),
         constrained_layout=True,
         squeeze=False,
     )
-    # for idx in range(numb_groups):
     for idx, ax in enumerate(axs.flatten()):
         lower_bound = coeff_group_idxs[idx]
         upper_bound = coeff_group_idxs[idx + 1]
