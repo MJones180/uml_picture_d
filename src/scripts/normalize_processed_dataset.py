@@ -50,6 +50,11 @@ def normalize_processed_dataset_parser(subparsers):
         help='perform individual z-score normalization on the inputs',
     )
     subparser.add_argument(
+        '--z-score-norm-outputs-global',
+        action='store_true',
+        help='perform global z-score normalization on the outputs',
+    )
+    subparser.add_argument(
         '--z-score-norm-outputs',
         action='store_true',
         help='perform individual z-score normalization on the outputs',
@@ -147,6 +152,20 @@ def normalize_processed_dataset(cli_args):
         input_data = z_score_normalize(input_data, inputs_mean, inputs_std)
         print(f'Inputs min: {np.min(input_data)}')
         print(f'Inputs max: {np.max(input_data)}')
+
+    if cli_args['z_score_norm_outputs_global']:
+        step_ri('Z-score normalizing output values globally')
+        if use_existing_norm_vals:
+            outputs_mean = existing_norm_ev[OUTPUTS_Z_SCORE_MEAN][()]
+            outputs_std = existing_norm_ev[OUTPUTS_Z_SCORE_STD][()]
+        else:
+            outputs_mean = np.mean(output_data)
+            outputs_std = np.std(output_data)
+        extra_vars[OUTPUTS_Z_SCORE_MEAN] = outputs_mean
+        extra_vars[OUTPUTS_Z_SCORE_STD] = outputs_std
+        output_data = z_score_normalize(output_data, outputs_mean, outputs_std)
+        print(f'Outputs min: {np.min(output_data)}')
+        print(f'Outputs max: {np.max(output_data)}')
 
     if cli_args['z_score_norm_outputs']:
         step_ri('Z-score normalizing output values')
