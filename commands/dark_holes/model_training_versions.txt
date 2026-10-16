@@ -11587,7 +11587,7 @@ After model testing, it is useful to rank the model analyses:
     python3 main.py batch_model_test \
         test_dh_both_hodms_efc_final_dh_5xlg_1iter_pca_ef_650_svd_joint_dm_600_z_score_individual \
         --epoch-and-tag-range last dh_v145_ 1 1 --plot-loss-curves \
-        --plot-coeff-mae-smape 600 --plot-layerscale-gamma gamma 50 \
+        --plot-coeff-mae-smape 600 --plot-layerscale-gamma gamma \
         --max-rows-per-model-call 1000 \
         --convert-basis dm1_dm2_joint_modes_flat modes 600 \
         --convert-basis-trans-modes modes --plot-r2 \
@@ -11631,7 +11631,7 @@ After model testing, it is useful to rank the model analyses:
     python3 main.py batch_model_test \
         test_dh_both_hodms_efc_final_dh_5xlg_1iter_pca_ef_700_svd_joint_dm_600_z_score_individual \
         --epoch-and-tag-range last dh_v146_ 1 2 --plot-loss-curves \
-        --plot-coeff-mae-smape 600 --plot-layerscale-gamma gamma 50 \
+        --plot-coeff-mae-smape 600 --plot-layerscale-gamma gamma \
         --max-rows-per-model-call 1000 \
         --convert-basis dm1_dm2_joint_modes_flat modes 600 \
         --convert-basis-trans-modes modes --plot-r2 \
@@ -11714,7 +11714,7 @@ After model testing, it is useful to rank the model analyses:
     python3 main.py batch_model_test \
         test_dh_both_hodms_efc_final_dh_5xlg_1iter_pca_ef_700_svd_joint_dm_600_z_score_individual \
         --epoch-and-tag-range last dh_v147_ 1 4 --plot-loss-curves \
-        --plot-coeff-mae-smape 600 --plot-layerscale-gamma gamma 50 \
+        --plot-coeff-mae-smape 600 --plot-layerscale-gamma gamma \
         --max-rows-per-model-call 1000 \
         --convert-basis dm1_dm2_joint_modes_flat modes 600 \
         --convert-basis-trans-modes modes --plot-r2 \
@@ -11743,7 +11743,7 @@ After model testing, it is useful to rank the model analyses:
     python3 main.py batch_model_test \
         test_dh_both_hodms_efc_final_dh_5xlg_1iter_pca_ef_700_svd_joint_dm_600_z_score_individual \
         --epoch-and-tag-range last dh_v148_ 1 1 --plot-loss-curves \
-        --plot-coeff-mae-smape 600 --plot-layerscale-gamma gamma 50 \
+        --plot-coeff-mae-smape 600 --plot-layerscale-gamma gamma \
         --max-rows-per-model-call 1000 \
         --convert-basis dm1_dm2_joint_modes_flat modes 600 \
         --convert-basis-trans-modes modes --plot-r2 \
@@ -11790,7 +11790,7 @@ After model testing, it is useful to rank the model analyses:
     python3 main.py batch_model_test \
         test_dh_both_hodms_efc_final_dh_5xlg_1iter_pca_ef_700_svd_joint_dm_600_z_score_individual \
         --epoch-and-tag-range last dh_v149_ 1 2 --plot-loss-curves \
-        --plot-coeff-mae-smape 600 --plot-layerscale-gamma gamma 50 \
+        --plot-coeff-mae-smape 600 --plot-layerscale-gamma gamma \
         --max-rows-per-model-call 1000 \
         --convert-basis dm1_dm2_joint_modes_flat modes 600 \
         --convert-basis-trans-modes modes --plot-r2 \
@@ -11836,7 +11836,7 @@ After model testing, it is useful to rank the model analyses:
     python3 main.py batch_model_test \
         test_dh_both_hodms_efc_final_dh_5xlg_multi_iter_pca_ef_700_svd_joint_dm_600_z_score_individual \
         --epoch-and-tag-range last dh_v150_ 1 2 --plot-loss-curves \
-        --plot-coeff-mae-smape 600 --plot-layerscale-gamma gamma 50 \
+        --plot-coeff-mae-smape 600 --plot-layerscale-gamma gamma \
         --max-rows-per-model-call 1000 \
         --convert-basis dm1_dm2_joint_modes_flat modes 600 \
         --convert-basis-trans-modes modes --plot-r2 \
@@ -11949,7 +11949,7 @@ After model testing, it is useful to rank the model analyses:
     python3 main.py batch_model_test \
         test_dh_both_hodms_efc_final_dh_broadband_1iter_700_600_v1 \
         --epoch-and-tag-range last dh_v151_ 1 6 --plot-loss-curves \
-        --plot-coeff-mae-smape 600 --plot-layerscale-gamma gamma 50 \
+        --plot-coeff-mae-smape 600 --plot-layerscale-gamma gamma \
         --max-rows-per-model-call 1000 \
         --convert-basis dm2_dm3_broadband_joint_modes_flat modes 600 \
         --convert-basis-trans-modes modes --plot-r2 \
@@ -11993,7 +11993,82 @@ After model testing, it is useful to rank the model analyses:
     python3 main.py batch_model_test \
         test_dh_both_hodms_efc_final_dh_broadband_1iter_700_600_v1 \
         --epoch-and-tag-range last dh_v152_ 1 2 --plot-loss-curves \
-        --plot-coeff-mae-smape 600 --plot-layerscale-gamma gamma 50 \
+        --plot-coeff-mae-smape 600 --plot-layerscale-gamma gamma \
+        --max-rows-per-model-call 1000 \
+        --convert-basis dm2_dm3_broadband_joint_modes_flat modes 600 \
+        --convert-basis-trans-modes modes --plot-r2 \
+        --plot-avg-dh-intensity-error darkhole_mask dark_zone_mask efcnn_jacobian_broadband matrix 1e-9 1e-6
+
+[V153] The `dh_v153_` tag:
+
+    python3 main_scnp.py model_train \
+        dh_v153_1 train_dh_both_hodms_efc_final_dh_broadband_1iter_700_600_v1 \
+        val_dh_both_hodms_efc_final_dh_broadband_1iter_700_600_v1 \
+        dh_t87_50d_dyn jacobian_ef adamw 1e-2 3500 --batch-size 4096 \
+        --network-params dropout 0.3 dp_max_prob 0 \
+        --loss-params dm1_dm2_modes_tag dm2_dm3_broadband_joint_modes_flat dm1_dm2_modes_table modes \
+                      dm1_dm2_modes_count 600 dm1_dm2_modes_transpose 1 \
+                      jacobian_tag efcnn_jacobian_broadband jacobian_table matrix \
+                      lambda_scaling 1e-10 add_residual_stroke_mse 2 \
+                      add_residual_stroke_mse_return_tuple 1 residual_stroke_eps 1 \
+                      apply_radial_weighting 59,0.24,1.03,3 \
+        --set-fixed-epoch-for-val-loss 0 --clip-gradient-norm 10 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-one-cycle-lr-scheduler --drop-last --init-weights-kaiming-normal-simple 0.20 input blocks \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v153_2 train_dh_both_hodms_efc_final_dh_broadband_1iter_700_600_v1 \
+        val_dh_both_hodms_efc_final_dh_broadband_1iter_700_600_v1 \
+        dh_t87_50d_dyn jacobian_ef adamw 1e-2 3500 --batch-size 4096 \
+        --network-params dropout 0 dp_max_prob 0.3 \
+        --loss-params dm1_dm2_modes_tag dm2_dm3_broadband_joint_modes_flat dm1_dm2_modes_table modes \
+                      dm1_dm2_modes_count 600 dm1_dm2_modes_transpose 1 \
+                      jacobian_tag efcnn_jacobian_broadband jacobian_table matrix \
+                      lambda_scaling 1e-10 add_residual_stroke_mse 2 \
+                      add_residual_stroke_mse_return_tuple 1 residual_stroke_eps 1 \
+                      apply_radial_weighting 59,0.24,1.03,3 \
+        --set-fixed-epoch-for-val-loss 0 --clip-gradient-norm 10 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-one-cycle-lr-scheduler --drop-last --init-weights-kaiming-normal-simple 0.20 input blocks \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v153_3 train_dh_both_hodms_efc_final_dh_broadband_1iter_700_600_v1 \
+        val_dh_both_hodms_efc_final_dh_broadband_1iter_700_600_v1 \
+        dh_t87_25d_dyn jacobian_ef adamw 1e-2 3500 --batch-size 4096 \
+        --network-params dropout 0.1 dp_max_prob 0 \
+        --loss-params dm1_dm2_modes_tag dm2_dm3_broadband_joint_modes_flat dm1_dm2_modes_table modes \
+                      dm1_dm2_modes_count 600 dm1_dm2_modes_transpose 1 \
+                      jacobian_tag efcnn_jacobian_broadband jacobian_table matrix \
+                      lambda_scaling 1e-10 add_residual_stroke_mse 2 \
+                      add_residual_stroke_mse_return_tuple 1 residual_stroke_eps 1 \
+                      apply_radial_weighting 59,0.24,1.03,3 \
+        --set-fixed-epoch-for-val-loss 0 --clip-gradient-norm 10 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-one-cycle-lr-scheduler --drop-last --init-weights-kaiming-normal-simple 0.20 input blocks \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates --fix-seed 314
+
+    python3 main_scnp.py model_train \
+        dh_v153_4 train_dh_both_hodms_efc_final_dh_broadband_1iter_700_600_v1 \
+        val_dh_both_hodms_efc_final_dh_broadband_1iter_700_600_v1 \
+        dh_t87_25d_dyn jacobian_ef adamw 1e-2 3500 --batch-size 4096 \
+        --network-params dropout 0.3 dp_max_prob 0 \
+        --loss-params dm1_dm2_modes_tag dm2_dm3_broadband_joint_modes_flat dm1_dm2_modes_table modes \
+                      dm1_dm2_modes_count 600 dm1_dm2_modes_transpose 1 \
+                      jacobian_tag efcnn_jacobian_broadband jacobian_table matrix \
+                      lambda_scaling 1e-10 add_residual_stroke_mse 2 \
+                      add_residual_stroke_mse_return_tuple 1 residual_stroke_eps 1 \
+                      apply_radial_weighting 59,0.24,1.03,3 \
+        --set-fixed-epoch-for-val-loss 0 --clip-gradient-norm 10 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-one-cycle-lr-scheduler --drop-last --init-weights-kaiming-normal-simple 0.20 input blocks \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates --fix-seed 314
+
+    python3 main.py batch_model_test \
+        test_dh_both_hodms_efc_final_dh_broadband_1iter_700_600_v1 \
+        --epoch-and-tag-range last dh_v153_ 1 4 --plot-loss-curves \
+        --plot-coeff-mae-smape 600 --plot-layerscale-gamma gamma \
         --max-rows-per-model-call 1000 \
         --convert-basis dm2_dm3_broadband_joint_modes_flat modes 600 \
         --convert-basis-trans-modes modes --plot-r2 \
