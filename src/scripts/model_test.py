@@ -208,6 +208,12 @@ def model_test_parser(subparsers):
               'raw data tag, table'),
     )
     subparser.add_argument(
+        '--plot-reconstructions-mask-all',
+        action='store_true',
+        help=('use with the `--plot-reconstructions-mask` arg to pull all '
+              'the rows from the table'),
+    )
+    subparser.add_argument(
         '--plot-reconstructions-is-ef',
         action='store_true',
         help=('the reconstructions are of an electric field; '
@@ -634,7 +640,10 @@ def model_test(cli_args):
             mask_tag, mask_table = apply_mask
             print(f'Loading mask from: {mask_tag}')
             mask_path = raw_sim_data_chunk_paths(mask_tag)[0]
-            mask = read_hdf(mask_path)[mask_table][0] != 0
+            mask = read_hdf(mask_path)[mask_table][:]
+            if not cli_args['plot_reconstructions_mask_all']:
+                mask = mask[0]
+            mask = mask != 0
             print(f'Mask shape: {mask.shape}')
         is_ef = cli_args['plot_reconstructions_is_ef']
         group_names = cli_args.get('plot_reconstructions_groups')

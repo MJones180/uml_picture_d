@@ -156,6 +156,12 @@ def batch_model_test_parser(subparsers):
               'raw data tag, table'),
     )
     subparser.add_argument(
+        '--plot-reconstructions-mask-all',
+        action='store_true',
+        help=('use with the `--plot-reconstructions-mask` arg to pull all '
+              'the rows from the table'),
+    )
+    subparser.add_argument(
         '--plot-reconstructions-is-ef',
         action='store_true',
         help=('the reconstructions are of an electric field; '
@@ -232,6 +238,7 @@ def batch_model_test(cli_args):
             'plot_avg_dh_intensity_error',
             'plot_reconstructions',
             'plot_reconstructions_mask',
+            'plot_reconstructions_mask_all',
             'plot_reconstructions_is_ef',
             'plot_reconstructions_groups',
             'plot_r2',
