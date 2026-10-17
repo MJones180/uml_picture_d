@@ -33,6 +33,16 @@ Convert the polarization data to HDF:
     # pol_m1_error_scicam_pol0_ef_40603: 40603 simulations
     # pol_m1_error_scicam_pol0_ef_31573: 31573 simulations
 
+    # Single wavelength using rx_picture_d_lab_nn, errors only on M1
+    # Saves: intensity in both polarizations, EF in the plane of HODM1
+    python3 main.py convert_piccsim_fits_data_merger pol_m1_error_scicam_pol0_ef_XXXXX \
+        /home/michael_jones6_student_uml_edu/work/piccsim/plots/ polarization_dataset_ 314 314 1 \
+        --file-names intensity_pol0 intensity_pol1 hodm1_600_r hodm1_600_i \
+        --allow-missing-dirs --save-as-float32
+    # pol_m1_error_hodm1_ef_39765: 39765 simulations
+    # pol_m1_error_hodm1_ef_39404: 39404 simulations
+    # pol_m1_error_hodm1_ef_31573: 31573 simulations
+
 Convert to the EF to phase and amp:
 
     python3 main.py convert_ef_to_phase_and_amp \
@@ -95,6 +105,19 @@ Convert to the EF to phase and amp:
     python3 main.py convert_ef_to_phase_and_amp \
         pol_m1_error_scicam_pol0_ef_31573 scicam_pol0_600_r scicam_pol0_600_i \
         pol_m1_error_scicam_pol0_ef_31573_phase_and_amp phase amp \
+        --tables-to-copy intensity_pol0 intensity_pol1
+
+    python3 main.py convert_ef_to_phase_and_amp \
+        pol_m1_error_hodm1_ef_39765 hodm1_600_r hodm1_600_i \
+        pol_m1_error_hodm1_ef_39765_phase_and_amp phase amp \
+        --tables-to-copy intensity_pol0 intensity_pol1
+    python3 main.py convert_ef_to_phase_and_amp \
+        pol_m1_error_hodm1_ef_39404 hodm1_600_r hodm1_600_i \
+        pol_m1_error_hodm1_ef_39404_phase_and_amp phase amp \
+        --tables-to-copy intensity_pol0 intensity_pol1
+    python3 main.py convert_ef_to_phase_and_amp \
+        pol_m1_error_hodm1_ef_31573 hodm1_600_r hodm1_600_i \
+        pol_m1_error_hodm1_ef_31573_phase_and_amp phase amp \
         --tables-to-copy intensity_pol0 intensity_pol1
 
 Take the sqrt of the intensities (with the EF):
@@ -286,6 +309,12 @@ Create a new phase basis from PCA:
                         pol_m1_error_scicam_pol0_ef_39404_phase_and_amp \
                         pol_m1_error_scicam_pol0_ef_40244_phase_and_amp \
         --table-names phase  --dh-mask darkhole_mask --save-explained-variance
+
+    python3 main.py create_pca_basis_modes \
+        pol_m1_error_phase_modes_1000_79169 1000 \
+        --raw-data-tags pol_m1_error_hodm1_ef_39765_phase_and_amp \
+                        pol_m1_error_hodm1_ef_39404_phase_and_amp \
+        --table-names phase --auto-mask --save-explained-variance
 
 Create a Zernike basis:
 
@@ -1269,6 +1298,140 @@ V17:
         --input-zero-mean-pixels --z-score-norm-inputs-global \
         --use-existing-norm-vals train_pol_v17_norm
 
+V18:
+
+    python3 main.py preprocess_data_pol \
+        --output-tags train_pol_v18 \
+        --output-tag-percentages 100 \
+        --raw-data-tags pol_m1_error_scicam_pol0_ef_40931 pol_m1_error_scicam_pol0_ef_39450 \
+                        pol_m1_error_scicam_pol0_ef_40507 pol_m1_error_scicam_pol0_ef_40835 \
+                        pol_m1_error_scicam_pol0_ef_40792 pol_m1_error_scicam_pol0_ef_39765 \
+                        pol_m1_error_scicam_pol0_ef_39404 pol_m1_error_scicam_pol0_ef_40244 \
+        --tables-to-load intensity_pol0 intensity_pol1 scicam_pol0_600_r scicam_pol0_600_i \
+        --apply-mask darkhole_mask dark_zone_mask intensity_pol0 intensity_pol1 \
+                                                  scicam_pol0_600_r scicam_pol0_600_i \
+        --merge-tables intensity_pol0    intensity_pol1    intensity \
+                       scicam_pol0_600_r scicam_pol0_600_i ef \
+        --switch-basis intensity pol_m1_psfs_pol0_pol1_modes_4000_masked_321928 modes 2000 \
+                       ef        pol0_sci_cam_ef_modes_2000_321928              modes 500 \
+        --input-tables intensity --output-tables ef --fix-seed 314
+    python3 main.py normalize_processed_dataset \
+        train_pol_v18_norm train_pol_v18 \
+        --input-zero-mean-pixels --z-score-norm-inputs-global --z-score-norm-outputs-global
+    python3 main.py preprocess_data_pol \
+        --output-tags val_pol_v18 test_pol_v18 \
+        --output-tag-percentages 75 25 \
+        --raw-data-tags pol_m1_error_scicam_pol0_ef_31573 pol_m1_error_scicam_pol0_ef_40603 \
+        --tables-to-load intensity_pol0 intensity_pol1 scicam_pol0_600_r scicam_pol0_600_i \
+        --apply-mask darkhole_mask dark_zone_mask intensity_pol0 intensity_pol1 \
+                                                  scicam_pol0_600_r scicam_pol0_600_i \
+        --merge-tables intensity_pol0    intensity_pol1    intensity \
+                       scicam_pol0_600_r scicam_pol0_600_i ef \
+        --switch-basis intensity pol_m1_psfs_pol0_pol1_modes_4000_masked_321928 modes 2000 \
+                       ef        pol0_sci_cam_ef_modes_2000_321928              modes 500 \
+        --input-tables intensity --output-tables ef --fix-seed 314
+    python3 main.py normalize_processed_dataset \
+        val_pol_v18_norm val_pol_v18 \
+        --input-zero-mean-pixels --z-score-norm-inputs-global --z-score-norm-outputs-global \
+        --use-existing-norm-vals train_pol_v18_norm
+    python3 main.py normalize_processed_dataset \
+        test_pol_v18_norm test_pol_v18 \
+        --input-zero-mean-pixels --z-score-norm-inputs-global \
+        --use-existing-norm-vals train_pol_v18_norm
+
+V19:
+
+    python3 main.py preprocess_data_pol \
+        --output-tags train_pol_v19 \
+        --output-tag-percentages 100 \
+        --raw-data-tags pol_m1_error_hodm1_ef_39765_phase_and_amp \
+        --tables-to-load intensity_pol0 intensity_pol1 phase \
+        --apply-mask darkhole_mask dark_zone_mask intensity_pol0 intensity_pol1 \
+        --merge-tables intensity_pol0 intensity_pol1 intensity \
+        --switch-basis intensity pol_m1_psfs_pol0_pol1_modes_4000_masked_321928 modes 2000 \
+                       phase     zernike_modes_331_2000_modes                   modes 555 \
+        --input-tables intensity --output-tables phase --fix-seed 314
+    python3 main.py preprocess_data_pol \
+        --output-tags train_pol_v19 \
+        --output-tag-percentages 100 \
+        --raw-data-tags pol_m1_error_hodm1_ef_39404_phase_and_amp \
+        --tables-to-load intensity_pol0 intensity_pol1 phase \
+        --apply-mask darkhole_mask dark_zone_mask intensity_pol0 intensity_pol1 \
+        --merge-tables intensity_pol0 intensity_pol1 intensity \
+        --switch-basis intensity pol_m1_psfs_pol0_pol1_modes_4000_masked_321928 modes 2000 \
+                       phase     zernike_modes_331_2000_modes                   modes 555 \
+        --input-tables intensity --output-tables phase --fix-seed 314 \
+        --extend-existing-preprocessed-data
+    python3 main.py normalize_processed_dataset \
+        train_pol_v19_norm train_pol_v19 \
+        --input-zero-mean-pixels --z-score-norm-inputs-global --z-score-norm-outputs
+    python3 main.py preprocess_data_pol \
+        --output-tags val_pol_v19 test_pol_v19 \
+        --output-tag-percentages 75 25 \
+        --raw-data-tags pol_m1_error_hodm1_ef_31573_phase_and_amp \
+        --tables-to-load intensity_pol0 intensity_pol1 phase \
+        --apply-mask darkhole_mask dark_zone_mask intensity_pol0 intensity_pol1 \
+        --merge-tables intensity_pol0 intensity_pol1 intensity \
+        --switch-basis intensity pol_m1_psfs_pol0_pol1_modes_4000_masked_321928 modes 2000 \
+                       phase     zernike_modes_331_2000_modes                   modes 555 \
+        --input-tables intensity --output-tables phase --fix-seed 314
+    python3 main.py normalize_processed_dataset \
+        val_pol_v19_norm val_pol_v19 \
+        --input-zero-mean-pixels --z-score-norm-inputs-global --z-score-norm-outputs \
+        --use-existing-norm-vals train_pol_v19_norm
+    python3 main.py normalize_processed_dataset \
+        test_pol_v19_norm test_pol_v19 \
+        --input-zero-mean-pixels --z-score-norm-inputs-global \
+        --use-existing-norm-vals train_pol_v19_norm
+
+V20:
+
+    python3 main.py preprocess_data_pol \
+        --output-tags train_pol_v20 \
+        --output-tag-percentages 100 \
+        --raw-data-tags pol_m1_error_hodm1_ef_39765_phase_and_amp \
+        --tables-to-load intensity_pol0 intensity_pol1 phase amp \
+        --apply-mask darkhole_mask dark_zone_mask intensity_pol0 intensity_pol1 \
+        --merge-tables intensity_pol0 intensity_pol1 intensity \
+        --switch-basis intensity pol_m1_psfs_pol0_pol1_modes_4000_masked_321928 modes 2000 \
+                       phase     zernike_modes_331_2000_modes                   modes 555 \
+                       amp       zernike_modes_331_2000_modes                   modes 555 \
+        --input-tables intensity --output-tables phase amp --fix-seed 314
+    python3 main.py preprocess_data_pol \
+        --output-tags train_pol_v20 \
+        --output-tag-percentages 100 \
+        --raw-data-tags pol_m1_error_hodm1_ef_39404_phase_and_amp \
+        --tables-to-load intensity_pol0 intensity_pol1 phase amp \
+        --apply-mask darkhole_mask dark_zone_mask intensity_pol0 intensity_pol1 \
+        --merge-tables intensity_pol0 intensity_pol1 intensity \
+        --switch-basis intensity pol_m1_psfs_pol0_pol1_modes_4000_masked_321928 modes 2000 \
+                       phase     zernike_modes_331_2000_modes                   modes 555 \
+                       amp       zernike_modes_331_2000_modes                   modes 555 \
+        --input-tables intensity --output-tables phase amp --fix-seed 314 \
+        --extend-existing-preprocessed-data
+    python3 main.py normalize_processed_dataset \
+        train_pol_v20_norm train_pol_v20 \
+        --input-zero-mean-pixels --z-score-norm-inputs-global --z-score-norm-outputs
+    python3 main.py preprocess_data_pol \
+        --output-tags val_pol_v20 test_pol_v20 \
+        --output-tag-percentages 75 25 \
+        --raw-data-tags pol_m1_error_hodm1_ef_31573_phase_and_amp \
+        --tables-to-load intensity_pol0 intensity_pol1 phase amp \
+        --apply-mask darkhole_mask dark_zone_mask intensity_pol0 intensity_pol1 \
+        --merge-tables intensity_pol0 intensity_pol1 intensity \
+        --switch-basis intensity pol_m1_psfs_pol0_pol1_modes_4000_masked_321928 modes 2000 \
+                       phase     zernike_modes_331_2000_modes                   modes 555 \
+                       amp       zernike_modes_331_2000_modes                   modes 555 \
+        --input-tables intensity --output-tables phase amp --fix-seed 314
+    python3 main.py normalize_processed_dataset \
+        val_pol_v20_norm val_pol_v20 \
+        --input-zero-mean-pixels --z-score-norm-inputs-global --z-score-norm-outputs \
+        --use-existing-norm-vals train_pol_v20_norm
+    python3 main.py normalize_processed_dataset \
+        test_pol_v20_norm test_pol_v20 \
+        --input-zero-mean-pixels --z-score-norm-inputs-global \
+        --use-existing-norm-vals train_pol_v20_norm
+
 ## Mode Reconstructions
 
 EF Modes:
@@ -1307,6 +1470,15 @@ Phase Modes:
         zernike_modes_331_2000_modes modes \
         --display-from-mask pol_34957_phase_and_amp phase 0 \
         --reconstruct-data pol_34957_phase_and_amp 1000 phase \
+        --reconstruct-data-first-n-rows 2000 \
+        --reconstruct-data-select-row 0 --reconstruct-data-plots \
+        --plot-modes-range 0 10 --plot-orthogonality --print-mean-and-std \
+        --plot-explained-variance --compute-explained-variance
+
+    python3 main.py analyze_basis_modes \
+        pol_m1_error_phase_modes_1000_79169 modes \
+        --display-from-mask pol_m1_error_hodm1_ef_31573_phase_and_amp phase 0 \
+        --reconstruct-data pol_m1_error_hodm1_ef_31573_phase_and_amp 1000 phase \
         --reconstruct-data-first-n-rows 2000 \
         --reconstruct-data-select-row 0 --reconstruct-data-plots \
         --plot-modes-range 0 10 --plot-orthogonality --print-mean-and-std \
