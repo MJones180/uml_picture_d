@@ -1273,8 +1273,8 @@ Model training is listed from oldest to newest (newest at the bottom).
         --convert-basis-save-values 5 --plot-layerscale-gamma gamma \
         --plot-coeff-mae-smape 555 --max-rows-per-model-call 1000 \
         --plot-reconstructions 0 1 2 \
-        --plot-reconstructions-mask darkhole_mask dark_zone_mask \
-        --plot-reconstructions-mask-all --plot-reconstructions-is-ef --plot-r2
+        --plot-reconstructions-mask pol_m1_error_hodm1_ef_39765_phase_and_amp phase \
+        --plot-reconstructions-groups phase --plot-r2
 
 [V24] The `pol_v24_` tag:
 
@@ -1294,5 +1294,5 @@ Model training is listed from oldest to newest (newest at the bottom).
         --convert-basis-save-values 5 --plot-layerscale-gamma gamma \
         --plot-coeff-mae-smape 555 1110 --max-rows-per-model-call 1000 \
         --plot-reconstructions 0 1 2 \
-        --plot-reconstructions-mask darkhole_mask dark_zone_mask \
-        --plot-reconstructions-mask-all --plot-reconstructions-is-ef --plot-r2
+        --plot-reconstructions-mask pol_m1_error_hodm1_ef_39765_phase_and_amp phase \
+        --plot-reconstructions-groups phase amp --plot-r2
