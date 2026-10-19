@@ -692,7 +692,8 @@ def preprocess_data_dark_hole(cli_args):
             print('Mean centering the data')
             mean = read_hdf(modes_path)['mean'][:].astype(F32)
             input_data -= mean
-            _save_var('ef_mean', mean)
+            if not extend_existing_data:
+                _save_var('ef_mean', mean)
 
         def _switch_to_coeffs(input_data_chunk, modes_chunk, comp):
             # Invert the modes
