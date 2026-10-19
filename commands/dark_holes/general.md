@@ -378,6 +378,11 @@ Both HODMs:
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 \
         --save-difference-only-offset 2 \
         --rows-per-chunk 10000 --load-from-existing-hdf-dataset
+    # ---------------
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_full_gain_36k_4iter_ch1 \
+        /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_full_gain_36k_ch1 \
+        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 4 dm1 dm2 \
+        --rows-per-chunk 10000 --load-from-existing-hdf-dataset
 
     # 12 iterations of broadband EFC (gain -1) using the RM
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_broadband_full_gain_2640_ch1 \
@@ -551,6 +556,11 @@ Both HODMs:
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_15484 \
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 1 dm1 dm2 --load-from-existing-hdf-dataset \
         --apply-filter-mask dh_both_hodms_efc_7broadband_full_gain_picd_15484_filter_mask_8avg 5
+    # ---------------
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_7broadband_full_gain_picd_44764_f42552_4iter \
+        /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_7broadband_full_gain_picd_44764 \
+        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 4 dm1 dm2 --load-from-existing-hdf-dataset \
+        --apply-filter-mask dh_both_hodms_efc_7broadband_full_gain_picd_44764_filter_mask_8avg 5
 
 The 2D DM SVD modes from the inverted matrix:
 
@@ -2191,3 +2201,23 @@ A RM can also be added to the weights of a layer in a NN:
         ef_sensing_accuracy_exact_ef_norm_v2 inputs \
         --use-first-n-values 700 --zero-small-means 2 \
         --calculate-cov --calculate-cov-mode-limit 450
+
+## Input Coeff Distribution Comparison
+
+    python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_full_gain_36k_4iter_ch1 \
+        coeff_comparison_simplified none none 100 0 0 \
+        --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
+        --combine-flattened-dms dm1 dm2 dm1_dm2 --dm-basis-already-flat --dm-basis-transpose dm1_dm2 \
+        --use-ef-basis pca_ef_basis_418k_rows_756_modes modes 700 --flatten-input \
+        --use-dm-basis dm1_dm2 dm1_dm2_joint_modes_flat modes 600 \
+        --fix-seed 314 --disable-shuffle
+
+    python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_7broadband_full_gain_picd_44764_f42552_4iter \
+        coeff_comparison_broadband none none 100 0 0 \
+        --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
+        --combine-flattened-dms dm1 dm2 dm1_dm2 --dm-basis-already-flat --dm-basis-transpose dm1_dm2 \
+        --use-ef-basis pca_ef_basis_broadband_733k_rows_756_modes modes 700 --flatten-input \
+        --use-dm-basis dm1_dm2 dm2_dm3_broadband_joint_modes_flat modes 600 \
+        --fix-seed 314 --disable-shuffle
