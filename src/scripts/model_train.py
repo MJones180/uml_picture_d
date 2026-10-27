@@ -15,6 +15,7 @@ from time import time
 import torch
 from utils.cli_args import save_cli_args
 from utils.constants import (CHOLESKY_L, EPOCH_LOSS_F, EXTRA_VARS_F,
+                             INPUTS_Z_SCORE_MEAN, INPUTS_Z_SCORE_STD,
                              LEARNING_RATES_F, MEAN, OPTIMIZERS, OUTPUT_MASK,
                              OUTPUT_P, OUTPUTS_Z_SCORE_MEAN,
                              OUTPUTS_Z_SCORE_STD, PROC_DATA_P, STD,
@@ -800,6 +801,9 @@ def model_train(cli_args):
     loss_function_set_epoch = None
     secondary_loss_function_set_epoch = None
 
+    # Pass along the input to the loss function if it needs it
+    loss_function_set_input_data = None
+
     if loss_name in ('mae', 'mse'):
         if loss_name == 'mae':
             print('MAE')
@@ -866,12 +870,15 @@ def model_train(cli_args):
         print('Jacobian EF')
         loss_obj = JacobianEF(
             device,
+            extra_variables[INPUTS_Z_SCORE_MEAN][:],
+            extra_variables[INPUTS_Z_SCORE_STD][:],
             extra_variables[OUTPUTS_Z_SCORE_MEAN][:],
             extra_variables[OUTPUTS_Z_SCORE_STD][:],
             **loss_params,
         )
         loss_function = loss_obj.forward
         loss_function_set_epoch = loss_obj.set_epoch
+        loss_function_set_input_data = loss_obj.set_input_data
     else:
         terminate_with_message(f'Loss function unknown: {loss_name}')
 
@@ -1329,6 +1336,8 @@ def model_train(cli_args):
             inputs = inputs.to(device)
             if add_input_noise is not None:
                 inputs = add_input_noise(inputs)
+            if loss_function_set_input_data is not None:
+                loss_function_set_input_data(inputs)
             outputs_truth = outputs_truth.to(device)
             # Zero gradients for every batch
             optimizer.zero_grad(set_to_none=True)
@@ -1437,6 +1446,8 @@ def model_train(cli_args):
         with torch.no_grad():
             for inputs, outputs_truth in validation_loader:
                 inputs = inputs.to(device)
+                if loss_function_set_input_data is not None:
+                    loss_function_set_input_data(inputs)
                 outputs_truth = outputs_truth.to(device)
                 outputs_model = model(inputs)
                 if divide_by_std_before_loss:

@@ -12,6 +12,8 @@ class JacobianEF(nn.Module):
     def __init__(
         self,
         device,
+        input_z_score_mean,
+        input_z_score_std,
         output_z_score_mean,
         output_z_score_std,
         dm1_modes_tag=None,
@@ -30,6 +32,7 @@ class JacobianEF(nn.Module):
         jacobian_table=None,
         lambda_scaling=None,
         lambda_scaling_dynamic_1=None,
+        lambda_scaling_dynamic_2=None,
         apply_log_scaling=None,
         speckle_targeting=None,
         apply_radial_weighting=None,
@@ -44,6 +47,10 @@ class JacobianEF(nn.Module):
         ----------
         device : str
             The torch device to use.
+        input_z_score_mean : np.array
+            The input Z-score mean values.
+        input_z_score_std : np.array
+            The input Z-score STD values.
         output_z_score_mean : np.array
             The output Z-score mean values.
         output_z_score_std : np.array
@@ -84,6 +91,12 @@ class JacobianEF(nn.Module):
             till the end. Three arguments expected as a single str separated by
             commas: epoch to start dynamic scaling, total epochs, final lambda;
             starting lambda is specified by `lambda_scaling`.
+        lambda_scaling_dynamic_2 : str
+            Dynamically scale the lambda based on the input intensity. Two
+            arguments expected as a single str separated by commas: intensity
+            threshold, lambda to use for values above the intensity threshold.
+            `lambda_scaling` is used for values below the intensity threshold.
+            Intensity is calculated as the sum of the squared, denorm coeffs.
         apply_log_scaling : bool
             Take the log of the residual intensity.
         speckle_targeting : float
@@ -91,7 +104,7 @@ class JacobianEF(nn.Module):
         apply_radial_weighting : str
             Apply a radial weighting to the EF pixels; four arguments expected
             as a single str separated by commas: mask size in pixels, inner
-            radius ratio, outer radius ratio, and max weight at center
+            radius ratio, outer radius ratio, and max weight at center.
         add_residual_stroke_mse : float
             Add the MSE of the residual stroke to the total loss; passed
             value specifies the scaling factor, alpha. This loss is added after
@@ -121,9 +134,13 @@ class JacobianEF(nn.Module):
                 return desired_type(arg)
             return None
 
+        # Move the input norm data to torch
+        self.input_zs_mean = torch.from_numpy(input_z_score_mean).to(device)
+        self.input_zs_std = torch.from_numpy(input_z_score_std).to(device)
+
         # Move the output norm data to torch
-        self.z_score_mean = torch.from_numpy(output_z_score_mean).to(device)
-        self.z_score_std = torch.from_numpy(output_z_score_std).to(device)
+        self.output_zs_mean = torch.from_numpy(output_z_score_mean).to(device)
+        self.output_zs_std = torch.from_numpy(output_z_score_std).to(device)
 
         def modes(tag, table, count, transpose, str_name):
             modes_path = raw_sim_data_chunk_paths(tag)[0]
@@ -177,10 +194,10 @@ class JacobianEF(nn.Module):
 
             return curried
 
-        self.calc_dynamic_lambda = None
+        self.calc_dynamic_lambda_1 = None
         dynamic_lambda_1 = _grab_param(lambda_scaling_dynamic_1, str)
         if dynamic_lambda_1 is not None:
-            print('Applying dynamic lambda scaling')
+            print('Applying dynamic lambda scaling (1)')
             (start_scaling_epoch, total_epochs,
              final_lambda) = dynamic_lambda_1.split(',')
             start_scaling_epoch = int(start_scaling_epoch)
@@ -189,8 +206,35 @@ class JacobianEF(nn.Module):
             init_lambda = self.lambda_scaling
             print(f'Epochs {start_scaling_epoch} -> {total_epochs}; '
                   f'Lambda {init_lambda} -> {final_lambda}')
-            self.calc_dynamic_lambda = _dynamic_scaling_1(
+            self.calc_dynamic_lambda_1 = _dynamic_scaling_1(
                 init_lambda, final_lambda, start_scaling_epoch, total_epochs)
+
+        self.calc_dynamic_lambda_2 = None
+        dynamic_lambda_2 = _grab_param(lambda_scaling_dynamic_2, str)
+        if dynamic_lambda_2 is not None:
+            print('Applying dynamic lambda scaling (2)')
+            intensity_threshold, lambda_above = dynamic_lambda_2.split(',')
+            intensity_threshold = float(intensity_threshold)
+            lambda_above = float(lambda_above)
+            lambda_below = self.lambda_scaling
+            print(f'Intensity threshold: {intensity_threshold}; '
+                  f'<: {lambda_below}; >: {lambda_above}')
+
+            def lambda_thresholded():
+                inputs_sum = torch.sum(
+                    z_score_denormalize(
+                        self.input_data,
+                        self.input_zs_mean,
+                        self.input_zs_std,
+                    )**2,
+                    axis=1,
+                )
+                lambda_vals = torch.full((self.input_data.shape[0], ),
+                                         lambda_below).to(device)
+                lambda_vals[inputs_sum > intensity_threshold] = lambda_above
+                return lambda_vals
+
+            self.calc_dynamic_lambda_2 = lambda_thresholded
 
         self.apply_log_scaling = bool(_grab_param(apply_log_scaling, int))
         if self.apply_log_scaling:
@@ -265,17 +309,25 @@ class JacobianEF(nn.Module):
         # Keep track of the current epoch incase it is needed
         self.current_epoch = None
 
+        # The current input that is being processed
+        self.input_data = None
+
     def set_epoch(self, epoch):
         self.current_epoch = epoch
-        if self.calc_dynamic_lambda is not None:
-            self.lambda_scaling = self.calc_dynamic_lambda()
+        if self.calc_dynamic_lambda_1 is not None:
+            self.lambda_scaling = self.calc_dynamic_lambda_1()
         if self.calc_dynamic_alpha is not None:
             self.mse_alpha = self.calc_dynamic_alpha()
 
+    def set_input_data(self, input_data):
+        self.input_data = input_data
+        if self.calc_dynamic_lambda_2 is not None:
+            self.lambda_scaling = self.calc_dynamic_lambda_2()
+
     def _get_actuator_heights(self, outputs):
         # Denormalize the outputs
-        outputs_denorm = z_score_denormalize(outputs, self.z_score_mean,
-                                             self.z_score_std)
+        outputs_denorm = z_score_denormalize(outputs, self.output_zs_mean,
+                                             self.output_zs_std)
         if self.use_joint_dm_modes:
             return torch.matmul(outputs_denorm, self.dm1_dm2_modes)
         else:
@@ -305,9 +357,10 @@ class JacobianEF(nn.Module):
         if self.speckle_targeting:
             k_pixels = int(residual_int.shape[-1] * self.speckle_targeting)
             worst_speckles, _ = torch.topk(residual_int, k=k_pixels, dim=-1)
-            loss = self.lambda_scaling * worst_speckles.mean()
+            per_row_mean = worst_speckles.mean(dim=-1)
         else:
-            loss = self.lambda_scaling * residual_int.mean()
+            per_row_mean = residual_int.mean(dim=-1)
+        loss = (self.lambda_scaling * per_row_mean).mean()
         if self.mse_alpha is not None:
             if self.residual_stroke_eps is not None:
                 residual_heights = torch.abs(residual_heights)
