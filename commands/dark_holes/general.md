@@ -379,8 +379,40 @@ Both HODMs:
         --save-difference-only-offset 2 \
         --rows-per-chunk 10000 --load-from-existing-hdf-dataset
     # ---------------
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_full_gain_24k_4iter_ch1 \
+        /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_full_gain_24k_ch1 \
+        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 4 dm1 dm2 \
+        --rows-per-chunk 10000 --load-from-existing-hdf-dataset
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_full_gain_24k_4iter_ch2 \
+        /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_full_gain_24k_ch2 \
+        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 4 dm1 dm2 \
+        --rows-per-chunk 10000 --load-from-existing-hdf-dataset
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_full_gain_24k_4iter_ch3 \
+        /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_full_gain_24k_ch3 \
+        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 4 dm1 dm2 \
+        --rows-per-chunk 10000 --load-from-existing-hdf-dataset
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_full_gain_24k_4iter_ch4 \
+        /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_full_gain_24k_ch4 \
+        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 4 dm1 dm2 \
+        --rows-per-chunk 10000 --load-from-existing-hdf-dataset
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_full_gain_27k_4iter \
+        /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_full_gain_27k \
+        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 4 dm1 dm2 \
+        --rows-per-chunk 10000 --load-from-existing-hdf-dataset
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_full_gain_29k_4iter_ch1 \
+        /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_full_gain_29k_ch1 \
+        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 4 dm1 dm2 \
+        --rows-per-chunk 10000 --load-from-existing-hdf-dataset
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_full_gain_29k_4iter_ch2 \
+        /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_full_gain_29k_ch2 \
+        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 4 dm1 dm2 \
+        --rows-per-chunk 10000 --load-from-existing-hdf-dataset
     python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_full_gain_36k_4iter_ch1 \
         /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_full_gain_36k_ch1 \
+        --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 4 dm1 dm2 \
+        --rows-per-chunk 10000 --load-from-existing-hdf-dataset
+    python3 main.py convert_piccsim_fits_data dh_both_hodms_efc_full_gain_36k_4iter_ch2 \
+        /home/michael-jones/Documents/uml_picture_d/data/raw/dh_both_hodms_efc_full_gain_36k_ch2 \
         --fits-table-names dm1 dm2 sci_i sci_r --save-difference-only 5 4 4 dm1 dm2 \
         --rows-per-chunk 10000 --load-from-existing-hdf-dataset
 
@@ -1902,6 +1934,57 @@ Preprocess the datasets:
         --bounding-input-rows-train-only --bounding-output-rows-train-only --fix-seed 314 \
         --extend-existing-preprocessed-data
 
+    python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_full_gain_24k_4iter_ch1 \
+        train_dh_both_hodms_efc_final_dh_all_iter_700_600_v2 none none 100 0 0 \
+        --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
+        --additional-raw-data-tags dh_both_hodms_efc_full_gain_24k_4iter_ch2 \
+            dh_both_hodms_efc_full_gain_24k_4iter_ch3 dh_both_hodms_efc_full_gain_27k_4iter \
+        --use-ef-basis pca_ef_basis_357k_rows_756_modes modes 700 --flatten-input \
+        --use-dm-basis dm1_dm2 dm1_dm2_joint_modes_flat modes 600 \
+        --combine-flattened-dms dm1 dm2 dm1_dm2 --dm-basis-already-flat --dm-basis-transpose dm1_dm2 \
+        --z-score-inputs-individual --z-score-outputs-individual --fix-seed 314
+    python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_full_gain_36k_4iter_ch1 \
+        train_dh_both_hodms_efc_final_dh_all_iter_700_600_v2 none none 100 0 0 \
+        --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
+        --additional-raw-data-tags dh_both_hodms_efc_full_gain_29k_4iter_ch1 \
+            dh_both_hodms_efc_full_gain_29k_4iter_ch2 \
+        --use-ef-basis pca_ef_basis_357k_rows_756_modes modes 700 --flatten-input \
+        --use-dm-basis dm1_dm2 dm1_dm2_joint_modes_flat modes 600 \
+        --combine-flattened-dms dm1 dm2 dm1_dm2 --dm-basis-already-flat --dm-basis-transpose dm1_dm2 \
+        --z-score-inputs-individual --z-score-outputs-individual --fix-seed 314 --extend-existing-preprocessed-data
+    python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_final_dh_14k_ch1 \
+        train_dh_both_hodms_efc_final_dh_all_iter_700_600_v2 none none 100 0 0 \
+        --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
+        --additional-raw-data-tags dh_both_hodms_efc_final_dh_14k_ch2 \
+            dh_both_hodms_efc_final_dh_9k_ch1 dh_both_hodms_efc_final_dh_9k_ch2 \
+            dh_both_hodms_efc_30k_1iter_ch1 dh_both_hodms_efc_30k_1iter_ch2 \
+            dh_both_hodms_efc_27k_1iter_ch1 dh_both_hodms_efc_27k_1iter_ch2 \
+        --use-ef-basis pca_ef_basis_357k_rows_756_modes modes 700 --flatten-input \
+        --use-dm-basis dm1_dm2 dm1_dm2_joint_modes_flat modes 600 \
+        --combine-flattened-dms dm1 dm2 dm1_dm2 --dm-basis-already-flat --dm-basis-transpose dm1_dm2 \
+        --z-score-inputs-individual --z-score-outputs-individual --fix-seed 314 --extend-existing-preprocessed-data
+    python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_full_gain_36k_4iter_ch2 \
+        train_dh_both_hodms_efc_final_dh_all_iter_700_600_v2 \
+        val_dh_both_hodms_efc_final_dh_all_iter_700_600_v2 none 0 100 0 \
+        --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
+        --use-ef-basis pca_ef_basis_357k_rows_756_modes modes 700 --flatten-input \
+        --use-dm-basis dm1_dm2 dm1_dm2_joint_modes_flat modes 600 \
+        --combine-flattened-dms dm1 dm2 dm1_dm2 --dm-basis-already-flat --dm-basis-transpose dm1_dm2 \
+        --z-score-inputs-individual --z-score-outputs-individual --fix-seed 314 --use-existing-training-data
+    python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_full_gain_24k_4iter_ch4 \
+        train_dh_both_hodms_efc_final_dh_all_iter_700_600_v2 \
+        none test_dh_both_hodms_efc_final_dh_all_iter_700_600_v2 0 0 100 \
+        --dm-tables dm1 dm2 --electric-field-tables sci_r sci_i \
+        --dark-zone-mask-tag darkhole_mask --remove-dark-zone-padding \
+        --use-ef-basis pca_ef_basis_357k_rows_756_modes modes 700 --flatten-input \
+        --use-dm-basis dm1_dm2 dm1_dm2_joint_modes_flat modes 600 \
+        --combine-flattened-dms dm1 dm2 dm1_dm2 --dm-basis-already-flat --dm-basis-transpose dm1_dm2 \
+        --z-score-inputs-individual --z-score-outputs-individual --fix-seed 314 --use-existing-training-data
+
 Broadband data:
 
     python3 main.py preprocess_data_dark_hole dh_both_hodms_efc_7broadband_full_gain_picd_84640_f78501_1iter \
@@ -2206,25 +2289,6 @@ Plot SVD basis modes:
     python3 main.py analyze_basis_modes \
         dm1_modes_flat dm1_modes --transpose-modes \
         --display-as-circle 30 1.08 --plot-modes-range 0 3
-
-    # First four EF SVD modes
-    python3 main.py analyze_basis_modes \
-        ef_modes_flat ef_modes --modes-are-complex 1 \
-        --display-as-circle 59 1.03 --display-with-hole 0.24 \
-        --plot-modes-range 0 3
-
-    # First four DM1/DM2 SVD modes
-    python3 main.py analyze_basis_modes \
-        dm1_dm2_joint_modes_flat modes --transpose-modes --two-dms 1 \
-        --display-as-circle 30 1.08 --plot-modes-range 0 10 \
-        --reconstruct-data dh_both_hodms_efc_10_row_saved_surfaces 756 dm1 dm2 \
-        --reconstruct-data-select-row 0 --reconstruct-data-plots
-    python3 main.py analyze_basis_modes \
-        dm1_dm2_joint_modes_flat modes --transpose-modes --two-dms 1 \
-        --display-as-circle 30 1.08 \
-        --reconstruct-data dh_both_hodms_efc_final_dh_9k_ch1 600 dm1 dm2 \
-        --reconstruct-data-first-n-rows 2000
-
     python3 main.py analyze_basis_modes \
         dm2_dm3_broadband_joint_modes_flat modes --transpose-modes --two-dms 1 \
         --display-as-circle 30 1.08 --plot-modes-range 0 10
@@ -2270,6 +2334,18 @@ Create a new basis from PCA:
             dh_both_hodms_efc_full_gain_36k_1iter_ch1 dh_both_hodms_efc_full_gain_36k_1iter_ch2
 
     python3 main.py create_pca_basis_modes \
+        pca_ef_basis_357k_rows_756_modes 756 \
+        --table-names sci_r sci_i --dh-mask darkhole_mask \
+        --raw-data-tags dh_both_hodms_efc_final_dh_14k_ch1 dh_both_hodms_efc_final_dh_14k_ch2 \
+            dh_both_hodms_efc_final_dh_9k_ch1 dh_both_hodms_efc_final_dh_9k_ch2 \
+            dh_both_hodms_efc_30k_1iter_ch1 dh_both_hodms_efc_30k_1iter_ch2 \
+            dh_both_hodms_efc_27k_1iter_ch1 dh_both_hodms_efc_27k_1iter_ch2 \
+            dh_both_hodms_efc_full_gain_29k_1iter_ch1 dh_both_hodms_efc_full_gain_29k_1iter_ch2  \
+            dh_both_hodms_efc_full_gain_36k_1iter_ch1 dh_both_hodms_efc_full_gain_27k_1iter \
+            dh_both_hodms_efc_full_gain_24k_1iter_ch1 dh_both_hodms_efc_full_gain_24k_1iter_ch2 \
+            dh_both_hodms_efc_full_gain_24k_1iter_ch3
+
+    python3 main.py create_pca_basis_modes \
         pca_ef_basis_broadband_733k_rows_756_modes 756 \
         --table-names sci_r sci_i --dh-mask darkhole_mask \
         --raw-data-tags dh_both_hodms_efc_7broadband_full_gain_picd_13124_f12076_1iter \
@@ -2306,25 +2382,6 @@ Create a new basis from PCA:
                         dh_both_hodms_efc_7broadband_full_gain_picd_81804_f77858_1iter \
                         dh_both_hodms_efc_7broadband_full_gain_picd_84076_f77937_1iter \
                         dh_both_hodms_efc_7broadband_full_gain_picd_84640_f78501_1iter
-
-    python3 main.py create_pca_basis_modes \
-    pca_ef_basis_broadband_733k_rows_2000_modes 2000 \
-    --table-names sci_r sci_i --dh-mask darkhole_mask \
-    --raw-data-tags dh_both_hodms_efc_7broadband_full_gain_picd_13124_f12076_1iter \
-                    dh_both_hodms_efc_7broadband_full_gain_picd_15484_f14307_1iter \
-                    dh_both_hodms_efc_7broadband_full_gain_picd_15789_f14625_1iter \
-                    dh_both_hodms_efc_7broadband_full_gain_picd_23184_f22020_1iter \
-                    dh_both_hodms_efc_7broadband_full_gain_picd_44764_f42552_1iter \
-                    dh_both_hodms_efc_7broadband_full_gain_picd_54535_f51826_1iter \
-                    dh_both_hodms_efc_7broadband_full_gain_picd_54844_f52148_1iter \
-                    dh_both_hodms_efc_7broadband_full_gain_picd_58199_f54019_1iter \
-                    dh_both_hodms_efc_7broadband_full_gain_picd_59526_f55132_1iter \
-                    dh_both_hodms_efc_7broadband_full_gain_picd_59875_f56964_1iter \
-                    dh_both_hodms_efc_7broadband_full_gain_picd_64799_f60036_1iter \
-                    dh_both_hodms_efc_7broadband_full_gain_picd_69388_f66033_1iter \
-                    dh_both_hodms_efc_7broadband_full_gain_picd_81804_f77858_1iter \
-                    dh_both_hodms_efc_7broadband_full_gain_picd_84076_f77937_1iter \
-                    dh_both_hodms_efc_7broadband_full_gain_picd_84640_f78501_1iter
 
     python3 main.py create_pca_basis_modes \
         pca_dm1_basis_418k_rows_756_modes 756 \
