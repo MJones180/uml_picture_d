@@ -5,7 +5,7 @@ Plot the learning rate curve from a trained model.
 import matplotlib.pyplot as plt
 import numpy as np
 
-LR_PATH = '../output/trained_models/dh_v149_1/learning_rates.csv'
+LR_PATH = '../output/trained_models/dh_v158_2/learning_rates.csv'
 
 # Load in the style file
 plt.style.use('plot_styling.mplstyle')
@@ -19,7 +19,7 @@ fig, (ax_lin, ax_log) = plt.subplots(2, 1, sharex=True, figsize=(12, 8))
 for ax in (ax_lin, ax_log):
     ax.plot(x_vals, lr_vals, linewidth=3)
 
-x_tick_locs = [x_vals[0], *x_vals[499::500]]
+x_tick_locs = [x_vals[0], *x_vals[249::250]]
 x_tick_vals = [str(int(val)) for val in x_tick_locs]
 
 ax_log.set_yscale('log')
