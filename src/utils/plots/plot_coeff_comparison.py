@@ -12,6 +12,7 @@ def plot_coeff_comparison(
     plot_path,
     metric_one_color='tab:blue',
     metric_two_color='tab:red',
+    title=None,
 ):
     plt.style.use(PLOT_STYLE_FILE)
     plt.clf()
@@ -29,6 +30,8 @@ def plot_coeff_comparison(
         upper_bound = coeff_group_idxs[idx + 1]
         indices = np.arange(lower_bound, upper_bound)
         ax.set_title(f'Coefficient Errors ({lower_bound + 1}-{upper_bound})')
+        if title:
+            ax.set_title(title)
         ax.set_xlabel('Coefficient Index')
         ax.set_ylabel(metric_one_label, color=metric_one_color)
         ax.plot(
