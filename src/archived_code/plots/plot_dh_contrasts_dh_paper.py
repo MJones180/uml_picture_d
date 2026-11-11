@@ -4,6 +4,7 @@ For the SPIE DH NN paper.
 """
 
 import matplotlib.pyplot as plt
+from matplotlib.legend_handler import HandlerTuple
 import numpy as np
 
 SIMPLE = 'Simple'
@@ -127,40 +128,56 @@ PWP_EF = {
 }
 # yapf: enable
 
+# =========================
 # Choose the data to plot
+# =========================
 data = EXACT_EF
+data_title = 'Exact EFs'
+# -------------------------
 data = PWP_EF
+data_title = 'Estimated EFs'
+# =========================
 
 plt.style.use('plot_styling.mplstyle')
 fig, ax = plt.subplots(1, 2, figsize=(12, 6))
 for subplot_idx, subplot_key in enumerate((SIMPLE, REALISTIC)):
     data_dict = data[subplot_key]
+    legend_handles = []
+    legend_labels = []
     for contrast_idx, contrast_key in enumerate((NN_CONTRASTS, EFC_CONTRASTS)):
-        color = 'red' if contrast_idx else 'blue'
-        title = 'EFC' if contrast_idx else 'NN'
         contrasts = data_dict[contrast_key]
         n_rows, x_points = contrasts.shape
         x_idxs = np.arange(contrasts.shape[1])
-        ax[subplot_idx].fill_between(
+        color = 'red' if contrast_idx else 'blue'
+        fill = ax[subplot_idx].fill_between(
             x_idxs,
             np.min(contrasts, axis=0),
             np.max(contrasts, axis=0),
             color=color,
             alpha=0.2,
             linewidth=0,
-            label=title,
         )
         # Compute the geometric mean; instead of calculating prod(x)^(1/N),
         # the following computational trick can be used
         mean_contrasts = 10**np.mean(np.log10(contrasts), axis=0)
         print(subplot_key, contrast_key, mean_contrasts)
-        ax[subplot_idx].plot(x_idxs, mean_contrasts, color=color)
+        line, = ax[subplot_idx].plot(x_idxs, mean_contrasts, color=color)
+        legend_handles.append((fill, line))
+        legend_labels.append('EFC' if contrast_idx else 'NN')
     ax[subplot_idx].set_title(subplot_key)
-    ax[subplot_idx].legend()
+    ax[subplot_idx].legend(
+        legend_handles,
+        legend_labels,
+        handler_map={tuple: HandlerTuple(ndivide=1)},
+    )
     ax[subplot_idx].set_yscale('log')
     ax[subplot_idx].set_ylabel('Contrast')
     ax[subplot_idx].set_xlabel('Iteration')
     ax[subplot_idx].locator_params(axis='x', nbins=x_points)
-plt.suptitle(f'DH Contrast ({n_rows} Realizations)', y=0.90)
+plt.suptitle(
+    f'DH Contrasts Across {n_rows} Realizations Using {data_title}',
+    y=0.92,
+    fontsize=22,
+)
 plt.tight_layout()
 plt.savefig('dh_contrasts_dh_paper.png')
