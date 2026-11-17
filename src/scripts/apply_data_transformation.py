@@ -53,6 +53,19 @@ def apply_data_transformation_parser(subparsers):
         help=('take the difference between two tables; three args expected: '
               'table 1, table 2, new table; new table = table 1 - table 2'),
     )
+    subparser.add_argument(
+        '--table-sum',
+        nargs=3,
+        help=('take the sum between two tables; three args expected: '
+              'table 1, table 2, new table; new table = table 1 + table 2'),
+    )
+    subparser.add_argument(
+        '--table-sum-and-difference',
+        nargs=4,
+        help=('take the sum and the difference between two tables; four args '
+              'expected: table 1, table 2, sum table, diff table; '
+              'sum table = table 1 + table 2; diff table = table 1 - table 2'),
+    )
 
 
 def apply_data_transformation(cli_args):
@@ -102,6 +115,22 @@ def apply_data_transformation(cli_args):
         table1, table2, new_table = table_difference
         print(f'{new_table} = {table1} - {table2}')
         table_data[new_table] = table_data.pop(table1) - table_data.pop(table2)
+    table_sum = cli_args.get('table_sum')
+    if table_sum is not None:
+        step_ri('Taking sum of two tables')
+        table1, table2, new_table = table_sum
+        print(f'{new_table} = {table1} + {table2}')
+        table_data[new_table] = table_data.pop(table1) + table_data.pop(table2)
+    table_sum_and_difference = cli_args.get('table_sum_and_difference')
+    if table_sum_and_difference is not None:
+        step_ri('Taking the sum and difference of two tables')
+        table1, table2, sum_table, diff_table = table_sum_and_difference
+        print(f'{sum_table} = {table1} + {table2}')
+        print(f'{diff_table} = {table1} - {table2}')
+        table1_data = table_data.pop(table1)
+        table2_data = table_data.pop(table2)
+        table_data[sum_table] = table1_data + table2_data
+        table_data[diff_table] = table1_data - table2_data
 
     step_ri('Creating output directory and writing out CLI args')
     new_tag = cli_args['new_tag']
