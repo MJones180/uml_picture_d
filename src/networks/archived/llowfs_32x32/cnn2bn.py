@@ -8,7 +8,6 @@ import torch.nn.functional as F
 
 
 class Network(nn.Module):
-
     def example_input():
         # Need 2 inputs due to batch norm
         return torch.rand((2, 1, 32, 32))

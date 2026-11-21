@@ -57,18 +57,22 @@ def plot_ef_and_dm_comparison(
             sci = sci[:, active_sci_cam_cols]
             sci = sci[active_sci_cam_rows]
             row_data[key] = sci
-        row_data['intensity'] = row_data['sci_r']**2 + row_data['sci_i']**2
+        row_data['intensity'] = row_data['sci_r'] ** 2 + row_data['sci_i'] ** 2
 
     # Accumulate the bounds for each table
     if fix_colorbars:
         bounds = {}
-        for key in rows[0].keys():
+        for key in rows[0]:
             all_vals = [row_data[key] for row_data in rows]
             bounds[key] = (np.min(all_vals), np.max(all_vals))
 
     for row_idx, (row_data, ident) in enumerate(zip(rows, row_identifiers)):
-        col_info = [('Real(EF)', 'sci_r'), ('Imag(EF)', 'sci_i'),
-                    ('Intensity', 'intensity'), ('DM1 CMD', 'dm1')]
+        col_info = [
+            ('Real(EF)', 'sci_r'),
+            ('Imag(EF)', 'sci_i'),
+            ('Intensity', 'intensity'),
+            ('DM1 CMD', 'dm1'),
+        ]
         if ncols == 5:
             col_info.append(('DM2 CMD', 'dm2'))
         for col_idx, (col_title, key) in enumerate(col_info):

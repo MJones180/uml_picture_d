@@ -7,29 +7,46 @@ Portions of the code from this file are adapted from:
 The training and validation dataset must have their inputs pre-normalized.
 """
 
+from time import time
+
+import numpy as np
+import torch
 from loss_functions.jacobian_ef import JacobianEF
 from loss_functions.landman_rms import LandmanRMS
 from loss_functions.weighted_two_dms import WeightedTwoDMs
-import numpy as np
-from time import time
-import torch
 from utils.cli_args import save_cli_args
-from utils.constants import (CHOLESKY_L, EPOCH_LOSS_F, EXTRA_VARS_F,
-                             INPUTS_Z_SCORE_MEAN, INPUTS_Z_SCORE_STD,
-                             LEARNING_RATES_F, MEAN, OPTIMIZERS, OUTPUT_MASK,
-                             OUTPUT_P, OUTPUTS_Z_SCORE_MEAN,
-                             OUTPUTS_Z_SCORE_STD, PROC_DATA_P, STD,
-                             TAG_LOOKUP_F, TRAINED_MODELS_P)
+from utils.constants import (
+    CHOLESKY_L,
+    EPOCH_LOSS_F,
+    EXTRA_VARS_F,
+    INPUTS_Z_SCORE_MEAN,
+    INPUTS_Z_SCORE_STD,
+    LEARNING_RATES_F,
+    MEAN,
+    OPTIMIZERS,
+    OUTPUT_MASK,
+    OUTPUT_P,
+    OUTPUTS_Z_SCORE_MEAN,
+    OUTPUTS_Z_SCORE_STD,
+    PROC_DATA_P,
+    STD,
+    TAG_LOOKUP_F,
+    TRAINED_MODELS_P,
+)
 from utils.group_data_from_list import group_data_from_list
 from utils.hdf_read_and_write import read_hdf
 from utils.json import json_load, json_write
 from utils.load_network import load_network
 from utils.load_raw_sim_data import raw_sim_data_chunk_paths
 from utils.model import Model
-from utils.path import (copy_files, delete_dir, delete_file, make_dir,
-                        path_exists)
-from utils.printing_and_logging import (dec_print_indent, inc_print_indent,
-                                        step, step_ri, title)
+from utils.path import copy_files, delete_dir, delete_file, make_dir, path_exists
+from utils.printing_and_logging import (
+    dec_print_indent,
+    inc_print_indent,
+    step,
+    step_ri,
+    title,
+)
 from utils.response_matrix import ResponseMatrix
 from utils.shared_argparser_args import shared_argparser_args
 from utils.terminate_with_message import terminate_with_message
@@ -101,57 +118,73 @@ def model_train_parser(subparsers):
     subparser.add_argument(
         '--network-params',
         nargs='+',
-        help=('pass params to the network; two values expected for each '
-              'group: name, value'),
+        help=(
+            'pass params to the network; two values expected for each '
+            'group: name, value'
+        ),
     )
     subparser.add_argument(
         '--optimizer-params',
         nargs='+',
-        help=('pass params to the optimizer; three values expected for each '
-              'group: name, value, type (0 - str, 1 - float, 2 - int, '
-              '3 - bool); these values are only applied to the '
-              'first optimizer group'),
+        help=(
+            'pass params to the optimizer; three values expected for each '
+            'group: name, value, type (0 - str, 1 - float, 2 - int, '
+            '3 - bool); these values are only applied to the '
+            'first optimizer group'
+        ),
     )
     subparser.add_argument(
         '--optimizer-params-all-groups',
         nargs='+',
-        help=('pass params to the optimizer; three values expected for each '
-              'group: name, value, type (0 - str, 1 - float, 2 - int, '
-              '3 - bool); these values are applied to each optimizer group'),
+        help=(
+            'pass params to the optimizer; three values expected for each '
+            'group: name, value, type (0 - str, 1 - float, 2 - int, '
+            '3 - bool); these values are applied to each optimizer group'
+        ),
     )
     subparser.add_argument(
         '--optimizer-one-d-group-weight-decay',
         type=float,
-        help=('apply a separate weight decay to all 1D parameters; the value '
-              'passed should specify the weight decay'),
+        help=(
+            'apply a separate weight decay to all 1D parameters; the value '
+            'passed should specify the weight decay'
+        ),
     )
     subparser.add_argument(
         '--optimizer-manual-group-weight-decay',
         nargs='+',
-        help=('apply a separate weight decay to all parameters which have a '
-              'partial substring match to one of the passed values; values '
-              'expected: weight decay, *partial parameter names; this '
-              'argument will override any shared parameters from the '
-              '`--optimizer-one-d-group-weight-decay` argument'),
+        help=(
+            'apply a separate weight decay to all parameters which have a '
+            'partial substring match to one of the passed values; values '
+            'expected: weight decay, *partial parameter names; this '
+            'argument will override any shared parameters from the '
+            '`--optimizer-one-d-group-weight-decay` argument'
+        ),
     )
     subparser.add_argument(
         '--loss-params',
         nargs='+',
-        help=('pass params to the loss function; two values expected for each '
-              'group: name, value; types determined by loss function'),
+        help=(
+            'pass params to the loss function; two values expected for each '
+            'group: name, value; types determined by loss function'
+        ),
     )
     subparser.add_argument(
         '--multi-headed-output',
         type=int,
-        help=('the architecture has multiple output heads; the value passed '
-              'should specify the number of output heads; each output head '
-              'must be equal in size; this affects the loss function'),
+        help=(
+            'the architecture has multiple output heads; the value passed '
+            'should specify the number of output heads; each output head '
+            'must be equal in size; this affects the loss function'
+        ),
     )
     subparser.add_argument(
         '--treat-multiheaded-as-single',
         action='store_true',
-        help=('should be used with the `--multi-headed-output`; the loss '
-              'function will be called with output heads concat together'),
+        help=(
+            'should be used with the `--multi-headed-output`; the loss '
+            'function will be called with output heads concat together'
+        ),
     )
     subparser.add_argument(
         '--multi-headed-scaled-loss',
@@ -167,39 +200,47 @@ def model_train_parser(subparsers):
     subparser.add_argument(
         '--add-secondary-loss-function',
         nargs='+',
-        help=('call a secondary loss function; if there are multiple output '
-              'heads, then the outputs will be concatenated before calling '
-              'the secondary loss function; the secondary loss will be added '
-              'to the first loss; values expected: name of the custom loss '
-              'function, *[arg name, arg value]; arg types determined by the '
-              'loss function'),
+        help=(
+            'call a secondary loss function; if there are multiple output '
+            'heads, then the outputs will be concatenated before calling '
+            'the secondary loss function; the secondary loss will be added '
+            'to the first loss; values expected: name of the custom loss '
+            'function, *[arg name, arg value]; arg types determined by the '
+            'loss function'
+        ),
     )
     subparser.add_argument(
         '--early-stopping',
         type=int,
         metavar='n',
-        help=('stop training if performance does not improve after n epochs, '
-              'this is based on the validation loss'),
+        help=(
+            'stop training if performance does not improve after n epochs, '
+            'this is based on the validation loss'
+        ),
     )
     subparser.add_argument(
         '--lr-auto-annealing',
         nargs='+',
         type=float,
-        help=('auto change the learning rate when progress begins to plateau; '
-              'the initial learning rate is taken from the '
-              '`learning_rate` arg; the learning rate is reduced each time '
-              'the `early_stopping` arg is met; variables that should be '
-              'passed: final learning rate, learning rate divide factors that '
-              'should be iterated through'),
+        help=(
+            'auto change the learning rate when progress begins to plateau; '
+            'the initial learning rate is taken from the '
+            '`learning_rate` arg; the learning rate is reduced each time '
+            'the `early_stopping` arg is met; variables that should be '
+            'passed: final learning rate, learning rate divide factors that '
+            'should be iterated through'
+        ),
     )
     subparser.add_argument(
         '--lr-warmup',
         nargs='+',
         type=float,
-        help=('each passed value specifies the learning rate for the '
-              'corresponding training epoch (starting from epoch 0); '
-              'if the first value is a zero, then four argument should be '
-              'passed: 0, starting lr, ending lr, number of epochs'),
+        help=(
+            'each passed value specifies the learning rate for the '
+            'corresponding training epoch (starting from epoch 0); '
+            'if the first value is a zero, then four argument should be '
+            'passed: 0, starting lr, ending lr, number of epochs'
+        ),
     )
     subparser.add_argument(
         '--loss-improvement-threshold',
@@ -210,12 +251,14 @@ def model_train_parser(subparsers):
         '--use-cosine-annealing-lr-scheduler',
         nargs=3,
         type=float,
-        help=('use the Cosine Annealing learning rate scheduler - this starts '
-              'with a linear warm up (same as the `--lr-warmup` argument); '
-              'three parameters expected: warmup epoch count, starting '
-              'learning rate for warmup, final learning rate after annealing; '
-              'the `learning_rate` parameter specifies the max, peak learning '
-              'rate; the `epochs` parameter specifies the number of epochs'),
+        help=(
+            'use the Cosine Annealing learning rate scheduler - this starts '
+            'with a linear warm up (same as the `--lr-warmup` argument); '
+            'three parameters expected: warmup epoch count, starting '
+            'learning rate for warmup, final learning rate after annealing; '
+            'the `learning_rate` parameter specifies the max, peak learning '
+            'rate; the `epochs` parameter specifies the number of epochs'
+        ),
     )
     subparser.add_argument(
         '--use-cosine-annealing-wr-lr-scheduler',
@@ -227,72 +270,86 @@ def model_train_parser(subparsers):
             'the length of the first cycle, the length multiplier per cycle, '
             'and the final learning rate after annealing in each cycle; '
             'the `learning_rate` parameter specifies the max, peak learning '
-            'rate; the `epochs` parameter specifies the number of epochs'),
+            'rate; the `epochs` parameter specifies the number of epochs'
+        ),
     )
     subparser.add_argument(
         '--use-cosine-annealing-tail',
         nargs=2,
         type=float,
-        help=('for use with the `--use-cosine-annealing-lr-schedule` argument '
-              '(will not work with the warm restarts version); adds a tail '
-              'to the learning rate scheduler; two arguments expected: '
-              'number of Cosine Annealing epochs, final learning rate'),
+        help=(
+            'for use with the `--use-cosine-annealing-lr-schedule` argument '
+            '(will not work with the warm restarts version); adds a tail '
+            'to the learning rate scheduler; two arguments expected: '
+            'number of Cosine Annealing epochs, final learning rate'
+        ),
     )
     subparser.add_argument(
         '--use-modified-cosine-annealing-lr-scheduler',
         nargs=5,
         type=float,
-        help=('use a modified Cosine Annealing learning rate scheduler which '
-              'is basically two separate curves stuck together, the idea is '
-              'to allow for a longer decay at the end; this curve starts with '
-              'a linear warmup (same as the `--lr-warmup` argument); '
-              'five parameters expected: warmup epoch count, starting '
-              'learning rate for warmup, final learning rate after annealing'
-              '(at the end of the second curve), total number of epochs in '
-              'the first curve, transition epoch from the first curve; '
-              'the `learning_rate` parameter specifies the max, peak learning '
-              'rate; the `epochs` parameter specifies the number of epochs'),
+        help=(
+            'use a modified Cosine Annealing learning rate scheduler which '
+            'is basically two separate curves stuck together, the idea is '
+            'to allow for a longer decay at the end; this curve starts with '
+            'a linear warmup (same as the `--lr-warmup` argument); '
+            'five parameters expected: warmup epoch count, starting '
+            'learning rate for warmup, final learning rate after annealing'
+            '(at the end of the second curve), total number of epochs in '
+            'the first curve, transition epoch from the first curve; '
+            'the `learning_rate` parameter specifies the max, peak learning '
+            'rate; the `epochs` parameter specifies the number of epochs'
+        ),
     )
     subparser.add_argument(
         '--use-one-cycle-lr-scheduler',
         action='store_true',
-        help=('use the One Cycle learning rate scheduler; all defaults used; '
-              'the `learning_rate` parameter specifies the max, peak learning '
-              'rate; the `epochs` parameter specifies the number of epochs'),
+        help=(
+            'use the One Cycle learning rate scheduler; all defaults used; '
+            'the `learning_rate` parameter specifies the max, peak learning '
+            'rate; the `epochs` parameter specifies the number of epochs'
+        ),
     )
     subparser.add_argument(
         '--use-one-cycle-lr-scheduler-pct-start',
         type=float,
-        help=('for use with the `--use-one-cycle-lr-scheduler` argument; '
-              'value for the `pct_start` param'),
+        help=(
+            'for use with the `--use-one-cycle-lr-scheduler` argument; '
+            'value for the `pct_start` param'
+        ),
     )
     subparser.add_argument(
         '--set-fixed-epoch-for-val-loss',
         type=int,
-        help=('before calculating the validation loss, set the epoch inside '
-              'the loss function to the specified epoch'),
+        help=(
+            'before calculating the validation loss, set the epoch inside '
+            'the loss function to the specified epoch'
+        ),
     )
     subparser.add_argument(
         '--inject-input-noise',
         nargs=3,
-        help=('inject noise randomly into the inputs; three arguments '
-              'expected: tag of raw dataset containing `mean` and `std` '
-              'tables, probablity of adding noise to a given row, '
-              'sigma clipping value; currently, the input noise is only '
-              'added to the training data, NOT the validation data'),
+        help=(
+            'inject noise randomly into the inputs; three arguments '
+            'expected: tag of raw dataset containing `mean` and `std` '
+            'tables, probablity of adding noise to a given row, '
+            'sigma clipping value; currently, the input noise is only '
+            'added to the training data, NOT the validation data'
+        ),
     )
     subparser.add_argument(
         '--inject-input-noise-corr',
         action='store_true',
-        help=('must still be called with the `--inject-input-noise-corr` '
-              'argument; inject correlated noise instead of individual '
-              'noise on each input'),
+        help=(
+            'must still be called with the `--inject-input-noise-corr` '
+            'argument; inject correlated noise instead of individual '
+            'noise on each input'
+        ),
     )
     subparser.add_argument(
         '--clip-gradient-norm',
         type=float,
-        help=('clip the gradient norm to the specified value; '
-              'defaults to no clipping'),
+        help=('clip the gradient norm to the specified value; defaults to no clipping'),
     )
     subparser.add_argument(
         '--max-threads',
@@ -303,71 +360,88 @@ def model_train_parser(subparsers):
         '--init-weights',
         nargs=2,
         metavar=('[pretrained model tag]', '[pretrained model epoch]'),
-        help=('init the weights from a pretrained model, the network '
-              'structure must be the same'),
+        help=(
+            'init the weights from a pretrained model, the network '
+            'structure must be the same'
+        ),
     )
     subparser.add_argument(
         '--init-weights-pad',
         nargs='*',
-        help=('should be used with the `--init-weights` argument; groups of '
-              'two params expected: layer name, desired padded shape; the '
-              'desired shape will be padded with zeros'),
+        help=(
+            'should be used with the `--init-weights` argument; groups of '
+            'two params expected: layer name, desired padded shape; the '
+            'desired shape will be padded with zeros'
+        ),
     )
 
     subparser.add_argument(
         '--init-weights-pad-kaiming',
         nargs='*',
-        help=('should be used with the `--init-weights` argument; groups of '
-              'three params expected: layer name, desired padded shape, '
-              'slope; the desired shape will be padded with kaiming uniform'),
+        help=(
+            'should be used with the `--init-weights` argument; groups of '
+            'three params expected: layer name, desired padded shape, '
+            'slope; the desired shape will be padded with kaiming uniform'
+        ),
     )
     subparser.add_argument(
         '--init-layer-value-zero',
         nargs='+',
-        help=('should be used with the `--init-weights` argument; groups of '
-              'two params expected: layer name, desired shape; the desired '
-              'shape will be created with zeros'),
+        help=(
+            'should be used with the `--init-weights` argument; groups of '
+            'two params expected: layer name, desired shape; the desired '
+            'shape will be created with zeros'
+        ),
     )
     subparser.add_argument(
         '--init-layer-value-constant',
         nargs='+',
-        help=('should be used with the `--init-weights` argument; groups of '
-              'three params expected: layer name, desired shape, fill value; '
-              'the desired shape will be created with the fill value'),
+        help=(
+            'should be used with the `--init-weights` argument; groups of '
+            'three params expected: layer name, desired shape, fill value; '
+            'the desired shape will be created with the fill value'
+        ),
     )
     subparser.add_argument(
         '--init-layer-value-scaled-kaiming',
         nargs='+',
-        help=('should be used with the `--init-weights` argument; groups of '
-              'two params expected: layer name, scale; the layer will be '
-              'overwritten with (scale * kaiming uniform)'),
+        help=(
+            'should be used with the `--init-weights` argument; groups of '
+            'two params expected: layer name, scale; the layer will be '
+            'overwritten with (scale * kaiming uniform)'
+        ),
     )
     subparser.add_argument(
         '--init-weights-select',
         nargs='+',
-        metavar=('[pretrained model tag], [pretrained model epoch], '
-                 '*[layer name]'),
-        help=('init the weights from a pretrained model; each layer name '
-              'listed will be checked if it is contained within a layer from '
-              'the models state dict, if it is, then the layer will be used'),
+        metavar=('[pretrained model tag], [pretrained model epoch], *[layer name]'),
+        help=(
+            'init the weights from a pretrained model; each layer name '
+            'listed will be checked if it is contained within a layer from '
+            'the models state dict, if it is, then the layer will be used'
+        ),
     )
     subparser.add_argument(
         '--init-weights-kaiming-normal',
         nargs='+',
         metavar='[slope], *[layer names]',
-        help=('init the weights in the given layer names with the Kaiming '
-              'normal distribution; params expected: slope, *layer names; '
-              'this is to use LeakyRelu activations with different slopes; '
-              'the layers being specified must be `Linear` layers'),
+        help=(
+            'init the weights in the given layer names with the Kaiming '
+            'normal distribution; params expected: slope, *layer names; '
+            'this is to use LeakyRelu activations with different slopes; '
+            'the layers being specified must be `Linear` layers'
+        ),
     )
     subparser.add_argument(
         '--init-weights-kaiming-normal-simple',
         nargs='+',
         metavar='[slope], *[base layer names]',
-        help=('the same as the `--init-weights-kaiming-normal` argument, '
-              'except with simplified functionality; params expected: slope, '
-              '*base layer names; all `Linear` layers in a given base layer '
-              'will be set to init with the kaiming distribution'),
+        help=(
+            'the same as the `--init-weights-kaiming-normal` argument, '
+            'except with simplified functionality; params expected: slope, '
+            '*base layer names; all `Linear` layers in a given base layer '
+            'will be set to init with the kaiming distribution'
+        ),
     )
     subparser.add_argument(
         '--use-kaiming-fan-in',
@@ -378,17 +452,21 @@ def model_train_parser(subparsers):
         '--init-weights-kaiming-uniform',
         nargs='+',
         metavar='[slope], *[base layer names]',
-        help=('the same as the `--init-weights-kaiming-normal-simple` '
-              'argument, except with a uniform instead of normal distribution '
-              'and fan in; params expected: slope, *base layer names; all '
-              '`Linear` layers in a given base layer will be set to init '
-              'with the kaiming distribution'),
+        help=(
+            'the same as the `--init-weights-kaiming-normal-simple` '
+            'argument, except with a uniform instead of normal distribution '
+            'and fan in; params expected: slope, *base layer names; all '
+            '`Linear` layers in a given base layer will be set to init '
+            'with the kaiming distribution'
+        ),
     )
     subparser.add_argument(
         '--init-weights-bn-zero',
         nargs='+',
-        help=('inits a BatchNorm layer to have a weight of 0; only layer '
-              'names that contain the subtrings passed will be effected'),
+        help=(
+            'inits a BatchNorm layer to have a weight of 0; only layer '
+            'names that contain the subtrings passed will be effected'
+        ),
     )
     subparser.add_argument(
         '--transfer-learning-train-layers',
@@ -398,34 +476,44 @@ def model_train_parser(subparsers):
     subparser.add_argument(
         '--transfer-learning-batchnorm',
         action='store_true',
-        help=('can be used with the `--transfer-learning-train-layers` arg '
-              'to unfreeze all `BatchNorm2d` layers'),
+        help=(
+            'can be used with the `--transfer-learning-train-layers` arg '
+            'to unfreeze all `BatchNorm2d` layers'
+        ),
     )
     subparser.add_argument(
         '--use-output-mask',
         action='store_true',
-        help=('use an output mask to only take the loss of the selected '
-              'output pixels; this mask must be in the extra variables from '
-              'the training data (created during preprocessing); this is '
-              'currently only supported for MAE and MSE loss'),
+        help=(
+            'use an output mask to only take the loss of the selected '
+            'output pixels; this mask must be in the extra variables from '
+            'the training data (created during preprocessing); this is '
+            'currently only supported for MAE and MSE loss'
+        ),
     )
     subparser.add_argument(
         '--use-rm-weights-for-layer',
         nargs=3,
-        help=('init the weights in a layer to the values of an RM; '
-              'three params expected: RM name, layer name, scaling factor'),
+        help=(
+            'init the weights in a layer to the values of an RM; '
+            'three params expected: RM name, layer name, scaling factor'
+        ),
     )
     subparser.add_argument(
         '--use-norm-values-for-layers',
         nargs='*',
-        help=('init the values in one or more layers to norm values; '
-              'two params expected for each layer: table name and layer name'),
+        help=(
+            'init the values in one or more layers to norm values; '
+            'two params expected for each layer: table name and layer name'
+        ),
     )
     subparser.add_argument(
         '--quit-after-loading-rm',
         action='store_true',
-        help=('will quit after setting the weights in a layer with RM values; '
-              'must be used with the `--use-rm-weights-for-layer` arg'),
+        help=(
+            'will quit after setting the weights in a layer with RM values; '
+            'must be used with the `--use-rm-weights-for-layer` arg'
+        ),
     )
     subparser.add_argument(
         '--disable-tag-lookup',
@@ -453,8 +541,7 @@ def model_train_parser(subparsers):
     epoch_save_group.add_argument(
         '--only-best-epoch',
         action='store_true',
-        help=('only the best epoch as based on the validation '
-              'dataset will be saved'),
+        help=('only the best epoch as based on the validation dataset will be saved'),
     )
 
 
@@ -497,8 +584,7 @@ def model_train(cli_args):
     step_ri('Copying over the extra variables from the training dataset')
     train_ds_tag = cli_args['training_ds']
     output_extra_vars_path = f'{output_model_path}/{EXTRA_VARS_F}'
-    copy_files(f'{PROC_DATA_P}/{train_ds_tag}/{EXTRA_VARS_F}',
-               output_extra_vars_path)
+    copy_files(f'{PROC_DATA_P}/{train_ds_tag}/{EXTRA_VARS_F}', output_extra_vars_path)
 
     step_ri('Loading in the extra variables')
     extra_variables = read_hdf(output_extra_vars_path)
@@ -536,8 +622,7 @@ def model_train(cli_args):
     if network_params is not None:
         print('Setting network params:')
         network_params_dict = {
-            key: val
-            for key, val in group_data_from_list(network_params, 2)
+            key: val for key, val in group_data_from_list(network_params, 2)
         }
         print(network_params_dict)
     network_name = cli_args['network_name']
@@ -557,8 +642,7 @@ def model_train(cli_args):
         init_weights_pad = cli_args.get('init_weights_pad')
         if init_weights_pad is not None:
             print('Padding certain layers with zeros')
-            for layer_name, target_shape in group_data_from_list(
-                    init_weights_pad, 2):
+            for layer_name, target_shape in group_data_from_list(init_weights_pad, 2):
                 layer_data = state_dict[layer_name]
                 orig_shape = layer_data.shape
                 target_shape = _str_to_target_shape(target_shape)
@@ -567,18 +651,17 @@ def model_train(cli_args):
                 # The padding works from the last dimension backwards
                 for pad in zip(reversed(orig_shape), reversed(target_shape)):
                     padding.extend([0, pad[1] - pad[0]])
-                state_dict[layer_name] = torch.nn.functional.pad(
-                    layer_data, padding)
+                state_dict[layer_name] = torch.nn.functional.pad(layer_data, padding)
         init_weights_pad_kaiming = cli_args.get('init_weights_pad_kaiming')
         if init_weights_pad_kaiming is not None:
             print('Padding certain layers with kaiming uniform')
             for layer_name, target_shape, slope in group_data_from_list(
-                    init_weights_pad_kaiming, 3):
+                init_weights_pad_kaiming, 3
+            ):
                 orig_layer_data = state_dict[layer_name]
                 orig_shape = orig_layer_data.shape
                 target_shape = _str_to_target_shape(target_shape)
-                print(f'{layer_name}: {orig_shape} -> {target_shape}, '
-                      f'slope {slope}')
+                print(f'{layer_name}: {orig_shape} -> {target_shape}, slope {slope}')
                 new_layer_data = torch.empty(
                     target_shape,
                     dtype=orig_layer_data.dtype,
@@ -595,7 +678,8 @@ def model_train(cli_args):
         if init_layer_value_zero is not None:
             print('Adding new layers set to zero')
             for layer_name, target_shape in group_data_from_list(
-                    init_layer_value_zero, 2):
+                init_layer_value_zero, 2
+            ):
                 target_shape = _str_to_target_shape(target_shape)
                 target_shape = list(reversed(target_shape))
                 print(f'{layer_name}: {target_shape}')
@@ -604,19 +688,20 @@ def model_train(cli_args):
         if init_layer_value_constant is not None:
             print('Adding new layers set to constant value')
             for layer_name, target_shape, fill_value in group_data_from_list(
-                    init_layer_value_constant, 3):
+                init_layer_value_constant, 3
+            ):
                 target_shape = _str_to_target_shape(target_shape)
                 target_shape = list(reversed(target_shape))
                 print(f'{layer_name}: {target_shape}, fill {fill_value}')
-                state_dict[layer_name] = torch.full(target_shape,
-                                                    float(fill_value))
+                state_dict[layer_name] = torch.full(target_shape, float(fill_value))
         scaled_kaiming = cli_args.get('init_layer_value_scaled_kaiming')
         if scaled_kaiming is not None:
             print('Setting layers to scaled Kaiming')
             for layer_name, scale in group_data_from_list(scaled_kaiming, 2):
                 print(f'{layer_name}: {scale}')
-                torch.nn.init.kaiming_uniform_(state_dict[layer_name],
-                                               nonlinearity='linear')
+                torch.nn.init.kaiming_uniform_(
+                    state_dict[layer_name], nonlinearity='linear'
+                )
                 state_dict[layer_name].mul_(float(scale))
         model.load_state_dict(state_dict)
 
@@ -636,7 +721,7 @@ def model_train(cli_args):
                 # name then use its data
                 if layer in k:
                     print(f'Init weights for {k}')
-                    model_state[k] = pt_state[k]
+                    model_state[k] = v
                     break
         # Set the new state
         model.load_state_dict(model_state)
@@ -659,15 +744,14 @@ def model_train(cli_args):
             # For the simplified version, look at the first part of the name
             if use_kaiming_normal_v2 is not None:
                 name_to_check = name.split('.')[0]
-            if name_to_check in layer_names:
-                if isinstance(module, torch.nn.Linear):
-                    print(f'Layer: {name}')
-                    torch.nn.init.kaiming_normal_(
-                        module.weight,
-                        a=float(slope),
-                        mode=fan_mode,
-                        nonlinearity='leaky_relu',
-                    )
+            if name_to_check in layer_names and isinstance(module, torch.nn.Linear):
+                print(f'Layer: {name}')
+                torch.nn.init.kaiming_normal_(
+                    module.weight,
+                    a=float(slope),
+                    mode=fan_mode,
+                    nonlinearity='leaky_relu',
+                )
 
     init_weights_kaiming_uniform = cli_args.get('init_weights_kaiming_uniform')
     if init_weights_kaiming_uniform is not None:
@@ -677,22 +761,21 @@ def model_train(cli_args):
         for name, module in model.named_modules():
             # Look at the first part of the name
             name_to_check = name.split('.')[0]
-            if name_to_check in layer_names:
-                if isinstance(module, torch.nn.Linear):
-                    print(f'Layer: {name}')
-                    torch.nn.init.kaiming_uniform_(
-                        module.weight,
-                        a=float(slope),
-                        mode='fan_in',
-                        nonlinearity='leaky_relu',
-                    )
+            if name_to_check in layer_names and isinstance(module, torch.nn.Linear):
+                print(f'Layer: {name}')
+                torch.nn.init.kaiming_uniform_(
+                    module.weight,
+                    a=float(slope),
+                    mode='fan_in',
+                    nonlinearity='leaky_relu',
+                )
 
     init_weights_bn_zero = cli_args.get('init_weights_bn_zero')
     if init_weights_bn_zero is not None:
         step_ri('Zeroing out weights in BatchNorm layers')
         print(f'Layers must contain substrings: {init_weights_bn_zero}')
         for name, module in model.named_modules():
-            if any([substr in name for substr in init_weights_bn_zero]):
+            if any(substr in name for substr in init_weights_bn_zero):
                 bn_types = (torch.nn.BatchNorm1d, torch.nn.BatchNorm2d)
                 if isinstance(module, bn_types):
                     print(f'Layer: {name}')
@@ -713,8 +796,9 @@ def model_train(cli_args):
             print('Unfreezing all BatchNorm2d layers')
         print(f'Unfreezing select layers: {transfer_learn_layers}')
         for name, module in model.named_modules():
-            is_batch_norm = (unfreeze_batchnorm
-                             and isinstance(module, torch.nn.BatchNorm2d))
+            is_batch_norm = unfreeze_batchnorm and isinstance(
+                module, torch.nn.BatchNorm2d
+            )
             is_unfrozen_layer = name in transfer_learn_layers
             if is_batch_norm or is_unfrozen_layer:
                 _set_param_grad(module.parameters(), True)
@@ -763,7 +847,8 @@ def model_train(cli_args):
         step_ri('Initializing values for layers with norm values')
         extra_vars = read_hdf(output_extra_vars_path)
         for table_name, layer_name in group_data_from_list(
-                use_norm_values_for_layers, 2):
+            use_norm_values_for_layers, 2
+        ):
             print(f'Table name: {table_name}, Layer name: {layer_name}')
             table_data = extra_vars[table_name]
             if len(table_data.shape) == 0:
@@ -789,10 +874,7 @@ def model_train(cli_args):
     if loss_params is not None:
         step('Loss parameters')
         # Group the data into key value pairs
-        loss_params = {
-            key: val
-            for key, val in group_data_from_list(loss_params, 2)
-        }
+        loss_params = {key: val for key, val in group_data_from_list(loss_params, 2)}
         for param_key, param_value in loss_params.items():
             print(f'{param_key}: {param_value}')
         dec_print_indent()
@@ -823,8 +905,9 @@ def model_train(cli_args):
                 loss = pytorch_loss_function(model_outputs, truth_outputs)
                 # To create the average, need to divide by the
                 #   rows * channels * active pixels
-                total_pixels = (model_outputs.shape[0] *
-                                model_outputs.shape[1] * out_mask.sum())
+                total_pixels = (
+                    model_outputs.shape[0] * model_outputs.shape[1] * out_mask.sum()
+                )
                 return (loss * out_mask).sum() / total_pixels
         else:
             loss_function = loss_func_attr()
@@ -836,22 +919,21 @@ def model_train(cli_args):
             weights = 1.0 / (torch.abs(truth_outputs) + 1e-10)
             # Normalize the weights
             weights = weights / torch.mean(weights)
-            loss = weights * (model_outputs - truth_outputs)**2
+            loss = weights * (model_outputs - truth_outputs) ** 2
             return loss.mean()
     elif loss_name == 'modified_log_mse':
         print('Modified Log MSE')
 
         # Same as `modified_log_transform` in the `norm` file, but with torch
         def apply_mlog_trans(values, alpha=1.0):
-            return (torch.sign(values) *
-                    torch.log10(1 + torch.abs(values) / alpha))
+            return torch.sign(values) * torch.log10(1 + torch.abs(values) / alpha)
 
         # Takes the log10 of both positive and negative data;
         # outputs values ranging from [0, inf]
         def loss_function(model_outputs, truth_outputs):
             truth_outputs = apply_mlog_trans(truth_outputs)
             model_outputs = apply_mlog_trans(model_outputs)
-            loss = (truth_outputs - model_outputs)**2
+            loss = (truth_outputs - model_outputs) ** 2
             return loss.mean()
     elif loss_name == 'landman_rms':
         print('Landman RMS')
@@ -911,8 +993,7 @@ def model_train(cli_args):
         step_ri('Adding a secondary loss function')
         secondary_loss_name, *secondary_loss_args = add_secondary_loss_function
         secondary_loss_params = {
-            key: val
-            for key, val in group_data_from_list(secondary_loss_args, 2)
+            key: val for key, val in group_data_from_list(secondary_loss_args, 2)
         }
         for param_key, param_value in secondary_loss_params.items():
             print(f'{param_key}: {param_value}')
@@ -927,14 +1008,14 @@ def model_train(cli_args):
             secondary_loss_function = loss_obj.forward
             secondary_loss_function_set_epoch = loss_obj.set_epoch
         else:
-            terminate_with_message('Secondary loss function '
-                                   f'unknown: {secondary_loss_name}')
+            terminate_with_message(
+                f'Secondary loss function unknown: {secondary_loss_name}'
+            )
 
     early_stopping = cli_args['early_stopping']
     if early_stopping:
         step_ri('Early stopping enabled')
-        print('Will stop if loss does not improve '
-              f'after {early_stopping} epochs')
+        print(f'Will stop if loss does not improve after {early_stopping} epochs')
 
     step_ri('Setting the optimizer')
     optimizer = getattr(torch.optim, OPTIMIZERS[cli_args['optimizer']])
@@ -964,8 +1045,9 @@ def model_train(cli_args):
         for name, param in model.named_parameters():
             if not param.requires_grad:
                 continue
-            elif (opt_wd_manual is not None
-                  and any(substr in name for substr in manual_substrs)):
+            elif opt_wd_manual is not None and any(
+                substr in name for substr in manual_substrs
+            ):
                 print(f'Manual: {name}')
                 decay_params_manual.append(param)
             elif opt_wd_one_d is not None and param.ndim <= 1:
@@ -976,15 +1058,19 @@ def model_train(cli_args):
                 decay_params.append(param)
         optimizer_groups = [{'params': decay_params}]
         if opt_wd_one_d is not None:
-            optimizer_groups.append({
-                'params': decay_params_one_d,
-                'weight_decay': opt_wd_one_d,
-            })
+            optimizer_groups.append(
+                {
+                    'params': decay_params_one_d,
+                    'weight_decay': opt_wd_one_d,
+                }
+            )
         if opt_wd_manual is not None:
-            optimizer_groups.append({
-                'params': decay_params_manual,
-                'weight_decay': opt_wd_manual,
-            })
+            optimizer_groups.append(
+                {
+                    'params': decay_params_manual,
+                    'weight_decay': opt_wd_manual,
+                }
+            )
         optimizer = optimizer(optimizer_groups, lr=base_learning_rate)
         dec_print_indent()
         dec_print_indent()
@@ -994,7 +1080,8 @@ def model_train(cli_args):
     if optimizer_params is not None:
         step('Passing additional params to optimizer (first group)')
         for param_name, param_value, param_type in group_data_from_list(
-                optimizer_params, 3):
+            optimizer_params, 3
+        ):
             if int(param_type) == 1:
                 param_value = float(param_value)
             elif int(param_type) == 2:
@@ -1008,7 +1095,8 @@ def model_train(cli_args):
     if optimizer_params_all_groups is not None:
         step('Passing additional params to optimizer (each group)')
         for param_name, param_value, param_type in group_data_from_list(
-                optimizer_params_all_groups, 3):
+            optimizer_params_all_groups, 3
+        ):
             if int(param_type) == 1:
                 param_value = float(param_value)
             elif int(param_type) == 2:
@@ -1037,8 +1125,10 @@ def model_train(cli_args):
         lr_scale_factors = lr_auto_annealing[1:]
         print(f'Final learning rate: {final_lr}')
         print(f'Learning rate scale factors: {lr_scale_factors}')
-        print('Will switch learning rate every time loss does not '
-              f'improve after {early_stopping} epochs')
+        print(
+            'Will switch learning rate every time loss does not '
+            f'improve after {early_stopping} epochs'
+        )
         # The total number of scale factors to rotate through
         scale_factors = len(lr_scale_factors)
         # The current lr scale factor to use
@@ -1079,7 +1169,8 @@ def model_train(cli_args):
     use_cos_annealing = cli_args.get('use_cosine_annealing_lr_scheduler')
     use_cos_annealing_wr = cli_args.get('use_cosine_annealing_wr_lr_scheduler')
     use_modified_cos_annealing_lr = cli_args.get(
-        'use_modified_cosine_annealing_lr_scheduler')
+        'use_modified_cosine_annealing_lr_scheduler'
+    )
     epoch_scheduler = None
     if use_cos_annealing is not None:
         step_ri('Will use the Cosine Annealing learning rate scheduler')
@@ -1104,29 +1195,35 @@ def model_train(cli_args):
                 optimizer,
                 annealing_epochs,
                 final_lr,
-            )
+            ),
         ]
         milestones = [warmup_epochs]
-        print(f'Linear Warmup: {starting_lr} -> {base_learning_rate} '
-              f'({warmup_epochs} epochs)')
-        print(f'Cosine Annealing: {base_learning_rate} -> {final_lr} '
-              f'({annealing_epochs} epochs)')
+        print(
+            f'Linear Warmup: {starting_lr} -> {base_learning_rate} '
+            f'({warmup_epochs} epochs)'
+        )
+        print(
+            f'Cosine Annealing: {base_learning_rate} -> {final_lr} '
+            f'({annealing_epochs} epochs)'
+        )
         if use_cosine_annealing_tail is not None:
-            print(f'Linear Tail: {final_lr} -> {final_tail_lr} '
-                  f'({tail_epochs} epochs)')
+            print(f'Linear Tail: {final_lr} -> {final_tail_lr} ({tail_epochs} epochs)')
             schedulers.append(
                 torch.optim.lr_scheduler.LinearLR(
                     optimizer,
                     start_factor=final_lr / base_learning_rate,
                     end_factor=final_tail_lr / base_learning_rate,
                     total_iters=tail_epochs,
-                ))
+                )
+            )
             milestones.append(warmup_epochs + annealing_epochs)
         epoch_scheduler = torch.optim.lr_scheduler.SequentialLR(
-            optimizer, schedulers=schedulers, milestones=milestones)
+            optimizer, schedulers=schedulers, milestones=milestones
+        )
     elif use_cos_annealing_wr is not None:
-        step_ri('Will use the Cosine Annealing with warm restarts '
-                'learning rate scheduler')
+        step_ri(
+            'Will use the Cosine Annealing with warm restarts learning rate scheduler'
+        )
         cycle_length = int(use_cos_annealing_wr[0])
         cycle_length_multiplier = int(use_cos_annealing_wr[1])
         final_lr = use_cos_annealing_wr[2]
@@ -1134,8 +1231,10 @@ def model_train(cli_args):
         cycle_lengths = [cycle_length]
         while np.sum(cycle_lengths) < epoch_count:
             cycle_lengths.append(cycle_lengths[-1] * cycle_length_multiplier)
-        print(f'Cycle lenths: {cycle_lengths} epochs '
-              f'({cycle_length_multiplier}x multiplier)')
+        print(
+            f'Cycle lenths: {cycle_lengths} epochs '
+            f'({cycle_length_multiplier}x multiplier)'
+        )
         epoch_scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
             optimizer,
             T_0=cycle_length,
@@ -1143,10 +1242,14 @@ def model_train(cli_args):
             eta_min=final_lr,
         )
     elif use_modified_cos_annealing_lr is not None:
-        step_ri('Will use the modified Cosine Annealing '
-                'learning rate scheduler')
-        (warmup_epochs, starting_lr, final_lr, first_curve_total_epochs,
-         epoch_transition_point) = use_modified_cos_annealing_lr
+        step_ri('Will use the modified Cosine Annealing learning rate scheduler')
+        (
+            warmup_epochs,
+            starting_lr,
+            final_lr,
+            first_curve_total_epochs,
+            epoch_transition_point,
+        ) = use_modified_cos_annealing_lr
         # The number of epochs during the linear warmup
         warmup_epochs = int(warmup_epochs)
         # The total length of the first curve
@@ -1154,24 +1257,35 @@ def model_train(cli_args):
         # The transition point along the first curve's length
         epoch_transition_point = int(epoch_transition_point)
         # The number of epochs spent in the second curve
-        second_curve_active_epochs = (epoch_count - warmup_epochs -
-                                      epoch_transition_point)
+        second_curve_active_epochs = (
+            epoch_count - warmup_epochs - epoch_transition_point
+        )
         # Relative size of the second curve to the first curve
-        scale_factor = second_curve_active_epochs / (first_curve_total_epochs -
-                                                     epoch_transition_point)
-        print(f'Linear Warmup: {starting_lr} -> {base_learning_rate} '
-              f'({warmup_epochs} epochs)')
-        print(f'Cosine Annealing Curves: {base_learning_rate} -> {final_lr} '
-              f'({epoch_count - warmup_epochs} epochs)')
-        print(f'First Curve: {first_curve_total_epochs} total epochs, '
-              f'transition at epoch {epoch_transition_point}, '
-              f'ending {first_curve_total_epochs - epoch_transition_point} '
-              'epochs early')
-        print(f'Second Curve: total curve {scale_factor:0.2f}x bigger than '
-              f'first curve, {second_curve_active_epochs} active epochs')
+        scale_factor = second_curve_active_epochs / (
+            first_curve_total_epochs - epoch_transition_point
+        )
+        print(
+            f'Linear Warmup: {starting_lr} -> {base_learning_rate} '
+            f'({warmup_epochs} epochs)'
+        )
+        print(
+            f'Cosine Annealing Curves: {base_learning_rate} -> {final_lr} '
+            f'({epoch_count - warmup_epochs} epochs)'
+        )
+        print(
+            f'First Curve: {first_curve_total_epochs} total epochs, '
+            f'transition at epoch {epoch_transition_point}, '
+            f'ending {first_curve_total_epochs - epoch_transition_point} '
+            'epochs early'
+        )
+        print(
+            f'Second Curve: total curve {scale_factor:0.2f}x bigger than '
+            f'first curve, {second_curve_active_epochs} active epochs'
+        )
         # The learning rates for the warmup
-        warmup_learning_rates = np.linspace(starting_lr, base_learning_rate,
-                                            warmup_epochs)
+        warmup_learning_rates = np.linspace(
+            starting_lr, base_learning_rate, warmup_epochs
+        )
 
         def modified_cosine_annealing_scheduler(epoch):
             # The linear warmup
@@ -1186,12 +1300,14 @@ def model_train(cli_args):
                 curve_length *= scale_factor
             # Calculate the learning rate along the Cosine Annealing curve
             current_lr = final_lr + 0.5 * (base_learning_rate - final_lr) * (
-                1 + np.cos(np.pi * current_epoch / curve_length))
+                1 + np.cos(np.pi * current_epoch / curve_length)
+            )
             # Divide by the peak learning rate to ignore LambdaLR scaling
             return current_lr / base_learning_rate
 
         epoch_scheduler = torch.optim.lr_scheduler.LambdaLR(
-            optimizer, lr_lambda=modified_cosine_annealing_scheduler)
+            optimizer, lr_lambda=modified_cosine_annealing_scheduler
+        )
 
     batch_scheduler = None
     if cli_args.get('use_one_cycle_lr_scheduler'):
@@ -1210,8 +1326,10 @@ def model_train(cli_args):
 
     set_fixed_epoch_for_val_loss = cli_args.get('set_fixed_epoch_for_val_loss')
     if set_fixed_epoch_for_val_loss is not None:
-        step_ri(f'Will set the epoch to {set_fixed_epoch_for_val_loss} for '
-                'each validation loss')
+        step_ri(
+            f'Will set the epoch to {set_fixed_epoch_for_val_loss} for '
+            'each validation loss'
+        )
 
     inject_input_noise = cli_args.get('inject_input_noise')
     if inject_input_noise is not None:
@@ -1226,8 +1344,9 @@ def model_train(cli_args):
 
         def _load_noise_table(table_name):
             if table_name not in noise_data:
-                terminate_with_message(f'{noise_data_tag} must contain the '
-                                       f'`{table_name}` table')
+                terminate_with_message(
+                    f'{noise_data_tag} must contain the `{table_name}` table'
+                )
             table = torch.from_numpy(noise_data[table_name][:]).to(device)
             print(f'Noise {table_name} shape: {table.shape}')
             return table
@@ -1254,8 +1373,9 @@ def model_train(cli_args):
                 noise_mean + noise_sigma_clip * noise_std,
             )
             # Only apply noise to some of the rows
-            noise_mask = (torch.rand(rows_in_batch, device=device)
-                          < noise_probability).float()[:, None]
+            noise_mask = (
+                torch.rand(rows_in_batch, device=device) < noise_probability
+            ).float()[:, None]
             return input_batch + noise * noise_mask
     else:
         add_input_noise = None
@@ -1355,7 +1475,8 @@ def model_train(cli_args):
                 )
                 if divide_by_std_before_loss:
                     outputs_std_split = torch.tensor_split(
-                        outputs_std, output_heads, -1)
+                        outputs_std, output_heads, -1
+                    )
                     outputs_model = [
                         outputs_model[idx] * outputs_std_split[idx]
                         for idx in range(output_heads)
@@ -1365,9 +1486,13 @@ def model_train(cli_args):
                     loss_scale = 1
                     if multi_headed_scaled_loss is not None:
                         loss_scale = multi_headed_scaled_loss[head_idx]
-                    loss_head = loss_function(
-                        outputs_model[head_idx].float(),
-                        outputs_truth[head_idx].float()) * loss_scale
+                    loss_head = (
+                        loss_function(
+                            outputs_model[head_idx].float(),
+                            outputs_truth[head_idx].float(),
+                        )
+                        * loss_scale
+                    )
                     loss = loss + loss_head
                     total_train_loss_heads[head_idx] += loss_head.item()
                 if secondary_loss_function is not None:
@@ -1380,8 +1505,7 @@ def model_train(cli_args):
                     outputs_model = outputs_model * outputs_std
                 if treat_multiheaded_as_single:
                     outputs_model = torch.cat(outputs_model, dim=-1)
-                loss = loss_function(outputs_model.float(),
-                                     outputs_truth.float())
+                loss = loss_function(outputs_model.float(), outputs_truth.float())
                 if isinstance(loss, tuple):
                     loss = sum(loss)
                 if secondary_loss_function is not None:
@@ -1396,7 +1520,8 @@ def model_train(cli_args):
                 torch.nn.utils.clip_grad_norm_(
                     model.parameters(),
                     clip_gradient_norm,
-                ).item())
+                ).item()
+            )
             # Adjust learning weights
             optimizer.step()
             # Update the batch scheduler if needed
@@ -1406,8 +1531,7 @@ def model_train(cli_args):
         avg_train_loss = total_train_loss / training_batches
         if multi_headed_output:
             avg_train_loss_heads = [
-                head_loss / training_batches
-                for head_loss in total_train_loss_heads
+                head_loss / training_batches for head_loss in total_train_loss_heads
             ]
 
         def _print_grad_norm_stats(clip_str, norms):
@@ -1453,11 +1577,11 @@ def model_train(cli_args):
                 if divide_by_std_before_loss:
                     outputs_truth = outputs_truth * outputs_std
                 if multi_headed_output:
-                    outputs_truth = torch.tensor_split(outputs_truth,
-                                                       output_heads, -1)
+                    outputs_truth = torch.tensor_split(outputs_truth, output_heads, -1)
                     if divide_by_std_before_loss:
                         outputs_std_split = torch.tensor_split(
-                            outputs_std, output_heads, -1)
+                            outputs_std, output_heads, -1
+                        )
                         outputs_model = [
                             outputs_model[idx] * outputs_std_split[idx]
                             for idx in range(output_heads)
@@ -1466,9 +1590,12 @@ def model_train(cli_args):
                         loss_scale = 1
                         if multi_headed_scaled_loss is not None:
                             loss_scale = multi_headed_scaled_loss[head_idx]
-                        loss_head = loss_function(
-                            outputs_model[head_idx],
-                            outputs_truth[head_idx]) * loss_scale
+                        loss_head = (
+                            loss_function(
+                                outputs_model[head_idx], outputs_truth[head_idx]
+                            )
+                            * loss_scale
+                        )
                         total_val_loss += loss_head.item()
                         total_val_loss_heads[head_idx] += loss_head.item()
                     if secondary_loss_function is not None:
@@ -1494,22 +1621,20 @@ def model_train(cli_args):
                         total_val_loss += val_loss.item()
                     if secondary_loss_function is not None:
                         secondary_loss = secondary_loss_function(
-                            outputs_model, outputs_truth).item()
+                            outputs_model, outputs_truth
+                        ).item()
                         total_val_loss += secondary_loss
                         total_val_loss_secondary += secondary_loss
         avg_val_loss = total_val_loss / validation_batches
         if total_val_loss_multi is not None:
             avg_val_loss_multi = [
-                val_loss / validation_batches
-                for val_loss in total_val_loss_multi
+                val_loss / validation_batches for val_loss in total_val_loss_multi
             ]
         if secondary_loss_function is not None:
-            avg_val_loss_secondary = (total_val_loss_secondary /
-                                      validation_batches)
+            avg_val_loss_secondary = total_val_loss_secondary / validation_batches
         if multi_headed_output:
             avg_val_loss_heads = [
-                head_loss / validation_batches
-                for head_loss in total_val_loss_heads
+                head_loss / validation_batches for head_loss in total_val_loss_heads
             ]
 
         with open(loss_file, 'a+') as loss_writer:
@@ -1527,7 +1652,7 @@ def model_train(cli_args):
 
         current_epoch_path = f'{output_model_path}/epoch_{epoch_idx}'
 
-        def _save_epoch():
+        def _save_epoch(current_epoch_path=current_epoch_path):
             torch.save(model.state_dict(), current_epoch_path)
 
         # More stable version of = avg_val_loss < best_val_loss
@@ -1583,8 +1708,9 @@ def model_train(cli_args):
             epochs_since_improvement = 0
         else:
             print(f'Worse by {difference_from_best}')
-            print('Performance has not increased in '
-                  f'{epochs_since_improvement} epoch(s)')
+            print(
+                f'Performance has not increased in {epochs_since_improvement} epoch(s)'
+            )
         dec_print_indent()
 
         # Handle the warmup
@@ -1605,8 +1731,9 @@ def model_train(cli_args):
                 print(f'Reverting to weights from epoch {best_val_loss_epoch}')
                 previous_model = Model(tag, best_val_loss_epoch, True).model
                 model.load_state_dict(previous_model.state_dict())
-                print(f'Saving a copy of epoch {best_val_loss_epoch} as '
-                      'the current epoch')
+                print(
+                    f'Saving a copy of epoch {best_val_loss_epoch} as the current epoch'
+                )
                 # Update to the current epoch
                 best_val_loss_epoch = epoch_idx
                 # Rename the saved epoch to the current epoch

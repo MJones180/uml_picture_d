@@ -41,6 +41,8 @@ def convert_dh_rm(cli_args):
     print(f'Tag: {tag}')
     output_path = f'{RESPONSE_MATRICES_P}/{tag}.h5'
     print(f'Outputting to {output_path}')
-    HDFWriteModule(output_path).create_and_write_hdf_simple({
-        RESPONSE_MATRIX_INV: fits_data,
-    })
+    HDFWriteModule(output_path).create_and_write_hdf_simple(
+        {
+            RESPONSE_MATRIX_INV: fits_data,
+        }
+    )

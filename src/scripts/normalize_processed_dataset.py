@@ -6,9 +6,17 @@ preprocessed at once, but we want to normalize it all together.
 
 import numpy as np
 from utils.cli_args import save_cli_args
-from utils.constants import (DATA_F, EXTRA_VARS_F, INPUTS, INPUTS_Z_SCORE_MEAN,
-                             INPUTS_Z_SCORE_STD, OUTPUTS, OUTPUTS_Z_SCORE_MEAN,
-                             OUTPUTS_Z_SCORE_STD, PROC_DATA_P)
+from utils.constants import (
+    DATA_F,
+    EXTRA_VARS_F,
+    INPUTS,
+    INPUTS_Z_SCORE_MEAN,
+    INPUTS_Z_SCORE_STD,
+    OUTPUTS,
+    OUTPUTS_Z_SCORE_MEAN,
+    OUTPUTS_Z_SCORE_STD,
+    PROC_DATA_P,
+)
 from utils.hdf_read_and_write import HDFWriteModule, read_hdf
 from utils.norm import z_score_normalize
 from utils.path import make_dir
@@ -61,9 +69,11 @@ def normalize_processed_dataset_parser(subparsers):
     )
     subparser.add_argument(
         '--use-existing-norm-vals',
-        help=('use existing norm values from another processed dataset; '
-              'the passed argument should specify the tag of the dataset '
-              'to use the norm values from'),
+        help=(
+            'use existing norm values from another processed dataset; '
+            'the passed argument should specify the tag of the dataset '
+            'to use the norm values from'
+        ),
     )
 
 
@@ -184,10 +194,12 @@ def normalize_processed_dataset(cli_args):
     step_ri('Writing out the normalized data')
     datafile_path = f'{new_output_path}/{DATA_F}'
     print(f'Writing out to {datafile_path}')
-    HDFWriteModule(datafile_path).create_and_write_hdf_simple({
-        INPUTS: input_data,
-        OUTPUTS: output_data,
-    })
+    HDFWriteModule(datafile_path).create_and_write_hdf_simple(
+        {
+            INPUTS: input_data,
+            OUTPUTS: output_data,
+        }
+    )
     print(f'Input shape: {input_data.shape}')
     print(f'Output shape: {output_data.shape}')
     ev_path = f'{new_output_path}/{EXTRA_VARS_F}'

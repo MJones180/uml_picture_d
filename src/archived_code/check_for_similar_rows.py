@@ -91,7 +91,7 @@ def check_for_similar_rows(cli_args):
     # Compare every row to every row. For two rows to be similar, `percentage`
     # of their pixels must be within the tolerance.
     for idx_o, wf_outer in enumerate(wavefronts):
-        for idx_i, wf_inner in enumerate(wavefronts[idx_o + 1:]):
+        for idx_i, wf_inner in enumerate(wavefronts[idx_o + 1 :]):
             similar_pixels = np.isclose(wf_outer, wf_inner, rtol, atol)
             # .sum() will add up all the similar pixels
             similarity_percentage = (similar_pixels.sum() / total_pixels) * 100
@@ -99,12 +99,12 @@ def check_for_similar_rows(cli_args):
             # Need to shift the inner index based on the outer loop
             idx_s = idx_i + idx_o + 1
             if similarity_percentage >= percentage:
-                print(f'Similar: {idx_o} and {idx_s} '
-                      f'({similarity_percentage_str}%)')
+                print(f'Similar: {idx_o} and {idx_s} ({similarity_percentage_str}%)')
                 similar_idxs.append((idx_o, idx_s, similarity_percentage_str))
             elif print_not_similar:
-                print(f'NOT Similar: {idx_o} and {idx_s} '
-                      f'({similarity_percentage_str}%)')
+                print(
+                    f'NOT Similar: {idx_o} and {idx_s} ({similarity_percentage_str}%)'
+                )
 
     step_ri(f'All indexes of similar rows (total {len(similar_idxs)})')
     dec_print_indent()
@@ -118,9 +118,10 @@ def check_for_similar_rows(cli_args):
         make_dir(plot_dir)
         for idx1, idx2, percentage in similar_idxs:
             fig, ax = plt.subplots(1, 3, figsize=(16, 8))
-            coeffs = [[
-                float(f'{(coeff * 1e9):0.2f}') for coeff in zernike_coeffs[idx]
-            ] for idx in (idx1, idx2)]
+            coeffs = [
+                [float(f'{(coeff * 1e9):0.2f}') for coeff in zernike_coeffs[idx]]
+                for idx in (idx1, idx2)
+            ]
             coeffs_table = PrettyTable(header=False, border=False)
             coeffs_table.align = 'l'
             coeffs_table.add_rows(coeffs)

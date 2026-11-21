@@ -13,7 +13,7 @@ def align_modes(set1, set2):
 
     def norm_set(modes):
         # Divide by the Euclidean norm (root sum of squares)
-        return modes / (np.sum(modes**2, axis=1)**0.5)[:, None]
+        return modes / (np.sum(modes**2, axis=1) ** 0.5)[:, None]
 
     # Normalize the modes to have a length of 1
     # `set1_norm`/`set2_norm` shape: (num_modes, num_pixels)

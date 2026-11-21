@@ -1,6 +1,6 @@
 import numpy as np
 import torch
-import torch.nn as nn
+from torch import nn
 from utils.create_grid_mask import create_grid_mask
 from utils.hdf_read_and_write import read_hdf
 from utils.load_raw_sim_data import raw_sim_data_chunk_paths
@@ -8,7 +8,6 @@ from utils.norm import min_max_norm, z_score_denormalize
 
 
 class JacobianEF(nn.Module):
-
     def __init__(
         self,
         device,
@@ -150,22 +149,36 @@ class JacobianEF(nn.Module):
                 print(f'Transposing {str_name} modes')
                 modes = modes.T
             print(f'Modes for {str_name}: {count}')
-            modes = modes[:int(count)]
+            modes = modes[: int(count)]
             modes = modes.astype(np.float32)
             return torch.from_numpy(modes).to(device)
 
         if dm1_dm2_modes_tag is not None:
             print('Using joint modes for DM1 and DM2')
-            self.dm1_dm2_modes = modes(dm1_dm2_modes_tag, dm1_dm2_modes_table,
-                                       dm1_dm2_modes_count,
-                                       dm1_dm2_modes_transpose, 'DM1/DM2')
+            self.dm1_dm2_modes = modes(
+                dm1_dm2_modes_tag,
+                dm1_dm2_modes_table,
+                dm1_dm2_modes_count,
+                dm1_dm2_modes_transpose,
+                'DM1/DM2',
+            )
             self.use_joint_dm_modes = True
         else:
             print('Using separate modes for DM1 and DM2')
-            self.dm1_modes = modes(dm1_modes_tag, dm1_modes_table,
-                                   dm1_modes_count, dm1_modes_transpose, 'DM1')
-            self.dm2_modes = modes(dm2_modes_tag, dm2_modes_table,
-                                   dm2_modes_count, dm2_modes_transpose, 'DM2')
+            self.dm1_modes = modes(
+                dm1_modes_tag,
+                dm1_modes_table,
+                dm1_modes_count,
+                dm1_modes_transpose,
+                'DM1',
+            )
+            self.dm2_modes = modes(
+                dm2_modes_tag,
+                dm2_modes_table,
+                dm2_modes_count,
+                dm2_modes_transpose,
+                'DM2',
+            )
             self.use_joint_dm_modes = False
 
         jac_path = raw_sim_data_chunk_paths(jacobian_tag)[0]
@@ -177,8 +190,7 @@ class JacobianEF(nn.Module):
         if self.lambda_scaling is None:
             self.lambda_scaling = 1
 
-        def _dynamic_scaling_1(init_val, final_val, start_scaling_epoch,
-                               total_epochs):
+        def _dynamic_scaling_1(init_val, final_val, start_scaling_epoch, total_epochs):
 
             def curried():
                 current_epoch = self.current_epoch
@@ -187,7 +199,8 @@ class JacobianEF(nn.Module):
                     return init_val
                 # Progress along the dyanmic scaling ramp, [0, 1]
                 progress = (current_epoch - start_scaling_epoch) / (
-                    total_epochs - start_scaling_epoch)
+                    total_epochs - start_scaling_epoch
+                )
                 scale = 0.5 * (1.0 - np.cos(np.pi * progress))
                 # Cosine Annealing up to the final val
                 return init_val + (final_val - init_val) * scale
@@ -198,16 +211,20 @@ class JacobianEF(nn.Module):
         dynamic_lambda_1 = _grab_param(lambda_scaling_dynamic_1, str)
         if dynamic_lambda_1 is not None:
             print('Applying dynamic lambda scaling (1)')
-            (start_scaling_epoch, total_epochs,
-             final_lambda) = dynamic_lambda_1.split(',')
+            (start_scaling_epoch, total_epochs, final_lambda) = dynamic_lambda_1.split(
+                ','
+            )
             start_scaling_epoch = int(start_scaling_epoch)
             total_epochs = int(total_epochs)
             final_lambda = float(final_lambda)
             init_lambda = self.lambda_scaling
-            print(f'Epochs {start_scaling_epoch} -> {total_epochs}; '
-                  f'Lambda {init_lambda} -> {final_lambda}')
+            print(
+                f'Epochs {start_scaling_epoch} -> {total_epochs}; '
+                f'Lambda {init_lambda} -> {final_lambda}'
+            )
             self.calc_dynamic_lambda_1 = _dynamic_scaling_1(
-                init_lambda, final_lambda, start_scaling_epoch, total_epochs)
+                init_lambda, final_lambda, start_scaling_epoch, total_epochs
+            )
 
         self.calc_dynamic_lambda_2 = None
         dynamic_lambda_2 = _grab_param(lambda_scaling_dynamic_2, str)
@@ -217,8 +234,10 @@ class JacobianEF(nn.Module):
             intensity_threshold = float(intensity_threshold)
             lambda_above = float(lambda_above)
             lambda_below = self.lambda_scaling
-            print(f'Intensity threshold: {intensity_threshold}; '
-                  f'<: {lambda_below}; >: {lambda_above}')
+            print(
+                f'Intensity threshold: {intensity_threshold}; '
+                f'<: {lambda_below}; >: {lambda_above}'
+            )
 
             def lambda_thresholded():
                 inputs_sum = torch.sum(
@@ -226,11 +245,13 @@ class JacobianEF(nn.Module):
                         self.input_data,
                         self.input_zs_mean,
                         self.input_zs_std,
-                    )**2,
+                    )
+                    ** 2,
                     axis=1,
                 )
-                lambda_vals = torch.full((self.input_data.shape[0], ),
-                                         lambda_below).to(device)
+                lambda_vals = torch.full((self.input_data.shape[0],), lambda_below).to(
+                    device
+                )
                 lambda_vals[inputs_sum > intensity_threshold] = lambda_above
                 return lambda_vals
 
@@ -242,16 +263,18 @@ class JacobianEF(nn.Module):
 
         self.speckle_targeting = _grab_param(speckle_targeting)
         if self.speckle_targeting is not None:
-            print(f'Speckle targeting: {self.speckle_targeting*100}%')
+            print(f'Speckle targeting: {self.speckle_targeting * 100}%')
 
         self.radial_weight_mask = None
-        apply_radial_weighting = apply_radial_weighting
         if apply_radial_weighting is not None:
-            (mask_size, inner_radius, outer_radius,
-             max_weight) = apply_radial_weighting.split(',')
-            print(f'Applying radial weighting (pixels: {mask_size}, '
-                  f'inner radius: {inner_radius}, '
-                  f'outer radius: {outer_radius}, max weight: {max_weight})')
+            (mask_size, inner_radius, outer_radius, max_weight) = (
+                apply_radial_weighting.split(',')
+            )
+            print(
+                f'Applying radial weighting (pixels: {mask_size}, '
+                f'inner radius: {inner_radius}, '
+                f'outer radius: {outer_radius}, max weight: {max_weight})'
+            )
             mask_size = int(mask_size)
             inner_radius = float(inner_radius)
             outer_radius = float(outer_radius)
@@ -264,16 +287,14 @@ class JacobianEF(nn.Module):
             dh_mask = dh_mask.astype(bool)
             # Create a grid of distances from the center
             distances = np.arange(mask_size) - (mask_size // 2)
-            distance_grid = np.sqrt(distances[None, :]**2 +
-                                    distances[:, None]**2)
+            distance_grid = np.sqrt(distances[None, :] ** 2 + distances[:, None] ** 2)
             # A 1D list of all the distances inside the DH
             distances_dh = distance_grid[dh_mask]
             # Distance to the inner/outer radius of the DH from the center
             r_inner = distances_dh.min()
             r_outer = distances_dh.max()
             # Normalize all the DH distances between [0, 1]
-            distances_norm = min_max_norm(distance_grid, r_inner - r_outer,
-                                          r_outer)
+            distances_norm = min_max_norm(distance_grid, r_inner - r_outer, r_outer)
             # Scale all the weights between [1, max_weight]
             rad_weights = 1 + (max_weight - 1) * distances_norm
             # Take just the weights from the DH and put them in a 1D array
@@ -288,19 +309,24 @@ class JacobianEF(nn.Module):
         dynamic_alpha_1 = _grab_param(residual_stroke_mse_dynamic_1, str)
         if dynamic_alpha_1 is not None:
             print('Applying dynamic alpha scaling')
-            (start_scaling_epoch, total_epochs,
-             final_alpha) = dynamic_alpha_1.split(',')
+            (start_scaling_epoch, total_epochs, final_alpha) = dynamic_alpha_1.split(
+                ','
+            )
             start_scaling_epoch = int(start_scaling_epoch)
             total_epochs = int(total_epochs)
             final_alpha = float(final_alpha)
             init_alpha = self.mse_alpha
-            print(f'Epochs {start_scaling_epoch} -> {total_epochs}; '
-                  f'Alpha {init_alpha} -> {final_alpha}')
+            print(
+                f'Epochs {start_scaling_epoch} -> {total_epochs}; '
+                f'Alpha {init_alpha} -> {final_alpha}'
+            )
             self.calc_dynamic_alpha = _dynamic_scaling_1(
-                init_alpha, final_alpha, start_scaling_epoch, total_epochs)
+                init_alpha, final_alpha, start_scaling_epoch, total_epochs
+            )
 
         self.add_residual_stroke_mse_return_tuple = bool(
-            _grab_param(add_residual_stroke_mse_return_tuple, int))
+            _grab_param(add_residual_stroke_mse_return_tuple, int)
+        )
 
         self.residual_stroke_eps = _grab_param(residual_stroke_eps)
         if self.residual_stroke_eps is not None:
@@ -326,8 +352,9 @@ class JacobianEF(nn.Module):
 
     def _get_actuator_heights(self, outputs):
         # Denormalize the outputs
-        outputs_denorm = z_score_denormalize(outputs, self.output_zs_mean,
-                                             self.output_zs_std)
+        outputs_denorm = z_score_denormalize(
+            outputs, self.output_zs_mean, self.output_zs_std
+        )
         if self.use_joint_dm_modes:
             return torch.matmul(outputs_denorm, self.dm1_dm2_modes)
         else:
@@ -365,8 +392,9 @@ class JacobianEF(nn.Module):
             if self.residual_stroke_eps is not None:
                 residual_heights = torch.abs(residual_heights)
                 # Zero out all stroke error smaller than eps
-                residual_heights = torch.relu(residual_heights -
-                                              self.residual_stroke_eps)
+                residual_heights = torch.relu(
+                    residual_heights - self.residual_stroke_eps
+                )
             stroke_mse = torch.mean(residual_heights**2)
             scaled_stroke_mse = self.mse_alpha * stroke_mse
             if self.add_residual_stroke_mse_return_tuple:

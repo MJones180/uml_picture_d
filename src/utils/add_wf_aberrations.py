@@ -39,15 +39,15 @@ def add_wf_aberrations(wavefront, zernike_terms, aberration_values):
         sampling = proper.prop_get_sampling(wavefront)
         beam_rad = proper.prop_get_beamradius(wavefront)
         # The key that the Zernike fields are cached under
-        cache_key = (grid_points, sampling, beam_rad, zernike_terms[0],
-                     zernike_high)
+        cache_key = (grid_points, sampling, beam_rad, zernike_terms[0], zernike_high)
         # Check if the Zernike fields have been computed yet
         if cache_key in zernike_fields_cache:
             zernike_fields = zernike_fields_cache[cache_key]
         else:
             # The Zernike fields are not yet in the cache
-            zernike_fields = _compute_zernike_fields(grid_points, sampling,
-                                                     beam_rad, zernike_terms)
+            zernike_fields = _compute_zernike_fields(
+                grid_points, sampling, beam_rad, zernike_terms
+            )
             zernike_fields_cache[cache_key] = zernike_fields
         # Compute the field of the superposition of all the Zernike aberrations
         aberration_map = np.zeros((grid_points, grid_points), dtype=np.float64)
@@ -55,12 +55,14 @@ def add_wf_aberrations(wavefront, zernike_terms, aberration_values):
             if aberration != 0:
                 aberration_map += zernike_fields[term] * aberration
         # Need to update the actual wavefront with the aberrations
-        wavefront.wfarr *= np.exp(1j * 2 * np.pi / wavefront.lamda *
-                                  proper.prop_shift_center(aberration_map))
+        wavefront.wfarr *= np.exp(
+            1j * 2 * np.pi / wavefront.lamda * proper.prop_shift_center(aberration_map)
+        )
     else:
         # We have to call the slow PROPER function :(
-        aberration_map = proper.prop_zernikes(wavefront, zernike_terms,
-                                              aberration_values)
+        aberration_map = proper.prop_zernikes(
+            wavefront, zernike_terms, aberration_values
+        )
     return aberration_map
 
 

@@ -1,6 +1,7 @@
 """
 Code to generate Zernike modes. This script was created with Claude.
 """
+
 import numpy as np
 import math
 
@@ -38,10 +39,13 @@ def create_zernike_mode(j, grid_size):
 
     radial = np.zeros_like(rho)
     for k in range((n - m_abs) // 2 + 1):
-        num = (-1)**k * math.factorial(n - k)
-        den = (math.factorial(k) * math.factorial((n + m_abs) // 2 - k) *
-               math.factorial((n - m_abs) // 2 - k))
-        radial += (num / den) * rho**(n - 2 * k)
+        num = (-1) ** k * math.factorial(n - k)
+        den = (
+            math.factorial(k)
+            * math.factorial((n + m_abs) // 2 - k)
+            * math.factorial((n - m_abs) // 2 - k)
+        )
+        radial += (num / den) * rho ** (n - 2 * k)
 
     if m > 0:
         angular = np.cos(m_abs * theta)

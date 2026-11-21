@@ -65,5 +65,6 @@ broadband_max = np.percentile(broadband[0::TOTAL_ITERS, 0], UPPER_PERCENTILE)
 
 for idx in range(TOTAL_ITERS):
     _plot_coeffs(mono[idx::TOTAL_ITERS], idx + 1, 'Mono', mono_min, mono_max)
-    _plot_coeffs(broadband[idx::TOTAL_ITERS], idx + 1, 'Broadband',
-                 broadband_min, broadband_max)
+    _plot_coeffs(
+        broadband[idx::TOTAL_ITERS], idx + 1, 'Broadband', broadband_min, broadband_max
+    )

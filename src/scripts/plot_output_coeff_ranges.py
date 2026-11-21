@@ -1,7 +1,13 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from utils.constants import (EXTRA_VARS_F, OUTPUT_MAX_MIN_DIFF, OUTPUT_MIN_X,
-                             PLOT_STYLE_FILE, PROC_DATA_P, RANDOM_P)
+from utils.constants import (
+    EXTRA_VARS_F,
+    OUTPUT_MAX_MIN_DIFF,
+    OUTPUT_MIN_X,
+    PLOT_STYLE_FILE,
+    PROC_DATA_P,
+    RANDOM_P,
+)
 from utils.hdf_read_and_write import read_hdf
 from utils.printing_and_logging import step_ri, title
 from utils.torch_hdf_ds_loader import DSLoaderHDF
@@ -15,8 +21,10 @@ def plot_output_coeff_ranges_parser(subparsers):
     subparser.set_defaults(main=plot_output_coeff_ranges)
     subparser.add_argument(
         'testing_dataset_tag',
-        help=('name of the testing dataset to use the output coeffs from; '
-              'must use a testing dataset as the outputs are not normalized'),
+        help=(
+            'name of the testing dataset to use the output coeffs from; '
+            'must use a testing dataset as the outputs are not normalized'
+        ),
     )
     subparser.add_argument(
         '--coeff-group-idxs',
@@ -80,7 +88,7 @@ def plot_output_coeff_ranges(cli_args):
     coeff_group_idxs = [0, *coeff_group_idxs]
 
     step_ri('Plotting')
-    fig, axs = plt.subplots(
+    _, axs = plt.subplots(
         numb_groups,
         1,
         figsize=(12, 10),
@@ -90,8 +98,9 @@ def plot_output_coeff_ranges(cli_args):
         lower_bound = coeff_group_idxs[idx]
         upper_bound = coeff_group_idxs[idx + 1]
         indices = np.arange(lower_bound, upper_bound)
-        axs[idx].set_title(f'Coefficient Group {idx + 1} '
-                           f'({lower_bound} - {upper_bound})')
+        axs[idx].set_title(
+            f'Coefficient Group {idx + 1} ({lower_bound} - {upper_bound})'
+        )
         axs[idx].set_xlabel('Coefficient Index')
         axs[idx].set_ylabel('Coefficient Value')
         if add_min_max_norm_bounds:

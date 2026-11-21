@@ -35,7 +35,7 @@ def plot_control_loop_rss(
     plt.style.use(PLOT_STYLE_FILE)
 
     # Set the figure size and add the title + axes labels
-    fig, ax = plt.subplots(figsize=(12, 6))
+    _, ax = plt.subplots(figsize=(12, 6))
     ax.set_title(title, pad=40)
 
     # Plot the RSS

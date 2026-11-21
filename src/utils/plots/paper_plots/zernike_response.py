@@ -33,7 +33,7 @@ def paper_plot_zernike_response(
     plt.style.use(PLOT_STYLE_FILE)
 
     # Set the figure size and add the title + axes labels
-    fig, ax = plt.subplots(figsize=(8, 8))
+    _, ax = plt.subplots(figsize=(8, 8))
     plot_title = f'Zernike Response ({MODELS[model_idx]})'
     ax.set_title(plot_title)
     ax.set_xlabel('Truth [nm RMS]')
@@ -66,10 +66,12 @@ def paper_plot_zernike_response(
 
     # For this plot, we only care about elements along the main diagonal
     for term_idx, term in enumerate(zernike_terms):
-        ax.plot(perturbation_grid,
-                pred_groupings[:, term_idx, term_idx],
-                label=fr'$Z_{{{term}}}$',
-                color=colors[term_idx])
+        ax.plot(
+            perturbation_grid,
+            pred_groupings[:, term_idx, term_idx],
+            label=rf'$Z_{{{term}}}$',
+            color=colors[term_idx],
+        )
 
     # Set the labels
     tick_idxs = np.linspace(0, len(perturbation_grid) - 1, 7)

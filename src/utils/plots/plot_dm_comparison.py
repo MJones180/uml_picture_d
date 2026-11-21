@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
-from mpl_toolkits.axes_grid1 import make_axes_locatable
 import numpy as np
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 from utils.constants import PLOT_STYLE_FILE
 from utils.stats_and_error import rss
 
@@ -43,7 +43,7 @@ def plot_dm_comparison(
     # Accumulate the bounds for each table
     if fix_colorbars:
         bounds = {}
-        for key in rows[0].keys():
+        for key in rows[0]:
             all_vals = [row_data[key] for row_data in rows]
             bounds[key] = (np.min(all_vals), np.max(all_vals))
 

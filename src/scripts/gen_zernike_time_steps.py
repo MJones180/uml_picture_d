@@ -68,10 +68,14 @@ def gen_zernike_time_steps_parser(subparsers):
         '--cos-with-gaussian-pert',
         nargs='+',
         type=float,
-        metavar=('[period], [relative column count], '
-                 '[amplitude in meters], [perturbation std in meters]'),
-        help=('add aberrations along a cos with gaussian perturbations; the '
-              'last three terms can be repeated as many times as necessary'),
+        metavar=(
+            '[period], [relative column count], '
+            '[amplitude in meters], [perturbation std in meters]'
+        ),
+        help=(
+            'add aberrations along a cos with gaussian perturbations; the '
+            'last three terms can be repeated as many times as necessary'
+        ),
     )
 
 
@@ -97,8 +101,9 @@ def gen_zernike_time_steps(cli_args):
 
     step_ri('Column information')
     # This will be the first row in the CSV file with the name of each column
-    column_names = ('ROW_IDX, CUMULATIVE_TIME, DELTA_TIME, ' +
-                    ', '.join([f'Z{term}' for term in zernike_terms]))
+    column_names = 'ROW_IDX, CUMULATIVE_TIME, DELTA_TIME, ' + ', '.join(
+        [f'Z{term}' for term in zernike_terms]
+    )
     print(column_names)
     # The number of columns ignoring the Zernike coeff columns
     base_column_count = 3
@@ -111,8 +116,7 @@ def gen_zernike_time_steps(cli_args):
     timestep_values = np.arange(timesteps)
     delta_time_values = np.full(timesteps, delta_time)
     # Have the time start at 0
-    cumulative_time_values = np.concatenate(
-        ([0], np.cumsum(delta_time_values[1:])))
+    cumulative_time_values = np.concatenate(([0], np.cumsum(delta_time_values[1:])))
     # Index column
     output_data[:, 0] = timestep_values
     # Cumulative time column
@@ -153,7 +157,7 @@ def gen_zernike_time_steps(cli_args):
         current_col = base_column_count
         for group_idx in range(len(group_args) // 3):
             idx_low = group_idx * 3
-            rel_col_count, amp, std = group_args[idx_low:idx_low + 3]
+            rel_col_count, amp, std = group_args[idx_low : idx_low + 3]
             for _ in range(int(rel_col_count)):
                 output_data[:, current_col] = get_coeffs(amp, std)
                 current_col += 1

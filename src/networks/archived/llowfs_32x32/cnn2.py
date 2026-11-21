@@ -9,7 +9,6 @@ import torch.nn.functional as F
 
 
 class Network(nn.Module):
-
     def example_input():
         return torch.rand((1, 1, 32, 32))
 

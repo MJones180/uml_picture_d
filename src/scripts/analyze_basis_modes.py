@@ -3,8 +3,13 @@ Analyze modes from a basis set (for instance, SVD modes).
 """
 
 import numpy as np
-from utils.constants import (EXPLAINED_VARIANCE_RATIO, MEAN, MODE_ANALYSIS_P,
-                             SINGULAR_VALUES, STD)
+from utils.constants import (
+    EXPLAINED_VARIANCE_RATIO,
+    MEAN,
+    MODE_ANALYSIS_P,
+    SINGULAR_VALUES,
+    STD,
+)
 from utils.create_grid_mask import create_grid_mask
 from utils.hdf_read_and_write import read_hdf
 from utils.load_raw_sim_data import raw_sim_data_chunk_paths
@@ -23,8 +28,10 @@ def analyze_basis_modes_parser(subparsers):
     subparser.set_defaults(main=analyze_basis_modes)
     subparser.add_argument(
         'modes_tag',
-        help=('tag of the raw dataset; the data must be a single 2D table '
-              'with modes along each row'),
+        help=(
+            'tag of the raw dataset; the data must be a single 2D table '
+            'with modes along each row'
+        ),
     )
     subparser.add_argument(
         'modes_table_name',
@@ -38,35 +45,45 @@ def analyze_basis_modes_parser(subparsers):
     subparser.add_argument(
         '--modes-are-complex',
         type=int,
-        help=('the modes are complex with real components stacked on top of '
-              'imaginary components; one argument expected: axis to split'),
+        help=(
+            'the modes are complex with real components stacked on top of '
+            'imaginary components; one argument expected: axis to split'
+        ),
     )
     subparser.add_argument(
         '--two-dms',
         type=int,
-        help=('the dm1 modes are followed by the dm2 modes; one argument '
-              'expected: axis to split'),
+        help=(
+            'the dm1 modes are followed by the dm2 modes; one argument '
+            'expected: axis to split'
+        ),
     )
     subparser.add_argument(
         '--display-from-mask',
         nargs=3,
-        help=('display the modes on a given mask; the row loaded in will be '
-              'masked based on nonzero values; three arguments expected: '
-              'raw data tag, table name, row to use'),
+        help=(
+            'display the modes on a given mask; the row loaded in will be '
+            'masked based on nonzero values; three arguments expected: '
+            'raw data tag, table name, row to use'
+        ),
     )
     subparser.add_argument(
         '--display-as-circle',
         nargs=2,
         type=float,
-        help=('display the modes on a circle; two arguments expected: '
-              'grid size and relative circle scaling size'),
+        help=(
+            'display the modes on a circle; two arguments expected: '
+            'grid size and relative circle scaling size'
+        ),
     )
     subparser.add_argument(
         '--display-with-hole',
         type=float,
-        help=('used in conjunction with the `--display-as-circle` arg; '
-              'display the circle with a hole; one argument expected: '
-              'relative circle scaling size for the hole'),
+        help=(
+            'used in conjunction with the `--display-as-circle` arg; '
+            'display the circle with a hole; one argument expected: '
+            'relative circle scaling size for the hole'
+        ),
     )
     subparser.add_argument(
         '--plot-modes-specific',
@@ -78,48 +95,62 @@ def analyze_basis_modes_parser(subparsers):
         '--plot-modes-range',
         nargs=2,
         type=int,
-        help=('plot individual modes between the provided range; '
-              'two arguments expected: low mode idx, high mode idx '),
+        help=(
+            'plot individual modes between the provided range; '
+            'two arguments expected: low mode idx, high mode idx '
+        ),
     )
     subparser.add_argument(
         '--reconstruct-data',
         nargs='*',
-        help=('reconstruct data in terms of the basis being analyzed; the '
-              'following arguments are expected: raw datafile tag, number of '
-              'modes to use, *datafile table names (multiple may be needed '
-              'for complex data or two DMs)'),
+        help=(
+            'reconstruct data in terms of the basis being analyzed; the '
+            'following arguments are expected: raw datafile tag, number of '
+            'modes to use, *datafile table names (multiple may be needed '
+            'for complex data or two DMs)'
+        ),
     )
     subparser.add_argument(
         '--reconstruct-data-circle-mask',
         action='store_true',
-        help=('used in conjunction with the `--reconstruct-data` arg; '
-              'apply the circle mask from the `--display-as-circle` arg'),
+        help=(
+            'used in conjunction with the `--reconstruct-data` arg; '
+            'apply the circle mask from the `--display-as-circle` arg'
+        ),
     )
     subparser.add_argument(
         '--reconstruct-data-trim',
         nargs=4,
         type=int,
-        help=('used in conjunction with the `--reconstruct-data` arg; '
-              'trim the data, four argument expected: x0, x1, y0, y1'),
+        help=(
+            'used in conjunction with the `--reconstruct-data` arg; '
+            'trim the data, four argument expected: x0, x1, y0, y1'
+        ),
     )
     subparser.add_argument(
         '--reconstruct-data-first-n-rows',
         type=int,
-        help=('used in conjunction with the `--reconstruct-data` arg; '
-              'take the first n rows of data'),
+        help=(
+            'used in conjunction with the `--reconstruct-data` arg; '
+            'take the first n rows of data'
+        ),
     )
     subparser.add_argument(
         '--reconstruct-data-select-row',
         type=int,
-        help=('used in conjunction with the `--reconstruct-data` arg; '
-              'plot out the reconstruction error for a single row'),
+        help=(
+            'used in conjunction with the `--reconstruct-data` arg; '
+            'plot out the reconstruction error for a single row'
+        ),
     )
     subparser.add_argument(
         '--reconstruct-data-plots',
         action='store_true',
-        help=('used in conjunction with the `--reconstruct-data` and '
-              '`--reconstruct-data-select-row` args; '
-              'plot the row and the reconstruction'),
+        help=(
+            'used in conjunction with the `--reconstruct-data` and '
+            '`--reconstruct-data-select-row` args; '
+            'plot the row and the reconstruction'
+        ),
     )
     subparser.add_argument(
         '--plot-singular-values',
@@ -134,8 +165,10 @@ def analyze_basis_modes_parser(subparsers):
     subparser.add_argument(
         '--compute-explained-variance',
         action='store_true',
-        help=('compute the explained variance on the fly; requires that '
-              'the `--reconstruct-data` argument is passed'),
+        help=(
+            'compute the explained variance on the fly; requires that '
+            'the `--reconstruct-data` argument is passed'
+        ),
     )
     subparser.add_argument(
         '--plot-orthogonality',
@@ -179,8 +212,10 @@ def analyze_basis_modes(cli_args):
     modes_are_complex = cli_args.get('modes_are_complex')
     if modes_are_complex is not None:
         step_ri('Splitting mode data into real and imaginary components')
-        print('NOTE: When converting to a different basis, the components '
-              'should be kept together to maintain the orthogonality')
+        print(
+            'NOTE: When converting to a different basis, the components '
+            'should be kept together to maintain the orthogonality'
+        )
         modes_data_real, modes_data_imag = np.split(
             modes_data,
             2,
@@ -334,10 +369,9 @@ def analyze_basis_modes(cli_args):
         datafile_path = raw_sim_data_chunk_paths(datafile_tag)[0]
         step('Loading data')
         print(f'Path: {datafile_path}')
-        data = np.array([
-            read_hdf(datafile_path)[table_name][:]
-            for table_name in table_names
-        ])
+        data = np.array(
+            [read_hdf(datafile_path)[table_name][:] for table_name in table_names]
+        )
         print(f'Data shape: {data.shape}')
         dec_print_indent()
 
@@ -370,7 +404,7 @@ def analyze_basis_modes(cli_args):
         first_n_rows = cli_args.get('reconstruct_data_first_n_rows')
         if first_n_rows is not None:
             step('Taking first n rows')
-            data = data[:int(first_n_rows)]
+            data = data[: int(first_n_rows)]
             print(f'Data shape: {data.shape}')
             dec_print_indent()
 
@@ -385,14 +419,14 @@ def analyze_basis_modes(cli_args):
             dec_print_indent()
 
         step('Taking desired number of modes')
-        modes_data = modes_data[:int(number_of_modes)]
+        modes_data = modes_data[: int(number_of_modes)]
         print(f'Modes shape: {modes_data.shape}')
         dec_print_indent()
 
         step('Inverting the modes to find the new basis coeffs')
         modes_inv = np.linalg.pinv(modes_data)
         new_basis_coeffs = data @ modes_inv
-        reconstructed_data = (new_basis_coeffs @ modes_data)
+        reconstructed_data = new_basis_coeffs @ modes_data
         print(f'New basis coeffs shape: {new_basis_coeffs.shape}')
         # The error when switching to the new basis representation
         error = mse(data, reconstructed_data)
@@ -413,17 +447,14 @@ def analyze_basis_modes(cli_args):
         if cli_args.get('reconstruct_data_plots'):
             step(f'Plotting the reconstruction (row {row_idx})')
             table_name = '_'.join(table_names)
-            base_fname = (f'{datafile_tag}_table_{table_name}_row{row_idx}'
-                          f'_modes{number_of_modes}')
+            base_fname = (
+                f'{datafile_tag}_table_{table_name}_row{row_idx}_modes{number_of_modes}'
+            )
 
-            def _plot_recon(orig_row,
-                            recon_data,
-                            base_filename,
-                            title_info=''):
+            def _plot_recon(orig_row, recon_data, base_filename, title_info=''):
                 vmin = np.min(orig_row)
                 vmax = np.max(orig_row)
-                base_title = (f'Row {row_idx}{title_info} '
-                              f'({number_of_modes} modes): ')
+                base_title = f'Row {row_idx}{title_info} ({number_of_modes} modes): '
                 _plot_grid(
                     orig_row,
                     f'{base_filename}_orig',
@@ -452,20 +483,23 @@ def analyze_basis_modes(cli_args):
             if modes_are_complex is not None:
                 data_real, data_imag = np.split(orig_row, 2)
                 reconstructed_data_real, reconstructed_data_imag = np.split(
-                    recon_row, 2)
-                _plot_recon(data_real, reconstructed_data_real,
-                            f'{base_fname}_real', ' (real)')
-                _plot_recon(data_imag, reconstructed_data_imag,
-                            f'{base_fname}_imag', ' (imag)')
+                    recon_row, 2
+                )
+                _plot_recon(
+                    data_real, reconstructed_data_real, f'{base_fname}_real', ' (real)'
+                )
+                _plot_recon(
+                    data_imag, reconstructed_data_imag, f'{base_fname}_imag', ' (imag)'
+                )
             elif two_dms is not None:
                 data_dm1, data_dm2 = np.split(orig_row, 2)
-                reconstructed_data_dm1, reconstructed_data_dm2 = np.split(
-                    recon_row, 2)
-                _plot_recon(data_dm1, reconstructed_data_dm1,
-                            f'{base_fname}_dm1', ' (dm1)')
-                _plot_recon(data_dm2, reconstructed_data_dm2,
-                            f'{base_fname}_dm2', ' (dm2)')
-                pass
+                reconstructed_data_dm1, reconstructed_data_dm2 = np.split(recon_row, 2)
+                _plot_recon(
+                    data_dm1, reconstructed_data_dm1, f'{base_fname}_dm1', ' (dm1)'
+                )
+                _plot_recon(
+                    data_dm2, reconstructed_data_dm2, f'{base_fname}_dm2', ' (dm2)'
+                )
             else:
                 _plot_recon(orig_row, recon_row, base_fname)
             dec_print_indent()
@@ -486,8 +520,7 @@ def analyze_basis_modes(cli_args):
         step_ri('Plotting explained variance')
         if cli_args['compute_explained_variance']:
             print('Computing explained variance')
-            explained_variance = (new_basis_coeffs.var(axis=0) /
-                                  data.var(axis=0).sum())
+            explained_variance = new_basis_coeffs.var(axis=0) / data.var(axis=0).sum()
         else:
             explained_variance = modes_datafile[EXPLAINED_VARIANCE_RATIO][:]
         plot_line(

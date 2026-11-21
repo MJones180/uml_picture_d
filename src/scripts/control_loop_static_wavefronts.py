@@ -10,8 +10,12 @@ in conjunction with the `gen_zernike_time_steps` script.
 import numpy as np
 from pathos.multiprocessing import ProcessPool
 from utils.cli_args import save_cli_args
-from utils.constants import (CONTROL_LOOP_RESULTS_P, DATA_F,
-                             MEAS_ERROR_HISTORY, TRUE_ERROR_HISTORY)
+from utils.constants import (
+    CONTROL_LOOP_RESULTS_P,
+    DATA_F,
+    MEAS_ERROR_HISTORY,
+    TRUE_ERROR_HISTORY,
+)
 from utils.hdf_read_and_write import HDFWriteModule
 from utils.iterate_simulated_control_loop import iterate_simulated_control_loop
 from utils.load_raw_sim_data import load_raw_sim_data_aberrations_file
@@ -159,8 +163,9 @@ def control_loop_static_wavefronts(cli_args):
         model_str = f'NN_{tag}_{epoch}'
     elif response_matrix:
         model_str = f'RM_{response_matrix}'
-    out_dir = (f'{CONTROL_LOOP_RESULTS_P}/'
-               f'{data_tag}_{model_str}_{steps}_{K_p}_{K_i}_{K_d}')
+    out_dir = (
+        f'{CONTROL_LOOP_RESULTS_P}/{data_tag}_{model_str}_{steps}_{K_p}_{K_i}_{K_d}'
+    )
     print(f'Path: {out_dir}')
     make_dir(out_dir)
 
@@ -202,20 +207,21 @@ def control_loop_static_wavefronts(cli_args):
                 axis=1,
             )
             # Iterate over the control loop steps
-            (_, _, true_error_history,
-             meas_error_history) = iterate_simulated_control_loop(
-                 control_loop_steps,
-                 zernike_terms,
-                 K_p,
-                 K_i,
-                 K_d,
-                 train_name,
-                 ref_wl,
-                 grid_points=grid_points,
-                 enable_logs=False,
-                 use_nn=neural_network,
-                 use_rm=response_matrix,
-             )
+            (_, _, true_error_history, meas_error_history) = (
+                iterate_simulated_control_loop(
+                    control_loop_steps,
+                    zernike_terms,
+                    K_p,
+                    K_i,
+                    K_d,
+                    train_name,
+                    ref_wl,
+                    grid_points=grid_points,
+                    enable_logs=False,
+                    use_nn=neural_network,
+                    use_rm=response_matrix,
+                )
+            )
             histories[TRUE_ERROR_HISTORY].append(true_error_history)
             histories[MEAS_ERROR_HISTORY].append(meas_error_history)
             # See if it is time to do another write

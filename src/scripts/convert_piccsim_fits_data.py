@@ -8,9 +8,10 @@ smaller chunks will reduce memory consumption.
 This script can also be used to export the science camera mask to HDF.
 """
 
-from astropy.io import fits
 from glob import glob
+
 import numpy as np
+from astropy.io import fits
 from utils.cli_args import save_cli_args
 from utils.constants import DARK_ZONE_MASK, DATA_F, RAW_DATA_P, ZERNIKE_TERMS
 from utils.hdf_read_and_write import HDFWriteModule, read_hdf
@@ -32,43 +33,53 @@ def convert_piccsim_fits_data_parser(subparsers):
     )
     subparser.add_argument(
         'dir_path',
-        help=('path to the directory containing the FITS datafiles; can also'
-              'point to a folder containing a raw HDF dataset when used with '
-              'the `--load-from-existing-hdf-dataset` argument'),
+        help=(
+            'path to the directory containing the FITS datafiles; can also'
+            'point to a folder containing a raw HDF dataset when used with '
+            'the `--load-from-existing-hdf-dataset` argument'
+        ),
     )
     subparser.add_argument(
         '--fits-file-globs',
         nargs='+',
-        help=('glob (omitting the `.fits` extension) for each of the files '
-              'that should be grabbed; each file glob will get its own table '
-              'in the output HDF file; each glob should be wrapped in single '
-              'quotes to avoid evaluation before being passed; each set of '
-              'filenames must use the same indexing scheme because they will '
-              'all be sorted and aligned'),
+        help=(
+            'glob (omitting the `.fits` extension) for each of the files '
+            'that should be grabbed; each file glob will get its own table '
+            'in the output HDF file; each glob should be wrapped in single '
+            'quotes to avoid evaluation before being passed; each set of '
+            'filenames must use the same indexing scheme because they will '
+            'all be sorted and aligned'
+        ),
     )
     subparser.add_argument(
         '--fits-table-names',
         nargs='+',
-        help=('the name of the table each glob of files should receive in the '
-              'output HDF file; the entries in this argument should '
-              'correspond to the values in the `--fits-file-globs` argument; '
-              'this argument also specifies the tables to manipulate when '
-              'using the `--load-from-existing-hdf-dataset` argument'),
+        help=(
+            'the name of the table each glob of files should receive in the '
+            'output HDF file; the entries in this argument should '
+            'correspond to the values in the `--fits-file-globs` argument; '
+            'this argument also specifies the tables to manipulate when '
+            'using the `--load-from-existing-hdf-dataset` argument'
+        ),
     )
     subparser.add_argument(
         '--slice-row-ranges',
         type=int,
         nargs='*',
-        help=('slice out rows from the given ranges in the form of '
-              '[idx low, idx high]..., this will be done to each table; '
-              'cannot be used with the `--first-n-rows` arg'),
+        help=(
+            'slice out rows from the given ranges in the form of '
+            '[idx low, idx high]..., this will be done to each table; '
+            'cannot be used with the `--first-n-rows` arg'
+        ),
     )
     subparser.add_argument(
         '--first-n-rows',
         type=int,
         metavar='n',
-        help=('use only the first n files found; cannot be used with the '
-              '`--slice-row-ranges` arg'),
+        help=(
+            'use only the first n files found; cannot be used with the '
+            '`--slice-row-ranges` arg'
+        ),
     )
     subparser.add_argument(
         '--rows-per-chunk',
@@ -88,52 +99,64 @@ def convert_piccsim_fits_data_parser(subparsers):
     )
     subparser.add_argument(
         '--sci-cam-mask-file',
-        help=('name of the file containing the science camera mask; this '
-              'script will terminate after the mask is converted, so there '
-              'is no point in using any of the other args'),
+        help=(
+            'name of the file containing the science camera mask; this '
+            'script will terminate after the mask is converted, so there '
+            'is no point in using any of the other args'
+        ),
     )
     subparser.add_argument(
         '--save-difference-only',
         nargs='+',
-        help=('save only the difference of a row with respect to another row '
-              'in groups, this is handy for saving the delta DM commands; the '
-              'arguments should be: <number of rows per group> <reference row '
-              'of group> <first n rows of group to keep> *<table names>; the '
-              'tables in this argument should also be in the '
-              '`--fits-table-names` argument; any arguments that augment the '
-              'number of rows should be careful to not split up any groups; '
-              'the reference row in each group will not be saved'),
+        help=(
+            'save only the difference of a row with respect to another row '
+            'in groups, this is handy for saving the delta DM commands; the '
+            'arguments should be: <number of rows per group> <reference row '
+            'of group> <first n rows of group to keep> *<table names>; the '
+            'tables in this argument should also be in the '
+            '`--fits-table-names` argument; any arguments that augment the '
+            'number of rows should be careful to not split up any groups; '
+            'the reference row in each group will not be saved'
+        ),
     )
     subparser.add_argument(
         '--save-difference-only-offset',
         type=int,
-        help=('should be used with the `--save-difference-only` argument; '
-              'offset x for the first n rows to keep ([x, x+n-1])'),
+        help=(
+            'should be used with the `--save-difference-only` argument; '
+            'offset x for the first n rows to keep ([x, x+n-1])'
+        ),
     )
     subparser.add_argument(
         '--apply-filter-mask',
         nargs=2,
-        help=('apply a mask to filter the data by; two arguments expected: '
-              'raw data tag containing the mask (table must be named `mask`), '
-              'number of times to repeat the data'),
+        help=(
+            'apply a mask to filter the data by; two arguments expected: '
+            'raw data tag containing the mask (table must be named `mask`), '
+            'number of times to repeat the data'
+        ),
     )
     subparser.add_argument(
         '--load-from-single-fits-datafiles',
         action='store_true',
-        help=('load the data from single FITS files which contain all the '
-              'rows; the newer versions of the `piccsim` simulation script '
-              'will write out a single FITS datafile for each product; when '
-              'using this, `--fits-file-globs` should not be globs'),
+        help=(
+            'load the data from single FITS files which contain all the '
+            'rows; the newer versions of the `piccsim` simulation script '
+            'will write out a single FITS datafile for each product; when '
+            'using this, `--fits-file-globs` should not be globs'
+        ),
     )
     subparser.add_argument(
         '--load-from-existing-hdf-dataset',
         action='store_true',
-        help=('load the data from an existing raw HDF dataset instead of from '
-              'FITS datafiles; this option is helpful when there is a large '
-              'dataset that would need to call this script multiple times '
-              'with different arguments -- it is also easier to back up a '
-              'few HDF files rather than thousands of FITS files; the data '
-              'will be treated as float32'),
+        help=(
+            'load the data from an existing raw HDF dataset instead of from '
+            'FITS datafiles; this option is helpful when there is a large '
+            'dataset that would need to call this script multiple times '
+            'with different arguments -- it is also easier to back up a '
+            'few HDF files rather than thousands of FITS files; the data '
+            'will be treated as float32'
+        ),
     )
 
 
@@ -175,12 +198,15 @@ def convert_piccsim_fits_data(cli_args):
         step_ri('Verifying file glob and name arrays')
         file_globs = cli_args['fits_file_globs']
         if file_globs is None or table_names is None:
-            terminate_with_message('The `--fits-file-globs` and '
-                                   '`--fits-table-names` args must be passed, '
-                                   'or `--sci-cam-mask-file` must be passed')
+            terminate_with_message(
+                'The `--fits-file-globs` and '
+                '`--fits-table-names` args must be passed, '
+                'or `--sci-cam-mask-file` must be passed'
+            )
         if len(file_globs) != len(table_names):
-            terminate_with_message('The `--fits-file-globs` and '
-                                   '`--fits-table-names` must be same length')
+            terminate_with_message(
+                'The `--fits-file-globs` and `--fits-table-names` must be same length'
+            )
         if use_single_fits_files:
             step_ri('Loading from single FITS files')
             print(f'File names: {file_globs}')
@@ -207,8 +233,9 @@ def convert_piccsim_fits_data(cli_args):
                     total_file_count = datafile_count
                 # The glob is producing a different number of found datafiles
                 elif total_file_count != datafile_count:
-                    terminate_with_message(f'{file_glob} produces a different '
-                                           'number of found datafiles')
+                    terminate_with_message(
+                        f'{file_glob} produces a different number of found datafiles'
+                    )
                 dec_print_indent()
 
     row_slice_mask = None
@@ -270,8 +297,7 @@ def convert_piccsim_fits_data(cli_args):
         save_differences = True
         offset = cli_args.get('save_difference_only_offset')
         if offset is not None:
-            print(f'Will offset the first {first_n_rows} rows '
-                  f'saved by {offset}')
+            print(f'Will offset the first {first_n_rows} rows saved by {offset}')
         else:
             offset = 0
         iters_to_keep = list(range(offset, offset + first_n_rows))
@@ -305,8 +331,7 @@ def convert_piccsim_fits_data(cli_args):
             print(f'Path: {hdf_path}')
             hdf_file_contents = read_hdf(hdf_path)
             for table_name in table_names:
-                tables[table_name] = hdf_file_contents[table_name][:].astype(
-                    np.float32)
+                tables[table_name] = hdf_file_contents[table_name][:].astype(np.float32)
                 print(f'Table: {table_name} - {tables[table_name].shape}')
         else:
             for file_glob, table_name in zip(file_globs, table_names):
@@ -323,18 +348,19 @@ def convert_piccsim_fits_data(cli_args):
                     found_datafiles = _make_glob(file_glob)
                     if row_slice_mask is not None:
                         # Take out the sliced rows if specified
-                        found_datafiles = np.array(
-                            found_datafiles)[row_slice_mask]
+                        found_datafiles = np.array(found_datafiles)[row_slice_mask]
                     # Slice out the simulations for this chunk
                     found_datafiles = found_datafiles[idx_low:idx_high]
                     first_filename = found_datafiles[0].split('/')[-1]
                     last_filename = found_datafiles[-1].split('/')[-1]
                     print(f'Files: {first_filename} - {last_filename}')
                     print('Loading in files...')
-                    tables[table_name] = np.array([
-                        fits.getdata(datafile_path, memmap=False)
-                        for datafile_path in found_datafiles
-                    ])
+                    tables[table_name] = np.array(
+                        [
+                            fits.getdata(datafile_path, memmap=False)
+                            for datafile_path in found_datafiles
+                        ]
+                    )
                 print(f'Data stored in the `{table_name}` table')
                 dec_print_indent()
         if filter_mask is not None:
@@ -360,8 +386,9 @@ def convert_piccsim_fits_data(cli_args):
             for table in table_names:
                 # Take the difference for this table
                 if table in save_difference_tables:
-                    tables[table] = (tables[table][ref_row_idxs_rep] -
-                                     tables[table][all_other_idxs])
+                    tables[table] = (
+                        tables[table][ref_row_idxs_rep] - tables[table][all_other_idxs]
+                    )
                 # Just delete the reference rows from this table
                 else:
                     tables[table] = tables[table][all_other_idxs]
@@ -383,8 +410,7 @@ def convert_piccsim_fits_data(cli_args):
             for table in table_names:
                 tables[table] = tables[table][idxs_to_keep]
                 print(table, np.min(tables[table]), np.max(tables[table]))
-                print(f'Table {table}: {orig_rows} -> '
-                      f'{len(tables[table])} rows')
+                print(f'Table {table}: {orig_rows} -> {len(tables[table])} rows')
             dec_print_indent()
         outfile = f'{output_path}/{chunk_idx}_{DATA_F}'
         print()

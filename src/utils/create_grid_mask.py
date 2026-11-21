@@ -39,7 +39,7 @@ def create_grid_mask(size, circle_size=None):
         # Scale the distances between -1 to 1
         distances = distances / np.max(distances)
         # Create a 2D grid of distances from the center
-        distance_grid = np.sqrt(distances[None, :]**2 + distances[:, None]**2)
+        distance_grid = np.sqrt(distances[None, :] ** 2 + distances[:, None] ** 2)
         # Mask out all pixels that form a circle
         mask[distance_grid > circle_size] = 0
     return mask

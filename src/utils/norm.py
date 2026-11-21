@@ -109,7 +109,7 @@ def undo_modified_log_transform(data, alpha=1.0):
     np.array
         The denormalized data.
     """
-    return np.sign(data) * alpha * (10**np.abs(data) - 1)
+    return np.sign(data) * alpha * (10 ** np.abs(data) - 1)
 
 
 def min_max_norm(
@@ -178,8 +178,9 @@ def min_max_denorm(
     """
 
     if ones_range:
-        return (((data + 1) / 2) *
-                (max_min_diff + numerical_stability_constant)) + min_x
+        return (
+            ((data + 1) / 2) * (max_min_diff + numerical_stability_constant)
+        ) + min_x
     # norm = (original - min_x) / max_min_diff
     # -> original = (norm * max_min_diff) + min_x
     return (data * (max_min_diff + numerical_stability_constant)) + min_x
@@ -243,6 +244,7 @@ def find_min_max_norm(
         max_min_diff *= scale_values
         print(f'Scaled min_x: {min_x}')
         print(f'Scaled max_min_diff: {max_min_diff}')
-    normalized = min_max_norm(data, max_min_diff, min_x, ones_range,
-                              numerical_stability_constant)
+    normalized = min_max_norm(
+        data, max_min_diff, min_x, ones_range, numerical_stability_constant
+    )
     return normalized, max_min_diff, min_x

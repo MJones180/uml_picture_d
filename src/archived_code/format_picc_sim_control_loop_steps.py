@@ -32,9 +32,11 @@ cols = (
 # Concat all of the columns together
 output_data = np.concatenate(cols, axis=1)
 # The column names
-column_names = ('ROW_IDX, CUMULATIVE_TIME, DELTA_TIME, Z2, Z3, Z4, Z5, Z6, '
-                'Z7, Z8, Z9, Z10, Z11, Z12, Z13, Z14, Z15, Z16, Z17, Z18, '
-                'Z19, Z20, Z21, Z22, Z23, Z24')
+column_names = (
+    'ROW_IDX, CUMULATIVE_TIME, DELTA_TIME, Z2, Z3, Z4, Z5, Z6, '
+    'Z7, Z8, Z9, Z10, Z11, Z12, Z13, Z14, Z15, Z16, Z17, Z18, '
+    'Z19, Z20, Z21, Z22, Z23, Z24'
+)
 # Write out the data
 np.savetxt(
     f'picc_control_steps_{MAX_ROWS}.csv',

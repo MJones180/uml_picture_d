@@ -70,10 +70,12 @@ def plot_zernike_cross_coupling_animation(
     colors = idl_rainbow_colors(zernike_count)
 
     lines = [
-        ax.plot(perturbation_grid,
-                np.zeros_like(perturbation_grid),
-                label=f'Z{term} {ZERNIKE_NAME_LOOKUP[term]}',
-                color=colors[term_idx])[0]
+        ax.plot(
+            perturbation_grid,
+            np.zeros_like(perturbation_grid),
+            label=f'Z{term} {ZERNIKE_NAME_LOOKUP[term]}',
+            color=colors[term_idx],
+        )[0]
         for term_idx, term in enumerate(zernike_terms)
     ]
 

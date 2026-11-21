@@ -6,8 +6,15 @@ in both polarizations; output: EF being estimated).
 
 import numpy as np
 from utils.cli_args import save_cli_args
-from utils.constants import (DATA_F, EXTRA_VARS_F, INPUTS, MEAN, OUTPUTS,
-                             PROC_DATA_P, STD)
+from utils.constants import (
+    DATA_F,
+    EXTRA_VARS_F,
+    INPUTS,
+    MEAN,
+    OUTPUTS,
+    PROC_DATA_P,
+    STD,
+)
 from utils.group_data_from_list import group_data_from_list
 from utils.hdf_read_and_write import HDFWriteModule, read_hdf
 from utils.load_raw_sim_data import raw_sim_data_chunk_paths
@@ -32,8 +39,10 @@ def preprocess_data_pol_parser(subparsers):
         '--output-tag-percentages',
         type=int,
         nargs='+',
-        help=('percentage of the data each output tag will receive; must be '
-              'in the same order as the `--output-tags` argument'),
+        help=(
+            'percentage of the data each output tag will receive; must be '
+            'in the same order as the `--output-tags` argument'
+        ),
     )
     subparser.add_argument(
         '--raw-data-tags',
@@ -48,28 +57,36 @@ def preprocess_data_pol_parser(subparsers):
     subparser.add_argument(
         '--apply-crop',
         nargs='*',
-        help=('apply a crop to a table; five arguments expected per group: '
-              'table name, x1, x2, y1, y2'),
+        help=(
+            'apply a crop to a table; five arguments expected per group: '
+            'table name, x1, x2, y1, y2'
+        ),
     )
     subparser.add_argument(
         '--apply-mask',
         nargs='+',
-        help=('apply a mask to the data; arguments expected: name of the raw '
-              'datafile containing the mask, table in the datafile, *tables '
-              'to apply the mask to'),
+        help=(
+            'apply a mask to the data; arguments expected: name of the raw '
+            'datafile containing the mask, table in the datafile, *tables '
+            'to apply the mask to'
+        ),
     )
     subparser.add_argument(
         '--merge-tables',
         nargs='*',
-        help=('merge two tables into a single table; three arguments '
-              'expected per group: table 1 name, table 2 name, merged name'),
+        help=(
+            'merge two tables into a single table; three arguments '
+            'expected per group: table 1 name, table 2 name, merged name'
+        ),
     )
     subparser.add_argument(
         '--switch-basis',
         nargs='*',
-        help=('switch to a different basis; four arguments expected per '
-              'group: name of table to transform, raw data tag containing '
-              'modes, name of table in modes file, number of modes to use'),
+        help=(
+            'switch to a different basis; four arguments expected per '
+            'group: name of table to transform, raw data tag containing '
+            'modes, name of table in modes file, number of modes to use'
+        ),
     )
     subparser.add_argument(
         '--switch-basis-skip-reconstruction-error',
@@ -94,10 +111,12 @@ def preprocess_data_pol_parser(subparsers):
     subparser.add_argument(
         '--extend-existing-preprocessed-data',
         action='store_true',
-        help=('add more data chunks to existing preprocessed datasets; the '
-              'data tags must match existing ones for this arg to be used; '
-              'the extra variables from the first output tag will be used '
-              'and will not be written out a second time'),
+        help=(
+            'add more data chunks to existing preprocessed datasets; the '
+            'data tags must match existing ones for this arg to be used; '
+            'the extra variables from the first output tag will be used '
+            'and will not be written out a second time'
+        ),
     )
     subparser.add_argument(
         '--fix-seed',
@@ -181,8 +200,8 @@ def preprocess_data_pol(cli_args):
             print(f'x1, x2: {x1}, {x2}')
             print(f'y1, y2: {y1}, {y2}')
             orig_shape = all_table_data[tab].shape
-            all_table_data[tab] = all_table_data[tab][:, int(x1):int(x2)]
-            all_table_data[tab] = all_table_data[tab][:, :, int(y1):int(y2)]
+            all_table_data[tab] = all_table_data[tab][:, int(x1) : int(x2)]
+            all_table_data[tab] = all_table_data[tab][:, :, int(y1) : int(y2)]
             new_shape = all_table_data[tab].shape
             print(f'{tab} shape: {orig_shape} -> {new_shape}')
 
@@ -246,11 +265,11 @@ def preprocess_data_pol(cli_args):
             modes_data = read_hdf(raw_sim_data_chunk_paths(modes_tag)[0])
             modes = modes_data[modes_table][:].astype(np.float32)
             # Pick out the correct number of modes from the start
-            modes = modes[:int(number_modes)]
+            modes = modes[: int(number_modes)]
             table_data = all_table_data[table]
 
             # The modes may contain extra variables
-            def _grab_mode_var(name):
+            def _grab_mode_var(name, modes_data=modes_data, modes_tag=modes_tag):
                 if name in list(modes_data):
                     save_name = f'{modes_tag}_{name}'
                     if extend_existing_data:
@@ -331,10 +350,10 @@ def preprocess_data_pol(cli_args):
         rows = int(len(input_data) * percentage / 100)
         print(f'[{output_tag}] Rows: {rows} ({percentage}%)')
         # Grab the data that should be written to this tag
-        input_chunk = input_data[rows_low:rows_low + rows]
+        input_chunk = input_data[rows_low : rows_low + rows]
         output_chunk = np.array([])
         if output_tables is not None:
-            output_chunk = output_data[rows_low:rows_low + rows]
+            output_chunk = output_data[rows_low : rows_low + rows]
         rows_low += rows
         out_path = output_tag_paths[idx]
         datafile_path = f'{out_path}/{DATA_F}'
@@ -343,19 +362,19 @@ def preprocess_data_pol(cli_args):
             print('Merging existing data in')
             # Add on to the existing datafiles
             with read_hdf(datafile_path) as existing_data:
-                input_chunk = np.vstack(
-                    (existing_data[INPUTS][:], input_chunk))
+                input_chunk = np.vstack((existing_data[INPUTS][:], input_chunk))
                 if output_tables is not None:
-                    output_chunk = np.vstack(
-                        (existing_data[OUTPUTS][:], output_chunk))
+                    output_chunk = np.vstack((existing_data[OUTPUTS][:], output_chunk))
         else:
             # Add a file with extra necessary variables
             file_path = f'{out_path}/{EXTRA_VARS_F}'
             HDFWriteModule(file_path).create_and_write_hdf_simple(extra_vars)
         # Write out the processed HDF file
-        HDFWriteModule(datafile_path).create_and_write_hdf_simple({
-            INPUTS: input_chunk,
-            OUTPUTS: output_chunk,
-        })
+        HDFWriteModule(datafile_path).create_and_write_hdf_simple(
+            {
+                INPUTS: input_chunk,
+                OUTPUTS: output_chunk,
+            }
+        )
         print(f'Input shape: {input_chunk.shape}')
         print(f'Output shape: {output_chunk.shape}')

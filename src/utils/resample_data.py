@@ -3,11 +3,11 @@ from PIL import Image
 
 
 def resample_data(
-        data,
-        sampling,
-        final_sampling,
-        final_points,
-        scale_factor_threshold=(0.95, 1.05),
+    data,
+    sampling,
+    final_sampling,
+    final_points,
+    scale_factor_threshold=(0.95, 1.05),
 ):
     """
     Resample one grid to another grid size.

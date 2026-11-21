@@ -1,14 +1,17 @@
-from utils.constants import (BASE_INT_FIELD, PERTURBATION_AMOUNTS,
-                             RESPONSE_MATRIX_INV, RESPONSE_MATRICES_P,
-                             ZERNIKE_TERMS)
+from utils.constants import (
+    BASE_INT_FIELD,
+    PERTURBATION_AMOUNTS,
+    RESPONSE_MATRIX_INV,
+    RESPONSE_MATRICES_P,
+    ZERNIKE_TERMS,
+)
 from utils.hdf_read_and_write import read_hdf
 from utils.path import path_exists
 from utils.printing_and_logging import dec_print_indent, step
 from utils.terminate_with_message import terminate_with_message
 
 
-class ResponseMatrix():
-
+class ResponseMatrix:
     def __init__(self, tag):
         step('Loading in the response matrix')
 

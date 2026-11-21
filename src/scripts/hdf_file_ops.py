@@ -17,9 +17,11 @@ def hdf_file_ops_parser(subparsers):
         '--trim-rows-in-datafile-based-on-table',
         nargs='+',
         metavar='hdf_relative_datafile_path source_table *tables_to_trim',
-        help=('given the source table, will trim all other listed tables to '
-              'the same number of rows (operates on dimension zero); this '
-              'option will overwrite the existing HDF datafile'),
+        help=(
+            'given the source table, will trim all other listed tables to '
+            'the same number of rows (operates on dimension zero); this '
+            'option will overwrite the existing HDF datafile'
+        ),
     )
 
 

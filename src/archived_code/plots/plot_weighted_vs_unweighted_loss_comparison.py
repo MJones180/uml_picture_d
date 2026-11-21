@@ -82,6 +82,7 @@ MAE_COLOR = 'tab:blue'
 SMAPE_COLOR = 'tab:red'
 
 # Keys are the coefficient indicies
+# fmt: off
 V119_0_MAE = {
     0: [
         1.02720, 0.85244, 0.71558, 0.58087, 0.54165, 0.50918, 0.53903, 0.44974,
@@ -186,12 +187,13 @@ V119_1_SMAPE = {
         31.5324, 32.3987, 29.0913, 25.8012, 24.5728
     ],
 }
+# fmt: on
 
 # ==============================================================================
 
 plt.style.use('plot_styling.mplstyle')
 
-for coeff_idx in V119_0_MAE.keys():
+for coeff_idx in V119_0_MAE:
     plt.clf()
     fig, axs = plt.subplots(figsize=(12, 10), constrained_layout=True)
     axs.set_title(f'Coefficient {coeff_idx} Errors')

@@ -5,7 +5,6 @@ import numpy as np
 # https://stackoverflow.com/a/47626762
 # Removes the "JSON serializable" error that often arises with numpy arrays
 class NumpyEncoder(json.JSONEncoder):
-
     def default(self, obj):
         if isinstance(obj, np.ndarray):
             return obj.tolist()

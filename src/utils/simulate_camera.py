@@ -1,6 +1,12 @@
 import numpy as np
-from utils.constants import (CAM_BIAS, CAM_BITDEPTH, CAM_DARK_RATE,
-                             CAM_FULL_WELL, CAM_GAIN, CAM_READ_NOISE)
+from utils.constants import (
+    CAM_BIAS,
+    CAM_BITDEPTH,
+    CAM_DARK_RATE,
+    CAM_FULL_WELL,
+    CAM_GAIN,
+    CAM_READ_NOISE,
+)
 from utils.norm import sum_to_one
 
 # The camera settings are hard coded in this file (for better or for worse).
@@ -80,7 +86,7 @@ def simulate_camera(inputs_wfs, cam_name, exposure_time, countrate):
     # Digitize the counts
     wfs_with_noise = np.floor(wfs_with_noise)
     # The largest number of electrons that can be in a single pixel
-    max_electrons = 2**cam_specs[CAM_BITDEPTH] - 1
+    max_electrons = 2 ** cam_specs[CAM_BITDEPTH] - 1
     # Clip the electron counts
     np.clip(wfs_with_noise, 0, max_electrons, wfs_with_noise)
     # Convert to float32 from float64

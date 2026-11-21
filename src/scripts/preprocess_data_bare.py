@@ -15,8 +15,15 @@ Note: some code is shared with the `preprocess_data_complete` script (hardcoded)
 """
 
 from utils.cli_args import save_cli_args
-from utils.constants import (CAMERA_SAMPLING, DATA_F, EXTRA_VARS_F, INPUTS,
-                             OUTPUTS, PROC_DATA_P, ZERNIKE_TERMS)
+from utils.constants import (
+    CAMERA_SAMPLING,
+    DATA_F,
+    EXTRA_VARS_F,
+    INPUTS,
+    OUTPUTS,
+    PROC_DATA_P,
+    ZERNIKE_TERMS,
+)
 from utils.hdf_read_and_write import HDFWriteModule
 from utils.load_raw_sim_data import load_raw_sim_data_chunks
 from utils.path import make_dir
@@ -41,8 +48,10 @@ def preprocess_data_bare_parser(subparsers):
     subparser.add_argument(
         '--outputs-in-surface-error',
         action='store_true',
-        help=('the Zernike coefficients are in terms of surface error instead '
-              'of wavefront error'),
+        help=(
+            'the Zernike coefficients are in terms of surface error instead '
+            'of wavefront error'
+        ),
     )
     subparser.add_argument(
         '--outputs-scaling-factor',
@@ -52,15 +61,19 @@ def preprocess_data_bare_parser(subparsers):
     subparser.add_argument(
         '--remove-last-row',
         action='store_true',
-        help=('remove the last row from the data '
-              '(useful if the last row has no aberrations)'),
+        help=(
+            'remove the last row from the data '
+            '(useful if the last row has no aberrations)'
+        ),
     )
     subparser.add_argument(
         '--camera-for-wfs',
         nargs=3,
-        help=('simulate a camera which adds noise, discretized light levels, '
-              'and saturation; requires three arguments: <cam name> '
-              '<exposure time in s> <countrate>'),
+        help=(
+            'simulate a camera which adds noise, discretized light levels, '
+            'and saturation; requires three arguments: <cam name> '
+            '<exposure time in s> <countrate>'
+        ),
     )
 
 
@@ -69,8 +82,9 @@ def preprocess_data_bare(cli_args):
 
     step_ri('Loading in data chunks')
     raw_data_tag = cli_args['raw_data_tag']
-    (input_data, output_data, zernike_terms,
-     camera_sampling) = load_raw_sim_data_chunks(raw_data_tag)
+    (input_data, output_data, zernike_terms, camera_sampling) = (
+        load_raw_sim_data_chunks(raw_data_tag)
+    )
     print(f'Input shape: {input_data.shape}')
     print(f'Output shape: {output_data.shape}')
     print(f'Zernike terms: {zernike_terms}')
@@ -82,7 +96,7 @@ def preprocess_data_bare(cli_args):
         exposure_time = float(exposure_time)
         countrate = float(countrate)
         print(f'Camera: {cam_name}')
-        print(f'Exposure time: {exposure_time} s ({1/exposure_time} Hz)')
+        print(f'Exposure time: {exposure_time} s ({1 / exposure_time} Hz)')
         print(f'Countrate: {countrate} photons/s')
         # Add noise to the PSFs
         input_data = simulate_camera(
@@ -127,12 +141,15 @@ def preprocess_data_bare(cli_args):
         # Write out the CLI args that this script was called with
         save_cli_args(out_path, cli_args, 'preprocess_data_bare')
         # Add a file with other necessary variables
-        HDFWriteModule(f'{out_path}/{EXTRA_VARS_F}'
-                       ).create_and_write_hdf_simple(extra_vars)
+        HDFWriteModule(f'{out_path}/{EXTRA_VARS_F}').create_and_write_hdf_simple(
+            extra_vars
+        )
         # Write out the processed HDF file
-        HDFWriteModule(f'{out_path}/{DATA_F}').create_and_write_hdf_simple({
-            INPUTS: inputs,
-            OUTPUTS: outputs,
-        })
+        HDFWriteModule(f'{out_path}/{DATA_F}').create_and_write_hdf_simple(
+            {
+                INPUTS: inputs,
+                OUTPUTS: outputs,
+            }
+        )
 
     _create_dataset('tag', input_data, output_data)

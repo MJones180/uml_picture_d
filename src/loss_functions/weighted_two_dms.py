@@ -1,6 +1,6 @@
 import numpy as np
 import torch
-import torch.nn as nn
+from torch import nn
 from utils.constants import DATA_F, RAW_DATA_P
 from utils.hdf_read_and_write import read_hdf
 from utils.norm import min_max_norm
@@ -8,7 +8,6 @@ from utils.terminate_with_message import terminate_with_message
 
 
 class WeightedTwoDMs(nn.Module):
-
     def __init__(
         self,
         outputs_per_dm,
@@ -121,18 +120,22 @@ class WeightedTwoDMs(nn.Module):
             linear_scaling_tail = _grab_param(linear_scaling_tail, int)
             if linear_scaling_tail:
                 end_mode = linear_scaling_tail
-            print('Linear scaling from 1 (mode 0) to '
-                  f'{linear_scaling} (mode {end_mode - 1})')
+            print(
+                'Linear scaling from 1 (mode 0) to '
+                f'{linear_scaling} (mode {end_mode - 1})'
+            )
             output_weights = np.linspace(1, linear_scaling, end_mode)
             if linear_scaling_tail:
-                print(f'Constant scaling of {linear_scaling} from modes '
-                      f'{end_mode} to {outputs_per_dm - 1}')
+                print(
+                    f'Constant scaling of {linear_scaling} from modes '
+                    f'{end_mode} to {outputs_per_dm - 1}'
+                )
                 output_weights_full = np.full(outputs_per_dm, linear_scaling)
                 output_weights_full[:end_mode] = output_weights
                 output_weights = output_weights_full
         elif exp_scaling:
             print(f'Exponential scaling with base {exp_scaling}')
-            output_weights = exp_scaling**np.arange(outputs_per_dm)
+            output_weights = exp_scaling ** np.arange(outputs_per_dm)
         elif singular_value_scaling:
             print(f'Singular value scaling ({singular_value_scaling})')
             path = f'{RAW_DATA_P}/{singular_value_scaling}/0_{DATA_F}'
@@ -182,9 +185,11 @@ class WeightedTwoDMs(nn.Module):
             self.total_epochs = self.dynamic_linear_weights
             self.dynamic_linear_weights = True
             self.equal_output_weights = torch.from_numpy(
-                np.ones_like(output_weights)).to(device)
+                np.ones_like(output_weights)
+            ).to(device)
             self.dynamic_linear_weights_flip = _grab_param(
-                dynamic_linear_weights_flip, bool)
+                dynamic_linear_weights_flip, bool
+            )
 
         # Mean division is done for each epoch when using dynamic weighting
         if not self.dynamic_linear_weights:
@@ -203,20 +208,26 @@ class WeightedTwoDMs(nn.Module):
         # Whether a modified log should be applied before determining the loss
         self.apply_modified_log = _grab_param(apply_modified_log)
         if self.apply_modified_log:
-            print('Will apply a modified log before calculating the '
-                  f'loss ({self.apply_modified_log} scaling)')
+            print(
+                'Will apply a modified log before calculating the '
+                f'loss ({self.apply_modified_log} scaling)'
+            )
 
         # Whether a modified exp should be applied before determining the loss
         self.apply_modified_exp = _grab_param(apply_modified_exp)
         if self.apply_modified_exp:
-            print('Will apply a modified exp before calculating the '
-                  f'loss ({self.apply_modified_exp} base)')
+            print(
+                'Will apply a modified exp before calculating the '
+                f'loss ({self.apply_modified_exp} base)'
+            )
 
         # Whether to use reverse Huber instead of MSE
         self.use_reverse_huber = _grab_param(use_reverse_huber)
         if self.use_reverse_huber:
-            print('Will use reverse Huber loss instead of MSE loss '
-                  f'(alpha of {self.use_reverse_huber})')
+            print(
+                'Will use reverse Huber loss instead of MSE loss '
+                f'(alpha of {self.use_reverse_huber})'
+            )
             self.huber_alpha = self.use_reverse_huber
             self.huber_alpha_squared = self.huber_alpha**2
 
@@ -231,18 +242,19 @@ class WeightedTwoDMs(nn.Module):
             alpha, beta = self.add_exp_loss_weighting.split(',')
             self.add_exp_loss_weighting_alpha = float(alpha)
             self.add_exp_loss_weighting_beta = float(beta)
-            print('Will add exp weighting to the loss '
-                  f'(alpha = {self.add_exp_loss_weighting_alpha}, '
-                  f'beta = {self.add_exp_loss_weighting_beta})')
+            print(
+                'Will add exp weighting to the loss '
+                f'(alpha = {self.add_exp_loss_weighting_alpha}, '
+                f'beta = {self.add_exp_loss_weighting_beta})'
+            )
 
     def _apply_log_transformation(self, values):
         alpha = self.apply_modified_log
-        return (torch.sign(values) *
-                torch.log10(1 + torch.abs(values) / alpha))
+        return torch.sign(values) * torch.log10(1 + torch.abs(values) / alpha)
 
     def _apply_exp_transformation(self, values):
         base = self.apply_modified_exp
-        return torch.sign(values) * (1 - base**torch.abs(values))
+        return torch.sign(values) * (1 - base ** torch.abs(values))
 
     def set_epoch(self, epoch):
         self.current_epoch = epoch
@@ -262,8 +274,7 @@ class WeightedTwoDMs(nn.Module):
             loss = torch.where(
                 abs_delta <= self.huber_alpha,
                 abs_delta,
-                (abs_delta**2 + self.huber_alpha_squared) /
-                (2 * self.huber_alpha),
+                (abs_delta**2 + self.huber_alpha_squared) / (2 * self.huber_alpha),
             )
         else:
             loss = abs_delta**2
@@ -272,14 +283,14 @@ class WeightedTwoDMs(nn.Module):
         # Apply the exp loss weighting - makes small errors more important
         if self.add_exp_loss_weighting:
             loss_weights = 1.0 + (
-                self.add_exp_loss_weighting_alpha *
-                torch.exp(-abs_delta / self.add_exp_loss_weighting_beta))
+                self.add_exp_loss_weighting_alpha
+                * torch.exp(-abs_delta / self.add_exp_loss_weighting_beta)
+            )
             loss = loss * loss_weights
         if self.dynamic_linear_weights:
             current_ratio = self.current_epoch / self.total_epochs
             # Cap the ratio so that the first term does not go above 1 scaling
-            if current_ratio > 1:
-                current_ratio = 1
+            current_ratio = min(current_ratio, 1)
             if self.dynamic_linear_weights_flip:
                 term_one_ratio = 1 - current_ratio
                 term_two_ratio = current_ratio

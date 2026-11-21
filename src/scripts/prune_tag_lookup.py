@@ -3,6 +3,7 @@ Remove old models from the `tag_lookup.json` file.
 """
 
 from glob import glob
+
 from utils.constants import OUTPUT_P, TAG_LOOKUP_F, TRAINED_MODELS_P
 from utils.json import json_load, json_write
 from utils.path import path_exists
@@ -35,8 +36,7 @@ def prune_tag_lookup(cli_args):
         tag_lookup = {}
     # Create a tag lookup with only the existing keys
     updated_tag_lookup = {
-        key: val
-        for key, val in tag_lookup.items() if key in existing_model_tags
+        key: val for key, val in tag_lookup.items() if key in existing_model_tags
     }
     removed_tags = ', '.join(tag_lookup.keys() - updated_tag_lookup.keys())
     print(f'Removing the following tags: {removed_tags}')

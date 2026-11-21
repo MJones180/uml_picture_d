@@ -39,7 +39,7 @@ def paper_plot_total_crosstalk(
     plt.style.use(PLOT_STYLE_FILE)
 
     # Set the figure size and add the title + axes labels
-    fig, ax = plt.subplots(figsize=(8, 8))
+    _, ax = plt.subplots(figsize=(8, 8))
     title = f'Zernike Total Cross Coupling ({MODELS[model_idx]})'
     ax.set_title(title)
     ax.set_xlabel(r'Input Zernike Amplitude, $a$ [nm RMS]')
@@ -76,7 +76,7 @@ def paper_plot_total_crosstalk(
         ax.plot(
             perturbation_grid,
             crosstalk_each[:, term_idx],
-            label=fr'$\gamma_{gamma_subscript}$',
+            label=rf'$\gamma_{gamma_subscript}$',
             color=colors[term_idx],
         )
     # Plot the total crosstalk from all Zernikes

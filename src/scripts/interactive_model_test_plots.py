@@ -7,11 +7,13 @@ modularized, but that is a task for another day.
 """
 
 import numpy as np
-from utils.constants import (ANALYSIS_P, RESULTS_F)
+from utils.constants import ANALYSIS_P, RESULTS_F
 from utils.hdf_read_and_write import read_hdf
-from utils.plots.plot_comparison_scatter_grid import plot_comparison_scatter_grid  # noqa: E501
+from utils.plots.plot_comparison_scatter_grid import plot_comparison_scatter_grid
 from utils.plots.plot_zernike_response import plot_zernike_response
-from utils.plots.plot_zernike_total_cross_coupling import plot_zernike_total_cross_coupling  # noqa: E501
+from utils.plots.plot_zernike_total_cross_coupling import (
+    plot_zernike_total_cross_coupling,
+)
 from utils.printing_and_logging import step_ri, title
 from utils.shared_argparser_args import shared_argparser_args
 
@@ -30,21 +32,30 @@ def inter_model_test_plots_parser(subparsers):
     subparser.add_argument(
         '--scatter-plot',
         nargs=5,
-        metavar=('[n_rows]', '[n_cols]', '[starting_zernike]',
-                 '[filter_value]', '[plot_density]'),
-        help=('generate a scatter plot; takes the args: number of rows, '
-              'number of cols, first Zernike the model outputs, filter value '
-              '(0 for no filtering, otherwise filtering with shared axes), '
-              'points per pixel to use for the density plot'),
+        metavar=(
+            '[n_rows]',
+            '[n_cols]',
+            '[starting_zernike]',
+            '[filter_value]',
+            '[plot_density]',
+        ),
+        help=(
+            'generate a scatter plot; takes the args: number of rows, '
+            'number of cols, first Zernike the model outputs, filter value '
+            '(0 for no filtering, otherwise filtering with shared axes), '
+            'points per pixel to use for the density plot'
+        ),
     )
     subparser.add_argument(
         '--zernike-plots',
         nargs=2,
         metavar=('[zernike_low]', '[zernike_high]'),
         type=int,
-        help=('generate the Zernike plots, the range of the Zernike terms '
-              'being used must be passed in as this data is not stored with '
-              'the outputted datafile and the dataset may not be local'),
+        help=(
+            'generate the Zernike plots, the range of the Zernike terms '
+            'being used must be passed in as this data is not stored with '
+            'the outputted datafile and the dataset may not be local'
+        ),
     )
 
 
@@ -55,8 +66,7 @@ def interactive_model_test_plots(cli_args):
     epoch = cli_args['epoch']
     testing_ds_tag = cli_args['testing_ds']
 
-    data = read_hdf(f'{ANALYSIS_P}/{testing_ds_tag}/{tag}_epoch_{epoch}'
-                    f'/{RESULTS_F}')
+    data = read_hdf(f'{ANALYSIS_P}/{testing_ds_tag}/{tag}_epoch_{epoch}/{RESULTS_F}')
     outputs_truth = data['outputs_truth']
     outputs_model = data['outputs_model']
 

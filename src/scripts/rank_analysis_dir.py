@@ -3,6 +3,7 @@ Rank all the model tests in the analysis directory.
 """
 
 from glob import glob
+
 import numpy as np
 from prettytable import PrettyTable
 from utils.constants import ANALYSIS_P, MAE, MSE, RESULTS_F
@@ -38,8 +39,10 @@ def rank_analysis_dir_parser(subparsers):
     subparser.add_argument(
         '--ds-on-fixed-grid',
         action='store_true',
-        help=('the data is generated along a fixed grid by using the '
-              '`--fixed-amount-per-zernike-range` arg in `sim_data`'),
+        help=(
+            'the data is generated along a fixed grid by using the '
+            '`--fixed-amount-per-zernike-range` arg in `sim_data`'
+        ),
     )
     subparser.add_argument(
         '--r-min-filter',
@@ -75,8 +78,7 @@ def rank_analysis_dir(cli_args):
         data = read_hdf(dir_path)
         outputs_truth = data['outputs_truth'][:]
         # The predictions table could have two different names
-        outputs_pred = data.get('outputs_model',
-                                data.get('outputs_response_matrix'))
+        outputs_pred = data.get('outputs_model', data.get('outputs_response_matrix'))
         # The number of Zernike terms
         zernike_count = outputs_truth.shape[1]
         # Produces a 2nx2n matrix where n is the number of Zernike terms.
@@ -99,12 +101,15 @@ def rank_analysis_dir(cli_args):
         # Compute the correlation for each Zernike term by itself, this
         # represents the data from within the `zernike_response` plots
         if ds_on_fixed_grid:
-            res_to_append['r_zr_min'] = np.min([
-                np.corrcoef(
-                    outputs_truth[idx::zernike_count, idx],
-                    outputs_pred[idx::zernike_count, idx],
-                )[0][1] for idx in range(zernike_count)
-            ])
+            res_to_append['r_zr_min'] = np.min(
+                [
+                    np.corrcoef(
+                        outputs_truth[idx::zernike_count, idx],
+                        outputs_pred[idx::zernike_count, idx],
+                    )[0][1]
+                    for idx in range(zernike_count)
+                ]
+            )
         results.append(res_to_append)
 
     step_ri('Sorting the rankings')
@@ -126,10 +131,10 @@ def rank_analysis_dir(cli_args):
     for row_idx in sorted_idxs:
         row_data = results[row_idx]
 
-        def _format_error(key):
+        def _format_error(key, row_data=row_data):
             return f'{row_data[key]:0.3e}'
 
-        def _format_r(key):
+        def _format_r(key, row_data=row_data):
             return f'{row_data[key]:0.3f}'
 
         row_data_formatted = [

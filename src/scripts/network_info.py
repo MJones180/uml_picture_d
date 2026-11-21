@@ -5,8 +5,12 @@ This script outputs information on a given network (untrained model structure).
 import torch
 from utils.benchmark_nn import benchmark_nn
 from utils.load_network import load_network
-from utils.printing_and_logging import (dec_print_indent, inc_print_indent,
-                                        step_ri, title)
+from utils.printing_and_logging import (
+    dec_print_indent,
+    inc_print_indent,
+    step_ri,
+    title,
+)
 from utils.shared_argparser_args import shared_argparser_args
 from utils.torch_grab_device import torch_grab_device
 

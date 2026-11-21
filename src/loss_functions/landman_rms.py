@@ -2,7 +2,6 @@ import torch
 
 
 class LandmanRMS(torch.nn.Module):
-
     def __init__(self, epsilon=None):
         """The LandmanRMS class.
 
@@ -27,7 +26,7 @@ class LandmanRMS(torch.nn.Module):
 
     def forward(self, model_outputs, truth_outputs):
         # RSS of difference along features
-        numer = torch.sum((truth_outputs - model_outputs)**2, dim=-1).sqrt()
+        numer = torch.sum((truth_outputs - model_outputs) ** 2, dim=-1).sqrt()
         # RSS of truth along features
         denom = torch.sum(truth_outputs**2, dim=-1).sqrt() + self.epsilon
         # Calculate the loss for each row

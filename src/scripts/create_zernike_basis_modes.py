@@ -31,8 +31,10 @@ def create_zernike_basis_modes_parser(subparsers):
     subparser.add_argument(
         '--apply-mask',
         nargs=2,
-        help=('apply a mask from a raw dataset; the first row will be used '
-              'to mask the data; two args expected: raw tag name, table name'),
+        help=(
+            'apply a mask from a raw dataset; the first row will be used '
+            'to mask the data; two args expected: raw tag name, table name'
+        ),
     )
 
 
@@ -42,7 +44,7 @@ def create_zernike_basis_modes(cli_args):
     step_ri('Computing Zernike modes')
     modes = []
     numb_modes = cli_args['number_modes']
-    print(f'Will compute Noll modes 2 - {numb_modes+1} (skipping piston)')
+    print(f'Will compute Noll modes 2 - {numb_modes + 1} (skipping piston)')
     pixels = cli_args['number_pixels']
     print(f'Zernikes will go on grid {pixels}x{pixels}')
     for mode_idx in range(numb_modes):
@@ -64,7 +66,7 @@ def create_zernike_basis_modes(cli_args):
 
     step_ri('Performing QR decomposition on the modes')
     # Gives each mode a zero mean and unit norm; makes orthonormal modes
-    Q, R = np.linalg.qr(modes.T, mode='reduced')
+    Q, _ = np.linalg.qr(modes.T, mode='reduced')
     modes = Q.T
 
     step_ri('Writing out modes')

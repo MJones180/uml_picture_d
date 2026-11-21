@@ -35,7 +35,6 @@ DP_PROBS = np.linspace(0, DP_MAX_PROB, DEPTH)
 
 # Also known as Stochastic Depth
 class DropPath(nn.Module):
-
     def __init__(self, drop_prob):
         super().__init__()
         self.drop_prob = drop_prob
@@ -50,7 +49,6 @@ class DropPath(nn.Module):
 
 
 class BottleneckResidualBlock(nn.Module):
-
     def __init__(self, dropout, drop_path_prob):
         super().__init__()
         self.block = nn.Sequential(
@@ -62,7 +60,7 @@ class BottleneckResidualBlock(nn.Module):
             nn.Dropout(dropout),
             nn.Linear(INNER_DIM, OUTER_DIM, bias=False),
         )
-        self.gamma = nn.Parameter(torch.full((OUTER_DIM, ), GAMMA_INIT))
+        self.gamma = nn.Parameter(torch.full((OUTER_DIM,), GAMMA_INIT))
         self.drop_path = DropPath(drop_path_prob)
 
     def forward(self, x):
@@ -70,7 +68,6 @@ class BottleneckResidualBlock(nn.Module):
 
 
 class Network(nn.Module):
-
     def example_input():
         return torch.rand((2, IN_DIM))
 
@@ -80,10 +77,12 @@ class Network(nn.Module):
             nn.Linear(IN_DIM, OUTER_DIM, bias=False),
             nn.BatchNorm1d(OUTER_DIM),
         )
-        self.blocks = nn.Sequential(*[
-            BottleneckResidualBlock(DROPOUT, DP_PROBS[layer_idx])
-            for layer_idx in range(DEPTH)
-        ])
+        self.blocks = nn.Sequential(
+            *[
+                BottleneckResidualBlock(DROPOUT, DP_PROBS[layer_idx])
+                for layer_idx in range(DEPTH)
+            ]
+        )
         self.features_for_end_dropout = nn.Dropout(FEATURE_EXTRACTION_DROPOUT)
         self.output = nn.Sequential(
             nn.BatchNorm1d(2 * OUTER_DIM),

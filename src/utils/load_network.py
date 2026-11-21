@@ -7,6 +7,7 @@ def load_network(name):
     try:
         module = import_module(f'{NETWORKS}.{name}')
     except ModuleNotFoundError:
-        terminate_with_message(f'No network by the name of `{name}` found '
-                               f'within the `{NETWORKS}` folder.')
+        terminate_with_message(
+            f'No network by the name of `{name}` found within the `{NETWORKS}` folder.'
+        )
     return module.Network

@@ -1,8 +1,10 @@
-from astropy.io import fits
 import numpy as np
+from astropy.io import fits
 from utils.constants import CONTROL_LOOP_RESULTS_P
 from utils.path import make_dir
-from utils.plots.plot_control_loop_zernikes_subplots import plot_control_loop_zernikes_subplots  # noqa: E501
+from utils.plots.plot_control_loop_zernikes_subplots import (
+    plot_control_loop_zernikes_subplots,
+)
 from utils.printing_and_logging import step_ri, title
 
 
@@ -14,10 +16,12 @@ def plot_instrument_control_loop_results_parser(subparsers):
     subparser.set_defaults(main=plot_instrument_control_loop_results)
     subparser.add_argument(
         'tag',
-        help=('name of the folder located in `output/control_loop_results`; '
-              'this folder must contain the `XXX.fits`, `XXX.fits`, and '
-              '`XXX.fits` files; a new nested folder will be created with '
-              'the name of `plots`'),
+        help=(
+            'name of the folder located in `output/control_loop_results`; '
+            'this folder must contain the `XXX.fits`, `XXX.fits`, and '
+            '`XXX.fits` files; a new nested folder will be created with '
+            'the name of `plots`'
+        ),
     )
     subparser.add_argument(
         '--zernike-range',

@@ -6,7 +6,6 @@ import torch.nn as nn
 
 
 class Network(nn.Module):
-
     def example_input():
         return torch.rand((1, 5312))
 

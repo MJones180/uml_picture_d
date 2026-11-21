@@ -19,8 +19,7 @@ def apply_data_transformation_parser(subparsers):
     )
     subparser.add_argument(
         'new_tag',
-        help=('tag of the new raw dataset which will contain '
-              'the transformed data'),
+        help=('tag of the new raw dataset which will contain the transformed data'),
     )
     subparser.add_argument(
         '--tables-to-transform',
@@ -50,21 +49,27 @@ def apply_data_transformation_parser(subparsers):
     subparser.add_argument(
         '--table-difference',
         nargs=3,
-        help=('take the difference between two tables; three args expected: '
-              'table 1, table 2, new table; new table = table 1 - table 2'),
+        help=(
+            'take the difference between two tables; three args expected: '
+            'table 1, table 2, new table; new table = table 1 - table 2'
+        ),
     )
     subparser.add_argument(
         '--table-sum',
         nargs=3,
-        help=('take the sum between two tables; three args expected: '
-              'table 1, table 2, new table; new table = table 1 + table 2'),
+        help=(
+            'take the sum between two tables; three args expected: '
+            'table 1, table 2, new table; new table = table 1 + table 2'
+        ),
     )
     subparser.add_argument(
         '--table-sum-and-difference',
         nargs=4,
-        help=('take the sum and the difference between two tables; four args '
-              'expected: table 1, table 2, sum table, diff table; '
-              'sum table = table 1 + table 2; diff table = table 1 - table 2'),
+        help=(
+            'take the sum and the difference between two tables; four args '
+            'expected: table 1, table 2, sum table, diff table; '
+            'sum table = table 1 + table 2; diff table = table 1 - table 2'
+        ),
     )
 
 
@@ -78,17 +83,14 @@ def apply_data_transformation(cli_args):
     tables_to_copy = cli_args.get('tables_to_copy') or []
     print(f'Transform tables: {tables_to_transform}')
     print(f'Copying tables: {tables_to_copy}')
-    table_data = {
-        table: []
-        for table in [*tables_to_transform, *tables_to_copy]
-    }
+    table_data = {table: [] for table in [*tables_to_transform, *tables_to_copy]}
     for data_path in raw_sim_data_chunk_paths(current_tag):
         print(f'Loading in data from {data_path}')
         data = read_hdf(data_path)
-        for table_name in table_data.keys():
-            table_data[table_name].extend(data[table_name][:])
-    for table_name in table_data.keys():
-        table_data[table_name] = np.array(table_data[table_name])
+        for table_name, table_value in table_data.items():
+            table_value.extend(data[table_name][:])
+    for table_name, table_value in table_data.items():
+        table_data[table_name] = np.array(table_value)
         print(f'{table_name} Shape: {table_data[table_name].shape}')
 
     step_ri('Transforming the data')

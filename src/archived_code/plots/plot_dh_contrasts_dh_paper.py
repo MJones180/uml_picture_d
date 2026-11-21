@@ -13,7 +13,7 @@ NN_CONTRASTS = 'nn_contrasts'
 EFC_CONTRASTS = 'efc_contrasts'
 
 # In the contrast data: rows are realizations, columns are iterations
-# yapf: disable; needed to allow long lines
+# fmt: off
 EXACT_EF = {
     SIMPLE: {
         # dh_v158_1
@@ -126,7 +126,7 @@ PWP_EF = {
         ]),
     },
 }
-# yapf: enable
+# fmt: on
 
 # =========================
 # Choose the data to plot
@@ -159,9 +159,9 @@ for subplot_idx, subplot_key in enumerate((SIMPLE, REALISTIC)):
         )
         # Compute the geometric mean; instead of calculating prod(x)^(1/N),
         # the following computational trick can be used
-        mean_contrasts = 10**np.mean(np.log10(contrasts), axis=0)
+        mean_contrasts = 10 ** np.mean(np.log10(contrasts), axis=0)
         print(subplot_key, contrast_key, mean_contrasts)
-        line, = ax[subplot_idx].plot(x_idxs, mean_contrasts, color=color)
+        (line,) = ax[subplot_idx].plot(x_idxs, mean_contrasts, color=color)
         legend_handles.append((fill, line))
         legend_labels.append('EFC' if contrast_idx else 'NN')
     ax[subplot_idx].set_title(subplot_key)

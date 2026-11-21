@@ -63,7 +63,8 @@ ax.set_title('Singular Value Magnitudes')
 
 # Min-max norm between [0, 1]
 singular_values = (singular_values - singular_values[-1]) / (
-    singular_values[0] - singular_values[-1])
+    singular_values[0] - singular_values[-1]
+)
 # Scale between [0.1, 1]
 singular_values = 0.1 + 0.9 * singular_values
 # Divide by mean

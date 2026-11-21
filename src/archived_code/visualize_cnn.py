@@ -15,8 +15,12 @@ import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
 import torchvision
-from utils.constants import (BASE_INT_FIELD, INPUT_MAX_MIN_DIFF, INPUT_MIN_X,
-                             NORM_RANGE_ONES)
+from utils.constants import (
+    BASE_INT_FIELD,
+    INPUT_MAX_MIN_DIFF,
+    INPUT_MIN_X,
+    NORM_RANGE_ONES,
+)
 from utils.model import Model
 from utils.norm import min_max_norm
 from utils.printing_and_logging import step_ri, title
@@ -103,8 +107,9 @@ def visualize_cnn(cli_args):
             terminate_with_message('Base field not present in extra variables')
         inputs = inputs - model_vars[BASE_INT_FIELD]
     # Check if the data was normalized between -1 and 1
-    norm_range_ones = (model_vars[NORM_RANGE_ONES][()]
-                       if NORM_RANGE_ONES in model_vars else False)
+    norm_range_ones = (
+        model_vars[NORM_RANGE_ONES][()] if NORM_RANGE_ONES in model_vars else False
+    )
     if cli_args.get('inputs_need_norm'):
         step_ri('Normalizing the inputs')
         inputs = min_max_norm(

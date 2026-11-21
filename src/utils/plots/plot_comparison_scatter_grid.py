@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
-import mpl_scatter_density  # noqa: F401; 'scatter_density' projection
-from mpl_toolkits.axes_grid1 import make_axes_locatable
 import numpy as np
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 from utils.constants import PLOT_STYLE_FILE
 from utils.idl_rainbow_cmap import idl_rainbow_cmap
 from utils.terminate_with_message import terminate_with_message
@@ -97,11 +96,15 @@ def plot_comparison_scatter_grid(
     # Do the plotting
     # ===============
 
-    title = (f'Truth vs {title_vs} [{identifier}]\n'
-             f'Total points per subplot: {point_per_plot}. ')
+    title = (
+        f'Truth vs {title_vs} [{identifier}]\n'
+        f'Total points per subplot: {point_per_plot}. '
+    )
     if filter_value:
-        title += (f'Filtered out {rows_filtered_out} '
-                  f'rows using bounds [-{filter_value}, {filter_value}].')
+        title += (
+            f'Filtered out {rows_filtered_out} '
+            f'rows using bounds [-{filter_value}, {filter_value}].'
+        )
 
     plt.suptitle(title)
     # The limits should be the global min and max values if filtered, otherwise
@@ -166,7 +169,7 @@ def plot_comparison_scatter_grid(
                     cbar.ax.tick_params(labelsize=15)
             else:
                 # Plot the scatter of all the points
-                axs_cell.scatter(truth_col, model_col, 1, alpha=.1)
+                axs_cell.scatter(truth_col, model_col, 1, alpha=0.1)
             # Set the limits on each subplot
             axs_cell.set_xlim(*xlim)
             axs_cell.set_ylim(*ylim)

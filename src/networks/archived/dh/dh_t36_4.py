@@ -15,7 +15,6 @@ def _make_dense_block(in_features, out_features, dropout=0):
 
 
 class ResidualBlock(nn.Module):
-
     def __init__(self, features, dropout=0.1):
         super().__init__()
         self.block = _make_dense_block(features, features, dropout)
@@ -25,7 +24,6 @@ class ResidualBlock(nn.Module):
 
 
 class Network(nn.Module):
-
     def example_input():
         return torch.rand((2, 1000))
 

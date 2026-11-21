@@ -14,7 +14,6 @@ def create_block(in_features, out_features):
 
 
 class Network(nn.Module):
-
     def example_input():
         return torch.rand((2, 1000))
 

@@ -10,34 +10,45 @@ the `testing_ds` was simulated with the `sim_data` script using the
 """
 
 import numpy as np
-from utils.constants import (ANALYSIS_P, EXTRA_VARS_F, MAE, MSE,
-                             NORM_STABILITY_VALUE, PROC_DATA_P, RESULTS_F,
-                             ZERNIKE_TERMS)
+from utils.constants import (
+    ANALYSIS_P,
+    EXTRA_VARS_F,
+    MAE,
+    MSE,
+    NORM_STABILITY_VALUE,
+    PROC_DATA_P,
+    RESULTS_F,
+    ZERNIKE_TERMS,
+)
 from utils.group_data_from_list import group_data_from_list
 from utils.hdf_read_and_write import HDFWriteModule, read_hdf
-from utils.load_raw_sim_data import (load_raw_sim_data_chunks,
-                                     raw_sim_data_chunk_paths)
+from utils.load_raw_sim_data import load_raw_sim_data_chunks, raw_sim_data_chunk_paths
 from utils.model import Model
 from utils.path import delete_dir, get_abs_path, make_dir
+from utils.plots.paper_plots.model_scatters import paper_plot_model_scatters
+from utils.plots.paper_plots.total_crosstalk import paper_plot_total_crosstalk
+from utils.plots.paper_plots.zernike_response import paper_plot_zernike_response
+from utils.plots.plot_2d_comparison import plot_2d_comparison
 from utils.plots.plot_coeff_comparison import plot_coeff_comparison
-from utils.plots.plot_comparison_scatter_grid import plot_comparison_scatter_grid  # noqa: E501
+from utils.plots.plot_comparison_scatter_grid import plot_comparison_scatter_grid
 from utils.plots.plot_dh_contrast import plot_dh_contrast
 from utils.plots.plot_gamma_bars import plot_gamma_bars
 from utils.plots.plot_model_loss import plot_model_loss
 from utils.plots.plot_r2 import plot_r2
-from utils.plots.plot_zernike_cross_coupling_animation import plot_zernike_cross_coupling_animation  # noqa: E501
-from utils.plots.plot_zernike_cross_coupling_mat_animation import plot_zernike_cross_coupling_mat_animation  # noqa: E501
+from utils.plots.plot_zernike_cross_coupling_animation import (
+    plot_zernike_cross_coupling_animation,
+)
+from utils.plots.plot_zernike_cross_coupling_mat_animation import (
+    plot_zernike_cross_coupling_mat_animation,
+)
 from utils.plots.plot_zernike_crosstalk_grid import plot_zernike_crosstalk_grid
 from utils.plots.plot_zernike_response import plot_zernike_response
-from utils.plots.plot_zernike_total_cross_coupling import plot_zernike_total_cross_coupling  # noqa: E501
-from utils.plots.plot_2d_comparison import plot_2d_comparison
-from utils.plots.paper_plots.total_crosstalk import paper_plot_total_crosstalk  # noqa
-from utils.plots.paper_plots.model_scatters import paper_plot_model_scatters  # noqa
-from utils.plots.paper_plots.zernike_response import paper_plot_zernike_response  # noqa
+from utils.plots.plot_zernike_total_cross_coupling import (
+    plot_zernike_total_cross_coupling,
+)
 from utils.printing_and_logging import dec_print_indent, step, step_ri, title
 from utils.shared_argparser_args import shared_argparser_args
-from utils.stats_and_error import (mae, mse,
-                                   symmetric_mean_absolute_percentage_error)
+from utils.stats_and_error import mae, mse, symmetric_mean_absolute_percentage_error
 from utils.terminate_with_message import terminate_with_message
 from utils.torch_hdf_ds_loader import DSLoaderHDF
 
@@ -51,9 +62,11 @@ def model_test_parser(subparsers):
     shared_argparser_args(subparser, ['tag', 'epoch'])
     subparser.add_argument(
         'testing_ds',
-        help=('name of the testing dataset, will use the norm values from the '
-              'trained model - NOT from the testing dataset directly, outputs '
-              'should already be denormalized'),
+        help=(
+            'name of the testing dataset, will use the norm values from the '
+            'trained model - NOT from the testing dataset directly, outputs '
+            'should already be denormalized'
+        ),
     )
     subparser.add_argument(
         '--inputs-need-diff',
@@ -68,17 +81,21 @@ def model_test_parser(subparsers):
     subparser.add_argument(
         '--change-base-field',
         nargs='*',
-        help=('raw datafile containing an updated base field to use to form '
-              'the differential wavefronts (should not have any sum one '
-              'normalization); additional arguments can be repeated as many '
-              'times as necessary and should specify <base field index> '
-              '<starting row> <ending row>; this requires that both the '
-              '`--inputs-need-norm` and `--inputs-need-diff` args are set'),
+        help=(
+            'raw datafile containing an updated base field to use to form '
+            'the differential wavefronts (should not have any sum one '
+            'normalization); additional arguments can be repeated as many '
+            'times as necessary and should specify <base field index> '
+            '<starting row> <ending row>; this requires that both the '
+            '`--inputs-need-norm` and `--inputs-need-diff` args are set'
+        ),
     )
     subparser.add_argument(
         '--change-base-field-corresponding',
-        help=('raw datafile containing the base fields to use; '
-              'every row of data has its own corresponding base field'),
+        help=(
+            'raw datafile containing the base fields to use; '
+            'every row of data has its own corresponding base field'
+        ),
     )
     subparser.add_argument(
         '--outputs-no-denorm',
@@ -94,12 +111,19 @@ def model_test_parser(subparsers):
     subparser.add_argument(
         '--scatter-plot',
         nargs=5,
-        metavar=('[n_rows]', '[n_cols]', '[starting_zernike]',
-                 '[filter_value]', '[plot_density]'),
-        help=('generate a scatter plot; takes the args: number of rows, '
-              'number of cols, first Zernike the model outputs, filter value '
-              '(0 for no filtering, otherwise filtering with shared axes), '
-              'points per pixel to use for the density plot'),
+        metavar=(
+            '[n_rows]',
+            '[n_cols]',
+            '[starting_zernike]',
+            '[filter_value]',
+            '[plot_density]',
+        ),
+        help=(
+            'generate a scatter plot; takes the args: number of rows, '
+            'number of cols, first Zernike the model outputs, filter value '
+            '(0 for no filtering, otherwise filtering with shared axes), '
+            'points per pixel to use for the density plot'
+        ),
     )
     subparser.add_argument(
         '--zernike-plots',
@@ -124,30 +148,38 @@ def model_test_parser(subparsers):
     subparser.add_argument(
         '--convert-basis',
         nargs='*',
-        help=('convert the coefficients to another basis and compute the MAE '
-              'and MSE; three arguments should be passed for each '
-              'group: tag of the raw dataset containing the basis modes, '
-              'the table name, and the number of coefficients in the group; '
-              'all the output coefficients should be covered by the modes'),
+        help=(
+            'convert the coefficients to another basis and compute the MAE '
+            'and MSE; three arguments should be passed for each '
+            'group: tag of the raw dataset containing the basis modes, '
+            'the table name, and the number of coefficients in the group; '
+            'all the output coefficients should be covered by the modes'
+        ),
     )
     subparser.add_argument(
         '--convert-basis-trans-modes',
         nargs='*',
-        help=('should be used with the `--convert-basis` arg; '
-              'transpose the modes where the table names match'),
+        help=(
+            'should be used with the `--convert-basis` arg; '
+            'transpose the modes where the table names match'
+        ),
     )
     subparser.add_argument(
         '--convert-basis-save-values',
         type=int,
-        help=('should be used with the `--convert-basis` arg; '
-              'save the values in the new basis to the output datafile; '
-              'the passed argument specifies the first n rows to save'),
+        help=(
+            'should be used with the `--convert-basis` arg; '
+            'save the values in the new basis to the output datafile; '
+            'the passed argument specifies the first n rows to save'
+        ),
     )
     subparser.add_argument(
         '--convert-basis-max-rows-to-use',
         type=int,
-        help=('should be used with the `--convert-basis` arg; '
-              'the max number of rows to convert over'),
+        help=(
+            'should be used with the `--convert-basis` arg; '
+            'the max number of rows to convert over'
+        ),
     )
     subparser.add_argument(
         '--max-rows-per-model-call',
@@ -157,23 +189,29 @@ def model_test_parser(subparsers):
     subparser.add_argument(
         '--enable-paper-plots',
         type=int,
-        help=('plot the paper plots too; the index passed is the model '
-              'being used as determined by the plotting script'),
+        help=(
+            'plot the paper plots too; the index passed is the model '
+            'being used as determined by the plotting script'
+        ),
     )
     subparser.add_argument(
         '--plot-coeff-mae-smape',
         type=int,
         nargs='+',
-        help=('plot the MAE and sMAPE for the output coefficients; the passed '
-              'arguments should be the upper index for each coeff group'),
+        help=(
+            'plot the MAE and sMAPE for the output coefficients; the passed '
+            'arguments should be the upper index for each coeff group'
+        ),
     )
     subparser.add_argument(
         '--plot-layerscale-gamma',
         nargs='+',
-        help=('plot the mean LayerScale gamma from every layer; the passed '
-              'argument should specify the variable name (probably `gamma`); '
-              'additional args can be passed if there are multiple heads, '
-              'each arg represents the depth of a head'),
+        help=(
+            'plot the mean LayerScale gamma from every layer; the passed '
+            'argument should specify the variable name (probably `gamma`); '
+            'additional args can be passed if there are multiple heads, '
+            'each arg represents the depth of a head'
+        ),
     )
     subparser.add_argument(
         '--plot-loss-curves',
@@ -183,49 +221,61 @@ def model_test_parser(subparsers):
     subparser.add_argument(
         '--plot-avg-dh-intensity-error',
         nargs=6,
-        help=('plot a DH which represents the average intensity error based '
-              'on the DM command residuals; this requires that the output '
-              'be in terms of basis coefficients; this must be called with '
-              'the `--convert-basis` argument; the intensity residual is '
-              'computed using the Jacobian; six arguments expected: DH mask '
-              'tag, DH mask table, Jacobian tag, Jacobian table, vmin, vmax'),
+        help=(
+            'plot a DH which represents the average intensity error based '
+            'on the DM command residuals; this requires that the output '
+            'be in terms of basis coefficients; this must be called with '
+            'the `--convert-basis` argument; the intensity residual is '
+            'computed using the Jacobian; six arguments expected: DH mask '
+            'tag, DH mask table, Jacobian tag, Jacobian table, vmin, vmax'
+        ),
     )
     subparser.add_argument(
         '--plot-reconstructions',
         nargs='*',
         type=int,
-        help=('plot reconstructions between the model output and the truth '
-              'in the new basis; this must be called with the '
-              '`--convert-basis` argument; arguments expected: idxs to plot'),
+        help=(
+            'plot reconstructions between the model output and the truth '
+            'in the new basis; this must be called with the '
+            '`--convert-basis` argument; arguments expected: idxs to plot'
+        ),
     )
     subparser.add_argument(
         '--plot-reconstructions-mask',
         nargs=2,
-        help=('mask that maps the 1D outputs in the new basis back to the '
-              'original 2D shape; the first row will be used from the passed '
-              'datafile to create the mask; this must be called with the '
-              '`--plot-reconstructions` argument; two arguments expected: '
-              'raw data tag, table'),
+        help=(
+            'mask that maps the 1D outputs in the new basis back to the '
+            'original 2D shape; the first row will be used from the passed '
+            'datafile to create the mask; this must be called with the '
+            '`--plot-reconstructions` argument; two arguments expected: '
+            'raw data tag, table'
+        ),
     )
     subparser.add_argument(
         '--plot-reconstructions-mask-all',
         action='store_true',
-        help=('use with the `--plot-reconstructions-mask` arg to pull all '
-              'the rows from the table'),
+        help=(
+            'use with the `--plot-reconstructions-mask` arg to pull all '
+            'the rows from the table'
+        ),
     )
     subparser.add_argument(
         '--plot-reconstructions-is-ef',
         action='store_true',
-        help=('the reconstructions are of an electric field; '
-              'must be called with the `--plot-reconstructions` argument'),
+        help=(
+            'the reconstructions are of an electric field; '
+            'must be called with the `--plot-reconstructions` argument'
+        ),
     )
     subparser.add_argument(
         '--plot-reconstructions-groups',
         nargs='*',
-        help=('the names of the data groupings contained in each output; '
-              'must be called with the `--plot-reconstructions` argument; '
-              'if the output is an EF then `--plot-reconstructions-is-ef` '
-              'should be used instead; arguments expected: grouping names'),
+        help=(
+            'the names of the data groupings contained in each output; '
+            'must be called with the `--plot-reconstructions` argument; '
+            'if the output is an EF then `--plot-reconstructions-is-ef` '
+            'should be used instead; arguments expected: grouping names'
+        ),
     )
     subparser.add_argument(
         '--plot-r2',
@@ -295,8 +345,10 @@ def model_test(cli_args):
                 base_field_idx = int(group_args[0])
                 idx_low = int(group_args[1])
                 idx_high = int(group_args[2])
-                print(f'Using base field at index {base_field_idx} on '
-                      f'rows {idx_low} - {idx_high}')
+                print(
+                    f'Using base field at index {base_field_idx} on '
+                    f'rows {idx_low} - {idx_high}'
+                )
                 inputs[idx_low:idx_high] = _norm_inputs(
                     inputs[idx_low:idx_high],
                     base_fields[base_field_idx],
@@ -304,14 +356,14 @@ def model_test(cli_args):
         elif cli_args.get('change_base_field_corresponding'):
             print('Changing the base field')
             base_fields, _, _, _ = load_raw_sim_data_chunks(
-                cli_args.get('change_base_field_corresponding'))
+                cli_args.get('change_base_field_corresponding')
+            )
             if model.inputs_sum_to_one:
                 print('Making pixel values in the base field(s) sum to 1')
                 base_fields = model.sum_inputs_to_one(base_fields, (1, 2))
             print('Each row has its own base field')
             for idx in range(inputs.shape[0]):
-                inputs[idx] = _norm_inputs(inputs[idx][:, None],
-                                           base_fields[idx])
+                inputs[idx] = _norm_inputs(inputs[idx][:, None], base_fields[idx])
         else:
             inputs = _norm_inputs(inputs)
 
@@ -470,8 +522,9 @@ def model_test(cli_args):
         nrows = outputs_truth.shape[0]
         zernike_count = len(zernike_terms)
         if nrows % zernike_count != 0:
-            terminate_with_message('Data is in the incorrect shape for '
-                                   'the Zernike plot(s)')
+            terminate_with_message(
+                'Data is in the incorrect shape for the Zernike plot(s)'
+            )
 
         def _split(data):
             # Split the data so that each group (first dim) consists of all
@@ -562,8 +615,7 @@ def model_test(cli_args):
         plot_coeff_comparison(
             plot_coeff_mae_smape,
             mae(outputs_truth, outputs_model, 0),
-            symmetric_mean_absolute_percentage_error(outputs_truth,
-                                                     outputs_model, 0),
+            symmetric_mean_absolute_percentage_error(outputs_truth, outputs_model, 0),
             'MAE',
             'sMAPE',
             f'{analysis_path}/mae_and_smape.png',
@@ -606,8 +658,9 @@ def model_test(cli_args):
     plot_avg_dh_intensity_error = cli_args.get('plot_avg_dh_intensity_error')
     if plot_avg_dh_intensity_error is not None:
         step_ri('Plotting average DH intensity error')
-        (mask_tag, mask_table, jac_tag, jac_table, vmin,
-         vmax) = plot_avg_dh_intensity_error
+        (mask_tag, mask_table, jac_tag, jac_table, vmin, vmax) = (
+            plot_avg_dh_intensity_error
+        )
         print(f'DH Mask: {mask_tag} ({mask_table})')
         print('Loading DH Mask')
         dh_mask_path = raw_sim_data_chunk_paths(mask_tag)[0]
@@ -627,9 +680,14 @@ def model_test(cli_args):
         avg_residual_intensity = np.mean(residual_intensity, axis=0)
         intensity_2d = np.zeros(dh_mask.shape)
         intensity_2d[dh_mask] = avg_residual_intensity
-        title_str = (f'Average Intensity Error ({rows} rows)')
-        plot_dh_contrast(intensity_2d, float(vmin), float(vmax), title_str,
-                         f'{analysis_path}/avg_intensity_error.png')
+        title_str = f'Average Intensity Error ({rows} rows)'
+        plot_dh_contrast(
+            intensity_2d,
+            float(vmin),
+            float(vmax),
+            title_str,
+            f'{analysis_path}/avg_intensity_error.png',
+        )
 
     plot_reconstructions = cli_args.get('plot_reconstructions')
     if plot_reconstructions is not None:
@@ -661,15 +719,16 @@ def model_test(cli_args):
             truth_row = np.split(new_basis_truth[idx], groups)
             model_row = np.split(new_basis_model[idx], groups)
             if is_ef:
-                truth_row.append(truth_row[0]**2 + truth_row[1]**2)
-                model_row.append(model_row[0]**2 + model_row[1]**2)
+                truth_row.append(truth_row[0] ** 2 + truth_row[1] ** 2)
+                model_row.append(model_row[0] ** 2 + model_row[1] ** 2)
             # The first dim is the rows in the plot: truth, model, diff
             # The second dim is the columns in the plot
             # The final two dims are the images
             data_to_plot = np.zeros((3, len(truth_row), *mask.shape))
             data_to_plot[:, :, mask] = [
-                truth_row, model_row,
-                np.asarray(truth_row) - np.asarray(model_row)
+                truth_row,
+                model_row,
+                np.asarray(truth_row) - np.asarray(model_row),
             ]
             plot_2d_comparison(
                 data=data_to_plot,

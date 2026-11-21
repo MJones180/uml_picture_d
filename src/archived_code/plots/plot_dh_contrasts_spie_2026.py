@@ -11,9 +11,7 @@ data = {
         'label': 'EFC',
         'color': '#43AA8B',
         'marker': '*',
-        'data': [
-            v * 1e-8 for v in [11, 8.4, 8, 9.4, 10, 12, 8.9, 12, 11, 9.8]
-        ],
+        'data': [v * 1e-8 for v in [11, 8.4, 8, 9.4, 10, 12, 8.9, 12, 11, 9.8]],
     },
     'dh_v122_25': {
         'label': 'NN',
@@ -36,7 +34,7 @@ fig, ax = plt.subplots(figsize=(10, 4))
 for values in data.values():
     # Compute the geometric mean; instead of calculating prod(x)^(1/N), the
     # following computational trick can be used
-    mean_value = 10**np.mean(np.log10(values['data']))
+    mean_value = 10 ** np.mean(np.log10(values['data']))
     ax.scatter(
         np.arange(10),
         values['data'],

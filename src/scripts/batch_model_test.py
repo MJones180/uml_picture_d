@@ -44,11 +44,18 @@ def batch_model_test_parser(subparsers):
     subparser.add_argument(
         '--scatter-plot',
         nargs=5,
-        metavar=('[n_rows]', '[n_cols]', '[starting_zernike]',
-                 '[filter_value]', '[plot_density]'),
-        help=('generate a scatter plot; takes the args: number of rows, '
-              'number of cols, first Zernike the model outputs, filter value '
-              'range, points per pixel to use for the density plot'),
+        metavar=(
+            '[n_rows]',
+            '[n_cols]',
+            '[starting_zernike]',
+            '[filter_value]',
+            '[plot_density]',
+        ),
+        help=(
+            'generate a scatter plot; takes the args: number of rows, '
+            'number of cols, first Zernike the model outputs, filter value '
+            'range, points per pixel to use for the density plot'
+        ),
     )
     subparser.add_argument(
         '--zernike-plots',
@@ -73,30 +80,38 @@ def batch_model_test_parser(subparsers):
     subparser.add_argument(
         '--convert-basis',
         nargs='*',
-        help=('convert the coefficients to another basis and compute the MAE '
-              'and MSE; three arguments should be passed for each '
-              'group: tag of the raw dataset containing the basis modes, '
-              'the table name, and the number of coefficients in the group; '
-              'all the output coefficients should be covered by the modes'),
+        help=(
+            'convert the coefficients to another basis and compute the MAE '
+            'and MSE; three arguments should be passed for each '
+            'group: tag of the raw dataset containing the basis modes, '
+            'the table name, and the number of coefficients in the group; '
+            'all the output coefficients should be covered by the modes'
+        ),
     )
     subparser.add_argument(
         '--convert-basis-trans-modes',
         nargs='*',
-        help=('should be used with the `--convert-basis` arg; '
-              'transpose the modes where the table names match'),
+        help=(
+            'should be used with the `--convert-basis` arg; '
+            'transpose the modes where the table names match'
+        ),
     )
     subparser.add_argument(
         '--convert-basis-save-values',
         type=int,
-        help=('should be used with the `--convert-basis` arg; '
-              'save the values in the new basis to the output datafile; '
-              'the passed argument specifies the first n rows to save'),
+        help=(
+            'should be used with the `--convert-basis` arg; '
+            'save the values in the new basis to the output datafile; '
+            'the passed argument specifies the first n rows to save'
+        ),
     )
     subparser.add_argument(
         '--convert-basis-max-rows-to-use',
         type=int,
-        help=('should be used with the `--convert-basis` arg; '
-              'the max number of rows to convert over'),
+        help=(
+            'should be used with the `--convert-basis` arg; '
+            'the max number of rows to convert over'
+        ),
     )
     subparser.add_argument(
         '--take-rss-model-outputs',
@@ -112,16 +127,20 @@ def batch_model_test_parser(subparsers):
         '--plot-coeff-mae-smape',
         type=int,
         nargs='+',
-        help=('plot the MAE and sMAPE for the output coefficients; the passed '
-              'arguments should be the upper index for each coeff group'),
+        help=(
+            'plot the MAE and sMAPE for the output coefficients; the passed '
+            'arguments should be the upper index for each coeff group'
+        ),
     )
     subparser.add_argument(
         '--plot-layerscale-gamma',
         nargs='+',
-        help=('plot the mean LayerScale gamma from every layer; the passed '
-              'argument should specify the variable name (probably `gamma`); '
-              'additional args can be passed if there are multiple heads, '
-              'each arg represents the depth of a head'),
+        help=(
+            'plot the mean LayerScale gamma from every layer; the passed '
+            'argument should specify the variable name (probably `gamma`); '
+            'additional args can be passed if there are multiple heads, '
+            'each arg represents the depth of a head'
+        ),
     )
     subparser.add_argument(
         '--plot-loss-curves',
@@ -131,49 +150,61 @@ def batch_model_test_parser(subparsers):
     subparser.add_argument(
         '--plot-avg-dh-intensity-error',
         nargs=6,
-        help=('plot a DH which represents the average intensity error based '
-              'on the DM command residuals; this requires that the output '
-              'be in terms of basis coefficients; this must be called with '
-              'the `--convert-basis` argument; the intensity residual is '
-              'computed using the Jacobian; six arguments expected: DH mask '
-              'tag, DH mask table, Jacobian tag, Jacobian table, vmin, vmax'),
+        help=(
+            'plot a DH which represents the average intensity error based '
+            'on the DM command residuals; this requires that the output '
+            'be in terms of basis coefficients; this must be called with '
+            'the `--convert-basis` argument; the intensity residual is '
+            'computed using the Jacobian; six arguments expected: DH mask '
+            'tag, DH mask table, Jacobian tag, Jacobian table, vmin, vmax'
+        ),
     )
     subparser.add_argument(
         '--plot-reconstructions',
         nargs='*',
         type=int,
-        help=('plot reconstructions between the model output and the truth '
-              'in the new basis; this must be called with the '
-              '`--convert-basis` argument; arguments expected: idxs to plot'),
+        help=(
+            'plot reconstructions between the model output and the truth '
+            'in the new basis; this must be called with the '
+            '`--convert-basis` argument; arguments expected: idxs to plot'
+        ),
     )
     subparser.add_argument(
         '--plot-reconstructions-mask',
         nargs=2,
-        help=('mask that maps the 1D outputs in the new basis back to the '
-              'original 2D shape; the first row will be used from the passed '
-              'datafile to create the mask; this must be called with the '
-              '`--plot-reconstructions` argument; two arguments expected: '
-              'raw data tag, table'),
+        help=(
+            'mask that maps the 1D outputs in the new basis back to the '
+            'original 2D shape; the first row will be used from the passed '
+            'datafile to create the mask; this must be called with the '
+            '`--plot-reconstructions` argument; two arguments expected: '
+            'raw data tag, table'
+        ),
     )
     subparser.add_argument(
         '--plot-reconstructions-mask-all',
         action='store_true',
-        help=('use with the `--plot-reconstructions-mask` arg to pull all '
-              'the rows from the table'),
+        help=(
+            'use with the `--plot-reconstructions-mask` arg to pull all '
+            'the rows from the table'
+        ),
     )
     subparser.add_argument(
         '--plot-reconstructions-is-ef',
         action='store_true',
-        help=('the reconstructions are of an electric field; '
-              'must be called with the `--plot-reconstructions` argument'),
+        help=(
+            'the reconstructions are of an electric field; '
+            'must be called with the `--plot-reconstructions` argument'
+        ),
     )
     subparser.add_argument(
         '--plot-reconstructions-groups',
         nargs='*',
-        help=('the names of the data groupings contained in each output; '
-              'must be called with the `--plot-reconstructions` argument; '
-              'if the output is an EF then `--plot-reconstructions-is-ef` '
-              'should be used instead; arguments expected: grouping names'),
+        help=(
+            'the names of the data groupings contained in each output; '
+            'must be called with the `--plot-reconstructions` argument; '
+            'if the output is an EF then `--plot-reconstructions-is-ef` '
+            'should be used instead; arguments expected: grouping names'
+        ),
     )
     subparser.add_argument(
         '--plot-r2',
@@ -185,9 +216,11 @@ def batch_model_test_parser(subparsers):
     selection_group = subparser.add_mutually_exclusive_group()
     selection_group.add_argument(
         '--epoch-and-tag-range',
-        help=('one epoch for multiple tags in a row appended with different '
-              'index values, the `tag_base` must be the same across them and '
-              'contain only the part that is shared'),
+        help=(
+            'one epoch for multiple tags in a row appended with different '
+            'index values, the `tag_base` must be the same across them and '
+            'contain only the part that is shared'
+        ),
         metavar=('[epoch]', '[tag_base]', '[starting_idx]', '[ending_idx]'),
         nargs=4,
     )
@@ -199,8 +232,7 @@ def batch_model_test_parser(subparsers):
     )
     selection_group.add_argument(
         '--tags-and-epochs',
-        help=('specific tags and epochs, '
-              '`last` can be passed for the epoch\'s value'),
+        help=("specific tags and epochs, `last` can be passed for the epoch's value"),
         metavar='[tag].[epoch]',
         nargs='+',
     )
@@ -246,11 +278,13 @@ def batch_model_test(cli_args):
     }
 
     def _append_pair(epoch, tag):
-        pairs.append({
-            **base_dict,
-            'epoch': epoch,
-            'tag': tag,
-        })
+        pairs.append(
+            {
+                **base_dict,
+                'epoch': epoch,
+                'tag': tag,
+            }
+        )
 
     epoch_and_tag_range = cli_args.get('epoch_and_tag_range')
     if epoch_and_tag_range:

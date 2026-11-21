@@ -20,8 +20,7 @@ def read_hdf(path, mode='r'):
     return File(path, mode)
 
 
-class HDFWriteModule():
-
+class HDFWriteModule:
     def __init__(self, path):
         """
         Create an HDF object for easily creating and writing to an HDF file.

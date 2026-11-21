@@ -6,7 +6,6 @@ import torch.nn as nn
 
 
 class BottleneckResidualBlock(nn.Module):
-
     def __init__(self, features, bottleneck_features):
         super().__init__()
 
@@ -24,7 +23,6 @@ class BottleneckResidualBlock(nn.Module):
 
 
 class Network(nn.Module):
-
     def example_input():
         return torch.rand((2, 1000))
 

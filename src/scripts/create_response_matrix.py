@@ -19,9 +19,14 @@ given image by `Z = M_inv @ ΔI`.
 """
 
 import numpy as np
-from utils.constants import (BASE_INT_FIELD, INPUTS_SUM_TO_ONE,
-                             PERTURBATION_AMOUNTS, RESPONSE_MATRICES_P,
-                             RESPONSE_MATRIX_INV, ZERNIKE_TERMS)
+from utils.constants import (
+    BASE_INT_FIELD,
+    INPUTS_SUM_TO_ONE,
+    PERTURBATION_AMOUNTS,
+    RESPONSE_MATRICES_P,
+    RESPONSE_MATRIX_INV,
+    ZERNIKE_TERMS,
+)
 from utils.group_data_from_list import group_data_from_list
 from utils.hdf_read_and_write import HDFWriteModule
 from utils.load_raw_sim_data import load_raw_sim_data_chunks
@@ -39,17 +44,21 @@ def create_response_matrix_parser(subparsers):
     subparser.set_defaults(main=create_response_matrix)
     subparser.add_argument(
         '--simulated-data-tag-single',
-        help=('generate the response matrix from raw simulated data, the '
-              'data should be simulated via the `sim_data` script with the '
-              '`--fixed-amount-per-zernike` argument passed'),
+        help=(
+            'generate the response matrix from raw simulated data, the '
+            'data should be simulated via the `sim_data` script with the '
+            '`--fixed-amount-per-zernike` argument passed'
+        ),
     )
     subparser.add_argument(
         '--simulated-data-tag-average',
-        help=('generate the response matrix from raw simulated data, the '
-              'data should be simulated via the `sim_data` script with either '
-              'the `--rand-amount-per-zernike-single-each` or '
-              '`--fixed-amount-per-zernike-range` arguments passed; '
-              'the average of all the perturbations will be taken'),
+        help=(
+            'generate the response matrix from raw simulated data, the '
+            'data should be simulated via the `sim_data` script with either '
+            'the `--rand-amount-per-zernike-single-each` or '
+            '`--fixed-amount-per-zernike-range` arguments passed; '
+            'the average of all the perturbations will be taken'
+        ),
     )
     subparser.add_argument(
         '--wfs-sum-to-one',
@@ -58,17 +67,21 @@ def create_response_matrix_parser(subparsers):
     )
     subparser.add_argument(
         '--base-field-tag',
-        help=('if the base field is not the last row in the data, then it '
-              'should be passed via this argument; this argument should not '
-              'be used if the base field is already in the data'),
+        help=(
+            'if the base field is not the last row in the data, then it '
+            'should be passed via this argument; this argument should not '
+            'be used if the base field is already in the data'
+        ),
     )
     subparser.add_argument(
         '--base-field-mapping',
         nargs='*',
         type=int,
-        help=('map specific base fields to different portions of the data; '
-              'the arguments can be repeated as many times as necessary and '
-              'should specify <base field index> <starting row> <ending row>'),
+        help=(
+            'map specific base fields to different portions of the data; '
+            'the arguments can be repeated as many times as necessary and '
+            'should specify <base field index> <starting row> <ending row>'
+        ),
     )
     subparser.add_argument(
         '--base-field-mapping-corresponding',
@@ -78,8 +91,10 @@ def create_response_matrix_parser(subparsers):
     subparser.add_argument(
         '--outputs-in-surface-error',
         action='store_true',
-        help=('the Zernike coefficients are in terms of surface error instead '
-              'of wavefront error'),
+        help=(
+            'the Zernike coefficients are in terms of surface error instead '
+            'of wavefront error'
+        ),
     )
     subparser.add_argument(
         '--outputs-scaling-factor',
@@ -89,10 +104,12 @@ def create_response_matrix_parser(subparsers):
     subparser.add_argument(
         '--camera-for-wfs',
         nargs=3,
-        help=('simulate a camera which adds noise, discretized light levels, '
-              'and saturation; requires three arguments: <cam name> '
-              '<exposure time in s> <countrate>; noise will be added to the '
-              'input PSFs for all the data including the base field'),
+        help=(
+            'simulate a camera which adds noise, discretized light levels, '
+            'and saturation; requires three arguments: <cam name> '
+            '<exposure time in s> <countrate>; noise will be added to the '
+            'input PSFs for all the data including the base field'
+        ),
     )
 
 
@@ -106,15 +123,15 @@ def create_response_matrix(cli_args):
         print('Creating response matrix from a single RMS perturbation')
         data_tag = sim_data_tag_single
     elif sim_data_tag_avg:
-        print('Creating response matrix by averaging multiple RMS '
-              'perturbations together')
+        print(
+            'Creating response matrix by averaging multiple RMS perturbations together'
+        )
         data_tag = sim_data_tag_avg
     else:
         terminate_with_message('No method chosen to create response matrix')
 
     step_ri('Loading in the data')
-    (intensity, zernike_amounts, zernike_terms,
-     _) = load_raw_sim_data_chunks(data_tag)
+    (intensity, zernike_amounts, zernike_terms, _) = load_raw_sim_data_chunks(data_tag)
     # ==========================================================================
     camera_for_wfs = cli_args.get('camera_for_wfs')
     if camera_for_wfs:
@@ -123,7 +140,7 @@ def create_response_matrix(cli_args):
         exposure_time = float(exposure_time)
         countrate = float(countrate)
         print(f'Camera: {cam_name}')
-        print(f'Exposure time: {exposure_time} s ({1/exposure_time} Hz)')
+        print(f'Exposure time: {exposure_time} s ({1 / exposure_time} Hz)')
         print(f'Countrate: {countrate} photons/s')
         # Add noise to the PSFs
         intensity = simulate_camera(
@@ -172,11 +189,15 @@ def create_response_matrix(cli_args):
         base_field_mapping = cli_args.get('base_field_mapping')
         if base_field_mapping:
             for base_field_idx, idx_low, idx_high in group_data_from_list(
-                    base_field_mapping, 3):
-                print(f'Using base field at index {base_field_idx} on '
-                      f'rows {idx_low} - {idx_high}')
-                differential_fields[:, idx_low:idx_high] -= (
-                    base_field[:, base_field_idx][:, None])
+                base_field_mapping, 3
+            ):
+                print(
+                    f'Using base field at index {base_field_idx} on '
+                    f'rows {idx_low} - {idx_high}'
+                )
+                differential_fields[:, idx_low:idx_high] -= base_field[
+                    :, base_field_idx
+                ][:, None]
             print('Creating an averaged base field that will be saved')
             base_field_idxs = np.array(base_field_mapping[::3])
             base_field = np.sum(base_field[:, base_field_idxs], axis=1)
@@ -244,8 +265,9 @@ def create_response_matrix(cli_args):
         # Verify that all the perturbations are equal
         pert_amounts_diag = np.diag(pert_amounts)
         if not np.all(pert_amounts_diag == pert_amounts_diag[0]):
-            terminate_with_message('All perturbation amounts must be the same '
-                                   'for a set of Zernike terms')
+            terminate_with_message(
+                'All perturbation amounts must be the same for a set of Zernike terms'
+            )
         perturbation_amount = pert_amounts_diag[0]
         # Keep track of the perturbation for each chunk
         perturbation_chunk_amounts.append(perturbation_amount)
@@ -284,10 +306,12 @@ def create_response_matrix(cli_args):
         data_tag += '_sim_cam'
     output_path = f'{RESPONSE_MATRICES_P}/{data_tag}.h5'
     print(f'Outputting to {output_path}')
-    HDFWriteModule(output_path).create_and_write_hdf_simple({
-        BASE_INT_FIELD: base_field,
-        RESPONSE_MATRIX_INV: M_matrix_inv,
-        PERTURBATION_AMOUNTS: perturbation_chunk_amounts,
-        ZERNIKE_TERMS: zernike_terms,
-        INPUTS_SUM_TO_ONE: wfs_sum_to_one,
-    })
+    HDFWriteModule(output_path).create_and_write_hdf_simple(
+        {
+            BASE_INT_FIELD: base_field,
+            RESPONSE_MATRIX_INV: M_matrix_inv,
+            PERTURBATION_AMOUNTS: perturbation_chunk_amounts,
+            ZERNIKE_TERMS: zernike_terms,
+            INPUTS_SUM_TO_ONE: wfs_sum_to_one,
+        }
+    )

@@ -6,8 +6,8 @@ is because the FITS files are spread across many directories (jobs on Unity)
 and the FITS datafiles store the data differently.
 """
 
-from astropy.io import fits
 import numpy as np
+from astropy.io import fits
 from utils.cli_args import save_cli_args
 from utils.constants import DATA_F, RAW_DATA_P
 from utils.hdf_read_and_write import HDFWriteModule
@@ -51,8 +51,10 @@ def convert_piccsim_fits_data_merger_parser(subparsers):
     subparser.add_argument(
         '--file-names',
         nargs='+',
-        help=('name of each FITS datafile (omitting the extension); the same '
-              'name will be used for each table in the HDF file'),
+        help=(
+            'name of each FITS datafile (omitting the extension); the same '
+            'name will be used for each table in the HDF file'
+        ),
     )
     subparser.add_argument(
         '--allow-missing-dirs',

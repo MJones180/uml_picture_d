@@ -27,8 +27,10 @@ def analyze_dataset_contrasts_parser(subparsers):
     )
     subparser.add_argument(
         'unocc_tag',
-        help=('tag of the raw dataset containing the unocc intensity image; '
-              'there should be no error in the system'),
+        help=(
+            'tag of the raw dataset containing the unocc intensity image; '
+            'there should be no error in the system'
+        ),
     )
     subparser.add_argument(
         'unocc_table_name',
@@ -47,14 +49,18 @@ def analyze_dataset_contrasts_parser(subparsers):
     subparser.add_argument(
         '--filter-contrasts',
         nargs=2,
-        help=('calculate the number of rows which meet the contrast '
-              'requirement; two arguments expected: threshold (in log units) '
-              '[max_pixel, mean]'),
+        help=(
+            'calculate the number of rows which meet the contrast '
+            'requirement; two arguments expected: threshold (in log units) '
+            '[max_pixel, mean]'
+        ),
     )
     subparser.add_argument(
         '--save-filter-mask',
-        help=('should be used with the `--filter-contrasts` argument; save '
-              'the filter mask as a raw dataset; one argument expected: tag'),
+        help=(
+            'should be used with the `--filter-contrasts` argument; save '
+            'the filter mask as a raw dataset; one argument expected: tag'
+        ),
     )
     subparser.add_argument(
         '--plot-contrasts',
@@ -77,8 +83,10 @@ def analyze_dataset_contrasts(cli_args):
     print(f'Will use iteration (1-indexed): {n_iteration}')
     print('Calculating intensity from `sci_r` and `sci_i`')
     data = read_hdf(modes_path)
-    intensity = (data['sci_r'][n_iteration - 1::tot_iterations]**2 +
-                 data['sci_i'][n_iteration - 1::tot_iterations]**2)
+    intensity = (
+        data['sci_r'][n_iteration - 1 :: tot_iterations] ** 2
+        + data['sci_i'][n_iteration - 1 :: tot_iterations] ** 2
+    )
     print(f'Intensity shape: {intensity.shape}')
 
     step_ri('Loading mask')
@@ -165,5 +173,6 @@ def analyze_dataset_contrasts(cli_args):
         for idx in idxs_to_plot:
             intensity_2d = np.zeros(mask_data.shape)
             intensity_2d[mask_data] = intensity[int(idx)]
-            plot_dh_contrast(intensity_2d, vmin, vmax, f'Index {idx}',
-                             f'{output_dir}/{idx}.png')
+            plot_dh_contrast(
+                intensity_2d, vmin, vmax, f'Index {idx}', f'{output_dir}/{idx}.png'
+            )

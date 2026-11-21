@@ -5,9 +5,14 @@ up converging after running many simulated control loops.
 """
 
 from glob import glob
+
 import numpy as np
-from utils.constants import (CONTROL_LOOP_RESULTS_P, DATA_F,
-                             MEAS_ERROR_HISTORY, TRUE_ERROR_HISTORY)
+from utils.constants import (
+    CONTROL_LOOP_RESULTS_P,
+    DATA_F,
+    MEAS_ERROR_HISTORY,
+    TRUE_ERROR_HISTORY,
+)
 from utils.hdf_read_and_write import read_hdf
 from utils.printing_and_logging import step_ri, title
 from utils.terminate_with_message import terminate_with_message
@@ -21,20 +26,25 @@ def analyze_static_wavefront_convergence_parser(subparsers):
     subparser.set_defaults(main=analyze_static_wavefront_convergence)
     subparser.add_argument(
         'tag',
-        help=('tag of the directory containing the control loop history '
-              'located in the `control_loop_results` folder'),
+        help=(
+            'tag of the directory containing the control loop history '
+            'located in the `control_loop_results` folder'
+        ),
     )
     subparser.add_argument(
         'convergence_threshold',
         type=float,
-        help=('all Zernike coefficients must be in the range [-threshold, '
-              'threshold] to be considered converged'),
+        help=(
+            'all Zernike coefficients must be in the range [-threshold, '
+            'threshold] to be considered converged'
+        ),
     )
     subparser.add_argument(
         '--error-target',
         default='both',
-        help=('target error to determine wavefront convergence: `true`, '
-              '`meas`, or `both`'),
+        help=(
+            'target error to determine wavefront convergence: `true`, `meas`, or `both`'
+        ),
     )
 
 
@@ -70,8 +80,7 @@ def analyze_static_wavefront_convergence(cli_args):
 
     step_ri('Calculating converged control loop rows')
     convergence_threshold = cli_args['convergence_threshold']
-    print(f'Threshold range: [-{convergence_threshold}, '
-          f'{convergence_threshold}]')
+    print(f'Threshold range: [-{convergence_threshold}, {convergence_threshold}]')
 
     def _history_converged(history):
         # Take the absolute value of only the last timestep and see if the
@@ -95,8 +104,7 @@ def analyze_static_wavefront_convergence(cli_args):
     elif error_target == 'meas':
         rows_converged = meas_converged_mask
     else:
-        terminate_with_message('Error target must be one of `true`, `meas` '
-                               'or `both`')
+        terminate_with_message('Error target must be one of `true`, `meas` or `both`')
 
     # =================
     # Print the results

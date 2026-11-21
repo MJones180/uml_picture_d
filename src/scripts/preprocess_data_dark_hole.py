@@ -19,18 +19,44 @@ training dataset.
 import numpy as np
 from utils.cli_args import save_cli_args
 from utils.constants import (
-    DARK_ZONE_MASK, DATA_F, DM_ACTIVE_COL_IDXS, DM_ACTIVE_IDXS,
-    DM_ACTIVE_ROW_IDXS, DM_SIZE, EF_ACTIVE_IDXS, EXTRA_VARS_F,
-    INPUT_MAX_MIN_DIFF, INPUT_MIN_X, INPUTS, INPUTS_ARCSINH, INPUTS_LOG10,
-    INPUTS_RSS, INPUTS_Z_SCORE_MEAN, INPUTS_Z_SCORE_STD, NORM_RANGE_ONES_INPUT,
-    NORM_RANGE_ONES_OUTPUT, OUTPUT_MASK, OUTPUT_MAX_MIN_DIFF, OUTPUTS,
-    OUTPUTS_LOG10, OUTPUTS_Z_SCORE_MEAN, OUTPUTS_Z_SCORE_STD, OUTPUT_MIN_X,
-    PROC_DATA_P, SCI_CAM_ACTIVE_COL_IDXS, SCI_CAM_ACTIVE_ROW_IDXS)
+    DARK_ZONE_MASK,
+    DATA_F,
+    DM_ACTIVE_COL_IDXS,
+    DM_ACTIVE_IDXS,
+    DM_ACTIVE_ROW_IDXS,
+    DM_SIZE,
+    EF_ACTIVE_IDXS,
+    EXTRA_VARS_F,
+    INPUT_MAX_MIN_DIFF,
+    INPUT_MIN_X,
+    INPUTS,
+    INPUTS_ARCSINH,
+    INPUTS_LOG10,
+    INPUTS_RSS,
+    INPUTS_Z_SCORE_MEAN,
+    INPUTS_Z_SCORE_STD,
+    NORM_RANGE_ONES_INPUT,
+    NORM_RANGE_ONES_OUTPUT,
+    OUTPUT_MASK,
+    OUTPUT_MAX_MIN_DIFF,
+    OUTPUT_MIN_X,
+    OUTPUTS,
+    OUTPUTS_LOG10,
+    OUTPUTS_Z_SCORE_MEAN,
+    OUTPUTS_Z_SCORE_STD,
+    PROC_DATA_P,
+    SCI_CAM_ACTIVE_COL_IDXS,
+    SCI_CAM_ACTIVE_ROW_IDXS,
+)
 from utils.group_data_from_list import group_data_from_list
 from utils.hdf_read_and_write import HDFWriteModule, read_hdf
 from utils.load_raw_sim_data import raw_sim_data_chunk_paths
-from utils.norm import (find_min_max_norm, min_max_norm,
-                        modified_log_transform, z_score_normalize)
+from utils.norm import (
+    find_min_max_norm,
+    min_max_norm,
+    modified_log_transform,
+    z_score_normalize,
+)
 from utils.path import make_dir, path_exists
 from utils.printing_and_logging import dec_print_indent, step, step_ri, title
 from utils.response_matrix import ResponseMatrix
@@ -41,8 +67,9 @@ from utils.terminate_with_message import terminate_with_message
 def preprocess_data_dark_hole_parser(subparsers):
     subparser = subparsers.add_parser(
         'preprocess_data_dark_hole',
-        help=('preprocess data for training, validation, and testing for the '
-              'dark holes'),
+        help=(
+            'preprocess data for training, validation, and testing for the dark holes'
+        ),
     )
     subparser.set_defaults(main=preprocess_data_dark_hole)
     subparser.add_argument(
@@ -84,95 +111,120 @@ def preprocess_data_dark_hole_parser(subparsers):
     subparser.add_argument(
         '--additional-raw-data-tags-train-only',
         nargs='*',
-        help=('additional raw simulated data to preprocess and merge '
-              'together, however, this data will only go in the '
-              'training dataset'),
+        help=(
+            'additional raw simulated data to preprocess and merge '
+            'together, however, this data will only go in the '
+            'training dataset'
+        ),
     )
     subparser.add_argument(
         '--electric-field-tables',
         nargs='+',
-        help=('name of the tables containing the electric field data; if one '
-              'table is passed, then the table must be complex, if two tables '
-              'are passed, then the first table must contain the real part '
-              'and the second table must contain the imaginary part'),
+        help=(
+            'name of the tables containing the electric field data; if one '
+            'table is passed, then the table must be complex, if two tables '
+            'are passed, then the first table must contain the real part '
+            'and the second table must contain the imaginary part'
+        ),
     )
     subparser.add_argument(
         '--dm-tables',
         nargs='+',
-        help=('name of the tables containing the DM(s) data; the order of '
-              'these tables matter as they will decide the index order and '
-              'the order that the DMs are added to the output'),
+        help=(
+            'name of the tables containing the DM(s) data; the order of '
+            'these tables matter as they will decide the index order and '
+            'the order that the DMs are added to the output'
+        ),
     )
     subparser.add_argument(
         '--dark-zone-mask-tag',
-        help=('tag of the raw datafile that contains the dark zone mask '
-              '(will be used) to mask out electric field pixels'),
+        help=(
+            'tag of the raw datafile that contains the dark zone mask '
+            '(will be used) to mask out electric field pixels'
+        ),
     )
     subparser.add_argument(
         '--remove-dark-zone-padding',
         action='store_true',
-        help=('the data might contain rows and columns to the sides of the '
-              'dark hole that are all zero, this arg will chop them off'),
+        help=(
+            'the data might contain rows and columns to the sides of the '
+            'dark hole that are all zero, this arg will chop them off'
+        ),
     )
     subparser.add_argument(
         '--electric-field-handling',
-        help=('[channels] (default) the real and imaginary components both '
-              'get separate channels in the input image; [stack] the real '
-              'and imaginary components are stacked on top of each other for '
-              'an image that is 2x the original height; [complex] use a '
-              'complex datatype'),
+        help=(
+            '[channels] (default) the real and imaginary components both '
+            'get separate channels in the input image; [stack] the real '
+            'and imaginary components are stacked on top of each other for '
+            'an image that is 2x the original height; [complex] use a '
+            'complex datatype'
+        ),
     )
     subparser.add_argument(
         '--add-total-intensity',
         action='store_true',
-        help=('add the total intensity as a third channel to the data; this '
-              'option only works with `--electric-field-handling channels`'),
+        help=(
+            'add the total intensity as a third channel to the data; this '
+            'option only works with `--electric-field-handling channels`'
+        ),
     )
     subparser.add_argument(
         '--use-ef-svd-basis',
         nargs=3,
-        metavar=('[datafile] [datafile table] '
-                 '[number of modes from the start for the real and imag EF]'),
-        help=('use the SVD basis for the real and imaginary EF; the raw '
-              'datafile must consist of the flattened SVD modes for the EF, '
-              'the modes will be inverted to find the new basis coeffs; the '
-              'EF modes must have the same number of pixels as the data; the '
-              'datafile must only be a single chunk of data; this argument '
-              'should be called with the `--flatten-input` argument'),
+        metavar=(
+            '[datafile] [datafile table] '
+            '[number of modes from the start for the real and imag EF]'
+        ),
+        help=(
+            'use the SVD basis for the real and imaginary EF; the raw '
+            'datafile must consist of the flattened SVD modes for the EF, '
+            'the modes will be inverted to find the new basis coeffs; the '
+            'EF modes must have the same number of pixels as the data; the '
+            'datafile must only be a single chunk of data; this argument '
+            'should be called with the `--flatten-input` argument'
+        ),
     )
     subparser.add_argument(
         '--use-ef-svd-basis-real-modes-only',
         action='store_true',
-        help=('should be used with `--use-ef-svd-basis`; use only the real '
-              'modes to encode the EF (real and imag components)'),
+        help=(
+            'should be used with `--use-ef-svd-basis`; use only the real '
+            'modes to encode the EF (real and imag components)'
+        ),
     )
     subparser.add_argument(
         '--use-ef-svd-basis-combined',
         action='store_true',
-        help=('should be used with `--use-ef-svd-basis`; do not output '
-              'separate coefficients for the real and imag components'),
+        help=(
+            'should be used with `--use-ef-svd-basis`; do not output '
+            'separate coefficients for the real and imag components'
+        ),
     )
     subparser.add_argument(
         '--use-ef-basis',
         nargs=3,
-        metavar=('[datafile] [datafile table] '
-                 '[number of modes from the start]'),
-        help=('use a different basis for the EF; the raw datafile must '
-              'consist of the flattened modes for the EF, the modes will be '
-              'inverted to find the new basis coeffs; the EF modes must have '
-              'the same number of pixels as the data; the datafile must only '
-              'be a single chunk of data; this argument should be called with '
-              'the `--flatten-input` argument; this is the same as the '
-              '`--use-ef-svd-basis` argument, just with generalized naming; '
-              'uses the `--use-ef-svd-basis-combined` argument by default; '
-              'does not support the `--use-ef-svd-basis-real-modes-only` '
-              'argument'),
+        metavar=('[datafile] [datafile table] [number of modes from the start]'),
+        help=(
+            'use a different basis for the EF; the raw datafile must '
+            'consist of the flattened modes for the EF, the modes will be '
+            'inverted to find the new basis coeffs; the EF modes must have '
+            'the same number of pixels as the data; the datafile must only '
+            'be a single chunk of data; this argument should be called with '
+            'the `--flatten-input` argument; this is the same as the '
+            '`--use-ef-svd-basis` argument, just with generalized naming; '
+            'uses the `--use-ef-svd-basis-combined` argument by default; '
+            'does not support the `--use-ef-svd-basis-real-modes-only` '
+            'argument'
+        ),
     )
     subparser.add_argument(
         '--use-ef-basis-mean-subtraction',
         action='store_true',
-        help=('for use with the `use-ef-basis` arg; mean center the data '
-              'before finding the coefficients'),
+        help=(
+            'for use with the `use-ef-basis` arg; mean center the data '
+            'before finding the coefficients'
+        ),
     )
     subparser.add_argument(
         '--combine-flattened-dms',
@@ -183,56 +235,73 @@ def preprocess_data_dark_hole_parser(subparsers):
     subparser.add_argument(
         '--use-dm-basis',
         nargs='+',
-        metavar=('[dm table] [datafile] [datafile table] '
-                 '[max number of modes from the start]'),
-        help=('use a different basis for the DM actuator height coeffs; the '
-              'raw datafile must consist of the 2D SVD modes for the DM, the '
-              'modes will be inverted to find the new basis coeffs; the DM '
-              'modes must have the same number of actuators as the data; the '
-              'datafile must only be a single chunk of data; the four '
-              'arguments must be repeated for each DM that is being used'),
+        metavar=(
+            '[dm table] [datafile] [datafile table] '
+            '[max number of modes from the start]'
+        ),
+        help=(
+            'use a different basis for the DM actuator height coeffs; the '
+            'raw datafile must consist of the 2D SVD modes for the DM, the '
+            'modes will be inverted to find the new basis coeffs; the DM '
+            'modes must have the same number of actuators as the data; the '
+            'datafile must only be a single chunk of data; the four '
+            'arguments must be repeated for each DM that is being used'
+        ),
     )
     subparser.add_argument(
         '--dm-basis-already-flat',
         action='store_true',
-        help=('the basis modes are already flattened and ready for use; '
-              'must be used with the `--use-dm-basis` argument'),
+        help=(
+            'the basis modes are already flattened and ready for use; '
+            'must be used with the `--use-dm-basis` argument'
+        ),
     )
     subparser.add_argument(
         '--dm-basis-transpose',
         nargs='*',
-        help=('transpose the given DM modes based on their table names; '
-              'must be used with the `--use-dm-basis` argument'),
+        help=(
+            'transpose the given DM modes based on their table names; '
+            'must be used with the `--use-dm-basis` argument'
+        ),
     )
     subparser.add_argument(
         '--norm-inputs',
         action='store_true',
-        help=('normalize training, validation, and test input values globally '
-              'between 0 and 1'),
+        help=(
+            'normalize training, validation, and test input values globally '
+            'between 0 and 1'
+        ),
     )
     subparser.add_argument(
         '--norm-inputs-ones',
         action='store_true',
-        help=('normalize training, validation, and test input values globally '
-              'between -1 and 1'),
+        help=(
+            'normalize training, validation, and test input values globally '
+            'between -1 and 1'
+        ),
     )
     subparser.add_argument(
         '--norm-inputs-individual',
         action='store_true',
-        help=('normalize training, validation, and test input values '
-              'individually between 0 and 1'),
+        help=(
+            'normalize training, validation, and test input values '
+            'individually between 0 and 1'
+        ),
     )
     subparser.add_argument(
         '--norm-outputs',
         action='store_true',
-        help=('normalize training and validation output values individually '
-              'between -1 and 1'),
+        help=(
+            'normalize training and validation output values individually '
+            'between -1 and 1'
+        ),
     )
     subparser.add_argument(
         '--norm-outputs-globally',
         action='store_true',
-        help=('normalize training and validation output values globally '
-              'between -1 and 1'),
+        help=(
+            'normalize training and validation output values globally between -1 and 1'
+        ),
     )
     subparser.add_argument(
         '--norm-scaling-factor',
@@ -247,21 +316,27 @@ def preprocess_data_dark_hole_parser(subparsers):
     subparser.add_argument(
         '--input-modified-log',
         type=float,
-        help=('take a modified log10 of the input data, done before norm; '
-              'one parameter should be passed: alpha'),
+        help=(
+            'take a modified log10 of the input data, done before norm; '
+            'one parameter should be passed: alpha'
+        ),
     )
     subparser.add_argument(
         '--output-modified-log',
         type=float,
-        help=('take a modified log10 of the output data, done before norm; '
-              'one parameter should be passed: alpha'),
+        help=(
+            'take a modified log10 of the output data, done before norm; '
+            'one parameter should be passed: alpha'
+        ),
     )
     subparser.add_argument(
         '--flatten-input',
         action='store_true',
-        help=('flatten the 2D electric field into a 1D array; multiple '
-              'channels are flattened into one channel; the imaginary part '
-              'is added after the real part; all inactive pixels are removed'),
+        help=(
+            'flatten the 2D electric field into a 1D array; multiple '
+            'channels are flattened into one channel; the imaginary part '
+            'is added after the real part; all inactive pixels are removed'
+        ),
     )
     subparser.add_argument(
         '--do-not-flatten-output',
@@ -270,9 +345,11 @@ def preprocess_data_dark_hole_parser(subparsers):
     )
     subparser.add_argument(
         '--use-rm-residuals',
-        help=('have the output be the residuals of the DM actuator '
-              'heights after a RM prediction; the passed RM tag is '
-              'loaded in and then used to create the residuals'),
+        help=(
+            'have the output be the residuals of the DM actuator '
+            'heights after a RM prediction; the passed RM tag is '
+            'loaded in and then used to create the residuals'
+        ),
     )
     subparser.add_argument(
         '--disable-shuffle',
@@ -282,33 +359,41 @@ def preprocess_data_dark_hole_parser(subparsers):
     subparser.add_argument(
         '--bounding-input-rows-train-only',
         action='store_true',
-        help=('put all input rows that have either the min or max value in '
-              'the dataset for a given col in the training data; this ensures '
-              'that values in the validation and testing datasets are within '
-              'the min-max norm range'),
+        help=(
+            'put all input rows that have either the min or max value in '
+            'the dataset for a given col in the training data; this ensures '
+            'that values in the validation and testing datasets are within '
+            'the min-max norm range'
+        ),
     )
     subparser.add_argument(
         '--bounding-output-rows-train-only',
         action='store_true',
-        help=('put all output rows that have either the min or max value in '
-              'the dataset for a given col in the training data; this ensures '
-              'that values in the validation and testing datasets are within '
-              'the min-max norm range'),
+        help=(
+            'put all output rows that have either the min or max value in '
+            'the dataset for a given col in the training data; this ensures '
+            'that values in the validation and testing datasets are within '
+            'the min-max norm range'
+        ),
     )
     subparser.add_argument(
         '--extend-existing-preprocessed-data',
         action='store_true',
-        help=('add more data chunks to existing preprocessed datasets; the '
-              'data tags must match existing ones for this arg to be used; '
-              'the extra variables from the training dataset will be used '
-              'and will not be written out a second time; the input and '
-              'output norm from the training dataset will be used'),
+        help=(
+            'add more data chunks to existing preprocessed datasets; the '
+            'data tags must match existing ones for this arg to be used; '
+            'the extra variables from the training dataset will be used '
+            'and will not be written out a second time; the input and '
+            'output norm from the training dataset will be used'
+        ),
     )
     subparser.add_argument(
         '--use-existing-training-data',
         action='store_true',
-        help=('used to create validation and testing datasets from '
-              'an existing training dataset'),
+        help=(
+            'used to create validation and testing datasets from '
+            'an existing training dataset'
+        ),
     )
     subparser.add_argument(
         '--fix-seed',
@@ -323,32 +408,42 @@ def preprocess_data_dark_hole_parser(subparsers):
     subparser.add_argument(
         '--z-score-inputs',
         action='store_true',
-        help=('z-score normalize the inputs; the real and imaginary '
-              'components share the same mean and standard deviation'),
+        help=(
+            'z-score normalize the inputs; the real and imaginary '
+            'components share the same mean and standard deviation'
+        ),
     )
     subparser.add_argument(
         '--z-score-inputs-individual',
         action='store_true',
-        help=('z-score normalize the inputs; every input value is '
-              'normalized independently'),
+        help=(
+            'z-score normalize the inputs; every input value is '
+            'normalized independently'
+        ),
     )
     subparser.add_argument(
         '--z-score-outputs',
         action='store_true',
-        help=('z-score normalize the outputs; DM 1 and DM 2 have separate '
-              'mean and standard deviation values; the current implementation '
-              'requires that the DMs be the same size'),
+        help=(
+            'z-score normalize the outputs; DM 1 and DM 2 have separate '
+            'mean and standard deviation values; the current implementation '
+            'requires that the DMs be the same size'
+        ),
     )
     subparser.add_argument(
         '--z-score-outputs-individual',
         action='store_true',
-        help=('z-score normalize the outputs; every output value is '
-              'normalized independently'),
+        help=(
+            'z-score normalize the outputs; every output value is '
+            'normalized independently'
+        ),
     )
     subparser.add_argument(
         '--use-existing-norm-vals',
-        help=('use normalization values from an existing dataset; the passed '
-              'argument should specify the tag of the processed dataset'),
+        help=(
+            'use normalization values from an existing dataset; the passed '
+            'argument should specify the tag of the processed dataset'
+        ),
     )
 
 
@@ -434,8 +529,9 @@ def preprocess_data_dark_hole(cli_args):
     dm_tables = cli_args['dm_tables']
     ef_tables = cli_args['electric_field_tables']
     if dm_tables is None or ef_tables is None:
-        terminate_with_message('The `--electric-field-tables` and '
-                               '`--dm-tables` args must be passed')
+        terminate_with_message(
+            'The `--electric-field-tables` and `--dm-tables` args must be passed'
+        )
     # The index that each DM corresponds to
     dm_idx_lookup = {dm_table: idx for idx, dm_table in enumerate(dm_tables)}
     # The actuator heights for each of the DMs
@@ -443,18 +539,19 @@ def preprocess_data_dark_hole(cli_args):
     # The real and imaginary parts of the electric field
     ef_data_real = []
     ef_data_imag = []
-    dm_str = ', '.join([
-        f'{dm_table} ({dm_idx})' for dm_table, dm_idx in dm_idx_lookup.items()
-    ])
+    dm_str = ', '.join(
+        [f'{dm_table} ({dm_idx})' for dm_table, dm_idx in dm_idx_lookup.items()]
+    )
     print(f'DM tables and indexes: {dm_str}')
     if len(ef_tables) == 1:
         print(f'Electric field table: `{ef_tables[0]}` (complex)')
     elif len(ef_tables) == 2:
-        print(f'Electric field tables: `{ef_tables[0]}` (real) '
-              f'and `{ef_tables[1]}` (imag) ')
+        print(
+            f'Electric field tables: `{ef_tables[0]}` (real) '
+            f'and `{ef_tables[1]}` (imag) '
+        )
     else:
-        terminate_with_message('One or two electric field tables must '
-                               'be passed')
+        terminate_with_message('One or two electric field tables must be passed')
 
     # ==========================================================================
 
@@ -521,8 +618,7 @@ def preprocess_data_dark_hole(cli_args):
         input_data = input_data[:, None, :, :]
     else:
         print('The electric field will be two channels of real data')
-        print('The first channel is the real part, '
-              'the second channel is the imag part')
+        print('The first channel is the real part, the second channel is the imag part')
         if ef_handling == 'stack':
             print('The stacking will be done later')
         input_data = np.stack((ef_data_real, ef_data_imag), axis=1)
@@ -595,8 +691,9 @@ def preprocess_data_dark_hole(cli_args):
         step_ri('Stacking the electric field components')
         print('The electric field will be one channel of real data')
         print('The real part will be stacked on top of the imag part')
-        input_data = np.concatenate((input_data[:, 0], input_data[:, 1]),
-                                    axis=1)[:, None, :, :]
+        input_data = np.concatenate((input_data[:, 0], input_data[:, 1]), axis=1)[
+            :, None, :, :
+        ]
         print(f'Input shape: {input_data.shape}')
 
     # ==========================================================================
@@ -604,9 +701,10 @@ def preprocess_data_dark_hole(cli_args):
     if cli_args['add_total_intensity']:
         step_ri('Adding the total intensity as a third channel')
         if ef_handling != 'channels':
-            terminate_with_message('This option can only be called with '
-                                   '--electric-field-handling channels')
-        intensity = input_data[:, 0]**2 + input_data[:, 1]**2
+            terminate_with_message(
+                'This option can only be called with --electric-field-handling channels'
+            )
+        intensity = input_data[:, 0] ** 2 + input_data[:, 1] ** 2
         intensity = intensity[:, None, :, :]
         input_data = np.concatenate((input_data, intensity), axis=1)
         print(f'Input shape: {input_data.shape}')
@@ -687,7 +785,7 @@ def preprocess_data_dark_hole(cli_args):
         modes_path = raw_sim_data_chunk_paths(modes_tag)[0]
         modes = read_hdf(modes_path)[modes_table_name][:].astype(F32)
         # Pick out the correct number of modes from the start
-        modes = modes[:int(max_modes)]
+        modes = modes[: int(max_modes)]
         if mean_center:
             print('Mean centering the data')
             mean = read_hdf(modes_path)['mean'][:].astype(F32)
@@ -715,15 +813,17 @@ def preprocess_data_dark_hole(cli_args):
             print(f'Using {max_modes} modes for both real and imaginary EF')
             # The number of pixels in the real and imaginary components
             pixels_in_ef = input_data.shape[1] // 2
-            coeffs_real = _switch_to_coeffs(input_data[:, :pixels_in_ef],
-                                            modes[:, :pixels_in_ef], 'real')
+            coeffs_real = _switch_to_coeffs(
+                input_data[:, :pixels_in_ef], modes[:, :pixels_in_ef], 'real'
+            )
             if real_modes_for_both_components:
                 print('Using real modes to encode both components')
                 imag_modes = modes[:, :pixels_in_ef]
             else:
                 imag_modes = modes[:, pixels_in_ef:]
-            coeffs_imag = _switch_to_coeffs(input_data[:, pixels_in_ef:],
-                                            imag_modes, 'imag')
+            coeffs_imag = _switch_to_coeffs(
+                input_data[:, pixels_in_ef:], imag_modes, 'imag'
+            )
             input_data = np.concatenate((coeffs_real, coeffs_imag), axis=1)
         print(f'EF shape: {input_data.shape}')
         return input_data
@@ -745,7 +845,8 @@ def preprocess_data_dark_hole(cli_args):
             *use_ef_svd_basis,
             combine_components=cli_args.get('use_ef_svd_basis_combined'),
             real_modes_for_both_components=cli_args.get(
-                'use_ef_svd_basis_real_modes_only'),
+                'use_ef_svd_basis_real_modes_only'
+            ),
         )
     # ==========================================================================
 
@@ -796,8 +897,7 @@ def preprocess_data_dark_hole(cli_args):
                 # Create an array where each actuator will say if it is nonzero
                 # across any of the simulations
                 nonzero_acts = (dm_data != 0).any(axis=0)
-                print(
-                    f'DM {dm_table} has {nonzero_acts.sum()} active actuators')
+                print(f'DM {dm_table} has {nonzero_acts.sum()} active actuators')
                 # Idxs where there is >= 1 actuator with a nonzero value
                 active_idxs = np.where(nonzero_acts)[0]
                 _save_var(DM_ACTIVE_IDXS(dm_idx), active_idxs)
@@ -837,11 +937,10 @@ def preprocess_data_dark_hole(cli_args):
                 # Filter out the inactive pixels from the modes
                 active_idxs = _use_var(DM_ACTIVE_IDXS(dm_idx_lookup[dm_table]))
                 modes = modes[:, active_idxs]
-            if (dm_basis_transpose is not None
-                    and dm_table in dm_basis_transpose):
+            if dm_basis_transpose is not None and dm_table in dm_basis_transpose:
                 modes = np.transpose(modes)
             # Pick out the correct number of modes from the start
-            modes = modes[:int(max_modes)]
+            modes = modes[: int(max_modes)]
             # Invert the modes
             modes_inv = np.linalg.pinv(modes)
             # The original actuator heights for the DM
@@ -1010,8 +1109,9 @@ def preprocess_data_dark_hole(cli_args):
                 max_min_diff = existing_norm_values[INPUT_MAX_MIN_DIFF][:]
                 min_x = existing_norm_values[INPUT_MIN_X][:]
                 if train_rows > 0:
-                    train_inputs = min_max_norm(train_inputs, max_min_diff,
-                                                min_x, norm_inputs_ones)
+                    train_inputs = min_max_norm(
+                        train_inputs, max_min_diff, min_x, norm_inputs_ones
+                    )
             else:
                 train_inputs, max_min_diff, min_x = find_min_max_norm(
                     train_inputs,
@@ -1025,14 +1125,14 @@ def preprocess_data_dark_hole(cli_args):
         print(f'Train max: {np.max(train_inputs)}')
         if val_rows > 0:
             print('Normalizing validation inputs based on training data')
-            val_inputs = min_max_norm(val_inputs, max_min_diff, min_x,
-                                      norm_inputs_ones)
+            val_inputs = min_max_norm(val_inputs, max_min_diff, min_x, norm_inputs_ones)
             print(f'Validation min: {np.min(val_inputs)}')
             print(f'Validation max: {np.max(val_inputs)}')
         if test_rows > 0:
             print('Normalizing testing inputs based on training data')
-            test_inputs = min_max_norm(test_inputs, max_min_diff, min_x,
-                                       norm_inputs_ones)
+            test_inputs = min_max_norm(
+                test_inputs, max_min_diff, min_x, norm_inputs_ones
+            )
             print(f'Test min: {np.min(test_inputs)}')
             print(f'Test max: {np.max(test_inputs)}')
 
@@ -1062,8 +1162,9 @@ def preprocess_data_dark_hole(cli_args):
                 max_min_diff = existing_norm_values[OUTPUT_MAX_MIN_DIFF][:]
                 min_x = existing_norm_values[OUTPUT_MIN_X][:]
                 if train_rows > 0:
-                    train_outputs = min_max_norm(train_outputs, max_min_diff,
-                                                 min_x, norm_inputs_ones)
+                    train_outputs = min_max_norm(
+                        train_outputs, max_min_diff, min_x, norm_inputs_ones
+                    )
             else:
                 train_outputs, max_min_diff, min_x = find_min_max_norm(
                     train_outputs,
@@ -1109,8 +1210,7 @@ def preprocess_data_dark_hole(cli_args):
             _save_var(INPUTS_Z_SCORE_MEAN, inputs_mean)
             _save_var(INPUTS_Z_SCORE_STD, inputs_std)
         if train_rows > 0:
-            train_inputs = z_score_normalize(train_inputs, inputs_mean,
-                                             inputs_std)
+            train_inputs = z_score_normalize(train_inputs, inputs_mean, inputs_std)
             print(f'Train min: {np.min(train_inputs)}')
             print(f'Train max: {np.max(train_inputs)}')
         if val_rows > 0:
@@ -1120,8 +1220,7 @@ def preprocess_data_dark_hole(cli_args):
             print(f'Validation max: {np.max(val_inputs)}')
         if test_rows > 0:
             print('Normalizing testing inputs based on training data')
-            test_inputs = z_score_normalize(test_inputs, inputs_mean,
-                                            inputs_std)
+            test_inputs = z_score_normalize(test_inputs, inputs_mean, inputs_std)
             print(f'Test min: {np.min(test_inputs)}')
             print(f'Test max: {np.max(test_inputs)}')
 
@@ -1138,9 +1237,11 @@ def preprocess_data_dark_hole(cli_args):
         else:
             if use_existing_norm_vals:
                 outputs_mean_1, outputs_mean_2 = existing_norm_values[
-                    OUTPUTS_Z_SCORE_MEAN][:]
+                    OUTPUTS_Z_SCORE_MEAN
+                ][:]
                 outputs_std_1, outputs_std_2 = existing_norm_values[
-                    OUTPUTS_Z_SCORE_STD][:]
+                    OUTPUTS_Z_SCORE_STD
+                ][:]
             else:
                 outputs_mean_1 = np.mean(train_outputs_1)
                 outputs_mean_2 = np.mean(train_outputs_2)
@@ -1149,22 +1250,22 @@ def preprocess_data_dark_hole(cli_args):
             _save_var(OUTPUTS_Z_SCORE_MEAN, [outputs_mean_1, outputs_mean_2])
             _save_var(OUTPUTS_Z_SCORE_STD, [outputs_std_1, outputs_std_2])
         if train_rows > 0:
-            train_outputs = np.hstack((
-                z_score_normalize(train_outputs_1, outputs_mean_1,
-                                  outputs_std_1),
-                z_score_normalize(train_outputs_2, outputs_mean_2,
-                                  outputs_std_2),
-            ))
+            train_outputs = np.hstack(
+                (
+                    z_score_normalize(train_outputs_1, outputs_mean_1, outputs_std_1),
+                    z_score_normalize(train_outputs_2, outputs_mean_2, outputs_std_2),
+                )
+            )
             print(f'Train min: {np.min(train_outputs)}')
             print(f'Train max: {np.max(train_outputs)}')
         if val_rows > 0:
             print('Normalizing validation outputs based on training data')
-            val_outputs = np.hstack((
-                z_score_normalize(val_outputs_1, outputs_mean_1,
-                                  outputs_std_1),
-                z_score_normalize(val_outputs_2, outputs_mean_2,
-                                  outputs_std_2),
-            ))
+            val_outputs = np.hstack(
+                (
+                    z_score_normalize(val_outputs_1, outputs_mean_1, outputs_std_1),
+                    z_score_normalize(val_outputs_2, outputs_mean_2, outputs_std_2),
+                )
+            )
             print(f'Validation min: {np.min(val_outputs)}')
             print(f'Validation max: {np.max(val_outputs)}')
 
@@ -1184,14 +1285,12 @@ def preprocess_data_dark_hole(cli_args):
             _save_var(OUTPUTS_Z_SCORE_MEAN, outputs_mean)
             _save_var(OUTPUTS_Z_SCORE_STD, outputs_std)
         if train_rows > 0:
-            train_outputs = z_score_normalize(train_outputs, outputs_mean,
-                                              outputs_std)
+            train_outputs = z_score_normalize(train_outputs, outputs_mean, outputs_std)
             print(f'Train min: {np.min(train_outputs)}')
             print(f'Train max: {np.max(train_outputs)}')
         if val_rows > 0:
             print('Normalizing validation outputs based on training data')
-            val_outputs = z_score_normalize(val_outputs, outputs_mean,
-                                            outputs_std)
+            val_outputs = z_score_normalize(val_outputs, outputs_mean, outputs_std)
             print(f'Validation min: {np.min(val_outputs)}')
             print(f'Validation max: {np.max(val_outputs)}')
 
@@ -1216,10 +1315,12 @@ def preprocess_data_dark_hole(cli_args):
             file_path = f'{out_path}/{EXTRA_VARS_F}'
             HDFWriteModule(file_path).create_and_write_hdf_simple(extra_vars)
         # Write out the processed HDF file
-        HDFWriteModule(datafile_path).create_and_write_hdf_simple({
-            INPUTS: inputs,
-            OUTPUTS: outputs,
-        })
+        HDFWriteModule(datafile_path).create_and_write_hdf_simple(
+            {
+                INPUTS: inputs,
+                OUTPUTS: outputs,
+            }
+        )
         print(f'Input shape: {inputs.shape}')
         print(f'Output shape: {outputs.shape}')
 

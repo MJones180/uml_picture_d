@@ -18,11 +18,19 @@ import numpy as np
 import onnxruntime
 import torch
 from utils.benchmark_nn import benchmark_nn
-from utils.constants import (BASE_INT_FIELD, INPUT_MAX_MIN_DIFF, INPUT_MIN_X,
-                             INPUTS_Z_SCORE_MEAN, INPUTS_Z_SCORE_STD,
-                             NORM_STABILITY_VALUE, OUTPUT_MAX_MIN_DIFF,
-                             OUTPUT_MIN_X, OUTPUTS_Z_SCORE_MEAN,
-                             OUTPUTS_Z_SCORE_STD, TRAINED_MODELS_P)
+from utils.constants import (
+    BASE_INT_FIELD,
+    INPUT_MAX_MIN_DIFF,
+    INPUT_MIN_X,
+    INPUTS_Z_SCORE_MEAN,
+    INPUTS_Z_SCORE_STD,
+    NORM_STABILITY_VALUE,
+    OUTPUT_MAX_MIN_DIFF,
+    OUTPUT_MIN_X,
+    OUTPUTS_Z_SCORE_MEAN,
+    OUTPUTS_Z_SCORE_STD,
+    TRAINED_MODELS_P,
+)
 from utils.model import Model
 from utils.norm import min_max_denorm
 from utils.path import make_dir
@@ -40,8 +48,10 @@ def export_model_parser(subparsers):
     shared_argparser_args(subparser, ['tag', 'epoch'])
     subparser.add_argument(
         'validation_ds',
-        help=('name of the validation dataset, data should already be norm '
-              'and have the base field subtracted off'),
+        help=(
+            'name of the validation dataset, data should already be norm '
+            'and have the base field subtracted off'
+        ),
     )
     subparser.add_argument(
         '--benchmark',
@@ -250,11 +260,19 @@ def export_model(cli_args):
 
         # Write the Z-score norm values if they exist; if they do not exist
         # then min-max norm is being used
-        keys_to_write = (INPUTS_Z_SCORE_MEAN, INPUTS_Z_SCORE_STD,
-                         OUTPUTS_Z_SCORE_MEAN, OUTPUTS_Z_SCORE_STD)
+        keys_to_write = (
+            INPUTS_Z_SCORE_MEAN,
+            INPUTS_Z_SCORE_STD,
+            OUTPUTS_Z_SCORE_MEAN,
+            OUTPUTS_Z_SCORE_STD,
+        )
         if keys_to_write[0] not in model_vars:
-            keys_to_write = (INPUT_MAX_MIN_DIFF, INPUT_MIN_X,
-                             OUTPUT_MAX_MIN_DIFF, OUTPUT_MIN_X)
+            keys_to_write = (
+                INPUT_MAX_MIN_DIFF,
+                INPUT_MIN_X,
+                OUTPUT_MAX_MIN_DIFF,
+                OUTPUT_MIN_X,
+            )
         for key in keys_to_write:
             if key in model_vars:
                 table = model_vars[key]
@@ -275,9 +293,11 @@ def export_model(cli_args):
         print(f'Location: {base_field_path}')
         np.savetxt(base_field_path, model_vars[BASE_INT_FIELD][0], fmt='%e')
         dec_print_indent()
-        readme_base_field_str = (f'{base_field_path}:\n\tContains the base '
-                                 'field that should be subtracted off. This '
-                                 'field of course has only one channel.\n')
+        readme_base_field_str = (
+            f'{base_field_path}:\n\tContains the base '
+            'field that should be subtracted off. This '
+            'field of course has only one channel.\n'
+        )
 
     step('Saving the info file')
     readme_path = f'{output_dir}/README.txt'
@@ -292,7 +312,8 @@ def export_model(cli_args):
             '\t\toutput max min diff\n\t\toutput min x\n'
             '\tThere is one norm value for all the inputs and a norm value '
             'for each of the output values.\n'
-            f'{readme_base_field_str}')
+            f'{readme_base_field_str}'
+        )
         if not no_save_txt_files:
             out_file_contents += (
                 f'{input_line_path}:\n\tExample input row after norm is done '
@@ -309,7 +330,8 @@ def export_model(cli_args):
                 f'{out_line_onnx_norm_p}:\n\tExample ONNX output row '
                 'before denorm is done.\n'
                 f'{out_line_onnx_path}:\n\tExample ONNX output row '
-                'after denorm is done.')
+                'after denorm is done.'
+            )
         out_file.write(out_file_contents)
     dec_print_indent()
 

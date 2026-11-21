@@ -16,7 +16,6 @@ DROPOUT = 0.4
 
 
 class BottleneckResidualBlock(nn.Module):
-
     def __init__(self, features, bottleneck_features):
         super().__init__()
         self.block = nn.Sequential(
@@ -34,7 +33,6 @@ class BottleneckResidualBlock(nn.Module):
 
 
 class Network(nn.Module):
-
     def example_input():
         return torch.rand((2, IN_SIZE))
 
@@ -42,10 +40,12 @@ class Network(nn.Module):
         super().__init__()
 
         self.in_layer = nn.Linear(IN_SIZE, HIDDEN_SIZE, bias=False)
-        self.res_blocks = nn.Sequential(*[
-            BottleneckResidualBlock(HIDDEN_SIZE, BOTTLENECK_SIZE)
-            for _ in range(NUMBER_OF_RES_BLOCKS)
-        ])
+        self.res_blocks = nn.Sequential(
+            *[
+                BottleneckResidualBlock(HIDDEN_SIZE, BOTTLENECK_SIZE)
+                for _ in range(NUMBER_OF_RES_BLOCKS)
+            ]
+        )
         self.out_layer = nn.Sequential(
             nn.BatchNorm1d(HIDDEN_SIZE),
             nn.LeakyReLU(LEAKY_RELU),

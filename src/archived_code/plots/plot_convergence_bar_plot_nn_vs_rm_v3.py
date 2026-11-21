@@ -83,13 +83,20 @@ plt.title(
     'Input Signals\nGain Factors $K_{P,I,D}$ = ' + str(GAIN_VALUES),
     pad=45,
 )
-ax.set_xlabel('Input Aberration Scaling Factor, $k$\n'
-              'Aberrations Uniformly Random Between: '
-              r'$k\;[-x_Z, x_Z]$ nm RMS Error, $x_{2-3}=$' + str(RANGES[0]) +
-              '$, x_{4-8}=$' + str(RANGES[1]) + '$, x_{9-24}=$' +
-              str(RANGES[2]))
-ax.set_ylabel('Wavefronts Captured\nTrue Error Threshold: '
-              f'[-{int(THRESHOLD * 1e9)}, {int(THRESHOLD * 1e9)}] nm')
+ax.set_xlabel(
+    'Input Aberration Scaling Factor, $k$\n'
+    'Aberrations Uniformly Random Between: '
+    r'$k\;[-x_Z, x_Z]$ nm RMS Error, $x_{2-3}=$'
+    + str(RANGES[0])
+    + '$, x_{4-8}=$'
+    + str(RANGES[1])
+    + '$, x_{9-24}=$'
+    + str(RANGES[2])
+)
+ax.set_ylabel(
+    'Wavefronts Captured\nTrue Error Threshold: '
+    f'[-{int(THRESHOLD * 1e9)}, {int(THRESHOLD * 1e9)}] nm'
+)
 
 # https://stackoverflow.com/a/43439132
 plt.legend(

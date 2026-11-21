@@ -1,11 +1,21 @@
 import numpy as np
 import proper
 from utils.add_wf_aberrations import add_wf_aberrations
-from utils.constants import (CAMERA_EF, CAMERA_INTENSITY, CAMERA_SAMPLING,
-                             FULL_EF, FULL_INTENSITY, FULL_SAMPLING,
-                             PLOTTING_LINEAR_INT, PLOTTING_LINEAR_PHASE,
-                             PLOTTING_LINEAR_PHASE_NON0_INT, PLOTTING_LOG_INT,
-                             PLOTTING_PATH, ZERNIKE_COEFFS, ZERNIKE_TERMS)
+from utils.constants import (
+    CAMERA_EF,
+    CAMERA_INTENSITY,
+    CAMERA_SAMPLING,
+    FULL_EF,
+    FULL_INTENSITY,
+    FULL_SAMPLING,
+    PLOTTING_LINEAR_INT,
+    PLOTTING_LINEAR_PHASE,
+    PLOTTING_LINEAR_PHASE_NON0_INT,
+    PLOTTING_LOG_INT,
+    PLOTTING_PATH,
+    ZERNIKE_COEFFS,
+    ZERNIKE_TERMS,
+)
 from utils.resample_data import resample_data, resize_pixel_grid
 from utils.path import get_abs_path, make_dir
 from utils.printing_and_logging import step_ri
@@ -104,7 +114,7 @@ def sim_prop_wf(
         # or just the intensity
         if wf_obj is not None:
             plot_sampling = proper.prop_get_sampling(wf_obj)
-            intensity_data = proper.prop_get_amplitude(wf_obj)**2
+            intensity_data = proper.prop_get_amplitude(wf_obj) ** 2
             # Phase is grabbed in radians
             phase_data = proper.prop_get_phase(wf_obj)
             # Put the phase into nm
@@ -139,8 +149,7 @@ def sim_prop_wf(
     # Set this as the entrance to the train
     proper.prop_define_entrance(wavefront)
     # Add in the aberrations to the wavefront
-    aberration_map = add_wf_aberrations(wavefront, zernike_terms,
-                                        aberration_values)
+    aberration_map = add_wf_aberrations(wavefront, zernike_terms, aberration_values)
     _plot('Entrance', wf_obj=wavefront)
     # # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # # Calculate the total RMS wavefront error for a set of discrete points.
@@ -153,7 +162,7 @@ def sim_prop_wf(
     # # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     if use_only_aberration_map:
         # Pixels where the circle is
-        aperture_mask = proper.prop_get_amplitude(wavefront)**2 > 0
+        aperture_mask = proper.prop_get_amplitude(wavefront) ** 2 > 0
         # If only using the aberration map, then no need to propagate
         # the wavefront through the optical setup.
         wavefront_intensity = aberration_map * aperture_mask
@@ -327,8 +336,7 @@ def multi_worker_sim_prop_many_wf(
                 plotting_dict[PLOTTING_PATH] = path
             # Grab the extra params that correspond to the current simulation
             extra_params_local = {
-                key: array[sim_idx]
-                for key, array in extra_params_chunk.items()
+                key: array[sim_idx] for key, array in extra_params_chunk.items()
             }
             cam_ef, full_ef, cam_int, full_int, full_sampling = sim_prop_wf(
                 init_beam_d,
@@ -373,13 +381,15 @@ def multi_worker_sim_prop_many_wf(
     # Since this is a dictionary, the inner arrays must first be split into
     # chunks. Then, new dictionaries can be created with the chunked arrays.
     extra_params_split_arrays = {
-        key: np.array_split(array, core_count)
-        for key, array in extra_params.items()
+        key: np.array_split(array, core_count) for key, array in extra_params.items()
     }
-    extra_params_chunks = [{
-        key: array_chunks[idx]
-        for key, array_chunks in extra_params_split_arrays.items()
-    } for idx in range(core_count)]
+    extra_params_chunks = [
+        {
+            key: array_chunks[idx]
+            for key, array_chunks in extra_params_split_arrays.items()
+        }
+        for idx in range(core_count)
+    ]
     # This dictionary is no longer needed
     del extra_params_split_arrays
     if enable_logs:
@@ -403,8 +413,10 @@ def multi_worker_sim_prop_many_wf(
         if save_full_intensity:
             merge_keys.extend([FULL_INTENSITY, FULL_SAMPLING])
         for key in merge_keys:
-            merged_results[key] = np.concatenate((
-                merged_results[key],
-                result_dict[key],
-            ))
+            merged_results[key] = np.concatenate(
+                (
+                    merged_results[key],
+                    result_dict[key],
+                )
+            )
     return merged_results

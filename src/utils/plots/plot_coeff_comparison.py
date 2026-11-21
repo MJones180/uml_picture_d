@@ -18,7 +18,7 @@ def plot_coeff_comparison(
     plt.clf()
     numb_groups = len(upper_coeff_group_idxs)
     coeff_group_idxs = [0, *upper_coeff_group_idxs]
-    fig, axs = plt.subplots(
+    _, axs = plt.subplots(
         numb_groups,
         1,
         figsize=(12, 5 * numb_groups),

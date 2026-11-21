@@ -6,7 +6,6 @@ import torch.nn as nn
 
 
 class ResidualBlock(nn.Module):
-
     def __init__(self, features, dropout):
         super().__init__()
 
@@ -26,7 +25,6 @@ class ResidualBlock(nn.Module):
 
 
 class Network(nn.Module):
-
     def example_input():
         return torch.rand((2, 1000))
 

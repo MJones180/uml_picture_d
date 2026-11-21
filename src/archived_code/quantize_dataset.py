@@ -28,12 +28,14 @@ QUANT_POINTS = 255
 
 # Instead of globbing the paths, it is safer to load in the datafiles using
 # their chunk number so that they are guaranteed to be in order
-chunk_vals = sorted([
-    # Grab the number associated with each chunk
-    int(path.split('/')[-1][:-len(DATA_F) - 1])
-    # All datafiles should follow the format [chunk]_[DATA_F]
-    for path in glob(f'{DS_TAG}/*_{DATA_F}')
-])
+chunk_vals = sorted(
+    [
+        # Grab the number associated with each chunk
+        int(path.split('/')[-1][: -len(DATA_F) - 1])
+        # All datafiles should follow the format [chunk]_[DATA_F]
+        for path in glob(f'{DS_TAG}/*_{DATA_F}')
+    ]
+)
 input_data = []
 output_data = []
 print(f'Tag: {DS_TAG}')
@@ -77,8 +79,10 @@ output_bin_step_size_nm = output_bin_step_size * 1e9
 
 def plot_wf_comp(idx):
     fig, ax = plt.subplots(1, 3, figsize=(12, 4))
-    plt.suptitle(f'Idx {idx}, Sum of Absolute={wavefront_errors[idx]:0.3f}\n'
-                 f'Bin Quantization={input_bin_step_size} m')
+    plt.suptitle(
+        f'Idx {idx}, Sum of Absolute={wavefront_errors[idx]:0.3f}\n'
+        f'Bin Quantization={input_bin_step_size} m'
+    )
     ax[0].imshow(input_data[idx])
     ax[0].set_title('Original Wavefront')
     ax[1].imshow(quantized_input[idx])
@@ -102,8 +106,9 @@ def plot_comparison_scatter_grid(regular_data, quantized_data, n_rows, n_cols):
     row_count, col_count = regular_data.shape
     subplot_args = {'figsize': (n_cols * 3, n_rows * 3)}
     fig, axs = plt.subplots(n_rows, n_cols, **subplot_args)
-    plt.suptitle('Regular VS Quantized, '
-                 f'Bin Quantization={output_bin_step_size_nm:0.3f} nm')
+    plt.suptitle(
+        f'Regular VS Quantized, Bin Quantization={output_bin_step_size_nm:0.3f} nm'
+    )
     current_col = 0
     for plot_row in range(n_rows):
         for plot_col in range(n_cols):

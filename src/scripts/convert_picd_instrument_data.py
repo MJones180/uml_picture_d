@@ -4,17 +4,29 @@ to use the normal preprocessing scripts, the data should be converted to HDF and
 have the same format as raw simulated data.
 """
 
-from astropy.io import fits
 from glob import glob
+
 import numpy as np
+from astropy.io import fits
 from utils.cli_args import save_cli_args
-from utils.constants import (CAMERA_INTENSITY, CAMERA_SAMPLING, DATA_F,
-                             RAW_DATA_P, ZERNIKE_COEFFS, ZERNIKE_TERMS)
+from utils.constants import (
+    CAMERA_INTENSITY,
+    CAMERA_SAMPLING,
+    DATA_F,
+    RAW_DATA_P,
+    ZERNIKE_COEFFS,
+    ZERNIKE_TERMS,
+)
 from utils.group_data_from_list import group_data_from_list
 from utils.hdf_read_and_write import HDFWriteModule
 from utils.path import make_dir, path_exists
-from utils.printing_and_logging import (dec_print_indent, inc_print_indent,
-                                        step, step_ri, title)
+from utils.printing_and_logging import (
+    dec_print_indent,
+    inc_print_indent,
+    step,
+    step_ri,
+    title,
+)
 from utils.terminate_with_message import terminate_with_message
 
 
@@ -41,9 +53,11 @@ def convert_picd_instrument_data_parser(subparsers):
     subparser.add_argument(
         '--fits-data-tags',
         nargs='+',
-        help=('tags of the directories containing the FITS datafiles; '
-              'multiple datafiles can be in the same directory with names of '
-              '`*_data.fits`.'),
+        help=(
+            'tags of the directories containing the FITS datafiles; '
+            'multiple datafiles can be in the same directory with names of '
+            '`*_data.fits`.'
+        ),
     )
     subparser.add_argument(
         '--first-n-rows',
@@ -54,10 +68,12 @@ def convert_picd_instrument_data_parser(subparsers):
     subparser.add_argument(
         '--base-field-data',
         type=int,
-        help=('the number of rows to take from the end of the `IMAGE` table '
-              'that will be averaged over to form the base field, these rows '
-              'should contain no aberrations; if a value of 0 is passed, then '
-              'the rows from the PRIMARY table are used'),
+        help=(
+            'the number of rows to take from the end of the `IMAGE` table '
+            'that will be averaged over to form the base field, these rows '
+            'should contain no aberrations; if a value of 0 is passed, then '
+            'the rows from the PRIMARY table are used'
+        ),
     )
     subparser.add_argument(
         '--n-base-field-rows',
@@ -73,15 +89,19 @@ def convert_picd_instrument_data_parser(subparsers):
         '--slice-row-ranges',
         type=int,
         nargs='*',
-        help=('slice out rows from the given ranges in the form of '
-              '[idx low, idx high]..., this will be done to each datafile'),
+        help=(
+            'slice out rows from the given ranges in the form of '
+            '[idx low, idx high]..., this will be done to each datafile'
+        ),
     )
     subparser.add_argument(
         '--take-every-n-rows',
         type=int,
         nargs=2,
-        help=('take every n rows out of the data starting at row x; '
-              'expected parameters: n x'),
+        help=(
+            'take every n rows out of the data starting at row x; '
+            'expected parameters: n x'
+        ),
     )
     subparser.add_argument(
         '--flip-images-horizontally',
@@ -91,11 +111,13 @@ def convert_picd_instrument_data_parser(subparsers):
     subparser.add_argument(
         '--use-coeffs-from-csv',
         nargs='+',
-        help=('replace the datafile coeffs with coeffs from CSV files; '
-              'this is applied after all slicing is done; the following '
-              'parameters are expected: base path from `data/raw`, '
-              '*csv file names; the `.csv` extension will be added to '
-              'every file name by default'),
+        help=(
+            'replace the datafile coeffs with coeffs from CSV files; '
+            'this is applied after all slicing is done; the following '
+            'parameters are expected: base path from `data/raw`, '
+            '*csv file names; the `.csv` extension will be added to '
+            'every file name by default'
+        ),
     )
 
 
@@ -103,8 +125,7 @@ def convert_picd_instrument_data(cli_args):
     title('Convert picd instrument data script')
 
     step_ri('Determining Zernike terms')
-    zernike_terms = np.arange(cli_args['zernike_low'],
-                              cli_args['zernike_high'] + 1)
+    zernike_terms = np.arange(cli_args['zernike_low'], cli_args['zernike_high'] + 1)
     print(f'Zernike terms: {zernike_terms}')
 
     step_ri('Creating output directory and writing out CLI args')
@@ -140,12 +161,14 @@ def convert_picd_instrument_data(cli_args):
     for fits_data_path in sorted(fits_data_paths):
         step_ri(f'Tag path: {fits_data_path}')
         FILE_EXT = '_data.fits'
-        file_numbers = sorted([
-            # Grab the number associated with each datafile
-            int(path.split('/')[-1][:-len(FILE_EXT)])
-            # All datafiles should follow the format
-            for path in glob(f'{fits_data_path}/*{FILE_EXT}')
-        ])
+        file_numbers = sorted(
+            [
+                # Grab the number associated with each datafile
+                int(path.split('/')[-1][: -len(FILE_EXT)])
+                # All datafiles should follow the format
+                for path in glob(f'{fits_data_path}/*{FILE_EXT}')
+            ]
+        )
         # The path to each file; this ensures the order of files stays the same
         found_datafiles_paths = [
             f'{fits_data_path}/{file_idx}{FILE_EXT}'
@@ -195,7 +218,8 @@ def convert_picd_instrument_data(cli_args):
                         # A mask of the rows to keep
                         row_mask = np.full(image_data.shape[0], False)
                         for idx_low, idx_high in group_data_from_list(
-                                slice_row_ranges, 2):
+                            slice_row_ranges, 2
+                        ):
                             print(f'Index low, high: {idx_low}, {idx_high}')
                             row_mask[idx_low:idx_high] = True
                         dec_print_indent()
@@ -206,8 +230,10 @@ def convert_picd_instrument_data(cli_args):
                         skip_count, starting_row = take_every_n_rows
                         print(f'Image data shape: {image_data.shape}')
                         print(f'Zernike data shape: {zernike_data.shape}')
-                        print(f'Will take every {skip_count} rows '
-                              f'starting at row {starting_row}')
+                        print(
+                            f'Will take every {skip_count} rows '
+                            f'starting at row {starting_row}'
+                        )
                         image_data = image_data[starting_row::skip_count]
                         zernike_data = zernike_data[starting_row::skip_count]
             if zernike_data.shape[1] != len(zernike_terms):
@@ -224,11 +250,13 @@ def convert_picd_instrument_data(cli_args):
             print(f'Zernike data shape: {zernike_data.shape}')
             outfile = f'{output_path}/{outfile_idx}_{DATA_F}'
             print(f'Output HDF datafile: {outfile}')
-            HDFWriteModule(outfile).create_and_write_hdf_simple({
-                ZERNIKE_TERMS: zernike_terms,
-                ZERNIKE_COEFFS: zernike_data.astype('float32'),
-                CAMERA_INTENSITY: image_data.astype('float32'),
-                CAMERA_SAMPLING: 0,
-            })
+            HDFWriteModule(outfile).create_and_write_hdf_simple(
+                {
+                    ZERNIKE_TERMS: zernike_terms,
+                    ZERNIKE_COEFFS: zernike_data.astype('float32'),
+                    CAMERA_INTENSITY: image_data.astype('float32'),
+                    CAMERA_SAMPLING: 0,
+                }
+            )
             outfile_idx += 1
             dec_print_indent()

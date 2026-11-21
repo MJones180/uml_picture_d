@@ -1,8 +1,16 @@
 import numpy as np
 import torch
 from utils.cli_args import save_cli_args
-from utils.constants import (DARK_ZONE_MASK, DATA_F, EXPLAINED_VARIANCE_RATIO,
-                             MEAN, MODES, RAW_DATA_P, SINGULAR_VALUES, STD)
+from utils.constants import (
+    DARK_ZONE_MASK,
+    DATA_F,
+    EXPLAINED_VARIANCE_RATIO,
+    MEAN,
+    MODES,
+    RAW_DATA_P,
+    SINGULAR_VALUES,
+    STD,
+)
 from utils.create_grid_mask import create_grid_mask
 from utils.hdf_read_and_write import HDFWriteModule, read_hdf
 from utils.load_raw_sim_data import raw_sim_data_chunk_paths
@@ -33,8 +41,10 @@ def create_pca_basis_modes_parser(subparsers):
     subparser.add_argument(
         '--table-names',
         nargs='*',
-        help=('names of the tables in the raw data files; if multiple tables '
-              'are given, then the data will be concat in the order passed'),
+        help=(
+            'names of the tables in the raw data files; if multiple tables '
+            'are given, then the data will be concat in the order passed'
+        ),
     )
     subparser.add_argument(
         '--dh-mask',
@@ -44,8 +54,10 @@ def create_pca_basis_modes_parser(subparsers):
         '--dm-mask',
         nargs=2,
         type=float,
-        help=('apply a dm mask to the data; two args expected: '
-              'dm size across, circle size'),
+        help=(
+            'apply a dm mask to the data; two args expected: '
+            'dm size across, circle size'
+        ),
     )
     subparser.add_argument(
         '--auto-mask',
@@ -124,7 +136,8 @@ def create_pca_basis_modes(cli_args):
         print(f'{table_name}: ({first_dim}, {other_dims})')
     # Convert from a dict to a numpy array containing the combined data
     all_table_data = np.concat(
-        [all_table_data.pop(name) for name in table_names], axis=-1)
+        [all_table_data.pop(name) for name in table_names], axis=-1
+    )
     print(f'Merged shape: {all_table_data.shape}')
 
     step_ri('Computing PCA modes')

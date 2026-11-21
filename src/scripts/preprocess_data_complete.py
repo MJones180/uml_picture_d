@@ -15,12 +15,23 @@ output normalization can be done either globally or individually.
 
 import numpy as np
 from utils.cli_args import save_cli_args
-from utils.constants import (BASE_INT_FIELD, CAMERA_SAMPLING, DATA_F,
-                             EXTRA_VARS_F, INPUTS, INPUTS_SUM_TO_ONE,
-                             INPUT_MIN_X, INPUT_MAX_MIN_DIFF,
-                             NORM_RANGE_ONES_INPUT, NORM_RANGE_ONES_OUTPUT,
-                             OUTPUTS, OUTPUT_MIN_X, OUTPUT_MAX_MIN_DIFF,
-                             PROC_DATA_P, ZERNIKE_TERMS)
+from utils.constants import (
+    BASE_INT_FIELD,
+    CAMERA_SAMPLING,
+    DATA_F,
+    EXTRA_VARS_F,
+    INPUT_MAX_MIN_DIFF,
+    INPUT_MIN_X,
+    INPUTS,
+    INPUTS_SUM_TO_ONE,
+    NORM_RANGE_ONES_INPUT,
+    NORM_RANGE_ONES_OUTPUT,
+    OUTPUT_MAX_MIN_DIFF,
+    OUTPUT_MIN_X,
+    OUTPUTS,
+    PROC_DATA_P,
+    ZERNIKE_TERMS,
+)
 from utils.group_data_from_list import group_data_from_list
 from utils.hdf_read_and_write import HDFWriteModule
 from utils.load_raw_sim_data import load_raw_sim_data_chunks
@@ -76,8 +87,10 @@ def preprocess_data_complete_parser(subparsers):
     subparser.add_argument(
         '--disable-norm-inputs',
         action='store_true',
-        help=('disable global input normalization (does not effect the '
-              '`inputs_sum_to_one` arg)'),
+        help=(
+            'disable global input normalization (does not effect the '
+            '`inputs_sum_to_one` arg)'
+        ),
     )
     subparser.add_argument(
         '--inputs-sum-to-one',
@@ -87,8 +100,10 @@ def preprocess_data_complete_parser(subparsers):
     subparser.add_argument(
         '--norm-outputs',
         choices=OUTPUT_NORM_OPTIONS,
-        help=('normalize training and validation output values either '
-              'globally or individually'),
+        help=(
+            'normalize training and validation output values either '
+            'globally or individually'
+        ),
     )
     subparser.add_argument(
         '--norm-outputs-round',
@@ -98,29 +113,37 @@ def preprocess_data_complete_parser(subparsers):
     subparser.add_argument(
         '--norm-range-ones',
         action='store_true',
-        help=('normalize data between -1 and 1 instead of 0 to 1; applies to '
-              'both input and output normalization'),
+        help=(
+            'normalize data between -1 and 1 instead of 0 to 1; applies to '
+            'both input and output normalization'
+        ),
     )
     subparser.add_argument(
         '--use-field-diff',
-        help=('for the intensity fields (the inputs), take the difference '
-              'between the base field (no aberrations) and each aberrated '
-              'field; should be the name of the raw dataset with one row '
-              'containing no aberrations'),
+        help=(
+            'for the intensity fields (the inputs), take the difference '
+            'between the base field (no aberrations) and each aberrated '
+            'field; should be the name of the raw dataset with one row '
+            'containing no aberrations'
+        ),
     )
     subparser.add_argument(
         '--use-field-diff-mapping',
         nargs='*',
         type=int,
-        help=('map specific base fields to different portions of the data; '
-              'the arguments can be repeated as many times as necessary and '
-              'should specify <base field index> <starting row> <ending row>'),
+        help=(
+            'map specific base fields to different portions of the data; '
+            'the arguments can be repeated as many times as necessary and '
+            'should specify <base field index> <starting row> <ending row>'
+        ),
     )
     subparser.add_argument(
         '--use-field-diff-corresponding',
         action='store_true',
-        help=('every row of data has its own corresponding base field; there '
-              'must be an equal number of base field and input data rows'),
+        help=(
+            'every row of data has its own corresponding base field; there '
+            'must be an equal number of base field and input data rows'
+        ),
     )
     subparser.add_argument(
         '--additional-raw-data-tags',
@@ -130,22 +153,28 @@ def preprocess_data_complete_parser(subparsers):
     subparser.add_argument(
         '--additional-raw-data-tags-train-only',
         nargs='*',
-        help=('additional raw simulated data to preprocess and merge '
-              'together, however, this data will only go in the '
-              'training dataset'),
+        help=(
+            'additional raw simulated data to preprocess and merge '
+            'together, however, this data will only go in the '
+            'training dataset'
+        ),
     )
     subparser.add_argument(
         '--set-slices-train-only',
         nargs='*',
         type=int,
-        help=('will set rows of data, specified by indices, to be train only; '
-              'each slice should have two arguments: idx low, idx high'),
+        help=(
+            'will set rows of data, specified by indices, to be train only; '
+            'each slice should have two arguments: idx low, idx high'
+        ),
     )
     subparser.add_argument(
         '--outputs-in-surface-error',
         action='store_true',
-        help=('the Zernike coefficients are in terms of surface error instead '
-              'of wavefront error'),
+        help=(
+            'the Zernike coefficients are in terms of surface error instead '
+            'of wavefront error'
+        ),
     )
     subparser.add_argument(
         '--outputs-scaling-factor',
@@ -160,10 +189,12 @@ def preprocess_data_complete_parser(subparsers):
     subparser.add_argument(
         '--camera-for-wfs',
         nargs=3,
-        help=('simulate a camera which adds noise, discretized light levels, '
-              'and saturation; requires three arguments: <cam name> '
-              '<exposure time in s> <countrate>; noise will be added to the '
-              'input PSFs for all the data including the base field'),
+        help=(
+            'simulate a camera which adds noise, discretized light levels, '
+            'and saturation; requires three arguments: <cam name> '
+            '<exposure time in s> <countrate>; noise will be added to the '
+            'input PSFs for all the data including the base field'
+        ),
     )
     subparser.add_argument(
         '--fix-seed',
@@ -184,21 +215,24 @@ def preprocess_data_complete(cli_args):
     # ==========================================================================
 
     step_ri('Loading in data chunks')
-    (input_data, output_data, zernike_terms,
-     camera_sampling) = load_raw_sim_data_chunks(cli_args['raw_data_tag'])
+    (input_data, output_data, zernike_terms, camera_sampling) = (
+        load_raw_sim_data_chunks(cli_args['raw_data_tag'])
+    )
     print(f'Input shape: {input_data.shape}')
     print(f'Output shape: {output_data.shape}')
     print(f'Zernike terms: {zernike_terms}')
 
     def _load_and_merge_chunks(tag):
-        (additional_input_data, additional_output_data,
-         additional_zernike_terms, _) = load_raw_sim_data_chunks(tag)
+        (additional_input_data, additional_output_data, additional_zernike_terms, _) = (
+            load_raw_sim_data_chunks(tag)
+        )
         # Keep stacking on the other datasets
         input_data_merged = np.vstack((input_data, additional_input_data))
         output_data_merged = np.vstack((output_data, additional_output_data))
         if not np.array_equal(additional_zernike_terms, zernike_terms):
-            terminate_with_message('Zernike terms from additional dataset '
-                                   'are different')
+            terminate_with_message(
+                'Zernike terms from additional dataset are different'
+            )
         print(f'Merged input shape: {input_data_merged.shape}')
         print(f'Merged output shape: {output_data_merged.shape}')
         return input_data_merged, output_data_merged
@@ -248,7 +282,7 @@ def preprocess_data_complete(cli_args):
         exposure_time = float(exposure_time)
         countrate = float(countrate)
         print(f'Camera: {cam_name}')
-        print(f'Exposure time: {exposure_time} s ({1/exposure_time} Hz)')
+        print(f'Exposure time: {exposure_time} s ({1 / exposure_time} Hz)')
         print(f'Countrate: {countrate} photons/s')
         # Add noise to the PSFs
         input_data = simulate_camera(
@@ -328,9 +362,12 @@ def preprocess_data_complete(cli_args):
         use_field_diff_mapping = cli_args.get('use_field_diff_mapping')
         if use_field_diff_mapping:
             for base_field_idx, idx_low, idx_high in group_data_from_list(
-                    use_field_diff_mapping, 3):
-                print(f'Using base field at index {base_field_idx} on '
-                      f'rows {idx_low} - {idx_high}')
+                use_field_diff_mapping, 3
+            ):
+                print(
+                    f'Using base field at index {base_field_idx} on '
+                    f'rows {idx_low} - {idx_high}'
+                )
                 input_data[idx_low:idx_high] -= base_field[base_field_idx]
             print('Creating an averaged base field that will be saved')
             base_field_idxs = np.array(use_field_diff_mapping[::3])
@@ -398,14 +435,11 @@ def preprocess_data_complete(cli_args):
 
     if use_field_diff:
         # Add a row with no aberrations to the training data
-        train_inputs = np.vstack(
-            (train_inputs, np.zeros_like(base_field)[None]))
-        train_outputs = np.vstack(
-            (train_outputs, np.zeros(len(zernike_terms))[None]))
+        train_inputs = np.vstack((train_inputs, np.zeros_like(base_field)[None]))
+        train_outputs = np.vstack((train_outputs, np.zeros(len(zernike_terms))[None]))
 
     def _print_split(word, percentage, inputs):
-        print(f'{word} percentage: {(percentage)}%, '
-              f'rows: {inputs.shape[0]}')
+        print(f'{word} percentage: {(percentage)}%, rows: {inputs.shape[0]}')
 
     _print_split('Training', training_percentage, train_inputs)
     _print_split('Validation', validation_percentage, val_inputs)
@@ -422,13 +456,16 @@ def preprocess_data_complete(cli_args):
     else:
         print('Globally normalizing inputs of training data')
         train_inputs, max_min_diff, min_x = find_min_max_norm(
-            train_inputs, True, nro, numerical_stability_constant=0)
+            train_inputs, True, nro, numerical_stability_constant=0
+        )
         # These will both be singular floats. In the future, if individual norm
         # is needed, then these two vars should be arrays instead of scalars.
         norm_values[INPUT_MIN_X] = min_x
         norm_values[INPUT_MAX_MIN_DIFF] = max_min_diff
-        print('Normalizing inputs of validation/testing data based '
-              'on training normalization values')
+        print(
+            'Normalizing inputs of validation/testing data based '
+            'on training normalization values'
+        )
         val_inputs = min_max_norm(val_inputs, max_min_diff, min_x, nro, 0)
         test_inputs = min_max_norm(test_inputs, max_min_diff, min_x, nro, 0)
 
@@ -438,8 +475,9 @@ def preprocess_data_complete(cli_args):
     output_normalization = True
     norm_outputs_round = cli_args.get('norm_outputs_round')
     if norm_outputs_round:
-        print('Will round min_x and max_min_diff to '
-              f'{norm_outputs_round} decimal places')
+        print(
+            f'Will round min_x and max_min_diff to {norm_outputs_round} decimal places'
+        )
     norm_outputs = cli_args.get('norm_outputs')
     if norm_outputs == 'individually':
         print('Individually normalizing outputs of training data')
@@ -466,8 +504,10 @@ def preprocess_data_complete(cli_args):
         output_normalization = False
         print('Not performing any output normalization')
     if output_normalization is True:
-        print('Normalizing outputs of validation data based on training '
-              'normalization values')
+        print(
+            'Normalizing outputs of validation data based on training '
+            'normalization values'
+        )
         norm_values[OUTPUT_MIN_X] = min_x
         norm_values[OUTPUT_MAX_MIN_DIFF] = max_min_diff
         val_outputs = min_max_norm(val_outputs, max_min_diff, min_x, nro, 0)
@@ -494,13 +534,16 @@ def preprocess_data_complete(cli_args):
         # Write out the CLI args that this script was called with
         save_cli_args(out_path, cli_args, 'preprocess_data_complete')
         # Add a file with other necessary variables (includes norm values)
-        HDFWriteModule(f'{out_path}/{EXTRA_VARS_F}'
-                       ).create_and_write_hdf_simple(extra_vars)
+        HDFWriteModule(f'{out_path}/{EXTRA_VARS_F}').create_and_write_hdf_simple(
+            extra_vars
+        )
         # Write out the processed HDF file
-        HDFWriteModule(f'{out_path}/{DATA_F}').create_and_write_hdf_simple({
-            INPUTS: inputs,
-            OUTPUTS: outputs,
-        })
+        HDFWriteModule(f'{out_path}/{DATA_F}').create_and_write_hdf_simple(
+            {
+                INPUTS: inputs,
+                OUTPUTS: outputs,
+            }
+        )
 
     _create_dataset('training_tag', train_inputs, train_outputs)
     _create_dataset('validation_tag', val_inputs, val_outputs)

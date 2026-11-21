@@ -27,7 +27,7 @@ for axs_idx, zernike_low, zernike_high, beta, scale in [
     ax[axs_idx].axvline(x=0, color='black', lw=0.5)
     ax[axs_idx].set_xlim(-xlim, xlim)
     ax[axs_idx].set_title(
-        fr'$Z_{{{zernike_low}-{zernike_high}}}$ ($\beta$={beta}, scale={scale})'
+        rf'$Z_{{{zernike_low}-{zernike_high}}}$ ($\beta$={beta}, scale={scale})'
     )
     ax[axs_idx].set_ylabel('Density')
     if axs_idx == 2:

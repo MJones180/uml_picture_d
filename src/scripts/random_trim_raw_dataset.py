@@ -4,10 +4,17 @@ Used to shrink down the number of rows in a large dataset.
 """
 
 from glob import glob
+
 import numpy as np
 from utils.cli_args import load_cli_args, save_cli_args
-from utils.constants import (CAMERA_INTENSITY, CAMERA_SAMPLING, DATA_F,
-                             RAW_DATA_P, ZERNIKE_COEFFS, ZERNIKE_TERMS)
+from utils.constants import (
+    CAMERA_INTENSITY,
+    CAMERA_SAMPLING,
+    DATA_F,
+    RAW_DATA_P,
+    ZERNIKE_COEFFS,
+    ZERNIKE_TERMS,
+)
 from utils.hdf_read_and_write import HDFWriteModule, read_hdf
 from utils.path import make_dir
 from utils.printing_and_logging import step_ri, title
@@ -91,12 +98,14 @@ def random_trim_raw_dataset(cli_args):
     out_path = f'{out_dir}/0_{DATA_F}'
     step_ri('Writing new datafile')
     print(f'Path: {out_path}')
-    HDFWriteModule(out_path).create_and_write_hdf_simple({
-        CAMERA_INTENSITY: camera_intensity,
-        CAMERA_SAMPLING: camera_sampling,
-        ZERNIKE_COEFFS: zernike_coeffs,
-        ZERNIKE_TERMS: zernike_terms,
-    })
+    HDFWriteModule(out_path).create_and_write_hdf_simple(
+        {
+            CAMERA_INTENSITY: camera_intensity,
+            CAMERA_SAMPLING: camera_sampling,
+            ZERNIKE_COEFFS: zernike_coeffs,
+            ZERNIKE_TERMS: zernike_terms,
+        }
+    )
 
     # Load in the args file
     step_ri('Writing to the tag lookup')

@@ -15,7 +15,6 @@ DROPOUT = 0.1
 
 
 class BottleneckResidualBlock(nn.Module):
-
     def __init__(self, features, bottleneck_features):
         super().__init__()
         self.block = nn.Sequential(
@@ -33,7 +32,6 @@ class BottleneckResidualBlock(nn.Module):
 
 
 class Network(nn.Module):
-
     def example_input():
         return torch.rand((2, IN_SIZE))
 

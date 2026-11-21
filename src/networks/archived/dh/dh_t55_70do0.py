@@ -14,7 +14,6 @@ NUMBER_OF_RES_BLOCKS = 70
 
 
 class BottleneckResidualBlock(nn.Module):
-
     def __init__(self, features, bottleneck_features):
         super().__init__()
         self.block = nn.Sequential(
@@ -25,14 +24,13 @@ class BottleneckResidualBlock(nn.Module):
             nn.PReLU(num_parameters=bottleneck_features),
             nn.Linear(bottleneck_features, features, bias=False),
         )
-        self.gamma = nn.Parameter(torch.full((features, ), 0.1))
+        self.gamma = nn.Parameter(torch.full((features,), 0.1))
 
     def forward(self, x):
         return x + (self.gamma * self.block(x))
 
 
 class Network(nn.Module):
-
     def example_input():
         return torch.rand((2, IN_SIZE))
 
@@ -42,10 +40,12 @@ class Network(nn.Module):
             nn.Linear(IN_SIZE, HIDDEN_SIZE, bias=False),
             nn.BatchNorm1d(HIDDEN_SIZE),
         )
-        self.res_blocks = nn.Sequential(*[
-            BottleneckResidualBlock(HIDDEN_SIZE, BOTTLENECK_SIZE)
-            for _ in range(NUMBER_OF_RES_BLOCKS)
-        ])
+        self.res_blocks = nn.Sequential(
+            *[
+                BottleneckResidualBlock(HIDDEN_SIZE, BOTTLENECK_SIZE)
+                for _ in range(NUMBER_OF_RES_BLOCKS)
+            ]
+        )
         self.out_layer = nn.Sequential(
             nn.BatchNorm1d(HIDDEN_SIZE),
             nn.PReLU(num_parameters=HIDDEN_SIZE),

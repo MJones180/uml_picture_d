@@ -103,8 +103,9 @@ def iterate_simulated_control_loop(
         if enable_logs:
             step_ri('Loading in the optical train')
         loaded_optical_trains[train_name] = load_optical_train(train_name)
-    (init_beam_d, beam_ratio, optical_train, camera_pixels, camera_sampling,
-     _) = loaded_optical_trains[train_name]
+    (init_beam_d, beam_ratio, optical_train, camera_pixels, camera_sampling, _) = (
+        loaded_optical_trains[train_name]
+    )
 
     # ==============
     # Grab the model
@@ -144,8 +145,9 @@ def iterate_simulated_control_loop(
             # A 1D array should be passed in
             return response_matrix_obj(total_int_field=inputs.reshape(-1))
     else:
-        terminate_with_message('Must pass either a neural network (`use_nn`) '
-                               'or response matrix (`use_rm`)')
+        terminate_with_message(
+            'Must pass either a neural network (`use_nn`) or response matrix (`use_rm`)'
+        )
 
     # ====================
     # Run the control loop
@@ -196,14 +198,21 @@ def iterate_simulated_control_loop(
             corrections += K_d * dzdt  # derivative term
         # Stop iterations early if early stopping is enabled and both the true
         # and measured error are below the threshold
-        if early_stopping:
-            if np.all(np.abs([*aberrations, *model_output]) <= early_stopping):
-                if enable_logs:
-                    print('Ending iterations early due to all coeffs being '
-                          f'between [-{early_stopping}, {early_stopping}]')
-                break
+        if early_stopping and np.all(
+            np.abs([*aberrations, *model_output]) <= early_stopping
+        ):
+            if enable_logs:
+                print(
+                    'Ending iterations early due to all coeffs being '
+                    f'between [-{early_stopping}, {early_stopping}]'
+                )
+            break
     if enable_logs:
         print('Finished running the control loop')
 
-    return (row_idx, cumulative_time, np.array(true_error_history),
-            np.array(meas_error_history))
+    return (
+        row_idx,
+        cumulative_time,
+        np.array(true_error_history),
+        np.array(meas_error_history),
+    )

@@ -100,8 +100,10 @@ def convert_ef_to_phase_and_amp(cli_args):
     print(f'Amp table: {table_name_amp}')
     outfile = f'{output_path}/0_{DATA_F}'
     print(f'Writing to output HDF datafile: {outfile}')
-    HDFWriteModule(outfile).create_and_write_hdf_simple({
-        table_name_phase: phase,
-        table_name_amp: amp,
-        **copy_table_data,
-    })
+    HDFWriteModule(outfile).create_and_write_hdf_simple(
+        {
+            table_name_phase: phase,
+            table_name_amp: amp,
+            **copy_table_data,
+        }
+    )

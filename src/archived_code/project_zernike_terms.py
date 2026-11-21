@@ -20,12 +20,10 @@ zernike_count = len(zernike_terms)
 wavefront = proper.prop_begin(INIT_BEAM_D, REF_WL, GRID_POINTS, BEAM_RATIO)
 proper.prop_circular_aperture(wavefront, INIT_BEAM_D / 2)
 proper.prop_define_entrance(wavefront)
-basis_terms = [
-    proper.prop_zernikes(wavefront, [term], [1]) for term in zernike_terms
-]
+basis_terms = [proper.prop_zernikes(wavefront, [term], [1]) for term in zernike_terms]
 
 # Chop off corners to make a circle
-valid_mask = proper.prop_get_amplitude(wavefront)**2 > 0
+valid_mask = proper.prop_get_amplitude(wavefront) ** 2 > 0
 basis_terms = basis_terms * valid_mask
 
 # Flatten out the pixels
@@ -50,7 +48,7 @@ chosen_wf = np.reshape(chosen_wf, -1)
 # ==============================================================================
 
 # Need to normalize the bin area
-bin_area = (2 / GRID_POINTS)**2 / np.pi
+bin_area = (2 / GRID_POINTS) ** 2 / np.pi
 
 for term in basis_terms:
     f, ax = plt.subplots(1, 3)
@@ -61,8 +59,9 @@ for term in basis_terms:
     ax[2].set_title(np.sum(mult) * bin_area)
     plt.show()
 
-crosstalk_between_terms = np.array(
-    [basis_terms @ term for term in basis_terms]) * bin_area
+crosstalk_between_terms = (
+    np.array([basis_terms @ term for term in basis_terms]) * bin_area
+)
 print(crosstalk_between_terms)
 
 coeffs = (basis_terms @ chosen_wf) * bin_area

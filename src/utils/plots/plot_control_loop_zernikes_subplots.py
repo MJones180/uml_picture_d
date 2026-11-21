@@ -138,9 +138,11 @@ def plot_control_loop_zernikes_subplots(
             axs_cell.set_xlim(min(x_ticks), max(x_ticks))
             # Only display x labels for the last active cell in each col
             total_terms = len(zernike_terms)
-            if ((plot_row == n_rows - 1) or
-                ((total_terms % n_cols > 0) and (plot_row == n_rows - 2) and
-                 (plot_col >= (total_terms % n_cols)))):
+            if (plot_row == n_rows - 1) or (
+                (total_terms % n_cols > 0)
+                and (plot_row == n_rows - 2)
+                and (plot_col >= (total_terms % n_cols))
+            ):
                 if not plot_psd:
                     # Set the x labels to time
                     labs = [f'{v:0.2f}' for v in np.linspace(0, total_time, 5)]
@@ -160,7 +162,7 @@ def plot_control_loop_zernikes_subplots(
 
     # Add the legend only if the labels were passed
     if legend_labels is not None:
-        lines, labels = axs_cell.get_legend_handles_labels()
+        lines, _ = axs_cell.get_legend_handles_labels()
         fig.legend(lines, legend_labels, loc='lower right')
 
     fig.tight_layout()

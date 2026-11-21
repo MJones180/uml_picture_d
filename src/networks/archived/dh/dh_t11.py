@@ -28,7 +28,6 @@ def _make_dense_block(in_features, out_features, dropout):
 
 
 class Network(nn.Module):
-
     def example_input():
         return torch.rand((1, 2, 59, 59))
 

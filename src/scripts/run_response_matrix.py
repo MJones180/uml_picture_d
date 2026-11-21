@@ -15,30 +15,44 @@ The response matrix runs on denormalized inputs.
 """
 
 import numpy as np
-from utils.constants import (ANALYSIS_P, EXTRA_VARS_F, INPUT_MAX_MIN_DIFF,
-                             INPUT_MIN_X, INPUTS_Z_SCORE_MEAN,
-                             INPUTS_Z_SCORE_STD, MAE, MSE, NORM_RANGE_ONES,
-                             PROC_DATA_P, RESULTS_F, ZERNIKE_TERMS)
+from utils.constants import (
+    ANALYSIS_P,
+    EXTRA_VARS_F,
+    INPUT_MAX_MIN_DIFF,
+    INPUT_MIN_X,
+    INPUTS_Z_SCORE_MEAN,
+    INPUTS_Z_SCORE_STD,
+    MAE,
+    MSE,
+    NORM_RANGE_ONES,
+    PROC_DATA_P,
+    RESULTS_F,
+    ZERNIKE_TERMS,
+)
 from utils.group_data_from_list import group_data_from_list
 from utils.hdf_read_and_write import HDFWriteModule, read_hdf
-from utils.load_raw_sim_data import (load_raw_sim_data_chunks,
-                                     raw_sim_data_chunk_paths)
+from utils.load_raw_sim_data import load_raw_sim_data_chunks, raw_sim_data_chunk_paths
 from utils.norm import min_max_denorm, sum_to_one, z_score_denormalize
 from utils.path import delete_dir, get_abs_path, make_dir
+from utils.plots.paper_plots.model_scatters import paper_plot_model_scatters
+from utils.plots.paper_plots.total_crosstalk import paper_plot_total_crosstalk
+from utils.plots.paper_plots.zernike_response import paper_plot_zernike_response
 from utils.plots.plot_coeff_comparison import plot_coeff_comparison
-from utils.plots.plot_comparison_scatter_grid import plot_comparison_scatter_grid  # noqa: E501
-from utils.plots.plot_zernike_cross_coupling_animation import plot_zernike_cross_coupling_animation  # noqa: E501
-from utils.plots.plot_zernike_cross_coupling_mat_animation import plot_zernike_cross_coupling_mat_animation  # noqa: E501
+from utils.plots.plot_comparison_scatter_grid import plot_comparison_scatter_grid
+from utils.plots.plot_zernike_cross_coupling_animation import (
+    plot_zernike_cross_coupling_animation,
+)
+from utils.plots.plot_zernike_cross_coupling_mat_animation import (
+    plot_zernike_cross_coupling_mat_animation,
+)
 from utils.plots.plot_zernike_crosstalk_grid import plot_zernike_crosstalk_grid
 from utils.plots.plot_zernike_response import plot_zernike_response
-from utils.plots.plot_zernike_total_cross_coupling import plot_zernike_total_cross_coupling  # noqa: E501
-from utils.plots.paper_plots.total_crosstalk import paper_plot_total_crosstalk  # noqa
-from utils.plots.paper_plots.model_scatters import paper_plot_model_scatters  # noqa
-from utils.plots.paper_plots.zernike_response import paper_plot_zernike_response  # noqa
+from utils.plots.plot_zernike_total_cross_coupling import (
+    plot_zernike_total_cross_coupling,
+)
 from utils.printing_and_logging import step_ri, title
 from utils.response_matrix import ResponseMatrix
-from utils.stats_and_error import (mae, mse,
-                                   symmetric_mean_absolute_percentage_error)
+from utils.stats_and_error import mae, mse, symmetric_mean_absolute_percentage_error
 from utils.terminate_with_message import terminate_with_message
 from utils.torch_hdf_ds_loader import DSLoaderHDF
 
@@ -55,18 +69,27 @@ def run_response_matrix_parser(subparsers):
     )
     subparser.add_argument(
         'testing_ds',
-        help=('name of the testing dataset, values must have been generated '
-              'along a fixed grid; data must have no normalization'),
+        help=(
+            'name of the testing dataset, values must have been generated '
+            'along a fixed grid; data must have no normalization'
+        ),
     )
     subparser.add_argument(
         '--scatter-plot',
         nargs=5,
-        metavar=('[n_rows]', '[n_cols]', '[starting_zernike]',
-                 '[filter_value]', '[plot_density]'),
-        help=('generate a scatter plot; takes the args: number of rows, '
-              'number of cols, first Zernike the model outputs, filter value '
-              '(0 for no filtering, otherwise filtering with shared axes), '
-              'points per pixel to use for the density plot'),
+        metavar=(
+            '[n_rows]',
+            '[n_cols]',
+            '[starting_zernike]',
+            '[filter_value]',
+            '[plot_density]',
+        ),
+        help=(
+            'generate a scatter plot; takes the args: number of rows, '
+            'number of cols, first Zernike the model outputs, filter value '
+            '(0 for no filtering, otherwise filtering with shared axes), '
+            'points per pixel to use for the density plot'
+        ),
     )
     subparser.add_argument(
         '--zernike-plots',
@@ -96,23 +119,29 @@ def run_response_matrix_parser(subparsers):
     subparser.add_argument(
         '--wfs-need-sum-to-one',
         action='store_true',
-        help=('the input wavefronts need to be sum to one normalized; will '
-              'occur after the differential wavefront happens; a differential '
-              'wavefront cannot be passed in'),
+        help=(
+            'the input wavefronts need to be sum to one normalized; will '
+            'occur after the differential wavefront happens; a differential '
+            'wavefront cannot be passed in'
+        ),
     )
     subparser.add_argument(
         '--change-base-field',
         nargs='*',
-        help=('raw datafile containing an updated base field to use to form '
-              'the differential wavefronts; additional arguments can be '
-              'repeated as many times as necessary and should specify '
-              '<base field index> <starting row> <ending row>; this requires '
-              'that the `--inputs-are-diff` arg is not set'),
+        help=(
+            'raw datafile containing an updated base field to use to form '
+            'the differential wavefronts; additional arguments can be '
+            'repeated as many times as necessary and should specify '
+            '<base field index> <starting row> <ending row>; this requires '
+            'that the `--inputs-are-diff` arg is not set'
+        ),
     )
     subparser.add_argument(
         '--change-base-field-corresponding',
-        help=('raw datafile containing the base fields to use; '
-              'every row of data has its own corresponding base field'),
+        help=(
+            'raw datafile containing the base fields to use; '
+            'every row of data has its own corresponding base field'
+        ),
     )
     subparser.add_argument(
         '--print-outputs',
@@ -133,21 +162,23 @@ def run_response_matrix_parser(subparsers):
         '--plot-coeff-mae-smape',
         type=int,
         nargs='+',
-        help=('plot the MAE and sMAPE for the output coefficients; the passed '
-              'arguments should be the upper index for each coeff group'),
+        help=(
+            'plot the MAE and sMAPE for the output coefficients; the passed '
+            'arguments should be the upper index for each coeff group'
+        ),
     )
     subparser.add_argument(
         '--convert-output-to-dm-svd-basis',
         nargs='+',
-        metavar=('[datafile] [datafile table] '
-                 '[max number of modes from the start]'),
+        metavar=('[datafile] [datafile table] [max number of modes from the start]'),
         help=(
             'convert the DM actuator height coeffs to SVD basis coeffs; '
             'the raw datafile must consist of the 2D SVD modes for the DM, '
             'the modes will be inverted to find the new basis coeffs; '
             'the datafile must only be a single chunk of data; the threthree '
             'arguments must be repeated for each DM that is being used; '
-            'the data will be split into equal chunks for each DM'),
+            'the data will be split into equal chunks for each DM'
+        ),
     )
 
 
@@ -187,7 +218,8 @@ def run_response_matrix(cli_args):
                 extra_vars[INPUT_MAX_MIN_DIFF],
                 extra_vars[INPUT_MIN_X],
                 extra_vars[NORM_RANGE_ONES][()]
-                if NORM_RANGE_ONES in extra_vars else False,
+                if NORM_RANGE_ONES in extra_vars
+                else False,
             )
         elif INPUTS_Z_SCORE_MEAN in extra_vars:
             inputs = z_score_denormalize(
@@ -201,8 +233,9 @@ def run_response_matrix(cli_args):
         # Ensure the Zernike terms matchup
         zernike_terms_resp_mat = response_matrix_obj.zernike_terms
         if not np.array_equal(zernike_terms, zernike_terms_resp_mat):
-            terminate_with_message('Zernike terms in response matrix do not '
-                                   'match terms in dataset')
+            terminate_with_message(
+                'Zernike terms in response matrix do not match terms in dataset'
+            )
 
     step_ri('Flattening inputs')
     # Need to flatten out the pixels before calling the response matrix
@@ -240,14 +273,17 @@ def run_response_matrix(cli_args):
             base_field_idx = int(group_args[0])
             idx_low = int(group_args[1])
             idx_high = int(group_args[2])
-            print(f'Using base field at index {base_field_idx} on '
-                  f'rows {idx_low} - {idx_high}')
+            print(
+                f'Using base field at index {base_field_idx} on '
+                f'rows {idx_low} - {idx_high}'
+            )
             inputs_reshaped[idx_low:idx_high] -= base_field[base_field_idx]
         outputs_resp_mat = response_matrix_obj(diff_int_field=inputs_reshaped)
     elif cli_args.get('change_base_field_corresponding'):
         print('Changing the base field')
         base_field, _, _, _ = load_raw_sim_data_chunks(
-            cli_args.get('change_base_field_corresponding'))
+            cli_args.get('change_base_field_corresponding')
+        )
         base_field = base_field.reshape(base_field.shape[0], -1)
         if wfs_need_sum_to_one:
             print('Making pixel values in the base field(s) sum to 1')
@@ -279,14 +315,15 @@ def run_response_matrix(cli_args):
             active_idxs = np.where(nonzero_pixels)[0]
             modes = modes[:, active_idxs]
             # Pick out the correct number of modes from the start
-            modes = modes[:int(max_modes)]
+            modes = modes[: int(max_modes)]
             # Invert the modes
             modes_inv = np.linalg.pinv(modes)
             # Append the SVD coefficients
             outputs_resp_mat_svd.append(outputs_resp_mat[idx] @ modes_inv)
         # Rejoin the coeffs
         outputs_resp_mat = np.concatenate(
-            (outputs_resp_mat_svd[0], outputs_resp_mat_svd[1]), axis=1)
+            (outputs_resp_mat_svd[0], outputs_resp_mat_svd[1]), axis=1
+        )
 
     # Print the results to the console
     if cli_args.get('print_outputs'):
@@ -382,8 +419,9 @@ def run_response_matrix(cli_args):
         nrows = outputs_truth.shape[0]
         zernike_count = len(zernike_terms)
         if nrows % zernike_count != 0:
-            terminate_with_message('Data is in the incorrect shape for '
-                                   'the Zernike plot(s)')
+            terminate_with_message(
+                'Data is in the incorrect shape for the Zernike plot(s)'
+            )
 
         def _split(data):
             # Split the data so that each group (first dim) consists of all
@@ -474,8 +512,9 @@ def run_response_matrix(cli_args):
         plot_coeff_comparison(
             plot_coeff_mae_smape,
             mae(outputs_truth, outputs_resp_mat, 0),
-            symmetric_mean_absolute_percentage_error(outputs_truth,
-                                                     outputs_resp_mat, 0),
+            symmetric_mean_absolute_percentage_error(
+                outputs_truth, outputs_resp_mat, 0
+            ),
             'MAE',
             'sMAPE',
             f'{analysis_path}/mae_and_smape.png',

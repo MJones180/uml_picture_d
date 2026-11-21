@@ -14,8 +14,13 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import numpy as np
 from pathos.multiprocessing import ProcessPool
-from utils.constants import (ARGS_F, CAMERA_INTENSITY, FULL_INTENSITY,
-                             RANDOM_P, RAW_DATA_P)
+from utils.constants import (
+    ARGS_F,
+    CAMERA_INTENSITY,
+    FULL_INTENSITY,
+    RANDOM_P,
+    RAW_DATA_P,
+)
 from utils.json import json_load
 from utils.load_optical_train import load_optical_train
 from utils.load_raw_sim_data import load_raw_sim_data_chunks
@@ -32,15 +37,19 @@ def perturb_wavefront_v1_parser(subparsers):
     subparser.set_defaults(main=perturb_wavefront_v1)
     subparser.add_argument(
         'base_field_ds',
-        help=('name of the dataset containing the base field, this should be '
-              'a raw dataset and there should only be one row containing no '
-              'aberrations (the `no_aberrations` simulation arg), this '
-              'dataset will be used to load in the simulation parameters'),
+        help=(
+            'name of the dataset containing the base field, this should be '
+            'a raw dataset and there should only be one row containing no '
+            'aberrations (the `no_aberrations` simulation arg), this '
+            'dataset will be used to load in the simulation parameters'
+        ),
     )
     subparser.add_argument(
         'target_ds',
-        help=('name of the dataset to perturb the wavefront coefficients for, '
-              'this should be a raw dataset'),
+        help=(
+            'name of the dataset to perturb the wavefront coefficients for, '
+            'this should be a raw dataset'
+        ),
     )
     subparser.add_argument(
         'perturbation_amount',
@@ -72,8 +81,10 @@ def perturb_wavefront_v1_parser(subparsers):
         '--cores',
         default=1,
         type=int,
-        help=('number of cores to split the simulations between, more cores '
-              'means faster but more memory consumption'),
+        help=(
+            'number of cores to split the simulations between, more cores '
+            'means faster but more memory consumption'
+        ),
     )
 
 
@@ -106,8 +117,9 @@ def perturb_wavefront_v1(cli_args):
     grid_points = int(bf_cli_args['grid_points'])
 
     step_ri('Loading in the optical train')
-    (init_beam_d, beam_ratio, optical_train, camera_pixels, camera_sampling,
-     _) = load_optical_train(train_name)
+    (init_beam_d, beam_ratio, optical_train, camera_pixels, camera_sampling, _) = (
+        load_optical_train(train_name)
+    )
 
     step_ri('Loading in the target dataset')
     target_ds_data = load_raw_sim_data_chunks(target_ds, use_full_field)
@@ -138,8 +150,7 @@ def perturb_wavefront_v1(cli_args):
             save_full_intensity=True,
             grid_points=grid_points,
         )
-        fields = results[
-            FULL_INTENSITY if use_full_field else CAMERA_INTENSITY]
+        fields = results[FULL_INTENSITY if use_full_field else CAMERA_INTENSITY]
         return fields
 
     # Create a vector where each coefficient is perturbed

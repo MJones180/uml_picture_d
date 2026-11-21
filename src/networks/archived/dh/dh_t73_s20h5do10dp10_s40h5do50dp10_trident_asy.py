@@ -45,7 +45,6 @@ HEAD_2_DP_PROBS = np.linspace(0, HEAD_2_DP_MAX_PROB, HEAD_2_TOTAL_DEPTH)
 
 # Also known as Stochastic Depth
 class DropPath(nn.Module):
-
     def __init__(self, drop_prob):
         super().__init__()
         self.drop_prob = drop_prob
@@ -60,7 +59,6 @@ class DropPath(nn.Module):
 
 
 class BottleneckResidualBlock(nn.Module):
-
     def __init__(self, gamma_init, dropout, drop_path_prob):
         super().__init__()
         self.block = nn.Sequential(
@@ -72,7 +70,7 @@ class BottleneckResidualBlock(nn.Module):
             nn.Dropout(dropout),
             nn.Linear(INNER_DIM, OUTER_DIM, bias=False),
         )
-        self.gamma = nn.Parameter(torch.full((OUTER_DIM, ), gamma_init))
+        self.gamma = nn.Parameter(torch.full((OUTER_DIM,), gamma_init))
         self.drop_path = DropPath(drop_path_prob)
 
     def forward(self, x):
@@ -80,7 +78,6 @@ class BottleneckResidualBlock(nn.Module):
 
 
 class Network(nn.Module):
-
     def example_input():
         return torch.rand((2, IN_DIM))
 
@@ -90,54 +87,62 @@ class Network(nn.Module):
             nn.Linear(IN_DIM, OUTER_DIM, bias=False),
             nn.BatchNorm1d(OUTER_DIM),
             *[
-                BottleneckResidualBlock(HEAD_1_GAMMA_INIT,
-                                        HEAD_1_SHARED_DROPOUT,
-                                        HEAD_1_DP_PROBS[i])
+                BottleneckResidualBlock(
+                    HEAD_1_GAMMA_INIT, HEAD_1_SHARED_DROPOUT, HEAD_1_DP_PROBS[i]
+                )
                 for i in range(HEAD_1_SHARED_DEPTH)
             ],
         )
-        self.head_1_branches = nn.ModuleList([
-            nn.Sequential(
-                *[
-                    BottleneckResidualBlock(
-                        HEAD_1_GAMMA_INIT, HEAD_1_BRANCH_DROPOUT,
-                        HEAD_1_DP_PROBS[HEAD_1_SHARED_DEPTH + i])
-                    for i in range(HEAD_1_BRANCH_DEPTH)
-                ],
-                nn.BatchNorm1d(OUTER_DIM),
-                nn.LeakyReLU(LEAKY_RELU),
-            ) for _ in HEAD_OUT_GROUPS
-        ])
-        self.head_1_outs = nn.ModuleList([
-            nn.Linear(OUTER_DIM, partition_size)
-            for partition_size in HEAD_OUT_GROUPS
-        ])
+        self.head_1_branches = nn.ModuleList(
+            [
+                nn.Sequential(
+                    *[
+                        BottleneckResidualBlock(
+                            HEAD_1_GAMMA_INIT,
+                            HEAD_1_BRANCH_DROPOUT,
+                            HEAD_1_DP_PROBS[HEAD_1_SHARED_DEPTH + i],
+                        )
+                        for i in range(HEAD_1_BRANCH_DEPTH)
+                    ],
+                    nn.BatchNorm1d(OUTER_DIM),
+                    nn.LeakyReLU(LEAKY_RELU),
+                )
+                for _ in HEAD_OUT_GROUPS
+            ]
+        )
+        self.head_1_outs = nn.ModuleList(
+            [nn.Linear(OUTER_DIM, partition_size) for partition_size in HEAD_OUT_GROUPS]
+        )
         self.head_2_shared = nn.Sequential(
             nn.Linear(IN_DIM, OUTER_DIM, bias=False),
             nn.BatchNorm1d(OUTER_DIM),
             *[
-                BottleneckResidualBlock(HEAD_2_GAMMA_INIT,
-                                        HEAD_2_SHARED_DROPOUT,
-                                        HEAD_2_DP_PROBS[i])
+                BottleneckResidualBlock(
+                    HEAD_2_GAMMA_INIT, HEAD_2_SHARED_DROPOUT, HEAD_2_DP_PROBS[i]
+                )
                 for i in range(HEAD_2_SHARED_DEPTH)
             ],
         )
-        self.head_2_branches = nn.ModuleList([
-            nn.Sequential(
-                *[
-                    BottleneckResidualBlock(
-                        HEAD_2_GAMMA_INIT, HEAD_2_BRANCH_DROPOUT,
-                        HEAD_2_DP_PROBS[HEAD_2_SHARED_DEPTH + i])
-                    for i in range(HEAD_2_BRANCH_DEPTH)
-                ],
-                nn.BatchNorm1d(OUTER_DIM),
-                nn.LeakyReLU(LEAKY_RELU),
-            ) for _ in HEAD_OUT_GROUPS
-        ])
-        self.head_2_outs = nn.ModuleList([
-            nn.Linear(OUTER_DIM, partition_size)
-            for partition_size in HEAD_OUT_GROUPS
-        ])
+        self.head_2_branches = nn.ModuleList(
+            [
+                nn.Sequential(
+                    *[
+                        BottleneckResidualBlock(
+                            HEAD_2_GAMMA_INIT,
+                            HEAD_2_BRANCH_DROPOUT,
+                            HEAD_2_DP_PROBS[HEAD_2_SHARED_DEPTH + i],
+                        )
+                        for i in range(HEAD_2_BRANCH_DEPTH)
+                    ],
+                    nn.BatchNorm1d(OUTER_DIM),
+                    nn.LeakyReLU(LEAKY_RELU),
+                )
+                for _ in HEAD_OUT_GROUPS
+            ]
+        )
+        self.head_2_outs = nn.ModuleList(
+            [nn.Linear(OUTER_DIM, partition_size) for partition_size in HEAD_OUT_GROUPS]
+        )
 
     def forward(self, x):
         h1_shared_out = self.head_1_shared(x)

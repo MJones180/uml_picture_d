@@ -23,8 +23,7 @@ def dataset_info_parser(subparsers):
     )
     subparser.add_argument(
         '--verify-network-compatability',
-        help=('name of the python script containing the network (without the '
-              '`.py`)'),
+        help=('name of the python script containing the network (without the `.py`)'),
     )
     subparser.add_argument(
         '--plot-example-images',

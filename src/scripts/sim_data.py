@@ -8,11 +8,19 @@ import numpy as np
 from pathos.multiprocessing import ProcessPool
 from scipy.stats import gennorm, qmc
 from utils.cli_args import save_cli_args
-from utils.constants import (ABERRATIONS_F, DATA_F, DM_ACTUATOR_HEIGHTS,
-                             DM_MASK, OT_DM_LIST, PLOTTING_LINEAR_INT,
-                             PLOTTING_LINEAR_PHASE,
-                             PLOTTING_LINEAR_PHASE_NON0_INT, PLOTTING_LOG_INT,
-                             PLOTTING_PATH, RAW_DATA_P)
+from utils.constants import (
+    ABERRATIONS_F,
+    DATA_F,
+    DM_ACTUATOR_HEIGHTS,
+    DM_MASK,
+    OT_DM_LIST,
+    PLOTTING_LINEAR_INT,
+    PLOTTING_LINEAR_PHASE,
+    PLOTTING_LINEAR_PHASE_NON0_INT,
+    PLOTTING_LOG_INT,
+    PLOTTING_PATH,
+    RAW_DATA_P,
+)
 from utils.hdf_read_and_write import HDFWriteModule
 from utils.load_optical_train import load_optical_train
 from utils.path import make_dir
@@ -55,12 +63,17 @@ def sim_data_parser(subparsers):
     subparser.add_argument(
         '--save-plots',
         nargs=4,
-        metavar=('[linear intensity bool]', '[log intensity bool]',
-                 '[linear phase bool]',
-                 '[linear phase where int nonzero bool]'),
-        help=('save plots at each step of the train, the arguments are '
-              'bools on what should be plotted; NOTE: should only do this for '
-              'a few rows since the plots take extra time and space'),
+        metavar=(
+            '[linear intensity bool]',
+            '[log intensity bool]',
+            '[linear phase bool]',
+            '[linear phase where int nonzero bool]',
+        ),
+        help=(
+            'save plots at each step of the train, the arguments are '
+            'bools on what should be plotted; NOTE: should only do this for '
+            'a few rows since the plots take extra time and space'
+        ),
     )
     subparser.add_argument(
         '--save-cam-ef',
@@ -91,8 +104,10 @@ def sim_data_parser(subparsers):
         '--cores',
         default=1,
         type=int,
-        help=('number of cores to split the simulations between, more cores '
-              'means faster but more memory consumption'),
+        help=(
+            'number of cores to split the simulations between, more cores '
+            'means faster but more memory consumption'
+        ),
     )
     subparser.add_argument(
         '--append-no-aberrations-row',
@@ -107,11 +122,13 @@ def sim_data_parser(subparsers):
     subparser.add_argument(
         '--aberrations-and-dm-union',
         action='store_true',
-        help=('by default, when there are DMs in the optical train, every '
-              'combination of specified aberrations (N) and DM actuator '
-              'heights (M) will be formed for a total of (N * M) simulated '
-              'rows; when this option is passed, N == M is required and there '
-              'will be a 1-to-1 mapping, for a total of N simulated rows'),
+        help=(
+            'by default, when there are DMs in the optical train, every '
+            'combination of specified aberrations (N) and DM actuator '
+            'heights (M) will be formed for a total of (N * M) simulated '
+            'rows; when this option is passed, N == M is required and there '
+            'will be a 1-to-1 mapping, for a total of N simulated rows'
+        ),
     )
 
     aberrations_group = subparser.add_mutually_exclusive_group()
@@ -131,110 +148,151 @@ def sim_data_parser(subparsers):
         '--fixed-amount-per-zernike-all',
         nargs='+',
         metavar='[zernike term low] [zernike term high] [rms error in meters]',
-        help=('will simulate 1 row by injecting a fixed RMS error on each '
-              'Zernike term | the aberration can be different for different '
-              'Zernike terms, the three arguments can be repeated as many '
-              'times as necessary to cover all the groupings, the Zernike '
-              'terms just have to be sequential and have no overlap'),
+        help=(
+            'will simulate 1 row by injecting a fixed RMS error on each '
+            'Zernike term | the aberration can be different for different '
+            'Zernike terms, the three arguments can be repeated as many '
+            'times as necessary to cover all the groupings, the Zernike '
+            'terms just have to be sequential and have no overlap'
+        ),
     )
     aberrations_group.add_argument(
         '--fixed-amount-per-zernike',
         nargs=3,
-        metavar=('[zernike term low]', '[zernike term high]',
-                 '[rms error in meters]'),
-        help=('will simulate `([zernike term high] - [zernike term low])` '
-              'rows by injecting a fixed RMS error for each Zernike term '
-              'where each wavefront contains only one Zernike at a time '
-              '(the terms must be sequential)'),
+        metavar=('[zernike term low]', '[zernike term high]', '[rms error in meters]'),
+        help=(
+            'will simulate `([zernike term high] - [zernike term low])` '
+            'rows by injecting a fixed RMS error for each Zernike term '
+            'where each wavefront contains only one Zernike at a time '
+            '(the terms must be sequential)'
+        ),
     )
     aberrations_group.add_argument(
         '--fixed-amount-per-zernike-pm',
         nargs=3,
-        metavar=('[zernike term low]', '[zernike term high]',
-                 '[rms error in meters]'),
-        help=('will simulate `([zernike term high] - [zernike term low])` '
-              'rows by injecting a fixed RMS error for each Zernike term '
-              'where each wavefront contains only one Zernike at a time '
-              '(the terms must be sequential) for both the +/- RMS errors'),
+        metavar=('[zernike term low]', '[zernike term high]', '[rms error in meters]'),
+        help=(
+            'will simulate `([zernike term high] - [zernike term low])` '
+            'rows by injecting a fixed RMS error for each Zernike term '
+            'where each wavefront contains only one Zernike at a time '
+            '(the terms must be sequential) for both the +/- RMS errors'
+        ),
     )
     aberrations_group.add_argument(
         '--fixed-amount-per-zernike-range',
         nargs=5,
-        metavar=('[zernike term low]', '[zernike term high]',
-                 '[rms error in meters low]', '[rms error in meters high]',
-                 '[rms error points]'),
-        help=('will simulate `([zernike term high] - [zernike term low]) * '
-              '[rms error points]` rows by injecting a fixed RMS error in the '
-              'RMS range for each Zernike term where each wavefront contains '
-              'only only Zernike at a time (the terms must be sequential) '
-              '| NOTE: for any negative values, write them as \" -number\"'),
+        metavar=(
+            '[zernike term low]',
+            '[zernike term high]',
+            '[rms error in meters low]',
+            '[rms error in meters high]',
+            '[rms error points]',
+        ),
+        help=(
+            'will simulate `([zernike term high] - [zernike term low]) * '
+            '[rms error points]` rows by injecting a fixed RMS error in the '
+            'RMS range for each Zernike term where each wavefront contains '
+            'only only Zernike at a time (the terms must be sequential) '
+            '| NOTE: for any negative values, write them as " -number"'
+        ),
     )
     aberrations_group.add_argument(
         '--rand-amount-per-zernike',
         nargs='+',
-        metavar=('[nrows] [zernike term low] [zernike term high] '
-                 '[rms error in meters low] [rms error in meters high]'),
-        help=('will simulate `nrows` by injecting a random uniform RMS error '
-              'between the two bounds for each Zernike term in each '
-              'simulation | the bounds can be different for different Zernike '
-              'terms, the four arguments can be repeated as many times as '
-              'necessary to cover all the groupings, the Zernike terms just '
-              'have to be sequential and have no overlap | NOTE: for any '
-              'negative values, write them as \" -number\"'),
+        metavar=(
+            '[nrows] [zernike term low] [zernike term high] '
+            '[rms error in meters low] [rms error in meters high]'
+        ),
+        help=(
+            'will simulate `nrows` by injecting a random uniform RMS error '
+            'between the two bounds for each Zernike term in each '
+            'simulation | the bounds can be different for different Zernike '
+            'terms, the four arguments can be repeated as many times as '
+            'necessary to cover all the groupings, the Zernike terms just '
+            'have to be sequential and have no overlap | NOTE: for any '
+            'negative values, write them as " -number"'
+        ),
     )
     aberrations_group.add_argument(
         '--rand-amount-per-zernike-normal',
         nargs='+',
-        metavar=('[nrows] [zernike term low] [zernike term high] '
-                 '[distribution center] [standard deviation]'),
-        help=('the same as `--rand-amount-per-zernike` except with random '
-              'normal instead of random uniform error'),
+        metavar=(
+            '[nrows] [zernike term low] [zernike term high] '
+            '[distribution center] [standard deviation]'
+        ),
+        help=(
+            'the same as `--rand-amount-per-zernike` except with random '
+            'normal instead of random uniform error'
+        ),
     )
     aberrations_group.add_argument(
         '--rand-amount-per-zernike-single',
         nargs=5,
-        metavar=('[zernike term low]', '[zernike term high]',
-                 '[rms error in meters low]', '[rms error in meters high]',
-                 '[nrows]'),
-        help=('will simulate `nrows` by injecting a random uniform RMS error '
-              'between the two bounds for a single, random Zernike term in '
-              'each simulation (the terms must be sequential) | NOTE: for any '
-              'negative values, write them as \" -number\"'),
+        metavar=(
+            '[zernike term low]',
+            '[zernike term high]',
+            '[rms error in meters low]',
+            '[rms error in meters high]',
+            '[nrows]',
+        ),
+        help=(
+            'will simulate `nrows` by injecting a random uniform RMS error '
+            'between the two bounds for a single, random Zernike term in '
+            'each simulation (the terms must be sequential) | NOTE: for any '
+            'negative values, write them as " -number"'
+        ),
     )
     aberrations_group.add_argument(
         '--rand-amount-per-zernike-single-each',
         nargs=5,
-        metavar=('[zernike term low]', '[zernike term high]',
-                 '[rms error in meters low]', '[rms error in meters high]',
-                 '[nrows]'),
-        help=('will simulate `nrows * zernike_terms` by injecting a random '
-              'uniform RMS error between the two bounds for a single Zernike '
-              'term in each simulation and a simulation for each Zernike term '
-              '(the terms must be sequential) | NOTE: for any negative '
-              'values, write them as \" -number\"'),
+        metavar=(
+            '[zernike term low]',
+            '[zernike term high]',
+            '[rms error in meters low]',
+            '[rms error in meters high]',
+            '[nrows]',
+        ),
+        help=(
+            'will simulate `nrows * zernike_terms` by injecting a random '
+            'uniform RMS error between the two bounds for a single Zernike '
+            'term in each simulation and a simulation for each Zernike term '
+            '(the terms must be sequential) | NOTE: for any negative '
+            'values, write them as " -number"'
+        ),
     )
     aberrations_group.add_argument(
         '--rand-amount-per-zernike-row-then-gaussian-pert',
         nargs=6,
-        metavar=('[std]', '[zernike term low]', '[zernike term high]',
-                 '[rms error in meters low]', '[rms error in meters high]',
-                 '[pert_nrows]'),
-        help=('will simulate 1 base row by injecting a random uniform RMS '
-              'error between the two bounds for each Zernike term (the terms '
-              'must be sequential), then will simulate `pert_nrows` with '
-              '`std` (in meters) normal error around the base row | NOTE: for '
-              'any negative values, write them as \" -number\"'),
+        metavar=(
+            '[std]',
+            '[zernike term low]',
+            '[zernike term high]',
+            '[rms error in meters low]',
+            '[rms error in meters high]',
+            '[pert_nrows]',
+        ),
+        help=(
+            'will simulate 1 base row by injecting a random uniform RMS '
+            'error between the two bounds for each Zernike term (the terms '
+            'must be sequential), then will simulate `pert_nrows` with '
+            '`std` (in meters) normal error around the base row | NOTE: for '
+            'any negative values, write them as " -number"'
+        ),
     )
     aberrations_group.add_argument(
         '--sobol-sequence-with-per-zernike-transform',
         nargs='+',
-        metavar=('[seed] [N] [zernike term low] [zernike term high] '
-                 '[gennorm beta] [gennorm scale]'),
-        help=('will simulate 2**`N` rows from a Sobol sequence | the bounds '
-              'can be different for different Zernike terms, the four '
-              'arguments can be repeated as many times as necessary to cover '
-              'all the groupings, the Zernike terms just have to be '
-              'sequential and have no overlap'),
+        metavar=(
+            '[seed] [N] [zernike term low] [zernike term high] '
+            '[gennorm beta] [gennorm scale]'
+        ),
+        help=(
+            'will simulate 2**`N` rows from a Sobol sequence | the bounds '
+            'can be different for different Zernike terms, the four '
+            'arguments can be repeated as many times as necessary to cover '
+            'all the groupings, the Zernike terms just have to be '
+            'sequential and have no overlap'
+        ),
     )
 
     dm_group = subparser.add_mutually_exclusive_group()
@@ -242,24 +300,27 @@ def sim_data_parser(subparsers):
         '--explicit-actuator-heights',
         nargs='+',
         metavar='[dm idx (1D)] [actuator idx] [actuator height in meters]',
-        help=('set specific actuators from their index (only active locations '
-              'in the mask can be chosen); the three arguments can be '
-              'repeated as many times as necessary'),
+        help=(
+            'set specific actuators from their index (only active locations '
+            'in the mask can be chosen); the three arguments can be '
+            'repeated as many times as necessary'
+        ),
     )
     dm_group.add_argument(
         '--single-actuator-pokes',
         nargs=2,
-        metavar=('[poke amount in meters]',
-                 '[max actuators per DM or 0 for all]'),
+        metavar=('[poke amount in meters]', '[max actuators per DM or 0 for all]'),
         help='will poke each actuator one at a time across all DMs',
     )
     dm_group.add_argument(
         '--rand-actuator-heights',
         nargs='+',
         metavar='[nrows] [stroke low in meters] [stroke high in meters]',
-        help=('will set a uniformly random height on each actuator that is '
-              'between the valid stroke range; the two arguments that specify '
-              'the stroke range must be set for each DM (in order)'),
+        help=(
+            'will set a uniformly random height on each actuator that is '
+            'between the valid stroke range; the two arguments that specify '
+            'the stroke range must be set for each DM (in order)'
+        ),
     )
 
 
@@ -302,8 +363,14 @@ def sim_data(cli_args):
     save_cli_args(output_path, cli_args, 'sim_data')
 
     step_ri('Loading in the optical train')
-    (init_beam_d, beam_ratio, optical_train, camera_pixels, camera_sampling,
-     optical_train_module) = load_optical_train(train_name)
+    (
+        init_beam_d,
+        beam_ratio,
+        optical_train,
+        camera_pixels,
+        camera_sampling,
+        optical_train_module,
+    ) = load_optical_train(train_name)
 
     # ==========================================================================
     # ADD IN ABERRATIONS
@@ -338,17 +405,17 @@ def sim_data(cli_args):
     # arguments of every group are expected to be the Zernike range
     def _arg_groups(all_args, args_per_group):
         if len(all_args) % args_per_group != 0:
-            terminate_with_message(f'Each group must have {args_per_group} '
-                                   'arguments')
+            terminate_with_message(f'Each group must have {args_per_group} arguments')
         zernike_terms = []
         groups = []
         for group_idx in range(len(all_args) // args_per_group):
             idx_low = group_idx * args_per_group
-            groups_args = all_args[idx_low:idx_low + args_per_group]
+            groups_args = all_args[idx_low : idx_low + args_per_group]
             zernikes, cols = _gen_zernike_terms(*groups_args[:2])
             zernike_terms.extend(zernikes)
-            group_string = (f'Group: {group_idx}\n\t'
-                            f'Zernike terms ({cols}): {zernikes}\n\t')
+            group_string = (
+                f'Group: {group_idx}\n\tZernike terms ({cols}): {zernikes}\n\t'
+            )
             other_args = [float(arg) for arg in groups_args[2:]]
             groups.append([group_string, cols, *other_args])
         # Convert the datatype back to native int
@@ -372,8 +439,7 @@ def sim_data(cli_args):
         return np.array([float(coeff) for coeff in coeffs])[None]
 
     def fixed_amount_per_zernike_all(*all_groups):
-        print('A single row where each term can have a different '
-              'fixed RMS error')
+        print('A single row where each term can have a different fixed RMS error')
         # The data that needs to be aggregated for each group
         row_aberrations = []
         for group in _arg_groups(all_groups, 3):
@@ -383,16 +449,20 @@ def sim_data(cli_args):
         return np.array([row_aberrations])
 
     def fixed_amount_per_zernike(idx_low, idx_high, perturb):
-        print('Each row will consist of a Zernike term with an RMS error of '
-              f'{perturb} meters')
+        print(
+            'Each row will consist of a Zernike term with an RMS error of '
+            f'{perturb} meters'
+        )
         _gen_zernike_terms(idx_low, idx_high)
         # For this we just need an identity matrix to represent perturbing
         # each zernike term independently
         return np.identity(col_count) * float(perturb)
 
     def fixed_amount_per_zernike_pm(idx_low, idx_high, perturb):
-        print('Each Zernike term will have two rows with the RMS errors of  '
-              f'{perturb} and -{perturb} meters')
+        print(
+            'Each Zernike term will have two rows with the RMS errors of  '
+            f'{perturb} and -{perturb} meters'
+        )
         _gen_zernike_terms(idx_low, idx_high)
         # For this we just need an identity matrix to represent perturbing
         # each Zernike term independently for both the +/- perturbations
@@ -401,8 +471,10 @@ def sim_data(cli_args):
         return np.concatenate((m_aberrations, p_aberrations), axis=0)
 
     def fixed_amount_per_zernike_range(*args):
-        print('Each row will consist of a single Zernike term with '
-              'aberrations between two bounds along a fixed grid')
+        print(
+            'Each row will consist of a single Zernike term with '
+            'aberrations between two bounds along a fixed grid'
+        )
         # This function is technically for the random perturbations, but the
         # code is the same, just the argument meanings are slightly different
         rms_points, perturb_low, perturb_high = _pert_range_setup(*args)
@@ -417,34 +489,32 @@ def sim_data(cli_args):
         return np.vstack(aberrations)
 
     def rand_amount_per_zernike(rows, *group_args):
-        print('Each row will consist of Zernike terms with random uniform '
-              'RMS error between the group bounds')
+        print(
+            'Each row will consist of Zernike terms with random uniform '
+            'RMS error between the group bounds'
+        )
         rows = int(rows)
         aberrations = []
         for group in _arg_groups(group_args, 4):
             group_desc, cols, pert_low, pert_high = group
-            print(group_desc +
-                  f'Perturbation range: {pert_low} to {pert_high}')
+            print(group_desc + f'Perturbation range: {pert_low} to {pert_high}')
             aberrations.append(rng.uniform(pert_low, pert_high, (rows, cols)))
         # Join together all the aberrations
         return np.concatenate(aberrations, axis=1)
 
     def rand_amount_per_zernike_normal(rows, *group_args):
-        print('Each row will consist of Zernike terms with random normal '
-              'RMS error')
+        print('Each row will consist of Zernike terms with random normal RMS error')
         rows = int(rows)
         aberrations = []
         for group in _arg_groups(group_args, 4):
             group_desc, cols, dist_center, dist_std = group
-            print(group_desc +
-                  f'Standard deviation of {dist_std} around {dist_center}')
+            print(group_desc + f'Standard deviation of {dist_std} around {dist_center}')
             aberrations.append(rng.normal(dist_center, dist_std, (rows, cols)))
         # Join together all the aberrations
         return np.concatenate(aberrations, axis=1)
 
     def rand_amount_per_zernike_single(*args):
-        print('Each row will consist of a random Zernike term with a random '
-              'RMS error')
+        print('Each row will consist of a random Zernike term with a random RMS error')
         rows, perturb_low, perturb_high = _pert_range_setup(*args)
         # One Zernike term per row
         coeffs = rng.uniform(perturb_low, perturb_high, rows)
@@ -455,8 +525,10 @@ def sim_data(cli_args):
         return aberrations
 
     def rand_amount_per_zernike_single_each(*args):
-        print('Each row will consist of a Zernike term with a random RMS '
-              'error and a row for each Zernike term in the range')
+        print(
+            'Each row will consist of a Zernike term with a random RMS '
+            'error and a row for each Zernike term in the range'
+        )
         rows, perturb_low, perturb_high = _pert_range_setup(*args)
         # The random amount to perturb each set of Zernikes by
         coeffs = rng.uniform(perturb_low, perturb_high, rows)
@@ -500,18 +572,18 @@ def sim_data(cli_args):
         return aberrations
 
     for key in (
-            'no_aberrations',
-            'explicit',
-            'fixed_amount_per_zernike_all',
-            'fixed_amount_per_zernike',
-            'fixed_amount_per_zernike_pm',
-            'fixed_amount_per_zernike_range',
-            'rand_amount_per_zernike',
-            'rand_amount_per_zernike_normal',
-            'rand_amount_per_zernike_single',
-            'rand_amount_per_zernike_single_each',
-            'rand_amount_per_zernike_row_then_gaussian_pert',
-            'sobol_sequence_with_per_zernike_transform',
+        'no_aberrations',
+        'explicit',
+        'fixed_amount_per_zernike_all',
+        'fixed_amount_per_zernike',
+        'fixed_amount_per_zernike_pm',
+        'fixed_amount_per_zernike_range',
+        'rand_amount_per_zernike',
+        'rand_amount_per_zernike_normal',
+        'rand_amount_per_zernike_single',
+        'rand_amount_per_zernike_single_each',
+        'rand_amount_per_zernike_row_then_gaussian_pert',
+        'sobol_sequence_with_per_zernike_transform',
     ):
         if cli_args[key]:
             step_ri(f'Calling `{key}`')
@@ -553,8 +625,7 @@ def sim_data(cli_args):
         dm_masks = []
         for dm_idx in sorted(dm_spec.keys()):
             dm_mask = dm_spec[dm_idx][DM_MASK].astype(bool)
-            print(f'DM {dm_idx} - Grid: {dm_mask.shape} - '
-                  f'Actuators: {dm_mask.sum()}')
+            print(f'DM {dm_idx} - Grid: {dm_mask.shape} - Actuators: {dm_mask.sum()}')
             dm_masks.append(dm_mask)
 
         def explicit_actuator_heights(*actuator_heights):
@@ -579,8 +650,10 @@ def sim_data(cli_args):
                 # The index for the active actuators is passed, but the actual
                 # index inside of the grid is needed
                 actual_actuator_idx = dm_valid_idxs[dm_idx][actuator_idx]
-                print(f'[DM {dm_idx}] Actuator {actuator_idx} '
-                      f'({actual_actuator_idx}): {actuator_height}')
+                print(
+                    f'[DM {dm_idx}] Actuator {actuator_idx} '
+                    f'({actual_actuator_idx}): {actuator_height}'
+                )
                 all_dm_heights[dm_idx][*actual_actuator_idx] = actuator_height
             # Each set of DM heights needs to be 3D
             all_dm_heights = [arr[None, :, :] for arr in all_dm_heights]
@@ -598,7 +671,8 @@ def sim_data(cli_args):
                 print(f'Each DM will have {max_actuators_per_dm} max pokes')
             # Figure out the total number of rows that will be simulated
             total_rows = np.sum(
-                [min(arr.sum(), max_actuators_per_dm) for arr in dm_masks])
+                [min(arr.sum(), max_actuators_per_dm) for arr in dm_masks]
+            )
             # Store the heights for each DM
             all_dm_heights = []
             # Keep track of which simulation it is
@@ -618,7 +692,7 @@ def sim_data(cli_args):
                     dm_heights[sim_idx, *true_idx] = poke_amount
                     # Increment the counters
                     sim_idx += 1
-                    rows_for_dm += 1
+                    rows_for_dm += 1  # NOQA SIM113
                     # End early if max actuators hit
                     if rows_for_dm == max_actuators_per_dm:
                         break
@@ -627,8 +701,10 @@ def sim_data(cli_args):
             return all_dm_heights
 
         def rand_actuator_heights(rows, *dm_stroke_ranges):
-            print('Each actuator will be poked with a uniformly random height '
-                  'from the valid stroke range')
+            print(
+                'Each actuator will be poked with a uniformly random height '
+                'from the valid stroke range'
+            )
             rows = int(rows)
             if len(dm_stroke_ranges) != len(dm_masks) * 2:
                 terminate_with_message('Must provide stroke range for each DM')
@@ -641,8 +717,9 @@ def sim_data(cli_args):
                 stroke_high = float(dm_stroke_ranges[dm_idx * 2 + 1])
                 print(f'DM {dm_idx} stroke: [{stroke_low}, {stroke_high}]')
                 # Randomly set the actuator heights
-                dm_heights = rng.uniform(stroke_low, stroke_high,
-                                         (rows, *dm_mask.shape))
+                dm_heights = rng.uniform(
+                    stroke_low, stroke_high, (rows, *dm_mask.shape)
+                )
                 # Mask out any actuators that should not be active
                 dm_heights[:, ~dm_mask] = 0
                 all_dm_heights.append(dm_heights)
@@ -650,9 +727,9 @@ def sim_data(cli_args):
 
         # Call the correction procedure to set the DM heights
         for key in (
-                'explicit_actuator_heights',
-                'single_actuator_pokes',
-                'rand_actuator_heights',
+            'explicit_actuator_heights',
+            'single_actuator_pokes',
+            'rand_actuator_heights',
         ):
             if cli_args[key]:
                 step_ri(f'Calling `{key}`')
@@ -681,10 +758,12 @@ def sim_data(cli_args):
             print('Mapping each row 1-to-1 between the two')
             total_rows = aberration_row_count
             if aberration_row_count != dm_height_row_count:
-                terminate_with_message('Must have the same number of '
-                                       'aberration rows and DM height rows '
-                                       f'({aberration_row_count} != '
-                                       f'{dm_height_row_count})')
+                terminate_with_message(
+                    'Must have the same number of '
+                    'aberration rows and DM height rows '
+                    f'({aberration_row_count} != '
+                    f'{dm_height_row_count})'
+                )
         else:
             print('Taking the product between the two')
             total_rows = aberration_row_count * dm_height_row_count

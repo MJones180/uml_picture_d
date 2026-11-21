@@ -45,11 +45,11 @@ def mean_of_abs(x, axes=None):
 
 
 def root_sum_of_abs(x, axes=None):
-    return sum_of_abs(x, axes)**0.5
+    return sum_of_abs(x, axes) ** 0.5
 
 
 def root_mean_of_abs(x, axes=None):
-    return mean_of_abs(x, axes)**0.5
+    return mean_of_abs(x, axes) ** 0.5
 
 
 def sum_of_squares(x, axes=None):
@@ -61,11 +61,11 @@ def mean_of_squares(x, axes=None):
 
 
 def root_sum_of_squares(x, axes=None):
-    return sum_of_squares(x, axes)**0.5
+    return sum_of_squares(x, axes) ** 0.5
 
 
 def root_mean_of_squares(x, axes=None):
-    return mean_of_squares(x, axes)**0.5
+    return mean_of_squares(x, axes) ** 0.5
 
 
 # ==============================================================================

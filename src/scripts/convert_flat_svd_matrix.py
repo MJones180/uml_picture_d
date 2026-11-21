@@ -53,6 +53,8 @@ def convert_flat_svd_matrix(cli_args):
     print(f'Table name: {table_name}')
     outfile = f'{output_path}/0_{DATA_F}'
     print(f'Writing to output HDF datafile: {outfile}')
-    HDFWriteModule(outfile).create_and_write_hdf_simple({
-        table_name: matrix_data,
-    })
+    HDFWriteModule(outfile).create_and_write_hdf_simple(
+        {
+            table_name: matrix_data,
+        }
+    )

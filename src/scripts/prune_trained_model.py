@@ -6,8 +6,9 @@ Only weights from convolutional and linear layers are supported in this script.
 
 The pruned models that are saved will not be added to the `tag_lookup.json`.
 """
+
 import torch
-import torch.nn.utils.prune as prune
+from torch.nn.utils import prune
 from utils.constants import ARGS_F, TRAINED_MODELS_P
 from utils.json import json_write
 from utils.model import Model
@@ -34,17 +35,21 @@ def prune_trained_model_parser(subparsers):
         '--local-prune-weights',
         nargs=2,
         metavar=('[convolutional percentage]', '[dense percentage]'),
-        help=('percentage of weights to zero out for each convolutional and '
-              'dense layer - this is performed locally; 0 means no pruning '
-              'and 100 means all weights set to zero'),
+        help=(
+            'percentage of weights to zero out for each convolutional and '
+            'dense layer - this is performed locally; 0 means no pruning '
+            'and 100 means all weights set to zero'
+        ),
     )
     prune_group.add_argument(
         '--global-prune-weights',
         nargs=2,
         metavar=('[convolutional percentage]', '[dense percentage]'),
-        help=('percentage of weights to remove across all convolutional and '
-              'dense layers - this is performed globally; 0 means no pruning '
-              'and 100 means all weights set to zero'),
+        help=(
+            'percentage of weights to remove across all convolutional and '
+            'dense layers - this is performed globally; 0 means no pruning '
+            'and 100 means all weights set to zero'
+        ),
     )
 
 
@@ -76,7 +81,8 @@ def prune_trained_model(cli_args):
         # Can only be linear or convolutional
         layer_type = torch.nn.Linear if linear else torch.nn.Conv2d
         return [
-            module for name, module in model.named_modules()
+            module
+            for name, module in model.named_modules()
             if isinstance(module, layer_type)
         ]
 

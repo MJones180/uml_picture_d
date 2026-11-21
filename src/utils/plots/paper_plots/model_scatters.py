@@ -73,7 +73,7 @@ def paper_plot_model_scatters(
             zorder=-1,
         )
         # Plot the scatter of all the points
-        axs_cell.scatter(truth_col, model_col, 1, alpha=.1)
+        axs_cell.scatter(truth_col, model_col, 1, alpha=0.1)
         # Set the limits on each subplot
         axs_cell.set_xlim(*LIM)
         axs_cell.set_ylim(*LIM)

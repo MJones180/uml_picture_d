@@ -31,14 +31,18 @@ def find_wavefront_coeffs_v1_parser(subparsers):
     subparser.set_defaults(main=find_wavefront_coeffs)
     subparser.add_argument(
         'terms_ds',
-        help=('name of the dataset containing each of the Zernike terms, '
-              'this should be a raw dataset and the last row should have '
-              'no aberrations'),
+        help=(
+            'name of the dataset containing each of the Zernike terms, '
+            'this should be a raw dataset and the last row should have '
+            'no aberrations'
+        ),
     )
     subparser.add_argument(
         'test_ds',
-        help=('name of the dataset to find the wavefront coefficients for, '
-              'this should be a raw dataset'),
+        help=(
+            'name of the dataset to find the wavefront coefficients for, '
+            'this should be a raw dataset'
+        ),
     )
     subparser.add_argument(
         '--row-idx',
@@ -75,8 +79,9 @@ def find_wavefront_coeffs(cli_args):
     save_plots = cli_args['save_plots']
 
     step_ri('Loading in the terms dataset')
-    (intensity_fields, zernike_amounts, zernike_terms,
-     _) = load_raw_sim_data_chunks(terms_ds, use_full_field)
+    (intensity_fields, zernike_amounts, zernike_terms, _) = load_raw_sim_data_chunks(
+        terms_ds, use_full_field
+    )
     # Verify that the last row has no aberrations
     if not np.all(zernike_amounts[-1] == 0):
         terminate_with_message('Last row not all zeros for Zernike coeffs')
@@ -87,8 +92,9 @@ def find_wavefront_coeffs(cli_args):
     # Ensure the perturbations match the array below
     compare_arr = np.identity(zernike_count) * base_rms_error
     if not np.array_equal(compare_arr, zernike_amounts):
-        terminate_with_message('Every row must have the same fixed RMS error '
-                               'for each term')
+        terminate_with_message(
+            'Every row must have the same fixed RMS error for each term'
+        )
     # The last row represents the base field
     base_field = intensity_fields[-1]
     # All the data now consists of perturbed fields for each Zernike term
@@ -97,8 +103,7 @@ def find_wavefront_coeffs(cli_args):
     step_ri('Loading in the test dataset')
     test_ds_data = load_raw_sim_data_chunks(test_ds, use_full_field)
     if not np.array_equal(zernike_terms, test_ds_data[2]):
-        terminate_with_message('Zernike terms are not the same across the '
-                               'two datasets')
+        terminate_with_message('Zernike terms are not the same across the two datasets')
     wavefront = test_ds_data[0][row_idx] - base_field
     truth_zernike_coeffs = test_ds_data[1][row_idx]
 
@@ -108,7 +113,7 @@ def find_wavefront_coeffs(cli_args):
         x_grid = np.linspace(-1, 1, pixel_count)
         x_grid = np.repeat(x_grid[None], pixel_count, axis=0)
         y_grid = x_grid.T
-        valid_mask = (x_grid**2 + y_grid**2)**0.5 <= 1
+        valid_mask = (x_grid**2 + y_grid**2) ** 0.5 <= 1
         basis_terms *= valid_mask
         wavefront *= valid_mask
 
@@ -169,7 +174,7 @@ def find_wavefront_coeffs(cli_args):
 
     fig, ax = plt.subplots(1, 2, figsize=(12, 6))
     reconstructed_wf = coeffs @ basis_terms
-    pixels = int(wavefront.shape[0]**0.5)
+    pixels = int(wavefront.shape[0] ** 0.5)
     ax[0].imshow(wavefront.reshape(pixels, pixels))
     ax[0].set_title('Original Wavefront')
     ax[1].imshow(reconstructed_wf.reshape(pixels, pixels))

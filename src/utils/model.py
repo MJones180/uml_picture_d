@@ -2,17 +2,40 @@ from glob import glob
 import numpy as np
 import torch
 from utils.constants import (
-    ARGS_F, BASE_INT_FIELD, CPU, EPOCH_LOSS_F, EXTRA_VARS_F,
-    INPUT_MAX_MIN_DIFF, INPUT_MIN_X, INPUTS_ARCSINH, INPUTS_LOG10, INPUTS_RSS,
-    INPUTS_SUM_TO_ONE, INPUTS_Z_SCORE_MEAN, INPUTS_Z_SCORE_STD,
-    NORM_RANGE_ONES, NORM_RANGE_ONES_INPUT, NORM_RANGE_ONES_OUTPUT,
-    NORM_STABILITY_VALUE, OUTPUTS_Z_SCORE_MEAN, OUTPUTS_Z_SCORE_STD,
-    OUTPUT_MAX_MIN_DIFF, OUTPUT_MIN_X, TRAINED_MODELS_P)
+    ARGS_F,
+    BASE_INT_FIELD,
+    CPU,
+    EPOCH_LOSS_F,
+    EXTRA_VARS_F,
+    INPUT_MAX_MIN_DIFF,
+    INPUT_MIN_X,
+    INPUTS_ARCSINH,
+    INPUTS_LOG10,
+    INPUTS_RSS,
+    INPUTS_SUM_TO_ONE,
+    INPUTS_Z_SCORE_MEAN,
+    INPUTS_Z_SCORE_STD,
+    NORM_RANGE_ONES,
+    NORM_RANGE_ONES_INPUT,
+    NORM_RANGE_ONES_OUTPUT,
+    NORM_STABILITY_VALUE,
+    OUTPUTS_Z_SCORE_MEAN,
+    OUTPUTS_Z_SCORE_STD,
+    OUTPUT_MAX_MIN_DIFF,
+    OUTPUT_MIN_X,
+    TRAINED_MODELS_P,
+)
 from utils.hdf_read_and_write import read_hdf
 from utils.json import json_load
 from utils.load_network import load_network
-from utils.norm import (min_max_denorm, min_max_norm, modified_log_transform,
-                        sum_to_one, z_score_denormalize, z_score_normalize)
+from utils.norm import (
+    min_max_denorm,
+    min_max_norm,
+    modified_log_transform,
+    sum_to_one,
+    z_score_denormalize,
+    z_score_normalize,
+)
 from utils.path import path_exists
 from utils.printing_and_logging import dec_print_indent, step
 from utils.stats_and_error import rss
@@ -20,8 +43,7 @@ from utils.terminate_with_message import terminate_with_message
 from utils.torch_grab_device import torch_grab_device
 
 
-class Model():
-
+class Model:
     def __init__(
         self,
         tag,
@@ -58,12 +80,14 @@ class Model():
             epoch_path_part = f'{dir_path}/epoch_'
             epoch_path_part_len = len(epoch_path_part)
             # Grab the highest epoch found
-            epoch = max([
-                # Chop off all the path except for the number and make it an int
-                int(path[epoch_path_part_len:])
-                # Get a glob of all epochs found
-                for path in glob(f'{epoch_path_part}[0-9]*')
-            ])
+            epoch = max(
+                [
+                    # Chop off all the path except for the number and make it an int
+                    int(path[epoch_path_part_len:])
+                    # Get a glob of all epochs found
+                    for path in glob(f'{epoch_path_part}[0-9]*')
+                ]
+            )
             _print(f'Using epoch {epoch}')
             if not suppress_logs:
                 dec_print_indent()
@@ -124,8 +148,7 @@ class Model():
         self.outputs_z_score_std = self.extra_vars.get(OUTPUTS_Z_SCORE_STD)
 
         self.network_name = self.training_args['network_name']
-        _print(f'Loading in the network (`{self.network_name}`) '
-               'and setting weights')
+        _print(f'Loading in the network (`{self.network_name}`) and setting weights')
         self.device = torch_grab_device(force_cpu, suppress_logs)
         # Need to first load in the network
         self.network = load_network(self.network_name)
@@ -150,7 +173,8 @@ class Model():
                 self.model_path,
                 weights_only=False,
                 map_location=torch.device(self.device),
-            ))
+            )
+        )
 
     def change_base_field(self, base_field):
         self.base_field = base_field
@@ -188,8 +212,9 @@ class Model():
         return input_data / rss(input_data, -1)
 
     def z_score_norm(self, input_data):
-        return z_score_normalize(input_data, self.inputs_z_score_mean,
-                                 self.inputs_z_score_std)
+        return z_score_normalize(
+            input_data, self.inputs_z_score_mean, self.inputs_z_score_std
+        )
 
     def sum_inputs_to_one(self, input_data, sum_dims=None):
         return sum_to_one(input_data, sum_dims)
@@ -213,7 +238,8 @@ class Model():
         norm_stability_constant=NORM_STABILITY_VALUE,
     ):
         input_max_min_diff, input_min_x = self._grab_norm_values(
-            INPUT_MAX_MIN_DIFF, INPUT_MIN_X)
+            INPUT_MAX_MIN_DIFF, INPUT_MIN_X
+        )
         return min_max_norm(
             input_data,
             input_max_min_diff,
@@ -231,18 +257,20 @@ class Model():
             # Each DM is normalized globally
             if len(self.outputs_z_score_std) == 2:
                 outputs_1, outputs_2 = np.split(output_data, 2, axis=1)
-                return np.hstack((
-                    z_score_denormalize(
-                        outputs_1,
-                        self.outputs_z_score_mean[0],
-                        self.outputs_z_score_std[0],
-                    ),
-                    z_score_denormalize(
-                        outputs_2,
-                        self.outputs_z_score_mean[1],
-                        self.outputs_z_score_std[1],
-                    ),
-                ))
+                return np.hstack(
+                    (
+                        z_score_denormalize(
+                            outputs_1,
+                            self.outputs_z_score_mean[0],
+                            self.outputs_z_score_std[0],
+                        ),
+                        z_score_denormalize(
+                            outputs_2,
+                            self.outputs_z_score_mean[1],
+                            self.outputs_z_score_std[1],
+                        ),
+                    )
+                )
             # Each output is normalized individually
             return z_score_denormalize(
                 output_data,
@@ -250,7 +278,8 @@ class Model():
                 self.outputs_z_score_std,
             )
         output_max_min_diff, output_min_x = self._grab_norm_values(
-            OUTPUT_MAX_MIN_DIFF, OUTPUT_MIN_X)
+            OUTPUT_MAX_MIN_DIFF, OUTPUT_MIN_X
+        )
         return min_max_denorm(
             output_data,
             output_max_min_diff,
@@ -303,12 +332,15 @@ class Model():
                         self.device = CPU
                         self._load_model()
                     else:
-                        terminate_with_message('Model cannot fit in memory, '
-                                               'even when using only one row')
+                        terminate_with_message(
+                            'Model cannot fit in memory, even when using only one row'
+                        )
                 else:
                     self.max_rows_per_model_call //= 2
-                print('Received `torch.OutOfMemoryError`, decreasing max '
-                      f'number of rows to {self.max_rows_per_model_call}')
+                print(
+                    'Received `torch.OutOfMemoryError`, decreasing max '
+                    f'number of rows to {self.max_rows_per_model_call}'
+                )
                 return _inference()
 
         return _inference()

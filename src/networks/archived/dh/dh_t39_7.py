@@ -15,7 +15,6 @@ DROPOUT = 0.1
 
 
 class BottleneckResidualBlock(nn.Module):
-
     def __init__(self, features, bottleneck_features, first_block=False):
         super().__init__()
         beginning_layers = []
@@ -38,7 +37,6 @@ class BottleneckResidualBlock(nn.Module):
 
 
 class Network(nn.Module):
-
     def example_input():
         return torch.rand((2, IN_SIZE))
 

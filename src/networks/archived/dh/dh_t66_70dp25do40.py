@@ -33,7 +33,6 @@ DP_PROBS = np.linspace(0, DP_MAX_PROB, SHARED_DEPTH + HEAD_DEPTH)
 
 # Also known as Stochastic Depth
 class DropPath(nn.Module):
-
     def __init__(self, drop_prob):
         super().__init__()
         self.drop_prob = drop_prob
@@ -48,7 +47,6 @@ class DropPath(nn.Module):
 
 
 class BottleneckResidualBlock(nn.Module):
-
     def __init__(self, block_depth_idx):
         super().__init__()
         self.block = nn.Sequential(
@@ -60,7 +58,7 @@ class BottleneckResidualBlock(nn.Module):
             nn.Dropout(DROPOUT),
             nn.Linear(INNER_DIM, OUTER_DIM, bias=False),
         )
-        self.gamma = nn.Parameter(torch.full((OUTER_DIM, ), GAMMA_INIT))
+        self.gamma = nn.Parameter(torch.full((OUTER_DIM,), GAMMA_INIT))
         self.drop_path = DropPath(DP_PROBS[block_depth_idx])
 
     def forward(self, x):
@@ -68,7 +66,6 @@ class BottleneckResidualBlock(nn.Module):
 
 
 class Network(nn.Module):
-
     def example_input():
         return torch.rand((2, IN_DIM))
 
@@ -78,18 +75,21 @@ class Network(nn.Module):
             nn.Linear(IN_DIM, OUTER_DIM, bias=False),
             nn.BatchNorm1d(OUTER_DIM),
         )
-        self.shared_blocks = nn.Sequential(*[
-            BottleneckResidualBlock(layer_idx)
-            for layer_idx in range(SHARED_DEPTH)
-        ])
-        self.head_1_blocks = nn.Sequential(*[
-            BottleneckResidualBlock(SHARED_DEPTH + layer_idx)
-            for layer_idx in range(HEAD_DEPTH)
-        ])
-        self.head_2_blocks = nn.Sequential(*[
-            BottleneckResidualBlock(SHARED_DEPTH + layer_idx)
-            for layer_idx in range(HEAD_DEPTH)
-        ])
+        self.shared_blocks = nn.Sequential(
+            *[BottleneckResidualBlock(layer_idx) for layer_idx in range(SHARED_DEPTH)]
+        )
+        self.head_1_blocks = nn.Sequential(
+            *[
+                BottleneckResidualBlock(SHARED_DEPTH + layer_idx)
+                for layer_idx in range(HEAD_DEPTH)
+            ]
+        )
+        self.head_2_blocks = nn.Sequential(
+            *[
+                BottleneckResidualBlock(SHARED_DEPTH + layer_idx)
+                for layer_idx in range(HEAD_DEPTH)
+            ]
+        )
         self.head_1_out = nn.Sequential(
             nn.BatchNorm1d(OUTER_DIM),
             nn.LeakyReLU(LEAKY_RELU),

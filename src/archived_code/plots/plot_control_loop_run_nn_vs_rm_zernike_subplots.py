@@ -10,10 +10,14 @@ import numpy as np
 TRUE_DATA = True
 STARTING_ZERNIKE = 2
 
-NN_CLR_TAG = 'picc_control_steps_1000_NN_weighted_aberration_ranges_local_v4_last_-0.6_-0.2_0.0'
+NN_CLR_TAG = (
+    'picc_control_steps_1000_NN_weighted_aberration_ranges_local_v4_last_-0.6_-0.2_0.0'
+)
 RM_CLR_TAG = 'picc_control_steps_1000_RM_fixed_pm_40nm_-0.6_-0.2_0.0'
 
-NN_CLR_TAG = 'picc_control_steps_5000_NN_weighted_aberration_ranges_local_v4_last_-0.6_-0.2_0.0'
+NN_CLR_TAG = (
+    'picc_control_steps_5000_NN_weighted_aberration_ranges_local_v4_last_-0.6_-0.2_0.0'
+)
 RM_CLR_TAG = 'picc_control_steps_5000_RM_fixed_pm_40nm_-0.6_-0.2_0.0'
 
 

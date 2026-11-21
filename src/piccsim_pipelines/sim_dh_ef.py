@@ -20,6 +20,7 @@
 
 import sys  # noqa: E402
 from pathlib import Path  # noqa: E402
+
 # Make it so that the packages can be found
 sys.path.append(str(Path('.').resolve()))
 
@@ -32,7 +33,9 @@ import numpy as np  # noqa: E402
 import os  # noqa: E402
 import subprocess  # noqa: E402
 from sys import argv  # noqa: E402
-from scripts.convert_analysis_outputs_from_svd_basis import convert_analysis_outputs_from_svd_basis  # noqa: E402, E501
+from scripts.convert_analysis_outputs_from_svd_basis import (
+    convert_analysis_outputs_from_svd_basis,
+)  # noqa: E402, E501
 from scripts.convert_piccsim_fits_data import convert_piccsim_fits_data  # noqa: E402, E501
 from utils.constants import ANALYSIS_P, EF_RECONSTRUCTIONS_P  # noqa: E402
 from utils.hdf_read_and_write import read_hdf  # noqa: E402
@@ -73,8 +76,10 @@ if __name__ == '__main__':
     parser.add_argument(
         '--svd-mode-count',
         type=int,
-        help=('the number of SVD modes the outputs are in; if a value is not '
-              'passed then the outputs are already in actuator heights'),
+        help=(
+            'the number of SVD modes the outputs are in; if a value is not '
+            'passed then the outputs are already in actuator heights'
+        ),
     )
     parser.add_argument(
         '--piccsim-path',
@@ -123,14 +128,16 @@ if __name__ == '__main__':
         if full_dh:
             svd_modes_tags.append('hodm2_756_modes')
             svd_modes_table_names.append('dm2_modes')
-        convert_analysis_outputs_from_svd_basis({
-            'tag': model_tag,
-            'epoch': model_epoch,
-            'testing_ds': testing_ds,
-            'svd_modes_tags': svd_modes_tags,
-            'svd_modes_table_names': svd_modes_table_names,
-            'svd_modes_count': svd_mode_count,
-        })
+        convert_analysis_outputs_from_svd_basis(
+            {
+                'tag': model_tag,
+                'epoch': model_epoch,
+                'testing_ds': testing_ds,
+                'svd_modes_tags': svd_modes_tags,
+                'svd_modes_table_names': svd_modes_table_names,
+                'svd_modes_count': svd_mode_count,
+            }
+        )
         analysis_filename = 'actuator_heights_results'
 
     # ==========================================================================
@@ -144,7 +151,7 @@ if __name__ == '__main__':
     model_outputs = data['outputs_model'][:][:num_rows]
     outputs = np.concatenate((truth_outputs, model_outputs), axis=1)
     exported_csv_path = f'{piccsim_path}/exported_analysis_rows.csv'
-    np.savetxt(exported_csv_path, outputs, delimiter=",")
+    np.savetxt(exported_csv_path, outputs, delimiter=',')
 
     # ==========================================================================
     # Simulate the EF for each row in `piccsim`.
@@ -174,18 +181,22 @@ if __name__ == '__main__':
         file_globs.append('dm2_*')
         table_names.append('dm2')
     converted_df_tag = f'dh_piccsim_sim_ef_{tag_and_epoch}'
-    convert_piccsim_fits_data({
-        'tag': converted_df_tag,
-        'dir_path': f'{piccsim_path}/plots/reconstruct_ef',
-        'fits_file_globs': [
-            f'{prefix}_{file_glob}' for prefix in prefixes
-            for file_glob in file_globs
-        ],
-        'fits_table_names': [
-            f'{prefix}_{table_name}' for prefix in prefixes
-            for table_name in table_names
-        ],
-    })
+    convert_piccsim_fits_data(
+        {
+            'tag': converted_df_tag,
+            'dir_path': f'{piccsim_path}/plots/reconstruct_ef',
+            'fits_file_globs': [
+                f'{prefix}_{file_glob}'
+                for prefix in prefixes
+                for file_glob in file_globs
+            ],
+            'fits_table_names': [
+                f'{prefix}_{table_name}'
+                for prefix in prefixes
+                for table_name in table_names
+            ],
+        }
+    )
 
     # ==========================================================================
     # Do the final plots.
@@ -202,10 +213,13 @@ if __name__ == '__main__':
 
     # Grab the dict of data associated with each plot
     def _grab_data_dict(idx):
-        return [{
-            table_name: data[f'{prefix}_{table_name}'][:][idx]
-            for table_name in table_names
-        } for prefix in prefixes]
+        return [
+            {
+                table_name: data[f'{prefix}_{table_name}'][:][idx]
+                for table_name in table_names
+            }
+            for prefix in prefixes
+        ]
 
     # Create the output plot directory
     out_dir = f'{EF_RECONSTRUCTIONS_P}/{tag_and_epoch}/{testing_ds}'

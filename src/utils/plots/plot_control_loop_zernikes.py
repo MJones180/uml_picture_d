@@ -45,7 +45,7 @@ def plot_control_loop_zernikes(
     total_steps = len(zernike_coeffs)
 
     # Set the figure size and add the title + axes labels
-    fig, ax = plt.subplots(figsize=(12, 6))
+    _, ax = plt.subplots(figsize=(12, 6))
     ax.set_title(title)
 
     # The colors that will be plotted for each line

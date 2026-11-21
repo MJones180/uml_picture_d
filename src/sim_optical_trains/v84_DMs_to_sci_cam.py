@@ -6,8 +6,12 @@ folder under the `optical_design_v84.png` file.
 
 from cbm_vvc_mft import cbm_vvc_mft
 import proper
-from utils.constants import (DM_ACTUATOR_HEIGHTS, DM_ACTUATOR_SPACING, DM_MASK,
-                             VVC_CHARGE)
+from utils.constants import (
+    DM_ACTUATOR_HEIGHTS,
+    DM_ACTUATOR_SPACING,
+    DM_MASK,
+    VVC_CHARGE,
+)
 from utils.create_grid_mask import create_grid_mask
 
 # Diameter of the initial beam
@@ -37,7 +41,7 @@ DM_LIST = {
     1: {
         DM_ACTUATOR_SPACING: DM_SPACING,
         DM_MASK: create_grid_mask(DM_RADIUS * 2, 1.06),
-    }
+    },
 }
 
 # All distances are in meters. Assume the beam starts at HODM 1.

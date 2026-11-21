@@ -1,11 +1,10 @@
 import numpy as np
 from utils.cli_args import save_cli_args
-from utils.constants import (CHOLESKY_L, DATA_F, MEAN, PROC_DATA_P, RAW_DATA_P,
-                             STD)
+from utils.constants import CHOLESKY_L, DATA_F, MEAN, PROC_DATA_P, RAW_DATA_P, STD
 from utils.hdf_read_and_write import HDFWriteModule, read_hdf
 from utils.path import make_dir
-from utils.plots.plot_line import plot_line
 from utils.plots.plot_2d import plot_2d
+from utils.plots.plot_line import plot_line
 from utils.printing_and_logging import step_ri, title
 
 
@@ -43,8 +42,10 @@ def compute_stats_from_difference_parser(subparsers):
     subparser.add_argument(
         '--zero-small-means',
         type=int,
-        help=('mean values set to zero when the following condition is met: '
-              'SEM (Standard Error of the Mean) >= |mean| / N; N is passed'),
+        help=(
+            'mean values set to zero when the following condition is met: '
+            'SEM (Standard Error of the Mean) >= |mean| / N; N is passed'
+        ),
     )
     subparser.add_argument(
         '--calculate-cov',
@@ -115,8 +116,13 @@ def compute_stats_from_difference(cli_args):
         sem = std / np.sqrt(len(diff))
         # Zero out the required mean values
         mean[sem >= np.abs(mean) / zero_small_means] = 0
-        plot_line(mean, f'Difference Mean (Zero Means, N={zero_small_means})',
-                  'Index', 'Mean', f'{out_dir}/mean_sem.png')
+        plot_line(
+            mean,
+            f'Difference Mean (Zero Means, N={zero_small_means})',
+            'Index',
+            'Mean',
+            f'{out_dir}/mean_sem.png',
+        )
 
     if cli_args['calculate_cov']:
         step_ri('Calculating the covariance')
@@ -138,17 +144,25 @@ def compute_stats_from_difference(cli_args):
         print(f'L (Cholesky factor) shape: {L_matrix.shape}')
         out_data[CHOLESKY_L] = L_matrix
         # Plot out the eigenvalues of the covariance matrix
-        plot_line(np.linalg.eigvalsh(cov), 'Covariance Matrix Eigenvalues',
-                  'Index', 'Eigenvalue', f'{out_dir}/cov_eigvals.png')
+        plot_line(
+            np.linalg.eigvalsh(cov),
+            'Covariance Matrix Eigenvalues',
+            'Index',
+            'Eigenvalue',
+            f'{out_dir}/cov_eigvals.png',
+        )
         # Plot out the correlation
         diag_std = np.sqrt(np.diag(cov))
         corr = cov / np.outer(diag_std, diag_std)
-        plot_2d(corr, 'Correlation', 'Index', 'Index',
-                f'{out_dir}/correlation.png')
+        plot_2d(corr, 'Correlation', 'Index', 'Index', f'{out_dir}/correlation.png')
         # Plot out the absolute Cholesky factor
-        plot_2d(np.abs(L_matrix), 'Magnitude of L (Cholesky Factor)',
-                'Input Index', 'Output Index',
-                f'{out_dir}/cholesky_factor.png')
+        plot_2d(
+            np.abs(L_matrix),
+            'Magnitude of L (Cholesky Factor)',
+            'Input Index',
+            'Output Index',
+            f'{out_dir}/cholesky_factor.png',
+        )
 
     step_ri('Writing out mean and std')
     datafile_path = f'{out_dir}/0_{DATA_F}'

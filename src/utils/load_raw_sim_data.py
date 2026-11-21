@@ -1,8 +1,16 @@
 from glob import glob
 import numpy as np
-from utils.constants import (ABERRATIONS_F, CAMERA_INTENSITY, CAMERA_SAMPLING,
-                             DATA_F, FULL_INTENSITY, FULL_SAMPLING, RAW_DATA_P,
-                             ZERNIKE_COEFFS, ZERNIKE_TERMS)
+from utils.constants import (
+    ABERRATIONS_F,
+    CAMERA_INTENSITY,
+    CAMERA_SAMPLING,
+    DATA_F,
+    FULL_INTENSITY,
+    FULL_SAMPLING,
+    RAW_DATA_P,
+    ZERNIKE_COEFFS,
+    ZERNIKE_TERMS,
+)
 from utils.hdf_read_and_write import read_hdf
 from utils.printing_and_logging import dec_print_indent, inc_print_indent
 
@@ -11,16 +19,17 @@ def raw_sim_data_chunk_paths(raw_data_tag):
     base_path = f'{RAW_DATA_P}/{raw_data_tag}'
     # Instead of globbing the paths, it is safer to load in the datafiles using
     # their chunk number so that they are guaranteed to be in order
-    chunk_numbers = sorted([
-        # Grab the number associated with each chunk
-        int(path.split('/')[-1][:-len(DATA_F) - 1])
-        # All datafiles should follow the format [chunk]_[DATA_F]
-        for path in glob(f'{base_path}/*_{DATA_F}')
-    ])
+    chunk_numbers = sorted(
+        [
+            # Grab the number associated with each chunk
+            int(path.split('/')[-1][: -len(DATA_F) - 1])
+            # All datafiles should follow the format [chunk]_[DATA_F]
+            for path in glob(f'{base_path}/*_{DATA_F}')
+        ]
+    )
     # The path to each chunk
     return [
-        f'{base_path}/{chunk_idx}_{DATA_F}'
-        for chunk_idx, _ in enumerate(chunk_numbers)
+        f'{base_path}/{chunk_idx}_{DATA_F}' for chunk_idx, _ in enumerate(chunk_numbers)
     ]
 
 

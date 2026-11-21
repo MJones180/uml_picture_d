@@ -75,10 +75,12 @@ def plot_zernike_response(
 
     # For this plot, we only care about elements along the main diagonal
     for term_idx, term in enumerate(zernike_terms):
-        ax.plot(perturbation_grid,
-                pred_groupings[:, term_idx, term_idx],
-                label=f'Z{term} {ZERNIKE_NAME_LOOKUP[term]}',
-                color=colors[term_idx])
+        ax.plot(
+            perturbation_grid,
+            pred_groupings[:, term_idx, term_idx],
+            label=f'Z{term} {ZERNIKE_NAME_LOOKUP[term]}',
+            color=colors[term_idx],
+        )
 
     # Set the labels
     tick_idxs = np.linspace(0, len(perturbation_grid) - 1, 7)

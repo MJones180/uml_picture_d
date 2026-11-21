@@ -61,10 +61,10 @@ def export_zernike_inputs_to_binary(cli_args):
         print(f'Loading in {simulated_data_tag}')
         try:
             aberrations, zernike_terms = load_raw_sim_data_aberrations_file(
-                simulated_data_tag)
-        except Exception:
-            terminate_with_message(
-                f'{ABERRATIONS_F} missing in {simulated_data_tag}')
+                simulated_data_tag
+            )
+        except Exception:  # NOQA BLE001
+            terminate_with_message(f'{ABERRATIONS_F} missing in {simulated_data_tag}')
         print(f'Adding {len(aberrations)} rows')
         all_aberrations.extend(aberrations)
 
