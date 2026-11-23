@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+import mpl_scatter_density  # noqa: F401
 from utils.constants import PLOT_STYLE_FILE
 from utils.idl_rainbow_cmap import idl_rainbow_cmap
 from utils.terminate_with_message import terminate_with_message
