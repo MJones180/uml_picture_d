@@ -3052,3 +3052,123 @@ After model testing, it is useful to rank the model analyses:
 
     python3 main.py model_test \
         sobol_v4 last test_sobol_v3 --scatter-plot 4 6 2 0 15 --norm-stability-value 0
+
+[V79] The `mlp_capture_1` tag:
+
+    python3 main_scnp.py model_train \
+        mlp_capture_1 train_fixed_2000_and_random_weighted_group_ranges_local_v7 \
+        val_fixed_2000_and_random_weighted_group_ranges_local_v7 \
+        llowfs_res_mlp_1 mse adamw 1e-2 1000 --batch-size 1024 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-one-cycle-lr-scheduler --drop-last --init-weights-kaiming-normal-simple 0.20 input blocks \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates --fix-seed 314
+
+    python3 main.py model_test \
+        mlp_capture_1 last test_fixed_2000_and_random_weighted_group_ranges_local_v7  \
+        --plot-loss-curves --plot-coeff-mae-smape 23 --plot-layerscale-gamma gamma \
+        --max-rows-per-model-call 1000 --plot-r2 --scatter-plot 4 6 2 0 15
+
+    python3 main.py model_test \
+        mlp_capture_1 last fixed_1nm_range_301_approx_processed \
+        --zernike-plots --enable-paper-plots 1 --disable-zernike-gif-plots \
+        --inputs-need-diff --llowfs-inputs-to-coeffs zernike_modes_32_1000_modes modes 1000 0
+
+    python3 main.py model_test \
+        mlp_capture_1 last fixed_50nm_range_approx_processed \
+        --zernike-plots --enable-paper-plots 1 --disable-zernike-gif-plots \
+        --inputs-need-diff --llowfs-inputs-to-coeffs zernike_modes_32_1000_modes modes 1000 0
+
+    python3 main.py model_test \
+        mlp_capture_1 last random_2nm_med_processed \
+        --scatter-plot 4 6 2 1e-7 15 --enable-paper-plots 1 --disable-zernike-gif-plots \
+        --inputs-need-diff --llowfs-inputs-to-coeffs zernike_modes_32_1000_modes modes 1000 0
+
+[V80] The `mlp_capture_2` tag:
+
+    python3 main_scnp.py model_train \
+        mlp_capture_2 train_fixed_2000_and_random_weighted_group_ranges_local_v7 \
+        val_fixed_2000_and_random_weighted_group_ranges_local_v7 \
+        llowfs_res_mlp_2 mse adamw 1e-2 1000 --batch-size 1024 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-one-cycle-lr-scheduler --drop-last --init-weights-kaiming-normal-simple 0.20 input blocks \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates --fix-seed 314
+
+    python3 main.py model_test \
+        mlp_capture_2 last test_fixed_2000_and_random_weighted_group_ranges_local_v7  \
+        --plot-loss-curves --plot-coeff-mae-smape 23 --plot-layerscale-gamma gamma \
+        --max-rows-per-model-call 1000 --plot-r2 --scatter-plot 4 6 2 0 15
+
+    python3 main.py model_test \
+        mlp_capture_2 last fixed_1nm_range_301_approx_processed \
+        --zernike-plots --enable-paper-plots 1 --disable-zernike-gif-plots \
+        --inputs-need-diff --llowfs-inputs-to-coeffs zernike_modes_32_1000_modes modes 1000 0
+
+    python3 main.py model_test \
+        mlp_capture_2 last fixed_50nm_range_approx_processed \
+        --zernike-plots --enable-paper-plots 1 --disable-zernike-gif-plots \
+        --inputs-need-diff --llowfs-inputs-to-coeffs zernike_modes_32_1000_modes modes 1000 0
+
+    python3 main.py model_test \
+        mlp_capture_2 last random_2nm_med_processed \
+        --scatter-plot 4 6 2 1e-7 15 --enable-paper-plots 1 --disable-zernike-gif-plots \
+        --inputs-need-diff --llowfs-inputs-to-coeffs zernike_modes_32_1000_modes modes 1000 0
+
+[V81] The `mlp_capture_3` tag:
+
+    python3 main_scnp.py model_train \
+        mlp_capture_3 train_fixed_2000_and_random_weighted_group_ranges_local_v7 \
+        val_fixed_2000_and_random_weighted_group_ranges_local_v7 \
+        llowfs_res_mlp_3 mse adamw 1e-2 1000 --batch-size 1024 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-one-cycle-lr-scheduler --drop-last --init-weights-kaiming-normal-simple 0.20 input blocks \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates --fix-seed 314
+
+    python3 main.py model_test \
+        mlp_capture_3 last test_fixed_2000_and_random_weighted_group_ranges_local_v7  \
+        --plot-loss-curves --plot-coeff-mae-smape 23 --plot-layerscale-gamma gamma \
+        --max-rows-per-model-call 1000 --plot-r2 --scatter-plot 4 6 2 0 15
+
+    python3 main.py model_test \
+        mlp_capture_3 last fixed_1nm_range_301_approx_processed \
+        --zernike-plots --enable-paper-plots 1 --disable-zernike-gif-plots \
+        --inputs-need-diff --llowfs-inputs-to-coeffs zernike_modes_32_1000_modes modes 1000 0
+
+    python3 main.py model_test \
+        mlp_capture_3 last fixed_50nm_range_approx_processed \
+        --zernike-plots --enable-paper-plots 1 --disable-zernike-gif-plots \
+        --inputs-need-diff --llowfs-inputs-to-coeffs zernike_modes_32_1000_modes modes 1000 0
+
+    python3 main.py model_test \
+        mlp_capture_3 last random_2nm_med_processed \
+        --scatter-plot 4 6 2 1e-7 15 --enable-paper-plots 1 --disable-zernike-gif-plots \
+        --inputs-need-diff --llowfs-inputs-to-coeffs zernike_modes_32_1000_modes modes 1000 0
+
+[V82] The `mlp_capture_4` tag:
+
+    python3 main_scnp.py model_train \
+        mlp_capture_4 train_fixed_2000_and_random_weighted_group_ranges_local_v7 \
+        val_fixed_2000_and_random_weighted_group_ranges_local_v7 \
+        llowfs_res_mlp_4 mse adamw 1e-2 1000 --batch-size 1024 \
+        --optimizer-params weight_decay 0.01 1 --optimizer-one-d-group-weight-decay 0 \
+        --use-one-cycle-lr-scheduler --drop-last --init-weights-kaiming-normal-simple 0.20 input blocks \
+        --overwrite-existing --only-best-epoch --disable-tag-lookup --save-learning-rates --fix-seed 314
+
+    python3 main.py model_test \
+        mlp_capture_4 last test_fixed_2000_and_random_weighted_group_ranges_local_v7  \
+        --plot-loss-curves --plot-coeff-mae-smape 23 --plot-layerscale-gamma gamma \
+        --max-rows-per-model-call 1000 --plot-r2 --scatter-plot 4 6 2 0 15
+
+    python3 main.py model_test \
+        mlp_capture_4 last fixed_1nm_range_301_approx_processed \
+        --zernike-plots --enable-paper-plots 1 --disable-zernike-gif-plots \
+        --inputs-need-diff --llowfs-inputs-to-coeffs zernike_modes_32_1000_modes modes 1000 0
+
+    python3 main.py model_test \
+        mlp_capture_4 last fixed_50nm_range_approx_processed \
+        --zernike-plots --enable-paper-plots 1 --disable-zernike-gif-plots \
+        --inputs-need-diff --llowfs-inputs-to-coeffs zernike_modes_32_1000_modes modes 1000 0
+
+    python3 main.py model_test \
+        mlp_capture_4 last random_2nm_med_processed \
+        --scatter-plot 4 6 2 1e-7 15 --enable-paper-plots 1 --disable-zernike-gif-plots \
+        --inputs-need-diff --llowfs-inputs-to-coeffs zernike_modes_32_1000_modes modes 1000 0

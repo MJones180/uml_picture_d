@@ -465,6 +465,21 @@ Just the Zernike wavefront without any propagation:
 
 ## Data Preprocessing
 
+The following can be used to create a Zernike basis:
+
+    python3 main.py create_zernike_basis_modes \
+            zernike_modes_32_1000_modes 1000 32 --flatten-data
+
+    # Then testing it...
+    python3 main.py analyze_basis_modes \
+        zernike_modes_32_1000_modes modes \
+        --reconstruct-data random_group_500_20_10 1000 ccd_intensity \
+        --display-from-mask random_group_500_20_10 ccd_intensity 0 \
+        --reconstruct-data-first-n-rows 2000 \
+        --reconstruct-data-select-row 0 --reconstruct-data-plots \
+        --plot-modes-range 0 10 --plot-orthogonality --print-mean-and-std \
+        --plot-explained-variance --compute-explained-variance
+
 This data can be used to generate the `zernike` plots:
 
     python3 main.py preprocess_data_bare fixed_50nm_range fixed_50nm_range_processed
@@ -878,6 +893,20 @@ Can be used for model training/validation:
         --additional-raw-data-tags random_group_50_10_5 random_group_15_5_2 random_group_10_2_1 random_10nm_large_approx \
         --additional-raw-data-tags-train-only fixed_50nm_range_2000_approx \
         --camera-for-wfs imperx_b0620 0.0025 2.1e8
+
+    # Based on `train_fixed_2000_and_random_weighted_group_ranges_local_v6` for wavefront capture
+    # Uses the Zernike basis for the input and does Z-score norm
+    python3 main.py preprocess_data_complete \
+        random_group_500_20_10 \
+        train_fixed_2000_and_random_weighted_group_ranges_local_v7 \
+        val_fixed_2000_and_random_weighted_group_ranges_local_v7 \
+        test_fixed_2000_and_random_weighted_group_ranges_local_v7 \
+        80 15 5 \
+        --switch-input-basis zernike_modes_32_1000_modes modes 1000 \
+        --inputs-sum-to-one --z-score-inputs --z-score-outputs-individual \
+        --use-field-diff no_aberrations \
+        --additional-raw-data-tags random_group_50_10_5 random_group_15_5_2 random_group_10_2_1 random_10nm_large_approx \
+        --additional-raw-data-tags-train-only fixed_50nm_range_2000_approx
 
     python3 main.py preprocess_data_complete \
         sobol_N19_v1 \
