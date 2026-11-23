@@ -79,6 +79,15 @@ def model_test_parser(subparsers):
         help='the inputs need to be normalized',
     )
     subparser.add_argument(
+        '--llowfs-inputs-to-coeffs',
+        nargs=4,
+        help=(
+            'convert the LLOWFS inputs to coefficients; use this option instead of '
+            '`--inputs-need-norm`; four args expected: modes tag, modes table, number '
+            'of modes to use, whether the modes should be transposed'
+        ),
+    )
+    subparser.add_argument(
         '--change-base-field',
         nargs='*',
         help=(
@@ -320,9 +329,39 @@ def model_test(cli_args):
         norm_stability_value = NORM_STABILITY_VALUE
     step_ri(f'Norm stability value: {norm_stability_value}')
 
-    if cli_args.get('inputs_need_norm'):
+    inputs_need_diff = cli_args.get('inputs_need_diff')
+    llowfs_inputs_to_coeffs = cli_args.get('llowfs_inputs_to_coeffs')
+    if llowfs_inputs_to_coeffs is not None:
+        step_ri('Converting LLOWFS input to coefficients')
+        if model.inputs_sum_to_one:
+            print('Making values sum to 1')
+            inputs = model.sum_inputs_to_one(inputs, (1, 2, 3))
+        if inputs_need_diff:
+            print('Subtracting off base field')
+            inputs = model.subtract_basefield(inputs)
+        inputs = inputs.reshape(len(inputs), -1)
+        modes_tag, modes_table, numb_modes, transpose_modes = llowfs_inputs_to_coeffs
+        print('Switching basis')
+        print(f'Basis modes for {modes_tag}')
+        print(f'Table name: {modes_table}')
+        print(f'Number of modes: {numb_modes}')
+        print(f'Transpose modes: {transpose_modes}')
+        modes_path = raw_sim_data_chunk_paths(modes_tag)[0]
+        modes_data = read_hdf(modes_path)[modes_table][:]
+        print(f'Modes shape: {modes_data.shape}')
+        if int(transpose_modes):
+            modes_data = np.transpose(modes_data)
+        modes_data = modes_data[: int(numb_modes)]
+        inputs = inputs @ np.linalg.pinv(modes_data)
+        if model.inputs_z_score_std is not None:
+            print('Z-score norm coeffs')
+            inputs = model.z_score_norm(inputs)
+        if model.input_norm_done:
+            print('Min-max norm coeffs')
+            inputs = model.norm_data(inputs, norm_stability_value)
+        inputs = inputs.astype(np.float32)
+    elif cli_args.get('inputs_need_norm'):
         step_ri('Preprocessing the inputs')
-        inputs_need_diff = cli_args.get('inputs_need_diff')
 
         def _norm_inputs(input_chunk, updated_base_field=None):
             if updated_base_field is not None:
