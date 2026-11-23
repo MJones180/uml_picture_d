@@ -24,21 +24,26 @@ from utils.constants import (
     INPUT_MIN_X,
     INPUTS,
     INPUTS_SUM_TO_ONE,
+    INPUTS_Z_SCORE_MEAN,
+    INPUTS_Z_SCORE_STD,
     NORM_RANGE_ONES_INPUT,
     NORM_RANGE_ONES_OUTPUT,
     OUTPUT_MAX_MIN_DIFF,
     OUTPUT_MIN_X,
+    OUTPUTS_Z_SCORE_MEAN,
+    OUTPUTS_Z_SCORE_STD,
     OUTPUTS,
     PROC_DATA_P,
     ZERNIKE_TERMS,
 )
 from utils.group_data_from_list import group_data_from_list
-from utils.hdf_read_and_write import HDFWriteModule
-from utils.load_raw_sim_data import load_raw_sim_data_chunks
-from utils.norm import find_min_max_norm, min_max_norm, sum_to_one
+from utils.hdf_read_and_write import HDFWriteModule, read_hdf
+from utils.load_raw_sim_data import load_raw_sim_data_chunks, raw_sim_data_chunk_paths
+from utils.norm import find_min_max_norm, min_max_norm, sum_to_one, z_score_normalize
 from utils.path import make_dir
 from utils.printing_and_logging import step_ri, title
 from utils.simulate_camera import simulate_camera
+from utils.stats_and_error import mse
 from utils.terminate_with_message import terminate_with_message
 
 OUTPUT_NORM_OPTIONS = ['globally', 'individually']
@@ -98,6 +103,11 @@ def preprocess_data_complete_parser(subparsers):
         help='make the pixel values in each input sum to 1',
     )
     subparser.add_argument(
+        '--z-score-inputs',
+        action='store_true',
+        help='z-score normalize the inputs',
+    )
+    subparser.add_argument(
         '--norm-outputs',
         choices=OUTPUT_NORM_OPTIONS,
         help=(
@@ -109,6 +119,14 @@ def preprocess_data_complete_parser(subparsers):
         '--norm-outputs-round',
         type=int,
         help='round the norm values to the nearest n decimal place',
+    )
+    subparser.add_argument(
+        '--z-score-outputs-individual',
+        action='store_true',
+        help=(
+            'z-score normalize the outputs; every output value is '
+            'normalized independently'
+        ),
     )
     subparser.add_argument(
         '--norm-range-ones',
@@ -157,6 +175,15 @@ def preprocess_data_complete_parser(subparsers):
             'additional raw simulated data to preprocess and merge '
             'together, however, this data will only go in the '
             'training dataset'
+        ),
+    )
+    subparser.add_argument(
+        '--switch-input-basis',
+        nargs=3,
+        help=(
+            'switch to a different basis for the input; three arguments expected: '
+            'raw data tag containing modes, name of table in modes file, '
+            'number of modes to use'
         ),
     )
     subparser.add_argument(
@@ -393,6 +420,32 @@ def preprocess_data_complete(cli_args):
 
     # ==========================================================================
 
+    switch_input_basis = cli_args.get('switch_input_basis')
+    if switch_input_basis is not None:
+        step_ri('Switching input basis')
+        modes_tag, modes_table, numb_modes = switch_input_basis
+        print(f'Modes tag: {modes_tag}')
+        print(f'Modes table name: {modes_table}')
+        print(f'Max modes: {numb_modes}')
+        modes_data = read_hdf(raw_sim_data_chunk_paths(modes_tag)[0])
+        modes = modes_data[modes_table][:][: int(numb_modes)]
+        # Invert the modes
+        modes_inv = np.linalg.pinv(modes)
+        # Need to reshape the input data and flatten it
+        input_data = input_data.reshape(len(input_data), -1)
+        # Store the original table data for comparisons
+        input_data_orig = input_data
+        # The coefficients in the new basis
+        input_data = input_data @ modes_inv
+        print(f'Input shape: {input_data.shape}')
+        # What the data look like in the new basis
+        reconstructed_input = input_data @ modes
+        # The error when switching to the new basis representation
+        error = mse(input_data_orig, reconstructed_input)
+        print(f'Reconstruction MSE error of {error:0.3e}')
+
+    # ==========================================================================
+
     step_ri('Shuffling')
     random_shuffle_idxs = np.random.permutation(len(input_data))
     input_data = input_data[random_shuffle_idxs]
@@ -435,7 +488,7 @@ def preprocess_data_complete(cli_args):
 
     if use_field_diff:
         # Add a row with no aberrations to the training data
-        train_inputs = np.vstack((train_inputs, np.zeros_like(base_field)[None]))
+        train_inputs = np.vstack((train_inputs, np.zeros_like(train_inputs[0])))
         train_outputs = np.vstack((train_outputs, np.zeros(len(zernike_terms))[None]))
 
     def _print_split(word, percentage, inputs):
@@ -453,6 +506,21 @@ def preprocess_data_complete(cli_args):
     norm_values = {NORM_RANGE_ONES_INPUT: nro, NORM_RANGE_ONES_OUTPUT: nro}
     if cli_args.get('disable_norm_inputs'):
         print('Not performing any input normalization')
+    elif cli_args['z_score_inputs']:
+        step_ri('Z-score input normalization')
+        inputs_mean = np.mean(train_inputs)
+        inputs_std = np.std(train_inputs)
+        norm_values[INPUTS_Z_SCORE_MEAN] = inputs_mean
+        norm_values[INPUTS_Z_SCORE_STD] = inputs_std
+        train_inputs = z_score_normalize(train_inputs, inputs_mean, inputs_std)
+        print(f'Train min: {np.min(train_inputs)}')
+        print(f'Train max: {np.max(train_inputs)}')
+        val_inputs = z_score_normalize(val_inputs, inputs_mean, inputs_std)
+        print(f'Validation min: {np.min(val_inputs)}')
+        print(f'Validation max: {np.max(val_inputs)}')
+        test_inputs = z_score_normalize(test_inputs, inputs_mean, inputs_std)
+        print(f'Test min: {np.min(test_inputs)}')
+        print(f'Test max: {np.max(test_inputs)}')
     else:
         print('Globally normalizing inputs of training data')
         train_inputs, max_min_diff, min_x = find_min_max_norm(
@@ -473,6 +541,22 @@ def preprocess_data_complete(cli_args):
 
     step_ri('Normalizing outputs')
     output_normalization = True
+
+    z_score_outputs_individual = cli_args['z_score_outputs_individual']
+    if z_score_outputs_individual:
+        print('Z-score output normalization (individual)')
+        outputs_mean = np.mean(train_outputs, axis=0)
+        outputs_std = np.std(train_outputs, axis=0)
+        norm_values[OUTPUTS_Z_SCORE_MEAN] = outputs_mean
+        norm_values[OUTPUTS_Z_SCORE_STD] = outputs_std
+        train_outputs = z_score_normalize(train_outputs, outputs_mean, outputs_std)
+        print(f'Train min: {np.min(train_outputs)}')
+        print(f'Train max: {np.max(train_outputs)}')
+        val_outputs = z_score_normalize(val_outputs, outputs_mean, outputs_std)
+        print(f'Validation min: {np.min(val_outputs)}')
+        print(f'Validation max: {np.max(val_outputs)}')
+        output_normalization = False
+
     norm_outputs_round = cli_args.get('norm_outputs_round')
     if norm_outputs_round:
         print(
