@@ -36,6 +36,11 @@ def create_zernike_basis_modes_parser(subparsers):
             'to mask the data; two args expected: raw tag name, table name'
         ),
     )
+    subparser.add_argument(
+        '--flatten-data',
+        action='store_true',
+        help='flatten the modes',
+    )
 
 
 def create_zernike_basis_modes(cli_args):
@@ -63,6 +68,8 @@ def create_zernike_basis_modes(cli_args):
         print(f'Mask shape: {mask.shape}')
         modes = modes[:, mask]
         print(f'Modes shape: {modes.shape}')
+    elif cli_args['flatten_data']:
+        modes = modes.reshape(numb_modes, -1)
 
     step_ri('Performing QR decomposition on the modes')
     # Gives each mode a zero mean and unit norm; makes orthonormal modes
