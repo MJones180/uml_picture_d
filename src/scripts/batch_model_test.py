@@ -37,6 +37,15 @@ def batch_model_test_parser(subparsers):
         help='the inputs need to be normalized',
     )
     subparser.add_argument(
+        '--llowfs-inputs-to-coeffs',
+        nargs=4,
+        help=(
+            'convert the LLOWFS inputs to coefficients; use this option instead of '
+            '`--inputs-need-norm`; four args expected: modes tag, modes table, number '
+            'of modes to use, whether the modes should be transposed'
+        ),
+    )
+    subparser.add_argument(
         '--outputs-no-denorm',
         action='store_true',
         help='the outputs do not need to be denormalized',
@@ -251,6 +260,7 @@ def batch_model_test(cli_args):
             'testing_ds',
             'inputs_need_diff',
             'inputs_need_norm',
+            'llowfs_inputs_to_coeffs',
             'outputs_no_denorm',
             'scatter_plot',
             'zernike_plots',
